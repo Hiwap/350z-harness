@@ -37,18 +37,26 @@
   .sw i { width: 12px; height: 12px; border-radius: 3px; border: 2px solid; display: inline-block; background: transparent; }
   body[data-mode="solid"] .sw i { background: currentColor; border-color: #111; }
 
-  #ecm { overflow: auto; }
-  .blocks { display: flex; gap: 10px; align-items: flex-start; justify-content: center; min-width: 980px; padding: 8px 0 4px; }
-  .block { display: flex; flex-direction: column; gap: 3px; }
+  #ecm {
+    overflow-x: hidden; overflow-y: auto; min-width: 0;
+    --pin-w: 34px; --pin-h: 32px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 10px; --pin-sm: 8px;
+  }
+  .blocks {
+    display: flex; gap: var(--block-gap, 10px); align-items: flex-start;
+    justify-content: center; flex-wrap: nowrap;
+    min-width: 0; width: 100%; padding: 8px 0 4px; overflow-x: hidden;
+  }
+  .block { display: flex; flex-direction: column; gap: 3px; flex: 0 0 auto; }
   .block .tag { text-align: center; font-size: 11px; color: #c5cad3; margin-top: 4px; font-weight: 600; }
-  .row { display: flex; gap: 3px; }
+  .row { display: flex; gap: var(--pin-gap, 3px); }
   .pin {
-    width: 34px; height: 32px; border-radius: 5px; border: 2.5px solid #555;
-    background: #12161d; color: #eee; font-size: 10px; font-weight: 700;
+    width: var(--pin-w, 34px); height: var(--pin-h, 32px); border-radius: 5px; border: 2.5px solid #555;
+    background: #12161d; color: #eee; font-size: var(--pin-fs, 10px); font-weight: 700;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     cursor: pointer; line-height: 1.05; user-select: none; position: relative;
+    flex: 0 0 auto;
   }
-  .pin small { font-size: 8px; font-weight: 700; opacity: 1; }
+  .pin small { font-size: var(--pin-sm, 8px); font-weight: 700; opacity: 1; }
   .pin.empty, .pin.unused {
     border-style: dashed; border-color: #333; color: #555;
     cursor: default; pointer-events: none;
@@ -99,9 +107,10 @@
   .ficha-sec > summary::-webkit-details-marker { display: none; }
 
   .ficha-sec > summary::before {
-    content: '▾'; color: var(--accent); font-size: 11px; transition: transform .15s ease;
+    content: '▾'; color: var(--accent); font-size: 11px; display: inline-block;
+    margin-right: 2px; opacity: 1; transition: opacity .15s ease;
   }
-  .ficha-sec:not([open]) > summary::before { transform: rotate(-90deg); display: inline-block; }
+  .ficha-sec:not([open]) > summary::before { opacity: 0.5; }
   .ficha-sec > summary span { color: #c5cad3; font-weight: 500; font-size: 11px; }
   .ficha-sec[open] > summary { border-bottom: 1px solid var(--border); border-radius: 10px 10px 0 0; }
   .fichas-body { padding: 6px 8px 10px; display: flex; flex-direction: column; gap: 6px; }
@@ -115,9 +124,10 @@
   }
   .ficha-sub > summary::-webkit-details-marker { display: none; }
   .ficha-sub > summary::before {
-    content: '▸'; color: #78909c; font-size: 10px; display: inline-block; transition: transform .15s ease;
+    content: '▾'; color: #78909c; font-size: 10px; display: inline-block;
+    margin-right: 4px; opacity: 1; transition: opacity .15s ease;
   }
-  .ficha-sub[open] > summary::before { transform: rotate(90deg); }
+  .ficha-sub:not([open]) > summary::before { opacity: 0.5; }
   .ficha-sub[open] > summary { border-bottom: 1px solid #2a3140; }
   .fichas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; padding: 10px; }
   .ficha {
@@ -135,8 +145,9 @@
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.hl-end .cav-face { stroke: var(--hl2) !important; stroke-width: 2.5; }
   .cav-hit.hl-group .cav-face { stroke: #ab47bc !important; stroke-width: 2; }
-  .cav-label { font-size: 8.5px; font-weight: 800; fill: #111; pointer-events: none; }
-  .cav-sub { font-size: 7px; font-weight: 700; fill: #222; pointer-events: none; }
+  .cav-label { font-size: 7px; font-weight: 800; fill: #111; pointer-events: none; opacity: 0.9; }
+  .cav-sub, .cav-code { font-size: 7.5px; font-weight: 800; fill: #222; pointer-events: none; }
+  .cav-ecm { font-size: 7px; font-weight: 700; fill: #222; pointer-events: none; opacity: 0.95; }
   .lock-tab { fill: #263238; stroke: #78909c; stroke-width: 1.2; }
   .shell { fill: #0f1319; stroke-width: 1.8; }
   .cavity { stroke-width: 2; }
@@ -164,10 +175,10 @@
   }
   details.opts > summary::-webkit-details-marker { display: none; }
   details.opts > summary::before {
-    content: '▸'; color: var(--accent); font-size: 10px; display: inline-block;
-    margin-right: 6px; transition: transform .15s ease;
+    content: '▾'; color: var(--accent); font-size: 10px; display: inline-block;
+    margin-right: 6px; opacity: 1; transition: opacity .15s ease;
   }
-  details.opts[open] > summary::before { transform: rotate(90deg); }
+  details.opts:not([open]) > summary::before { opacity: 0.5; }
   details.opts[open] > summary { border-bottom: 1px solid var(--border); }
   details.opts .controls { padding: 8px 10px 10px; }
 
@@ -182,62 +193,65 @@
   }
   details.warn-box > summary::-webkit-details-marker { display: none; }
   details.warn-box > summary::before {
-    content: '▸'; color: #ffb74d; font-size: 10px; display: inline-block;
-    margin-right: 6px; transition: transform .15s ease;
+    content: '▾'; color: #ffb74d; font-size: 10px; display: inline-block;
+    margin-right: 6px; opacity: 1; transition: opacity .15s ease;
   }
-  details.warn-box[open] > summary::before { transform: rotate(90deg); }
+  details.warn-box:not([open]) > summary::before { opacity: 0.5; }
   details.warn-box .orient {
     margin: 0; border-radius: 0; border-left: none; border-right: none; border-bottom: none;
   }
 
-  /* landscape / wide horizontal: show full ECM pin grid */
-  @media (orientation: landscape) and (max-height: 900px) {
-    main {
-      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-      gap: 8px; padding: 8px;
-    }
-    #ecm { overflow: auto; min-width: 0; }
-    .blocks {
-      min-width: 0; gap: 6px; padding: 4px 0;
-      justify-content: flex-start; flex-wrap: nowrap;
-    }
-    .block { gap: 2px; }
-    .row { gap: 2px; }
-    .pin {
-      width: 22px; height: 20px; font-size: 8px; border-radius: 3px;
-      border-width: 2px;
-    }
-    .pin small { font-size: 6.5px; }
+  /* Progressive pin sizes so 4 ECM blocks fit without horizontal scroll */
+  @media (max-width: 1100px) {
+    #ecm { --pin-w: 28px; --pin-h: 26px; --pin-gap: 2px; --block-gap: 8px; --pin-fs: 9px; --pin-sm: 7px; }
+  }
+  @media (max-width: 900px) {
+    #ecm { --pin-w: 24px; --pin-h: 22px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
+    .pin { border-width: 2px; border-radius: 4px; }
     .pin.has-tracer::after { inset: 1px; border-width: 1.5px; }
-    .block .tag { font-size: 10px; margin-top: 2px; }
-    .fichas { max-height: 78vh; }
   }
-  @media (orientation: landscape) and (min-width: 900px) and (max-height: 900px) {
-    main { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
-    .pin { width: 26px; height: 24px; font-size: 9px; }
-    .pin small { font-size: 7px; }
+  @media (max-width: 700px) {
+    #ecm { --pin-w: 20px; --pin-h: 18px; --pin-gap: 1.5px; --block-gap: 5px; --pin-fs: 7px; --pin-sm: 5.5px; }
   }
-  @media (orientation: landscape) and (max-width: 899px) and (max-height: 500px) {
-    .pin { width: 18px; height: 17px; font-size: 7px; }
-    .pin small { font-size: 5.5px; }
-    .blocks { gap: 4px; }
+  @media (max-width: 500px) {
+    #ecm { --pin-w: 16px; --pin-h: 15px; --pin-gap: 1px; --block-gap: 4px; --pin-fs: 6px; --pin-sm: 5px; }
+    .pin { border-radius: 3px; border-width: 1.5px; }
+    .block .tag { font-size: 9px; }
   }
 
-  /* mobile: smaller fichas + contrast */
+  /* landscape phone: stack columns so ECM uses full width first */
+  @media (orientation: landscape) and (max-width: 1100px) {
+    main { grid-template-columns: 1fr; gap: 8px; padding: 8px; }
+    #ecm { order: -1; }
+    .fichas { max-height: 55vh; }
+  }
+  @media (orientation: landscape) and (max-height: 500px) {
+    main { grid-template-columns: 1fr; }
+    #ecm { order: -1; --pin-w: 16px; --pin-h: 15px; --pin-gap: 1px; --block-gap: 4px; --pin-fs: 6px; --pin-sm: 5px; }
+    .pin { border-radius: 3px; border-width: 1.5px; }
+    .block .tag { font-size: 9px; margin-top: 2px; }
+  }
+
+  /* mobile / portrait: taller fichas + two-line cavity labels */
   @media (max-width: 700px) {
-    .pin { font-size: 11px; }
-    .pin small { font-size: 8.5px; }
-    .cav-sub { font-size: 7.5px; }
-    .ficha { padding: 5px; border-radius: 8px; }
+    .cav-sub, .cav-code { font-size: 7.5px; }
+    .cav-ecm { font-size: 7px; }
+    .cav-label { font-size: 7px; }
+    .ficha { padding: 6px; border-radius: 8px; }
     .ficha h3 { font-size: 11px; }
     .ficha .meta { font-size: 10px; color: #dde1e8; margin-bottom: 4px; }
     .fichas-grid {
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 6px; padding: 6px;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px; padding: 8px;
     }
-    .conn-svg { max-height: 58px; width: 100%; }
+    .conn-svg { max-height: none; width: 100%; }
+    .fichas { max-height: 78vh; }
     .info { color: #e8eaed; }
     .orient { font-size: 12px; padding: 7px 8px; }
+  }
+  @media (orientation: portrait) and (max-width: 900px) {
+    .conn-svg { max-height: none; }
+    .fichas { max-height: 80vh; }
   }
 </style>
 </head>
@@ -626,7 +640,7 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 function cavGroup(cid, pin, x, y, w, h, rx){
   const code = pin.code || '';
-  const ecm = pin.ecm != null ? ('→'+pin.ecm) : '';
+  const ecmTxt = pin.ecm != null ? ('→'+pin.ecm) : '—';
   const wcol = parseWire(code);
   const sc = wcol.c1;
   const rx0 = rx||3;
@@ -646,13 +660,18 @@ function cavGroup(cid, pin, x, y, w, h, rx){
     : '';
   const mode = document.body.dataset.mode || 'outlines';
   const txtFill = mode === 'solid' ? fgForWire(wcol) : '#111';
+  /* tiny cavity id header · color code top · ECM pin bottom */
+  const idY = y + 9;
+  const codeY = y + h/2 + 2;
+  const ecmY = y + h - 5;
   return `<g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}" role="button">
     ${defs}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
     ${inset}
-    <text class="cav-label" x="${x+w/2}" y="${y+h/2-2}" text-anchor="middle" fill="${txtFill}">${esc(pin.id)}</text>
-    <text class="cav-sub" x="${x+w/2}" y="${y+h/2+8}" text-anchor="middle" fill="${txtFill}">${esc(code)}${esc(ecm)}</text>
+    <text class="cav-label" x="${x+w/2}" y="${idY}" text-anchor="middle" fill="${txtFill}">${esc(pin.id)}</text>
+    <text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" fill="${txtFill}">${esc(code)}</text>
+    <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" fill="${txtFill}">${esc(ecmTxt)}</text>
   </g>`;
 }
 
@@ -660,25 +679,25 @@ function cavGroup(cid, pin, x, y, w, h, rx){
 function svgAf6(cid, f){
   const byId = Object.fromEntries(f.pins.map(p=>[p.id,p]));
   const orderTop = ['5','3','1'], orderBot = ['6','4','2'];
-  const W=148, H=78;
+  const W=148, H=100;
   let cavities='';
-  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 18+i*42, 22, 36, 22, 4); });
-  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 18+i*42, 48, 36, 22, 4); });
+  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 18+i*42, 20, 36, 34, 4); });
+  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 18+i*42, 58, 36, 34, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M58 2 h32 l6 10 H52 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="140" height="62" rx="6" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="140" height="84" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgRect6(cid, f){
-  const W=148, H=78;
+  const W=148, H=100;
   let cavities='';
-  f.pins.slice(0,3).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*42, 22, 36, 22, 4); });
-  f.pins.slice(3,6).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*42, 48, 36, 22, 4); });
+  f.pins.slice(0,3).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*42, 20, 36, 34, 4); });
+  f.pins.slice(3,6).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*42, 58, 36, 34, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M58 2 h32 l6 10 H52 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="140" height="62" rx="6" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="140" height="84" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -686,24 +705,24 @@ function svgRect6(cid, f){
 function svgTabN(cid, f, n){
   const cols = Math.min(n, f.pins.length);
   const W = 28 + cols*40;
-  const H = 58;
+  const H = 72;
   let cavities='';
-  f.pins.slice(0,cols).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*40, 24, 34, 26, 4); });
+  f.pins.slice(0,cols).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*40, 24, 34, 38, 4); });
   const tabX = W/2 - 16;
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${tabX} 2 h32 l5 10 H${tabX-5} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="${W-8}" height="42" rx="5" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="56" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgRect4(cid, f){
-  const W=130, H=58;
+  const W=134, H=72;
   let cavities='';
-  f.pins.slice(0,4).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 12+i*28, 22, 24, 28, 3); });
+  f.pins.slice(0,4).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 12+i*30, 22, 26, 38, 3); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M49 2 h32 l5 10 H44 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="122" height="42" rx="5" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M51 2 h32 l5 10 H46 Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="126" height="56" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -712,6 +731,7 @@ function svgRing(cid, f){
   const p = f.pins[0];
   const wcol = parseWire(p.code);
   const sc = wcol.c1;
+  const ecmTxt = p.ecm != null ? ('→'+p.ecm) : '—';
   const safeId = String(cid).replace(/[^A-Za-z0-9_-]/g,'_') + '-' + String(p.id).replace(/[^A-Za-z0-9_-]/g,'_');
   const gid = 'grad-' + safeId;
   let defs = '';
@@ -723,81 +743,82 @@ function svgRing(cid, f){
     fillVal = `url(#${gid})`;
   }
   const inset = wcol.tracer
-    ? `<circle class="cav-tracer" cx="45" cy="36" r="7" fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
+    ? `<circle class="cav-tracer" cx="45" cy="34" r="7" fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
   const mode = document.body.dataset.mode || 'outlines';
   const txtFill = mode === 'solid' ? fgForWire(wcol) : '#111';
-  return `<svg class="conn-svg" viewBox="0 0 90 70" xmlns="http://www.w3.org/2000/svg">
+  return `<svg class="conn-svg" viewBox="0 0 90 84" xmlns="http://www.w3.org/2000/svg">
     <g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(p.id)}">
       ${defs}
-      <circle class="cav-face" cx="45" cy="36" r="22" fill="none" stroke="${f.accent}" stroke-width="3"/>
-      <circle class="cavity cav-face" cx="45" cy="36" r="10" style="stroke:${sc};--cav-fill:${fillVal}"/>
+      <circle class="cav-face" cx="45" cy="34" r="22" fill="none" stroke="${f.accent}" stroke-width="3"/>
+      <circle class="cavity cav-face" cx="45" cy="34" r="10" style="stroke:${sc};--cav-fill:${fillVal}"/>
       ${inset}
-      <text class="cav-label" x="45" y="32" text-anchor="middle" fill="${txtFill}">${esc(p.id)}</text>
-      <text class="cav-sub" x="45" y="58" text-anchor="middle" fill="${txtFill}">${esc(p.code)}</text>
+      <text class="cav-label" x="45" y="30" text-anchor="middle" fill="${txtFill}">${esc(p.id)}</text>
+      <text class="cav-sub cav-code" x="45" y="64" text-anchor="middle" fill="${txtFill}">${esc(p.code||'')}</text>
+      <text class="cav-ecm" x="45" y="76" text-anchor="middle" fill="${txtFill}">${esc(ecmTxt)}</text>
     </g>
   </svg>`;
 }
 
 function svgIpdm(cid, f){
-  const W=150, H=58;
+  const W=150, H=72;
   let cavities='';
-  f.pins.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*60, 22, 52, 28, 4); });
+  f.pins.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*60, 22, 52, 38, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M55 2 h40 l6 10 H49 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="142" height="42" rx="5" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="142" height="56" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgDlc(cid, f){
   // Simplified OBD trapezoid outline + key pins
-  const W=160, H=72;
+  const W=160, H=84;
   let cavities='';
   const layout = [
-    {id:'16', x:18, y:20}, {id:'6', x:52, y:20}, {id:'14', x:86, y:20}, {id:'4/5', x:120, y:20}
+    {id:'16', x:16, y:18}, {id:'6', x:50, y:18}, {id:'14', x:84, y:18}, {id:'4/5', x:118, y:18}
   ];
   const byId = Object.fromEntries(f.pins.map(p=>[p.id,p]));
   layout.forEach(pos=>{
     const p = byId[pos.id];
-    if(p) cavities+=cavGroup(cid,p, pos.x, pos.y, 30, 36, 3);
+    if(p) cavities+=cavGroup(cid,p, pos.x, pos.y, 32, 42, 3);
   });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="shell" d="M12 12 L148 12 L140 64 L20 64 Z" style="stroke:${f.accent};fill:#0f1319"/>
+    <path class="shell" d="M10 10 L150 10 L142 74 L18 74 Z" style="stroke:${f.accent};fill:#0f1319"/>
     ${cavities}
   </svg>`;
 }
 
 function svgBox(cid, f){
-  const W=120, H=52;
+  const W=120, H=66;
   let cavities='';
-  f.pins.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*50, 14, 44, 28, 3); });
+  f.pins.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*50, 12, 44, 42, 3); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <rect class="shell" x="4" y="4" width="112" height="44" rx="3" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="4" width="112" height="58" rx="3" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgClock(cid, f){
-  const W=130, H=78;
+  const W=130, H=94;
   let cavities='';
-  f.pins.slice(0,2).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*52, 40, 44, 26, 4); });
+  f.pins.slice(0,2).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*52, 42, 44, 38, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <circle class="shell" cx="65" cy="28" r="20" style="stroke:${f.accent};fill:#0f1319"/>
     <path d="M65 16 a12 12 0 0 1 0 24 a8 8 0 0 0 0 -16" fill="none" stroke="${f.accent}" stroke-width="1.6" opacity=".85"/>
     <text x="65" y="32" text-anchor="middle" font-size="8" fill="#90caf9" font-weight="700">clock</text>
-    <rect class="shell" x="8" y="34" width="114" height="38" rx="6" style="stroke:${f.accent}"/>
+    <rect class="shell" x="8" y="34" width="114" height="54" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgNote(cid, f){
-  const W=148, H=64;
+  const W=148, H=78;
   const pins = (f.pins||[]).slice(0,2);
   let cavities='';
-  pins.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*66, 28, 58, 26, 4); });
+  pins.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*66, 28, 58, 38, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <rect class="shell" x="4" y="4" width="140" height="56" rx="6" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="4" width="140" height="70" rx="6" style="stroke:${f.accent}"/>
     <text x="74" y="18" text-anchor="middle" font-size="8" fill="#90caf9" font-weight="700">vía bus / meter</text>
     ${cavities}
   </svg>`;
@@ -1102,6 +1123,40 @@ function renderECM(){
     const tagEl=document.createElement('div'); tagEl.className='tag'; tagEl.textContent=tag; blk.appendChild(tagEl);
     blocksEl.appendChild(blk);
   });
+  requestAnimationFrame(fitEcmPins);
+}
+
+/** Scale ECM pin CSS vars so the 4-block grid fits without horizontal scroll */
+function fitEcmPins(){
+  const ecm = document.getElementById('ecm');
+  const blocks = document.getElementById('blocks');
+  if(!ecm || !blocks || !blocks.querySelector('.pin')) return;
+  const avail = ecm.clientWidth - 8;
+  if(avail <= 0) return;
+  // Measure natural width at a known baseline, then shrink until it fits
+  const baseW = 34, baseH = 32, baseGap = 3, baseBlockGap = 10;
+  ecm.style.setProperty('--pin-w', baseW + 'px');
+  ecm.style.setProperty('--pin-h', baseH + 'px');
+  ecm.style.setProperty('--pin-gap', baseGap + 'px');
+  ecm.style.setProperty('--block-gap', baseBlockGap + 'px');
+  ecm.style.setProperty('--pin-fs', '10px');
+  ecm.style.setProperty('--pin-sm', '8px');
+  void blocks.offsetWidth;
+  let need = blocks.scrollWidth;
+  if(need <= avail) return;
+  const scale = Math.max(0.35, Math.min(1, (avail - 2) / need));
+  const pinW = Math.max(12, Math.floor(baseW * scale));
+  const pinH = Math.max(11, Math.floor(baseH * scale));
+  const gap = Math.max(1, Math.round(baseGap * scale));
+  const bgap = Math.max(2, Math.round(baseBlockGap * scale));
+  const fs = Math.max(5.5, Math.round(10 * scale * 10) / 10);
+  const sm = Math.max(4.5, Math.round(8 * scale * 10) / 10);
+  ecm.style.setProperty('--pin-w', pinW + 'px');
+  ecm.style.setProperty('--pin-h', pinH + 'px');
+  ecm.style.setProperty('--pin-gap', gap + 'px');
+  ecm.style.setProperty('--block-gap', bgap + 'px');
+  ecm.style.setProperty('--pin-fs', fs + 'px');
+  ecm.style.setProperty('--pin-sm', sm + 'px');
 }
 
 function makeFichaEl(id, f){
@@ -1355,6 +1410,20 @@ document.getElementById('model').addEventListener('change', applyModel);
 document.getElementById('colorMode').addEventListener('change', applyColorMode);
 document.getElementById('ecmOrient').addEventListener('change', applyOrient);
 document.getElementById('lang').addEventListener('change', applyLang);
+
+(function setupEcmFit(){
+  const ecm = document.getElementById('ecm');
+  if(!ecm) return;
+  let t = null;
+  const schedule = () => {
+    clearTimeout(t);
+    t = setTimeout(fitEcmPins, 40);
+  };
+  window.addEventListener('resize', schedule);
+  if(typeof ResizeObserver !== 'undefined'){
+    new ResizeObserver(schedule).observe(ecm);
+  }
+})();
 
 document.getElementById('clear').onclick=()=>{
   clearHL();
