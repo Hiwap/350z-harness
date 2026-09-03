@@ -38,13 +38,13 @@
   body[data-mode="solid"] .sw i { background: currentColor; border-color: #111; }
 
   #ecm {
-    overflow-x: hidden; overflow-y: auto; min-width: 0;
+    overflow-x: auto; overflow-y: auto; min-width: 0;
     --pin-w: 34px; --pin-h: 32px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 10px; --pin-sm: 8px;
   }
   .blocks {
     display: flex; gap: var(--block-gap, 10px); align-items: flex-start;
     justify-content: center; flex-wrap: nowrap;
-    min-width: 0; width: 100%; padding: 8px 0 4px; overflow-x: hidden;
+    min-width: max-content; width: max-content; max-width: none; padding: 8px 0 4px; overflow-x: visible;
   }
   .block { display: flex; flex-direction: column; gap: 3px; flex: 0 0 auto; }
   .block .tag { text-align: center; font-size: 11px; color: #c5cad3; margin-top: 4px; font-weight: 600; }
@@ -201,21 +201,14 @@
     margin: 0; border-radius: 0; border-left: none; border-right: none; border-bottom: none;
   }
 
-  /* Progressive pin sizes so 4 ECM blocks fit without horizontal scroll */
-  @media (max-width: 1100px) {
+  /* Mild mobile shrink only — keep recognizable EC-123 proportions (≥24px); scroll if needed */
+  @media (max-width: 900px) {
     #ecm { --pin-w: 28px; --pin-h: 26px; --pin-gap: 2px; --block-gap: 8px; --pin-fs: 9px; --pin-sm: 7px; }
   }
-  @media (max-width: 900px) {
+  @media (max-width: 600px) {
     #ecm { --pin-w: 24px; --pin-h: 22px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
     .pin { border-width: 2px; border-radius: 4px; }
     .pin.has-tracer::after { inset: 1px; border-width: 1.5px; }
-  }
-  @media (max-width: 700px) {
-    #ecm { --pin-w: 20px; --pin-h: 18px; --pin-gap: 1.5px; --block-gap: 5px; --pin-fs: 7px; --pin-sm: 5.5px; }
-  }
-  @media (max-width: 500px) {
-    #ecm { --pin-w: 16px; --pin-h: 15px; --pin-gap: 1px; --block-gap: 4px; --pin-fs: 6px; --pin-sm: 5px; }
-    .pin { border-radius: 3px; border-width: 1.5px; }
     .block .tag { font-size: 9px; }
   }
 
@@ -227,8 +220,8 @@
   }
   @media (orientation: landscape) and (max-height: 500px) {
     main { grid-template-columns: 1fr; }
-    #ecm { order: -1; --pin-w: 16px; --pin-h: 15px; --pin-gap: 1px; --block-gap: 4px; --pin-fs: 6px; --pin-sm: 5px; }
-    .pin { border-radius: 3px; border-width: 1.5px; }
+    #ecm { order: -1; --pin-w: 24px; --pin-h: 22px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
+    .pin { border-radius: 4px; border-width: 2px; }
     .block .tag { font-size: 9px; margin-top: 2px; }
   }
 
@@ -367,7 +360,7 @@ const PIN_COL = {"1":"B","2":"GY/R","3":"G","4":"L/B","5":"L/Y","6":"P/L","10":"
 
 const PIN_NAME = {
   1:"GND ECM",2:"A/F heater B1",3:"VMOT alim",4:"TB motor −",5:"TB motor +",
-  6:"HO2S2 htr B2",10:"VTC intake B2",11:"VTC intake B1",13:"CKP signal",14:"CMP B2",15:"Knock",
+  6:"HO2S2 htr B2",10:"VTC intake B2",11:"VTC intake B1",12:"PSP sensor",13:"CKP signal",14:"CMP B2",15:"Knock",
   16:"A/F B1 input",21:"INJ5",22:"INJ3",23:"INJ1",24:"A/F heater B2",25:"HO2S2 htr B1",
   32:"EVAP press",33:"CMP B1",34:"IAT",35:"A/F B1",40:"INJ6",41:"INJ4",42:"INJ2",
   45:"EVAP purge",47:"5V rail",48:"5V EVAP",49:"5V A/C",50:"TPS1",51:"MAF",
@@ -413,11 +406,11 @@ let CIRCUITS = [];
 function buildCircuits(model){
   const base = [
     {id:'af_b1', title:'A/F Sensor 1 Bank 1', color:'#ef6c00',
-      ecm:[2,16,35,56,75], conn:['af_b1'], notes:'Calentador B1 → ECM 2 (GY/R). Pin 3 = 12V fusible (no ECM). Mapeo FSM 2005.'},
+      ecm:[2,16,35,56,75], conn:['af_b1','feed_af_12v'], notes:'Calentador B1 → ECM 2 (GY/R). Pin 3 = 12V fusible (no ECM). Mapeo FSM 2005.'},
     {id:'af_b2', title:'A/F Sensor 1 Bank 2', color:'#2e7d32',
-      ecm:[24,76,55,57,58,77], conn:['af_b2'], notes:'Calentador B2 → ECM 24 (G/Y). Pin 3 = 12V fusible.'},
+      ecm:[24,76,55,57,58,77], conn:['af_b2','feed_af_12v'], notes:'Calentador B2 → ECM 24 (G/Y). Pin 3 = 12V fusible.'},
     {id:'app_5v', title:'APP 5V + rails A/C · EVAP · PSP', color:'#f9a825',
-      ecm:[90,91,47,48,49,68], conn:['app','ac_press','evap_press','psp'], notes:'5V APP1/APP2 (90/91) y rails compartidos 47/48/49/68.'},
+      ecm:[90,91,47,48,49,68], conn:['app','ac_press','evap_press','psp'], notes:'5V APP1/APP2 (90/91) y rails compartidos 47/48/49/68 (PSP 5V en 68; señal PSP es ECM 12).'},
     {id:'app_gnd', title:'APP grounds', color:'#f9a825',
       ecm:[82,83], conn:['app'], notes:'Tierras sensor APP → ECM 82/83.'},
     {id:'app_sig', title:'APP señales APS1/APS2', color:'#f9a825',
@@ -425,13 +418,15 @@ function buildCircuits(model){
     {id:'ac_press', title:'A/C refrigerant pressure', color:'#ef6c00',
       ecm:[49,70], conn:['ac_press'], notes:'5V ECM 49 (B) · señal ECM 70 (G/R). Sensor en bahía motor / arnés body según ruteo.'},
     {id:'gnd_ecm', title:'ECM power grounds → E17', color:'#66bb6a',
-      ecm:[1,115,116], conn:['gnd4','e17'], notes:'Paquete 4-pin blanco (lado pass) → terminal E17 chasis.'},
-    {id:'sns_gnd', title:'Sensor grounds / caja shield', color:'#ef6c00',
-      ecm:[66,67,78], conn:['orange_box','knock'], notes:'SNS GND ECM 66/67/78 · shield splice → tierra sensor.'},
+      ecm:[1,115,116], conn:['gnd4','e17'], notes:'Empalme tierra ECM 4-pin (blanco) une grounds de poder ECM 1/115/116 al chasis E17 (lado pass). No es sensor.'},
+    {id:'sns_gnd', title:'Sensor grounds / joint shield', color:'#ef6c00',
+      ecm:[66,67,78], conn:['orange_box','knock'], notes:'SNS GND ECM 66/67/78 · joint shield (caja naranja) empalme shield sensores → tierra.'},
     {id:'knock', title:'Knock sensor', color:'#42a5f5',
-      ecm:[15,116], conn:['knock','orange_box'], notes:'Señal ECM 15 (W) · shield a tierra.'},
+      ecm:[15,116], conn:['knock','orange_box'], notes:'Señal ECM 15 (W) · shield vía joint naranja a tierra.'},
+    {id:'psp', title:'PSP · Power steering pressure', color:'#00897b',
+      ecm:[12,68], conn:['psp'], notes:'Señal PSP → ECM 12 (L/W) · 5V rail ECM 68 (R/W) · tierra vía SNS GND. FSM 2005 EC.'},
     {id:'ckp', title:'CKP / POS', color:'#ab47bc',
-      ecm:[13], conn:['ckp'], notes:'Señal CKP → ECM 13 (W/L). Alimentación 12V en conector.'},
+      ecm:[13], conn:['ckp','feed_ckp_maf_12v'], notes:'Señal CKP → ECM 13 (W/L). Alimentación 12V en conector.'},
     {id:'cmp', title:'Cam PHASE', color:'#ec407a',
       ecm:[33,14], conn:['cmp_b1','cmp_b2'], notes:'CMP B1 → ECM 33 (R) · CMP B2 → ECM 14 (R/L).'},
     {id:'iat', title:'IAT', color:'#8d6e63',
@@ -439,9 +434,9 @@ function buildCircuits(model){
     {id:'ect', title:'ECT', color:'#5c6bc0',
       ecm:[73], conn:['ect'], notes:'Señal ECT → ECM 73 (BR/Y).'},
     {id:'ign_coils', title:'Bobinas ×6', color:'#26a69a',
-      ecm:[62,81,61,80,60,79], conn:['coil1','coil2','coil3','coil4','coil5','coil6'], notes:'Drive ECM + alimentación 12V común.'},
+      ecm:[62,81,61,80,60,79], conn:['coil1','coil2','coil3','coil4','coil5','coil6','feed_inj_coil_12v'], notes:'Drive ECM + alimentación 12V común.'},
     {id:'injectors', title:'Inyectores ×6', color:'#9ccc65',
-      ecm:[23,42,22,41,21,40], conn:['inj1','inj2','inj3','inj4','inj5','inj6'], notes:'Drive ECM + 12V común.'},
+      ecm:[23,42,22,41,21,40], conn:['inj1','inj2','inj3','inj4','inj5','inj6','feed_inj_coil_12v'], notes:'Drive ECM + 12V común.'},
     {id:'power_ign', title:'Alimentación ECM 12V', color:'#ef5350',
       ecm:[121,119,120,109,111,3], conn:['ipdm_e7','batt_feed','ign_sw','ecm_relay','vmot'], notes:'121 BATT always · 119/120 vía IPDM · 109 IGN SW · 111 relay · 3 VMOT alim TB.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
@@ -449,11 +444,11 @@ function buildCircuits(model){
     {id:'can', title:'CAN / DLC / combination meter', color:'#7e57c2',
       ecm:[86,94], conn:['dlc','fuel_level','ascd_ind'], notes:'CAN-L ECM 86 (P) · CAN-H ECM 94 (L) · DLC pines 14/6 · datos vía combination meter / CAN.'},
     {id:'maf', title:'MAF', color:'#fb8c00',
-      ecm:[51], conn:['maf'], notes:'Señal MAF → ECM 51 (OR).'},
+      ecm:[51], conn:['maf','feed_ckp_maf_12v'], notes:'Señal MAF → ECM 51 (OR).'},
     {id:'tb', title:'ETC throttle body', color:'#029eb7',
       ecm:[4,5,47,50,69], conn:['etc'], notes:'Motor TB ± · TPS1/TPS2 · 5V rail 47.'},
     {id:'ho2s', title:'HO2S2 downstream ×2', color:'#8e24aa',
-      ecm:[25,6], conn:['ho2s_b1','ho2s_b2'], notes:'Heaters ECM 25 (B1) / 6 (B2) + 12V fusible.'},
+      ecm:[25,6], conn:['ho2s_b1','ho2s_b2','feed_ho2s_12v'], notes:'Heaters ECM 25 (B1) / 6 (B2) + 12V fusible.'},
     {id:'evap', title:'EVAP purge + press', color:'#7b1fa2',
       ecm:[45,32,48], conn:['evap_purge','evap_press'], notes:'Purge ECM 45 · presión ECM 32 · 5V ECM 48.'},
     {id:'brake_stop', title:'Stop lamp switch', color:'#e53935',
@@ -501,6 +496,7 @@ const GROUP_I18N = {
 
 const SUB_I18N = {
   power:     {es:'Poder / tierras', en:'Power / grounds', ja:'電源 / アース'},
+  feeds:     {es:'Alimentación / sin ECM', en:'Feeds (non-ECM)', ja:'電源フィード（ECM外）'},
   sensors:   {es:'Sensores', en:'Sensors', ja:'センサ'},
   actuators: {es:'Actuadores', en:'Actuators', ja:'アクチュエータ'},
   pedals:    {es:'Pedales / frenos', en:'Pedals / brakes', ja:'ペダル / ブレーキ'},
@@ -508,11 +504,12 @@ const SUB_I18N = {
   dlc:       {es:'DLC / red', en:'DLC / network', ja:'DLC / ネットワーク'},
 };
 
-const SUB_ORDER = ['power','sensors','actuators','pedals','ascd','dlc'];
+const SUB_ORDER = ['power','feeds','sensors','actuators','pedals','ascd','dlc'];
 
 
 const CONN_BASE = {
-  /* —— Poder / grounds —— */
+  /* —— Poder / tierras · ficha del plug ECM (EC-123) —— */
+
   batt_feed:{group:'motor', sub:'power', name:'BATT feed', meta:'ECM 121 · always hot', accent:'#ef5350', shape:'tab2',
     pins:[{id:'BATT',code:'R/W',ecm:121},{id:'fuse',code:'12V',ecm:null}]},
   ipdm_e7:{group:'motor', sub:'power', name:'IPDM E7', meta:'power → 119/120', accent:'#ef5350', shape:'ipdm',
@@ -523,10 +520,25 @@ const CONN_BASE = {
     pins:[{id:'CTRL',code:'GY/L',ecm:111},{id:'coil+',code:'12V',ecm:null}]},
   vmot:{group:'motor', sub:'power', name:'VMOT alim', meta:'alimentación motor TB · ECM 3', accent:'#029eb7', shape:'tab2',
     pins:[{id:'VMOT',code:'G',ecm:3},{id:'relay',code:'12V',ecm:null}]},
-  gnd4:{group:'motor', sub:'power', name:'GND 4-pin blanco', meta:'pass loop → E17', accent:'#66bb6a', shape:'rect4',
-    pins:[{id:'A',code:'B',ecm:1},{id:'B',code:'B/W',ecm:115},{id:'C',code:'B/R',ecm:116},{id:'D',code:'B',ecm:null}]},
-  e17:{group:'motor', sub:'power', name:'E17 body ground', meta:'RH / pass front bolt', accent:'#66bb6a', shape:'ring',
+  gnd4:{group:'motor', sub:'power', name:'Empalme tierra ECM (4-pin blanco)', meta:'1 / 115 / 116 → E17 (pass)', accent:'#66bb6a', shape:'rect4',
+    pins:[{id:'A',code:'B',ecm:1},{id:'B',code:'B/W',ecm:115},{id:'C',code:'B/R',ecm:116},{id:'D',code:'B',ecm:null}],
+    note:'Empalme intermedio de fábrica (4-pin blanco): une tierras de poder ECM 1/115/116 al chasis E17. No es sensor.'},
+  e17:{group:'motor', sub:'power', name:'E17 body ground', meta:'Body ground E17 · RH engine bay bolt', accent:'#66bb6a', shape:'ring',
     pins:[{id:'ring',code:'B',ecm:null}]},
+
+  /* —— Alimentación en el arnés motor que NO pasa por cavidad ECM (FSM) —— */
+  feed_af_12v:{group:'motor', sub:'feeds', name:'12V A/F heaters (fusible)', meta:'pin 3 A/F B1/B2 · no ECM', accent:'#ff7043', shape:'note',
+    pins:[{id:'AF1-3',code:'12V',ecm:null},{id:'AF2-3',code:'12V',ecm:null}],
+    note:'En el arnés motor: alimentación 12V fusionada al pin 3 de cada A/F Sensor 1 (B1/B2). No entra a la ECM — solo el drive de calentador (ECM 2 / 24) y señales. Ver FSM EC A/F.'},
+  feed_ho2s_12v:{group:'motor', sub:'feeds', name:'12V HO2S2 heaters (fusible)', meta:'post-cat · no ECM', accent:'#ce93d8', shape:'note',
+    pins:[{id:'B1-12V',code:'12V',ecm:null},{id:'B2-12V',code:'12V',ecm:null}],
+    note:'12V fusionado a calentadores HO2S2 B1/B2 en el arnés; la ECM solo conmuta el lado de control (ECM 25 / 6). Sin inventar nº de fusible — ver FSM EC HO2S.'},
+  feed_inj_coil_12v:{group:'motor', sub:'feeds', name:'12V rail iny / bobinas', meta:'común relé/IPDM · no ECM', accent:'#ffca28', shape:'note',
+    pins:[{id:'INJ+',code:'R',ecm:null},{id:'COIL+',code:'R',ecm:null}],
+    note:'Rail 12V común de inyectores ×6 y bobinas ×6 en el arnés motor (típic. cable R desde relé/IPDM). La ECM solo hace el drive a masa (pines INJ/IGN). No inventamos cavidad IPDM aquí.'},
+  feed_ckp_maf_12v:{group:'motor', sub:'feeds', name:'12V CKP / MAF (arnés)', meta:'feed sensor · no ECM', accent:'#ffa726', shape:'note',
+    pins:[{id:'CKP+',code:'R/W',ecm:null},{id:'MAF+',code:'R',ecm:null}],
+    note:'Alimentación 12V en conectores CKP y MAF del arnés motor (no son pines ECM). Señales: CKP→13, MAF→51. Tierras locales / SNS según FSM.'},
 
   /* —— Sensores motor —— */
   af_b1:{group:'motor', sub:'sensors', name:'A/F Sensor 1 B1', meta:'6-pin · Bank 1 · FSM face A/F', accent:'#ef6c00', shape:'af6',
@@ -557,12 +569,15 @@ const CONN_BASE = {
     pins:[{id:'1',code:'B',ecm:49},{id:'2',code:'G/R',ecm:70},{id:'3',code:'?',ecm:null}]},
   evap_press:{group:'motor', sub:'sensors', name:'EVAP pressure', meta:'canister', accent:'#7b1fa2', shape:'tab3',
     pins:[{id:'5V',code:'PU',ecm:48},{id:'sig',code:'BR/W',ecm:32},{id:'gnd',code:'B',ecm:null}]},
-  psp:{group:'motor', sub:'sensors', name:'PSP 5V rail', meta:'5V dirección · ECM 68', accent:'#00897b', shape:'tab2',
-    pins:[{id:'5V',code:'R/W',ecm:68},{id:'sns',code:'?',ecm:null}]},
-  orange_box:{group:'motor', sub:'sensors', name:'Caja shield (naranja)', meta:'→ SNS GND', accent:'#ef6c00', shape:'box',
-    pins:[{id:'SH',code:'B',ecm:66},{id:'SH2',code:'B',ecm:67}]},
-  blue_box:{group:'motor', sub:'sensors', name:'Caja splice (azul)', meta:'splice arnés', accent:'#1565c0', shape:'box',
-    pins:[{id:'SP',code:'?',ecm:null}]},
+  psp:{group:'motor', sub:'sensors', name:'PSP · Power steering pressure', meta:'sensor dirección · señal ECM 12', accent:'#00897b', shape:'tab3',
+    pins:[{id:'SIG',code:'L/W',ecm:12},{id:'5V',code:'R/W',ecm:68},{id:'GND',code:'SNS',ecm:null}],
+    note:'FSM 2005 EC: señal PSP → ECM 12 (L/W azul/blanco) · 5V → ECM 68 (R/W) · tierra vía SNS GND (no inventamos cavidad exacta de tierra).'},
+  orange_box:{group:'motor', sub:'sensors', name:'Joint shield (caja naranja)', meta:'empalme shield sensores → SNS GND (ECM 66/67)', accent:'#ef6c00', shape:'box',
+    pins:[{id:'SH',code:'B',ecm:66},{id:'SH2',code:'B',ecm:67}],
+    note:'Empalme / splice pack de shield estilo OEM en el arnés motor (color naranja físico). No es conector FSM con número oficial — une shields (p.ej. knock) hacia SNS GND.'},
+  blue_box:{group:'motor', sub:'sensors', name:'Joint splice (caja azul)', meta:'empalme arnés · función no confirmada en FSM', accent:'#1565c0', shape:'box',
+    pins:[{id:'SP',code:'?',ecm:null}],
+    note:'Identificado por color físico azul en el arnés motor (joint/splice pack). No es nombre oficial FSM; no inventamos pines ni función hasta confirmar en diagrama.'},
 
   /* —— Actuadores motor —— */
   coil1:{group:'motor', sub:'actuators', name:'Bobina 1', meta:'ECM62 Y/R', accent:'#f57f17', shape:'tab2', pins:[{id:'ECM',code:'Y/R',ecm:62},{id:'12V',code:'R',ecm:null}]},
@@ -824,6 +839,7 @@ function svgNote(cid, f){
   </svg>`;
 }
 
+
 function renderConnSvg(cid, f){
   switch(f.shape){
     case 'af6': return svgAf6(cid,f);
@@ -837,7 +853,7 @@ function renderConnSvg(cid, f){
     case 'box': return svgBox(cid,f);
     case 'clock': return svgClock(cid,f);
     case 'note': return svgNote(cid,f);
-    default: return svgTabN(cid,f,f.pins.length);
+    default: return svgTabN(cid,f,f.pins.length||2);
   }
 }
 
@@ -935,13 +951,14 @@ const I18N = {
 const NOTES_I18N = {
   af_b1: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM). FSM 2005 map.', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。FSM 2005。'},
   af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V.', ja:'ヒータB2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V。'},
-  app_5v: {en:'5V APP1/APP2 (90/91) and shared rails 47/48/49/68.', ja:'5V APP1/APP2 (90/91) と共有レール 47/48/49/68。'},
+  app_5v: {en:'5V APP1/APP2 (90/91) and shared rails 47/48/49/68 (PSP 5V on 68; PSP signal is ECM 12).', ja:'5V APP1/APP2 (90/91) と共有レール 47/48/49/68（PSP 5Vは68；信号はECM 12）。'},
   app_gnd: {en:'APP sensor grounds → ECM 82/83.', ja:'APPセンサアース → ECM 82/83。'},
   app_sig: {en:'APS1 → ECM 106 (G/OR) · APS2 → ECM 98 (G/B).', ja:'APS1 → ECM 106 (G/OR) · APS2 → ECM 98 (G/B)。'},
   ac_press: {en:'5V ECM 49 (B) · signal ECM 70 (G/R). Sensor in engine bay / body harness per routing.', ja:'5V ECM 49 (B) · 信号 ECM 70 (G/R)。センサはエンジンルーム/ボディ側配線。'},
-  gnd_ecm: {en:'4-pin white pack (pass side) → E17 chassis terminal.', ja:'4ピン白パック（助手席側）→ E17シャーシアース。'},
-  sns_gnd: {en:'SNS GND ECM 66/67/78 · shield splice → sensor ground.', ja:'SNS GND ECM 66/67/78 · シールドスプライス → センサアース。'},
-  knock: {en:'Signal ECM 15 (W) · shield to ground.', ja:'信号 ECM 15 (W) · シールドはアース。'},
+  gnd_ecm: {en:'Factory 4-pin white ECM ground joint: power grounds 1/115/116 → chassis E17 (pass). Not a sensor.', ja:'工場4ピン白アースジョイント：ECM電源アース1/115/116 → シャーシE17（助手席側）。センサではない。'},
+  sns_gnd: {en:'SNS GND ECM 66/67/78 · orange shield joint → sensor ground.', ja:'SNS GND ECM 66/67/78 · オレンジシールドジョイント → センサアース。'},
+  knock: {en:'Signal ECM 15 (W) · shield via orange joint to ground.', ja:'信号 ECM 15 (W) · シールドはオレンジジョイント経由でアース。'},
+  psp: {en:'PSP signal → ECM 12 (L/W) · 5V rail ECM 68 (R/W) · ground via SNS GND. FSM 2005 EC.', ja:'PSP信号 → ECM 12 (L/W) · 5Vレール ECM 68 (R/W) · アースはSNS GND。FSM 2005 EC。'},
   ckp: {en:'CKP signal → ECM 13 (W/L). 12V feed on connector.', ja:'CKP信号 → ECM 13 (W/L)。コネクタに12V供給。'},
   cmp: {en:'CMP B1 → ECM 33 (R) · CMP B2 → ECM 14 (R/L).', ja:'CMP B1 → ECM 33 (R) · CMP B2 → ECM 14 (R/L)。'},
   iat: {en:'IAT signal → ECM 34 (Y/G).', ja:'IAT信号 → ECM 34 (Y/G)。'},
@@ -1123,41 +1140,10 @@ function renderECM(){
     const tagEl=document.createElement('div'); tagEl.className='tag'; tagEl.textContent=tag; blk.appendChild(tagEl);
     blocksEl.appendChild(blk);
   });
-  requestAnimationFrame(fitEcmPins);
 }
 
-/** Scale ECM pin CSS vars so the 4-block grid fits without horizontal scroll */
-function fitEcmPins(){
-  const ecm = document.getElementById('ecm');
-  const blocks = document.getElementById('blocks');
-  if(!ecm || !blocks || !blocks.querySelector('.pin')) return;
-  const avail = ecm.clientWidth - 8;
-  if(avail <= 0) return;
-  // Measure natural width at a known baseline, then shrink until it fits
-  const baseW = 34, baseH = 32, baseGap = 3, baseBlockGap = 10;
-  ecm.style.setProperty('--pin-w', baseW + 'px');
-  ecm.style.setProperty('--pin-h', baseH + 'px');
-  ecm.style.setProperty('--pin-gap', baseGap + 'px');
-  ecm.style.setProperty('--block-gap', baseBlockGap + 'px');
-  ecm.style.setProperty('--pin-fs', '10px');
-  ecm.style.setProperty('--pin-sm', '8px');
-  void blocks.offsetWidth;
-  let need = blocks.scrollWidth;
-  if(need <= avail) return;
-  const scale = Math.max(0.35, Math.min(1, (avail - 2) / need));
-  const pinW = Math.max(12, Math.floor(baseW * scale));
-  const pinH = Math.max(11, Math.floor(baseH * scale));
-  const gap = Math.max(1, Math.round(baseGap * scale));
-  const bgap = Math.max(2, Math.round(baseBlockGap * scale));
-  const fs = Math.max(5.5, Math.round(10 * scale * 10) / 10);
-  const sm = Math.max(4.5, Math.round(8 * scale * 10) / 10);
-  ecm.style.setProperty('--pin-w', pinW + 'px');
-  ecm.style.setProperty('--pin-h', pinH + 'px');
-  ecm.style.setProperty('--pin-gap', gap + 'px');
-  ecm.style.setProperty('--block-gap', bgap + 'px');
-  ecm.style.setProperty('--pin-fs', fs + 'px');
-  ecm.style.setProperty('--pin-sm', sm + 'px');
-}
+/** Classic pin size — no aggressive shrink (prefer overflow-x scroll over crushing EC-123 shape) */
+function fitEcmPins(){ /* no-op: CSS vars stay at classic ~34×32 */ }
 
 function makeFichaEl(id, f){
   const el=document.createElement('div');
@@ -1165,7 +1151,7 @@ function makeFichaEl(id, f){
   el.dataset.conn=id;
   el.style.borderColor = f.accent || '#546e7a';
   let extra = '';
-  if(f.shape==='note' && f.note){
+  if(f.note){
     extra = `<div class="note-body">${esc(f.note)}</div>`;
   }
   el.innerHTML = `<h3>${esc(f.name)}</h3><div class="meta">${esc(f.meta)}</div>${renderConnSvg(id,f)}${extra}`;
@@ -1351,14 +1337,14 @@ function selectPin(p){
 }
 
 function selectConn(cid){
+  const conf=CONN[cid];
   const circs = connToCirc[cid] || [];
   if(circs.length) selectCircuits(circs, null, cid, null); /* reveal via selectCircuits */
   else {
     clearHL(); dimAll();
     const f=document.querySelector(`.ficha[data-conn="${cid}"]`);
     if(f){ f.classList.remove('dim'); f.classList.add('hl'); }
-    const conf=CONN[cid];
-    (conf.pins||[]).forEach(p=>{
+    (conf&&conf.pins||[]).forEach(p=>{
       const cav=document.querySelector(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(p.id)}"]`);
       if(cav) cav.classList.add('hl-group');
       if(p.ecm!=null){
@@ -1366,7 +1352,9 @@ function selectConn(cid){
         if(el){ el.classList.remove('dim'); el.classList.add('hl-group'); }
       }
     });
-    const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = `<b>${conf.name}</b> — ${conf.meta}`;
+    const infoEl=document.getElementById('info'); infoEl.dataset.locked='1';
+    const note = (conf && conf.note) ? `<div style="color:var(--muted);margin-top:4px">${esc(conf.note)}</div>` : '';
+    infoEl.innerHTML = `<b>${esc(conf.name)}</b> — ${esc(conf.meta)}${note}`;
     revealConns([cid]);
   }
 }
@@ -1410,20 +1398,6 @@ document.getElementById('model').addEventListener('change', applyModel);
 document.getElementById('colorMode').addEventListener('change', applyColorMode);
 document.getElementById('ecmOrient').addEventListener('change', applyOrient);
 document.getElementById('lang').addEventListener('change', applyLang);
-
-(function setupEcmFit(){
-  const ecm = document.getElementById('ecm');
-  if(!ecm) return;
-  let t = null;
-  const schedule = () => {
-    clearTimeout(t);
-    t = setTimeout(fitEcmPins, 40);
-  };
-  window.addEventListener('resize', schedule);
-  if(typeof ResizeObserver !== 'undefined'){
-    new ResizeObserver(schedule).observe(ecm);
-  }
-})();
 
 document.getElementById('clear').onclick=()=>{
   clearHL();
