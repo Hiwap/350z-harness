@@ -135,8 +135,8 @@
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.hl-end .cav-face { stroke: var(--hl2) !important; stroke-width: 2.5; }
   .cav-hit.hl-group .cav-face { stroke: #ab47bc !important; stroke-width: 2; }
-  .cav-label { font-size: 8.5px; font-weight: 800; fill: #ffffff; pointer-events: none; }
-  .cav-sub { font-size: 7px; font-weight: 700; fill: #e8eaed; pointer-events: none; }
+  .cav-label { font-size: 8.5px; font-weight: 800; fill: #111; pointer-events: none; }
+  .cav-sub { font-size: 7px; font-weight: 700; fill: #222; pointer-events: none; }
   .lock-tab { fill: #263238; stroke: #78909c; stroke-width: 1.2; }
   .shell { fill: #0f1319; stroke-width: 1.8; }
   .cavity { stroke-width: 2; }
@@ -152,14 +152,92 @@
   footer { padding: 10px 16px 18px; color: #b0b7c3; font-size: 11px; border-top: 1px solid var(--border); }
   code { background: #232a36; padding: 1px 5px; border-radius: 4px; font-size: 11px; }
 
-  /* mobile contrast */
+  /* opts / warn collapse */
+  details.opts {
+    border: 1px solid var(--border); border-radius: 8px; background: #12161d;
+    padding: 0;
+  }
+  details.opts > summary {
+    cursor: pointer; list-style: none; user-select: none;
+    font-size: 12px; font-weight: 650; color: #c5cad3;
+    padding: 8px 12px;
+  }
+  details.opts > summary::-webkit-details-marker { display: none; }
+  details.opts > summary::before {
+    content: '▸'; color: var(--accent); font-size: 10px; display: inline-block;
+    margin-right: 6px; transition: transform .15s ease;
+  }
+  details.opts[open] > summary::before { transform: rotate(90deg); }
+  details.opts[open] > summary { border-bottom: 1px solid var(--border); }
+  details.opts .controls { padding: 8px 10px 10px; }
+
+  details.warn-box {
+    margin: 0 0 10px; border-radius: 8px; border: 1px solid #5d4037;
+    background: #1a1510; overflow: hidden;
+  }
+  details.warn-box > summary {
+    cursor: pointer; list-style: none; user-select: none;
+    font-size: 12px; font-weight: 700; color: #ffcc80;
+    padding: 8px 10px;
+  }
+  details.warn-box > summary::-webkit-details-marker { display: none; }
+  details.warn-box > summary::before {
+    content: '▸'; color: #ffb74d; font-size: 10px; display: inline-block;
+    margin-right: 6px; transition: transform .15s ease;
+  }
+  details.warn-box[open] > summary::before { transform: rotate(90deg); }
+  details.warn-box .orient {
+    margin: 0; border-radius: 0; border-left: none; border-right: none; border-bottom: none;
+  }
+
+  /* landscape / wide horizontal: show full ECM pin grid */
+  @media (orientation: landscape) and (max-height: 900px) {
+    main {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      gap: 8px; padding: 8px;
+    }
+    #ecm { overflow: auto; min-width: 0; }
+    .blocks {
+      min-width: 0; gap: 6px; padding: 4px 0;
+      justify-content: flex-start; flex-wrap: nowrap;
+    }
+    .block { gap: 2px; }
+    .row { gap: 2px; }
+    .pin {
+      width: 22px; height: 20px; font-size: 8px; border-radius: 3px;
+      border-width: 2px;
+    }
+    .pin small { font-size: 6.5px; }
+    .pin.has-tracer::after { inset: 1px; border-width: 1.5px; }
+    .block .tag { font-size: 10px; margin-top: 2px; }
+    .fichas { max-height: 78vh; }
+  }
+  @media (orientation: landscape) and (min-width: 900px) and (max-height: 900px) {
+    main { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+    .pin { width: 26px; height: 24px; font-size: 9px; }
+    .pin small { font-size: 7px; }
+  }
+  @media (orientation: landscape) and (max-width: 899px) and (max-height: 500px) {
+    .pin { width: 18px; height: 17px; font-size: 7px; }
+    .pin small { font-size: 5.5px; }
+    .blocks { gap: 4px; }
+  }
+
+  /* mobile: smaller fichas + contrast */
   @media (max-width: 700px) {
     .pin { font-size: 11px; }
     .pin small { font-size: 8.5px; }
-    .cav-sub { fill: #fff; font-size: 7.5px; }
-    .ficha .meta { color: #dde1e8; }
+    .cav-sub { font-size: 7.5px; }
+    .ficha { padding: 5px; border-radius: 8px; }
+    .ficha h3 { font-size: 11px; }
+    .ficha .meta { font-size: 10px; color: #dde1e8; margin-bottom: 4px; }
+    .fichas-grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 6px; padding: 6px;
+    }
+    .conn-svg { max-height: 58px; width: 100%; }
     .info { color: #e8eaed; }
-    .orient { font-size: 13px; }
+    .orient { font-size: 12px; padding: 7px 8px; }
   }
 </style>
 </head>
@@ -169,33 +247,36 @@
     <h1>Nissan 350Z · Harness / Fichas OEM</h1>
     <div class="sub" id="pageSub">Referencia FSM · click pin ECM o cavidad → punta a punta</div>
   </div>
-  <div class="controls">
-    <label id="lblModel">Modelo / Model
-      <select id="model">
-        <option value="de_early">2003–2004 · VQ35DE</option>
-        <option value="de_revup" selected>2005–2006 · VQ35DE Rev-Up</option>
-</select>
-    </label>
-    <label id="lblColor">Color
-      <select id="colorMode">
-        <option value="outlines" id="optOutlines">Outlines</option>
-        <option value="solid" id="optSolid">Sólidos</option>
-      </select>
-    </label>
-    <label id="lblOrient">Orientación ECM
-      <select id="ecmOrient">
-        <option value="invertida" id="optInv">Invertida (bancada)</option>
-        <option value="fsm" id="optFsm">FSM normal</option>
-      </select>
-    </label>
-    <label id="lblLang">Idioma
-      <select id="lang">
-        <option value="es">Español</option>
-        <option value="en">English</option>
-        <option value="ja">日本語</option>
-      </select>
-    </label>
-  </div>
+  <details class="opts" id="optsBox">
+    <summary id="optsSummary">Opciones / Options</summary>
+    <div class="controls">
+      <label id="lblModel">Modelo / Model
+        <select id="model">
+          <option value="de_early">2003–2004 · VQ35DE</option>
+          <option value="de_revup" selected>2005–2006 · VQ35DE Rev-Up</option>
+        </select>
+      </label>
+      <label id="lblColor">Color
+        <select id="colorMode">
+          <option value="outlines" id="optOutlines">Outlines</option>
+          <option value="solid" id="optSolid">Sólidos</option>
+        </select>
+      </label>
+      <label id="lblOrient">Orientación ECM
+        <select id="ecmOrient">
+          <option value="invertida" id="optInv">Invertida (bancada)</option>
+          <option value="fsm" id="optFsm">FSM normal</option>
+        </select>
+      </label>
+      <label id="lblLang">Idioma
+        <select id="lang">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+          <option value="ja">日本語</option>
+        </select>
+      </label>
+    </div>
+  </details>
   <div class="search">
     <input id="q" type="search" placeholder="Buscar: 101, ASCD, APP, stop, CAN…"/>
     <button type="button" id="clear">Limpiar</button>
@@ -205,7 +286,10 @@
   <section class="card" id="ecm">
     <h2 id="ecmTitle">EC-123 · ECM pin grid</h2>
     <div class="banner-hr" id="hrBanner"></div>
-    <div class="orient inv" id="orientBanner"></div>
+    <details class="warn-box" id="warnBox">
+      <summary id="warnSummary">⚠ Orientación ECM</summary>
+      <div class="orient inv" id="orientBanner"></div>
+    </details>
     <div class="legend" id="legend"></div>
     <div class="blocks" id="blocks"></div>
     <div class="info" id="info"></div>
@@ -560,13 +644,15 @@ function cavGroup(cid, pin, x, y, w, h, rx){
     ? `<rect class="cav-tracer" x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="${Math.max(1,rx0-1)}"
         fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
+  const mode = document.body.dataset.mode || 'outlines';
+  const txtFill = mode === 'solid' ? fgForWire(wcol) : '#111';
   return `<g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}" role="button">
     ${defs}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
     ${inset}
-    <text class="cav-label" x="${x+w/2}" y="${y+h/2-2}" text-anchor="middle">${esc(pin.id)}</text>
-    <text class="cav-sub" x="${x+w/2}" y="${y+h/2+8}" text-anchor="middle">${esc(code)}${esc(ecm)}</text>
+    <text class="cav-label" x="${x+w/2}" y="${y+h/2-2}" text-anchor="middle" fill="${txtFill}">${esc(pin.id)}</text>
+    <text class="cav-sub" x="${x+w/2}" y="${y+h/2+8}" text-anchor="middle" fill="${txtFill}">${esc(code)}${esc(ecm)}</text>
   </g>`;
 }
 
@@ -639,14 +725,16 @@ function svgRing(cid, f){
   const inset = wcol.tracer
     ? `<circle class="cav-tracer" cx="45" cy="36" r="7" fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
+  const mode = document.body.dataset.mode || 'outlines';
+  const txtFill = mode === 'solid' ? fgForWire(wcol) : '#111';
   return `<svg class="conn-svg" viewBox="0 0 90 70" xmlns="http://www.w3.org/2000/svg">
     <g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(p.id)}">
       ${defs}
       <circle class="cav-face" cx="45" cy="36" r="22" fill="none" stroke="${f.accent}" stroke-width="3"/>
       <circle class="cavity cav-face" cx="45" cy="36" r="10" style="stroke:${sc};--cav-fill:${fillVal}"/>
       ${inset}
-      <text class="cav-label" x="45" y="32" text-anchor="middle">${esc(p.id)}</text>
-      <text class="cav-sub" x="45" y="58" text-anchor="middle">${esc(p.code)}</text>
+      <text class="cav-label" x="45" y="32" text-anchor="middle" fill="${txtFill}">${esc(p.id)}</text>
+      <text class="cav-sub" x="45" y="58" text-anchor="middle" fill="${txtFill}">${esc(p.code)}</text>
     </g>
   </svg>`;
 }
@@ -743,6 +831,8 @@ const I18N = {
     lblColor: 'Color',
     lblOrient: 'Orientación ECM',
     lblLang: 'Idioma',
+    optsSummary: 'Opciones / Options',
+    warnSummary: '⚠ Orientación ECM',
     optOutlines: 'Contornos',
     optSolid: 'Sólidos',
     optInv: 'Invertida (bancada)',
@@ -769,6 +859,8 @@ const I18N = {
     lblColor: 'Color',
     lblOrient: 'ECM orientation',
     lblLang: 'Language',
+    optsSummary: 'Options',
+    warnSummary: '⚠ ECM orientation',
     optOutlines: 'Outlines',
     optSolid: 'Solid',
     optInv: 'Inverted (engine bay)',
@@ -795,6 +887,8 @@ const I18N = {
     lblColor: '色表示',
     lblOrient: 'ECM向き',
     lblLang: '言語',
+    optsSummary: 'オプション / Options',
+    warnSummary: '⚠ ECM向き',
     optOutlines: '実線枠',
     optSolid: '塗りつぶし',
     optInv: '反転（エンジンルーム）',
@@ -901,6 +995,8 @@ function applyLang(){
   const ft = document.getElementById('fichasTitle'); if(ft) ft.textContent = t('fichasTitle');
   const pf = document.getElementById('pageFooter'); if(pf) pf.textContent = t('footer');
   const hb = document.getElementById('hrBanner'); if(hb) hb.innerHTML = t('hrBanner');
+  const osu = document.getElementById('optsSummary'); if(osu) osu.textContent = t('optsSummary');
+  const wsu = document.getElementById('warnSummary'); if(wsu) wsu.textContent = t('warnSummary');
   renderLegend();
   renderECM();
   renderFichas();
@@ -1245,6 +1341,8 @@ function applyColorMode(){
   const mode = document.getElementById('colorMode').value;
   localStorage.setItem('z33_color', mode);
   document.body.dataset.mode = mode === 'solid' ? 'solid' : 'outlines';
+  const root = document.getElementById('fichas');
+  if(root && root.children.length) renderFichas();
 }
 
 function applyOrient(){
@@ -1304,6 +1402,20 @@ document.getElementById('q').addEventListener('input', e=>{
   if(o && ['invertida','fsm'].includes(o)) document.getElementById('ecmOrient').value = o;
   else document.getElementById('ecmOrient').value = 'invertida';
   if(L && ['es','en','ja'].includes(L)) document.getElementById('lang').value = L;
+  const optsBox = document.getElementById('optsBox');
+  const warnBox = document.getElementById('warnBox');
+  if(optsBox){
+    optsBox.open = localStorage.getItem('z33_opts') === '1';
+    optsBox.addEventListener('toggle', () => {
+      localStorage.setItem('z33_opts', optsBox.open ? '1' : '0');
+    });
+  }
+  if(warnBox){
+    warnBox.open = localStorage.getItem('z33_warn') === '1';
+    warnBox.addEventListener('toggle', () => {
+      localStorage.setItem('z33_warn', warnBox.open ? '1' : '0');
+    });
+  }
   applyColorMode();
   CIRCUITS = buildCircuits(document.getElementById('model').value);
   rebuildIndexes();
