@@ -159,6 +159,19 @@
   .cav-label { font-size: 7px; font-weight: 800; fill: #111; pointer-events: none; opacity: 0.9; }
   .cav-sub, .cav-code { font-size: 7.5px; font-weight: 800; fill: #222; pointer-events: none; }
   .cav-ecm { font-size: 7px; font-weight: 700; fill: #222; pointer-events: none; opacity: 0.95; }
+  /* Solid mode: let per-cavity ink (style=) win — CSS fill was forcing #111 on black wires */
+  body[data-mode="solid"] .cav-label,
+  body[data-mode="solid"] .cav-sub,
+  body[data-mode="solid"] .cav-code,
+  body[data-mode="solid"] .cav-ecm {
+    fill: none; /* presentation/style on <text> supplies the real fill */
+  }
+  body[data-mode="solid"] .cav-label.lab-5v,
+  body[data-mode="solid"] .cav-label.lab-12v,
+  body[data-mode="solid"] .cav-label.lab-gnd {
+    fill: none !important;
+    filter: none;
+  }
   .lock-tab { fill: #263238; stroke: #78909c; stroke-width: 1.2; }
   .shell { fill: #0f1319; stroke-width: 1.8; }
   .cavity { stroke-width: 2; }
@@ -199,9 +212,7 @@
   .cav-label.lab-5v { fill: #F9A825 !important; }
   .cav-label.lab-12v { fill: #C62828 !important; }
   .cav-label.lab-gnd { fill: #2E7D32 !important; }
-  body[data-mode="solid"] .cav-label.lab-5v,
-  body[data-mode="solid"] .cav-label.lab-12v,
-  body[data-mode="solid"] .cav-label.lab-gnd { fill: inherit; filter: brightness(1.15); }
+
 
   /* IPDM uses standard fichas (no static PG-26 image panel) */
   footer { padding: 10px 16px 18px; color: #b0b7c3; font-size: 11px; border-top: 1px solid var(--border); }
@@ -421,20 +432,19 @@ function fgForWireCav(w){
   if(!w) return '#111';
   if(w.tracer){
     const L1 = hexLum(w.c1), L2 = hexLum(w.c2);
-    // Black / dark half present → light label (readable on the black part)
-    if(Math.min(L1, L2) < 0.38) return '#f5f5f5';
+    // Any dark half (B, B/W, B/R, G/B…) → white label
+    if(Math.min(L1, L2) < 0.45) return '#ffffff';
     return '#111';
   }
-  // Solid B (#111) etc. → fgFor already returns light
-  return fgFor(w.c1);
+  return hexLum(w.c1) < 0.45 ? '#ffffff' : '#111';
 }
-function svgInk(fill, forceHalo){
+function svgInk(fill, withHalo){
   const f = fill || '#f5f5f5';
-  if(!forceHalo) return `fill="${f}"`;
-  // Thin halo only when needed (optional); prefer clean fill for cavities
+  // style= beats stylesheet .cav-label { fill:#111 } (presentation attrs do not)
+  if(!withHalo) return `style="fill:${f}"`;
   const lightInk = hexLum(f) >= 0.5;
   const stroke = lightInk ? '#000' : '#fff';
-  return `fill="${f}" stroke="${stroke}" stroke-width="1.1" paint-order="stroke fill" stroke-linejoin="round"`;
+  return `style="fill:${f};stroke:${stroke};stroke-width:1.35px;paint-order:stroke fill;stroke-linejoin:round"`;
 }
 
 /* ========== OEM pin data (2005 VQ35DE FSM) ========== */
@@ -903,7 +913,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   if(mode !== 'solid' && lc === 'lab-5v') txtFill = '#F9A825';
   if(mode !== 'solid' && lc === 'lab-12v') txtFill = '#C62828';
   if(mode !== 'solid' && lc === 'lab-gnd') txtFill = '#2E7D32';
-  const ink = (c) => svgInk(c, false);
+  const ink = (c) => svgInk(c, mode === 'solid' && hexLum(c) >= 0.5);
   const idY = y + 9;
   const codeY = y + h/2 + 2;
   const ecmY = y + h - 5;
@@ -1010,7 +1020,7 @@ function svgRing(cid, f){
     : '';
   const mode = document.body.dataset.mode || 'outlines';
   const txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#111';
-  const ink = (c) => svgInk(c, false);
+  const ink = (c) => svgInk(c, mode === 'solid' && hexLum(c) >= 0.5);
   return `<svg class="conn-svg" viewBox="0 0 90 84" xmlns="http://www.w3.org/2000/svg">
     <g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(p.id)}">
       ${defs}
