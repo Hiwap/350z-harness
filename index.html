@@ -1519,6 +1519,7 @@ function makeFichaEl(id, f){
   const el=document.createElement('div');
   el.className = 'ficha' + (f.shape==='note' || f.shape==='ixnote' ? ' note-card' : '');
   el.dataset.conn=id;
+  el.dataset.ord = String(++_fichaOrd);
   el.style.borderColor = f.accent || '#546e7a';
   let extra = '';
   if(f.note){
@@ -1535,7 +1536,9 @@ function makeFichaEl(id, f){
   return el;
 }
 
+let _fichaOrd = 0;
 function renderFichas(){
+  _fichaOrd = 0;
   const root=document.getElementById('fichas');
   root.innerHTML='';
   const model = document.getElementById('model').value;
@@ -1598,6 +1601,32 @@ function renderFichas(){
 
 
 
+
+/** Within each subgroup grid, move selected fichas to the front (keep relative order). */
+function promoteSelectedInGroups(connIds){
+  const set = new Set((connIds||[]).filter(Boolean));
+  if(!set.size) return;
+  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) .fichas-grid').forEach(grid=>{
+    const kids = [...grid.children];
+    const sel = kids.filter(el => set.has(el.dataset.conn));
+    const rest = kids.filter(el => !set.has(el.dataset.conn));
+    if(!sel.length) return;
+    [...sel, ...rest].forEach(el => grid.appendChild(el));
+  });
+}
+
+function restoreFichaOrder(){
+  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) .fichas-grid').forEach(grid=>{
+    const kids = [...grid.children];
+    kids.sort((a,b)=>{
+      const oa = parseInt(a.dataset.ord||'0',10), ob = parseInt(b.dataset.ord||'0',10);
+      return oa-ob;
+    });
+    kids.forEach(el => grid.appendChild(el));
+  });
+}
+
+
 function removeSelectedTop(){
   const top = document.getElementById('selTop');
   if(top) top.remove();
@@ -1619,7 +1648,7 @@ function updateSelectedTop(connIds){
   top.className = 'ficha-sec sel-top';
   top.open = true;
   const sum = document.createElement('summary');
-  sum.innerHTML = `${esc(t('selTopTitle'))}<span>${esc(t('selTopSub'))} · ${ids.length}</span>`;
+  sum.innerHTML = `${esc(t('selTopTitle'))}<span>${ids.length}</span>`;
   top.appendChild(sum);
   const body = document.createElement('div');
   body.className = 'fichas-body';
@@ -1671,6 +1700,7 @@ function revealConns(connIds){
     }
   });
   updateSelectedTop(ids);
+  promoteSelectedInGroups(ids);
   const topFirst = document.querySelector('#selTop .ficha');
   const scrollEl = topFirst || first;
   if(scrollEl){
@@ -1680,6 +1710,7 @@ function revealConns(connIds){
 
 function clearHL(){
   removeSelectedTop();
+  restoreFichaOrder();
   document.querySelectorAll('.pin,.ficha,.cav-hit').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','rail-5v','rail-12v','rail-gnd');
   });
