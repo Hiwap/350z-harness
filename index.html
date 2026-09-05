@@ -73,6 +73,10 @@
     padding-bottom: 7px;
     border-bottom: 1px dashed #3d4a5c;
   }
+  /* End shells: center short middle rows (e.g. 118·117 without empty spacer) */
+  #ecm #blocks .block-end .row {
+    justify-content: center;
+  }
   .row { display: flex; gap: var(--pin-gap, 3px); }
   .pin {
     width: var(--pin-w, 34px); height: auto; min-height: var(--pin-h, 32px); border-radius: 5px; border: 2.5px solid #555;
@@ -619,11 +623,11 @@ const PIN_RAIL = {
 };
 
 /* Canonical inverted layout (bancada): 121 LEFT, lever up, blocks L→R */
-const B1_INV = [[121,120,119],[null,118,117],[116,115,114]];
+const B1_INV = [[121,120,119],[118,117],[116,115,114]];
 const B2_INV = [[113,112,111,110,109,108,107,106],[105,104,103,102,101,100,99,98],[97,96,95,94,93,92,91,90],[89,88,87,86,85,84,83,82]];
 function range(a,b){ const o=[]; for(let i=a;i<=b;i++) o.push(i); return o; }
 const B3_INV = [range(6,24), range(25,43), range(44,62), range(63,81)];
-const B4_INV = [[5,4],[null,3],[2,1]];
+const B4_INV = [[5,4],[3],[2,1]];
 
 function mirrorRows(rows){
   return rows.map(r => r.slice().reverse());
