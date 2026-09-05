@@ -1420,7 +1420,7 @@ const TITLES_I18N = {
 
 const NOTES_I18N = {
   af_b1: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。FSM 2005。'},
-  af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V.', ja:'ヒータB2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V。'},
+  af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
   app_5v: {en:'5V APP1/APP2 (90/91) via intermediate E11/F2 (pedal E113→E11/F2→ECM); shared rails 47/48/49/68.', ja:'5V APP1/APP2 (90/91) は中間E11/F2経由（ペダルE113→F2→ECM）。共有レール47/48/49/68。'},
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
   app_sig: {en:'APS1→106 · APS2→98 via intermediate E11/F2 (pedal E113→E11/F2→ECM).', ja:'APS1→106 · APS2→98（中間E11/F2経由）。'},
@@ -1684,7 +1684,7 @@ const CONN_I18N = {
       note:'EC control harness (F102) ↔ body (M72). ASCD, brake, and meter paths into the cabin. Face pinout: see FSM.' },
     ja: { name:'F102 ↔ M72 · 制御ハーネス ↔ ボディ', meta:'ASCD / ブレーキ / メータ · 制御ハーネス↔ボディ',
       note:'EC制御ハーネス (F102) ↔ ボディ (M72)。ASCD・ブレーキ・メータの車室内経路。端子配列: FSM参照。' },
-  },,
+  },
 
   feed_ho2s_12v: {
     en: { name:'12V HO2S2 heaters (fused)', meta:'post-cat · not ECM',
