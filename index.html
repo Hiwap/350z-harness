@@ -223,7 +223,7 @@
   .cav-hit { cursor: pointer; }
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.hl-end .cav-face { stroke: var(--hl2) !important; stroke-width: 2.5; }
-  .cav-hit.hl-group .cav-face { stroke: var(--hl) !important; stroke-width: 2; opacity: 0.85; }
+  .cav-hit.hl-group .cav-face { stroke: #ab47bc !important; stroke-width: 2; }
   .cav-label { font-size: 7px; font-weight: 800; fill: #111; pointer-events: none; opacity: 0.9; }
   .cav-sub, .cav-code { font-size: 7.5px; font-weight: 800; fill: #222; pointer-events: none; }
   .cav-ecm { font-size: 7px; font-weight: 700; fill: #222; pointer-events: none; opacity: 0.95; }
@@ -1924,17 +1924,14 @@ function makePinEl(p){
     const lab = shortConnLabel(dest.cid, dest.f);
     const cav = (dest.f.pins||[]).find(x => x.ecm!=null && Number(x.ecm)===Number(p));
     const cavId = cav && cav.id != null ? String(cav.id) : '';
-    /* keep ≤6 chars so nº + wire stay readable on small pins (W/Y were clipping) */
     let text = lab;
     if(cavId){
       const combo = lab + '·' + cavId;
-      text = combo.length <= 6 ? combo : (lab.length <= 4 ? lab : lab.slice(0,4));
-      if(text === lab && cavId && (lab + '·' + cavId).length > 6){
-        /* prefer name; cav still in title */
-      }
+      /* show name·pin when it fits; otherwise name (full cav in title) */
+      text = combo.length <= 8 ? combo : lab;
     }
     const col = accentForConn(dest.f);
-    destHtml = `<span class="dest" style="color:#ffe082;border-bottom:2px solid ${esc(col)}">${esc(text)}</span>`;
+    destHtml = `<span class="dest" style="color:${col}">${esc(text)}</span>`;
     destTitle = ` → ${dest.f.name||dest.cid}${cavId ? ' · pin '+cavId : ''}`;
     d.dataset.destConn = dest.cid;
     if(cavId) d.dataset.destCav = cavId;
@@ -2839,7 +2836,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       const onFocusEcm = focusPin!=null && p.ecm!=null && Number(p.ecm)===Number(focusPin);
       const onPathEcm = p.ecm!=null && ecmSet.has(Number(p.ecm));
       /* exact pin = yellow hl (same as ECM); siblings on path = hl-group */
-      const cls = (isFocusCav || onFocusEcm || onPathEcm) ? 'hl' : 'hl-group';
+      const cls = (isFocusCav || onFocusEcm) ? 'hl' : 'hl-group';
       if(cid !== 'ix_f102_m72' || isFocusCav || onPathEcm){
         document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`).forEach(cav=>{
           cav.classList.remove('dim','hl','hl-end','hl-group');
@@ -2877,6 +2874,37 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     : '';
   const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = pinInfo + lines.join('');
   revealConns([...connSet]);
+  /* #selTop clones are created inside revealConns — paint cav HL again so selection fichas get yellow too */
+  paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav);
+}
+
+/** Yellow hl = exact ECM/cavity; purple hl-group = other pins on the same path. Runs after selTop exists. */
+function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav){
+  document.querySelectorAll('.cav-hit').forEach(cav=>{
+    const cid = cav.dataset.conn;
+    const pid = cav.dataset.cav;
+    const conf = CONN[cid] || CONN_BASE[cid];
+    const p = (conf && conf.pins || []).find(x => String(x.id) === String(pid));
+    if(!p || p.ecm==null) return;
+    const e = Number(p.ecm);
+    const isFocusCav = focusConn===cid && String(focusCav)===String(pid);
+    const onFocusEcm = focusPin!=null && e===Number(focusPin);
+    const onPath = ecmSet && ecmSet.has(e);
+    if(!(isFocusCav || onFocusEcm || onPath)) return;
+    cav.classList.remove('dim','hl','hl-end','hl-group');
+    cav.classList.add((isFocusCav || onFocusEcm) ? 'hl' : 'hl-group');
+  });
+  document.querySelectorAll('#f102Blocks .pin[data-cav]').forEach(fp=>{
+    const p = (CONN['ix_f102_m72']&&CONN['ix_f102_m72'].pins||[]).find(x=>String(x.id)===String(fp.dataset.cav));
+    if(!p || p.ecm==null) return;
+    const e = Number(p.ecm);
+    const isFocusCav = focusConn==='ix_f102_m72' && String(focusCav)===String(fp.dataset.cav);
+    const onFocusEcm = focusPin!=null && e===Number(focusPin);
+    const onPath = ecmSet && ecmSet.has(e);
+    if(!(isFocusCav || onFocusEcm || onPath)) return;
+    fp.classList.remove('dim','hl','hl-end','hl-group');
+    fp.classList.add((isFocusCav || onFocusEcm) ? 'hl' : 'hl-group');
+  });
 }
 
 function selectPin(p){
