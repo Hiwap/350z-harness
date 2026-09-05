@@ -411,17 +411,27 @@ function fgFor(hex){
   return hexLum(hex) > 0.42 ? '#111' : '#f5f5f5';
 }
 function fgForWire(w){
+  // ECM pins (HTML): dual-color → light ink + CSS text-shadow
   if(!w) return '#f5f5f5';
-  // Dual-color (B/W, G/Y…): light ink + halo reads on both halves
   if(w.tracer) return '#f5f5f5';
+  return fgFor(w.c1);
+}
+/** Ficha cavities (SVG): pick ink from avg luminance — no heavy halo (blobs on small text). */
+function fgForWireCav(w){
+  if(!w) return '#111';
+  if(w.tracer){
+    const L = (hexLum(w.c1) + hexLum(w.c2)) / 2;
+    return L > 0.42 ? '#111' : '#f5f5f5';
+  }
   return fgFor(w.c1);
 }
 function svgInk(fill, forceHalo){
   const f = fill || '#f5f5f5';
   if(!forceHalo) return `fill="${f}"`;
+  // Thin halo only when needed (optional); prefer clean fill for cavities
   const lightInk = hexLum(f) >= 0.5;
   const stroke = lightInk ? '#000' : '#fff';
-  return `fill="${f}" stroke="${stroke}" stroke-width="2.4" paint-order="stroke fill" stroke-linejoin="round"`;
+  return `fill="${f}" stroke="${stroke}" stroke-width="1.1" paint-order="stroke fill" stroke-linejoin="round"`;
 }
 
 /* ========== OEM pin data (2005 VQ35DE FSM) ========== */
@@ -886,11 +896,11 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const disp = cavDisplayLab(pin);
   const lc = labClass(disp);
   const rail = cavRailOf(pin);
-  let txtFill = mode === 'solid' ? fgForWire(wcol) : '#111';
+  let txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#111';
   if(mode !== 'solid' && lc === 'lab-5v') txtFill = '#F9A825';
   if(mode !== 'solid' && lc === 'lab-12v') txtFill = '#C62828';
   if(mode !== 'solid' && lc === 'lab-gnd') txtFill = '#2E7D32';
-  const ink = (c) => svgInk(c, mode === 'solid');
+  const ink = (c) => svgInk(c, false);
   const idY = y + 9;
   const codeY = y + h/2 + 2;
   const ecmY = y + h - 5;
@@ -996,8 +1006,8 @@ function svgRing(cid, f){
     ? `<circle class="cav-tracer" cx="45" cy="34" r="7" fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
   const mode = document.body.dataset.mode || 'outlines';
-  const txtFill = mode === 'solid' ? fgForWire(wcol) : '#111';
-  const ink = (c) => svgInk(c, mode === 'solid');
+  const txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#111';
+  const ink = (c) => svgInk(c, false);
   return `<svg class="conn-svg" viewBox="0 0 90 84" xmlns="http://www.w3.org/2000/svg">
     <g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(p.id)}">
       ${defs}
