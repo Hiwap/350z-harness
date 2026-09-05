@@ -284,16 +284,31 @@
   }
   #ecm #f102Blocks .f102-face-block .row {
     display: flex; gap: 2px; flex-wrap: nowrap;
-    justify-content: center;
+    justify-content: flex-start; /* shorter bot rows leave gap on the right like PG-85 */
   }
   #ecm #f102Blocks .pin {
-    width: 34px; height: auto; min-height: 44px; padding: 2px 1px;
-    font-size: 9px; line-height: 1.05;
+    width: 30px; height: auto; min-height: 42px; padding: 2px 1px;
+    font-size: 8.5px; line-height: 1.05;
     flex: 0 0 auto;
   }
+  /* PG-85: left block cavities are larger than mid/right */
+  #ecm #f102Blocks .f102-face-block.pin-lg .pin {
+    width: 40px; min-height: 48px; font-size: 9.5px;
+  }
+  #ecm #f102Blocks .f102-face-block.pin-lg .pin small { font-size: 7.5px; }
+  #ecm #f102Blocks .f102-face-block.pin-lg .pin .dest { font-size: 7.5px; }
+  #ecm #f102Blocks .f102-face-block.pin-sm .pin {
+    width: 26px; min-height: 40px; font-size: 7.5px;
+  }
+  #ecm #f102Blocks .f102-face-block.pin-sm .pin small { font-size: 6px; }
+  #ecm #f102Blocks .f102-face-block.pin-sm .pin .dest { font-size: 6px; }
   #ecm #f102Blocks .pin small { font-size: 7px; font-weight: 700; opacity: 0.95; }
   #ecm #f102Blocks .pin .dest {
     display: block; font-size: 7px; font-weight: 800; color: #90caf9; margin-top: 1px;
+  }
+  #ecm #f102Blocks .pin.f102-spacer {
+    visibility: hidden; pointer-events: none; border: none; background: transparent;
+    min-height: 0;
   }
   #ecm #f102Blocks .pin.empty .dest,
   #ecm #f102Blocks .pin.unused .dest { color: #555; }
@@ -392,10 +407,16 @@
       padding: 6px 4px 4px;
     }
     #ecm #f102Blocks .pin {
-      width: 28px; min-height: 40px; font-size: 8px;
+      width: 24px; min-height: 36px; font-size: 7px;
     }
-    #ecm #f102Blocks .pin small { font-size: 6.5px; }
-    #ecm #f102Blocks .pin .dest { font-size: 6.5px; }
+    #ecm #f102Blocks .f102-face-block.pin-lg .pin {
+      width: 32px; min-height: 42px; font-size: 8px;
+    }
+    #ecm #f102Blocks .f102-face-block.pin-sm .pin {
+      width: 22px; min-height: 34px; font-size: 6.5px;
+    }
+    #ecm #f102Blocks .pin small { font-size: 6px; }
+    #ecm #f102Blocks .pin .dest { font-size: 6px; }
   }
   @media (max-width: 600px) {
     #ecm { --pin-w: 24px; --pin-h: 30px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
@@ -405,11 +426,17 @@
     #ecm #f102Blocks .f102-face-block { padding: 4px 2px 2px; }
     #ecm #f102Blocks .f102-face-block .tag { font-size: 9px; }
     #ecm #f102Blocks .pin {
-      width: 22px; min-height: 36px; font-size: 7px; padding: 1px 0;
+      width: 20px; min-height: 32px; font-size: 6.5px; padding: 1px 0;
       border-width: 2px;
     }
-    #ecm #f102Blocks .pin small { font-size: 5.5px; }
-    #ecm #f102Blocks .pin .dest { font-size: 5.5px; margin-top: 0; }
+    #ecm #f102Blocks .f102-face-block.pin-lg .pin {
+      width: 28px; min-height: 38px; font-size: 7.5px;
+    }
+    #ecm #f102Blocks .f102-face-block.pin-sm .pin {
+      width: 18px; min-height: 30px; font-size: 6px;
+    }
+    #ecm #f102Blocks .pin small { font-size: 5px; }
+    #ecm #f102Blocks .pin .dest { font-size: 5px; margin-top: 0; }
     .pin { border-width: 2px; border-radius: 4px; }
     .pin.has-tracer::after { inset: 1px; border-width: 1.5px; }
     .block .tag { font-size: 9px; }
@@ -1448,10 +1475,12 @@ function svgF102(cid, f){
     { top:['11H','12H','13H','14H','15H','16H','17H','18H','19H','20H'], bot:['21H','22H','23H','24H','25H','26H','27H','28H','29H'] },
     { top:['30H','31H','32H','33H','34H','35H','36H','37H','38H'], bot:['39H','40H','41H','42H','43H','44H','45H','46H'] },
   ];
-  const cw=22, ch=30, gap=2, blockGap=8, padX=8, padTop=16;
-  const maxTop = Math.max(...blocks.map(b=>b.top.length));
+  /* PG-85: left block cavities larger; mid/right smaller */
+  const sizes = [{cw:28,ch:34},{cw:18,ch:28},{cw:18,ch:28}];
+  const gap=2, blockGap=8, padX=8, padTop=16;
   let cavities='', x=padX;
   blocks.forEach((blk, bi)=>{
+    const cw = sizes[bi].cw, ch = sizes[bi].ch;
     const cols = Math.max(blk.top.length, blk.bot.length);
     blk.top.forEach((id,i)=>{
       const p = byId[id] || {id, code:'—', ecm:null};
@@ -1461,15 +1490,15 @@ function svgF102(cid, f){
       const p = byId[id] || {id, code:'—', ecm:null};
       cavities += cavGroup(cid, p, x+i*(cw+gap), padTop+ch+gap, cw, ch, 2);
     });
-    // block divider tick
     if(bi < blocks.length-1){
       const dx = x + cols*(cw+gap) + blockGap/2 - 1;
-      cavities += `<line x1="${dx}" y1="${padTop-2}" x2="${dx}" y2="${padTop+2*ch+gap+2}" stroke="${f.accent}" stroke-width="1" opacity="0.45"/>`;
+      const h = Math.max(sizes[0].ch, sizes[1].ch);
+      cavities += `<line x1="${dx}" y1="${padTop-2}" x2="${dx}" y2="${padTop+2*h+gap+2}" stroke="${f.accent}" stroke-width="1" opacity="0.45"/>`;
     }
     x += cols*(cw+gap) + blockGap;
   });
   const W = x - blockGap + padX;
-  const H = padTop + 2*ch + gap + 10;
+  const H = padTop + 2*Math.max(...sizes.map(s=>s.ch)) + gap + 10;
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-18} 2 h36 l6 10 H${W/2-24} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="12" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
@@ -1909,10 +1938,11 @@ function makePinEl(p){
 
 
 /** F102 SMJ · full PG-85 face (3 blocks, 1H–46H) — interactive in #ecm. */
+/** PG-85 F102 H.S.: L = large cavities; M/R = small; bot rows shorter (gap at right). */
 const F102_FACE_BLOCKS = [
-  { tag: 'L · 1H–10H', top:['1H','2H','3H','4H','5H'], bot:['6H','7H','8H','9H','10H'] },
-  { tag: 'M · 11H–29H', top:['11H','12H','13H','14H','15H','16H','17H','18H','19H','20H'], bot:['21H','22H','23H','24H','25H','26H','27H','28H','29H'] },
-  { tag: 'R · 30H–46H', top:['30H','31H','32H','33H','34H','35H','36H','37H','38H'], bot:['39H','40H','41H','42H','43H','44H','45H','46H'] },
+  { tag: 'L · 1H–10H', pinSize: 'lg', top:['1H','2H','3H','4H','5H'], bot:['6H','7H','8H','9H','10H'] },
+  { tag: 'M · 11H–29H', pinSize: 'sm', top:['11H','12H','13H','14H','15H','16H','17H','18H','19H','20H'], bot:['21H','22H','23H','24H','25H','26H','27H','28H','29H'], botPadEnd: 1 },
+  { tag: 'R · 30H–46H', pinSize: 'sm', top:['30H','31H','32H','33H','34H','35H','36H','37H','38H'], bot:['39H','40H','41H','42H','43H','44H','45H','46H'], botPadEnd: 1 },
 ];
 
 function makeF102PinEl(pin){
@@ -1968,18 +1998,25 @@ function renderF102(){
   blocksEl.innerHTML = '';
   F102_FACE_BLOCKS.forEach(g => {
     const blk = document.createElement('div');
-    blk.className = 'f102-face-block';
-    const mkRow = (ids) => {
+    blk.className = 'f102-face-block pin-' + (g.pinSize || 'sm');
+    const mkRow = (ids, padEnd) => {
       const row = document.createElement('div');
       row.className = 'row';
       ids.forEach(id => {
         const p = byId[id] || {id, code:'—', ecm:null};
         row.appendChild(makeF102PinEl(p));
       });
+      /* PG-85: shorter bottom row — invisible spacers on the right so columns line up */
+      for(let i=0; i<(padEnd||0); i++){
+        const sp = document.createElement('div');
+        sp.className = 'pin empty f102-spacer';
+        sp.setAttribute('aria-hidden','true');
+        row.appendChild(sp);
+      }
       return row;
     };
-    blk.appendChild(mkRow(g.top));
-    blk.appendChild(mkRow(g.bot));
+    blk.appendChild(mkRow(g.top, 0));
+    blk.appendChild(mkRow(g.bot, g.botPadEnd || 0));
     const tagEl = document.createElement('div');
     tagEl.className = 'tag';
     tagEl.textContent = g.tag;
