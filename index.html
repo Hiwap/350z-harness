@@ -1774,8 +1774,8 @@ const CONN_I18N = {
   /* —— remaining connectors —— */
   ipdm_e3: { en:{name:'IPDM E3', meta:'2-pin · batt in · PG-26'}, ja:{name:'IPDM E3（バッテリ入力）', meta:'2ピン · バッテリ入力 · PG-26'} },
   ipdm_e7: { en:{name:'IPDM E7', meta:'VB / lamps / wiper · PG-26 · EC/LT/WW/SC'}, ja:{name:'IPDM E7（VB / ランプ / ワイパー）', meta:'VB / ランプ / ワイパー · PG-26'} },
-  ipdm_e8: { en:{name:'IPDM E8', meta:'GND / VMOT / FP / A/C · PG-26'}, ja:{name:'IPDM E8（GND / VMOT / FP / A/C）', meta:'GND / VMOT / FP / A/C · PG-26'} },
-  ipdm_e9: { en:{name:'IPDM E9', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'}, ja:{name:'IPDM E9（SSOFF / MOTRLY / CAN）', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'} },
+  ipdm_e8: { en:{name:'IPDM E8', meta:'GND / VMOT / FP / A/C · PG-26'}, ja:{name:'IPDM E8（アース / VMOT / FP / A/C）', meta:'GND / VMOT / FP / A/C · PG-26'} },
+  ipdm_e9: { en:{name:'IPDM E9', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'}, ja:{name:'IPDM E9（SSOFF / MOTRLY / CANバス）', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'} },
   ipdm_e4: { en:{name:'IPDM E4', meta:'starter · PG-26 · SC-13/14 · Inv face'}, ja:{name:'IPDM E4（スタータ）', meta:'スタータ · PG-26 · 反転面'} },
   ipdm_e5: { en:{name:'IPDM E5', meta:'cooling fan · PG-26 · EC-510 · Inv face'}, ja:{name:'IPDM E5（冷却ファン）', meta:'冷却ファン · PG-26 · 反転面'} },
   ipdm_e6: { en:{name:'IPDM E6', meta:'cooling fan / 40A in · EC-510 · Inv face'}, ja:{name:'IPDM E6（冷却ファン / 40A）', meta:'冷却ファン / 40A入力 · 反転面'} },
@@ -1831,7 +1831,7 @@ const CONN_I18N = {
   ascd_brake: { en:{name:'ASCD brake switch', meta:'2-pin · term2 → ECM 108'}, ja:{name:'ASCDブレーキSW', meta:'2ピン · term2 → ECM 108'} },
   ascd_clutch: { en:{name:'ASCD clutch switch', meta:'M/T only · in series with ASCD brake → ECM 108'}, ja:{name:'ASCDクラッチSW', meta:'M/Tのみ · ASCDブレーキと直列 → ECM 108'} },
   clock_spring: { en:{name:'Clock spring / ASCD steer', meta:'comb. sw · SIG→99 · GND→67'}, ja:{name:'クロックスプリング / ASCDステア', meta:'コンビSW · SIG→99 · GND→67'} },
-  dlc: { en:{name:'DLC OBD-II', meta:'under dash · 16-pin'}, ja:{name:'DLC（OBD-II）', meta:'ダッシュ下 · 16ピン'} },
+  dlc: { en:{name:'DLC OBD-II', meta:'under dash · 16-pin'}, ja:{name:'DLC診断コネクタ（OBD-II）', meta:'ダッシュ下 · 16ピン'} },
   fuel_level: {
     en: { name:'Fuel level', meta:'via combination meter / CAN',
       note:'Fuel level does not reach the ECM on a direct cavity: it goes to the combination meter and is shared over CAN (ECM 86/94).' },
