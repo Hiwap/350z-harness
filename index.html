@@ -440,7 +440,7 @@ function svgInk(fill, withHalo){
 const PIN_COL = {"1":"B","2":"GY/R","3":"G","4":"L/B","5":"L/Y","6":"P/L","10":"W/G","11":"P","12":"L/W","13":"W/L","14":"R/L","15":"W","16":"LG/B","21":"SB","22":"R/Y","23":"R/B","24":"G/Y","25":"P/B","32":"BR/W","33":"R","34":"Y/G","35":"L/W","40":"LG","41":"W/B","42":"B/R","45":"G/W","47":"W/R","48":"PU","49":"B","50":"G","51":"OR","55":"L/B","56":"W/L","57":"L","58":"W","60":"PU/W","61":"L/R","62":"Y/R","66":"L","67":"B/W","68":"R/W","69":"Y","70":"G/R","73":"BR/Y","75":"P/B","76":"LG","77":"P","78":"B/Y","79":"GY/R","80":"GY","81":"G/B","82":"G/Y","83":"G/R","85":"LG","86":"P","90":"LG","91":"B/OR","94":"L","98":"G/B","99":"G/Y","101":"L/OR","102":"BR/Y","104":"SB","106":"G/OR","107":"GY/R","108":"B/R","109":"W/B","111":"GY/L","113":"LG/B","115":"B/W","116":"B/R","117":"G/W","119":"R/W","120":"P","121":"R/W"};
 
 const PIN_NAME = {
-  1:"GND ECM",2:"A/F heater B1",3:"VMOT alim",4:"TB motor −",5:"TB motor +",
+  1:"GND ECM",2:"A/F heater B1",3:"VMOT supply",4:"TB motor −",5:"TB motor +",
   6:"HO2S2 htr B2",10:"VTC intake B2",11:"VTC intake B1",12:"PSP sensor",13:"CKP signal",14:"CMP B2",15:"Knock",
   16:"A/F B1 input",21:"INJ5",22:"INJ3",23:"INJ1",24:"A/F heater B2",25:"HO2S2 htr B1",
   32:"EVAP press",33:"CMP B1",34:"IAT",35:"A/F B1",40:"INJ6",41:"INJ4",42:"INJ2",
@@ -1291,6 +1291,7 @@ const I18N = {
     collapseIdle: 'Colapsar subcats sin selección',
     optsSummary: 'Opciones / Options',
     railActive: 'Rails activos',
+    pinEcm: 'ECM pin',
     railActiveHint: 'pines/cavidades coincidentes resaltados; resto atenuado. Click de nuevo en el botón para apagar.',
     warnSummary: '⚠ Orientación ECM',
     optOutlines: 'Contornos',
@@ -1331,6 +1332,7 @@ const I18N = {
     collapseIdle: 'Collapse unused subcategories',
     optsSummary: 'Options',
     railActive: 'Rails active',
+    pinEcm: 'ECM pin',
     railActiveHint: 'matching pins/cavities highlighted; rest dimmed. Click the button again to turn off.',
     warnSummary: '⚠ ECM orientation',
     optOutlines: 'Outlines',
@@ -1361,6 +1363,7 @@ const I18N = {
     lblLang: '言語',
     collapseIdle: '未選択のサブを折りたたむ',
     railActive: 'レール ON',
+    pinEcm: 'ECMピン',
     railActiveHint: '一致ピン/キャビティを強調、他は薄く。もう一度ボタンでオフ。',
     optsSummary: 'オプション / Options',
     warnSummary: '⚠ ECM向き',
@@ -1705,6 +1708,22 @@ const CONN_I18N = {
   ho2s_b2: {
     en: { name:'HO2S2 B2', meta:'post-cat LH' },
     ja: { name:'HO2S2 B2', meta:'ポストキャット 左' },
+  },
+  batt_feed: {
+    en: { name:'BATT feed', meta:'ECM 121 · always hot' },
+    ja: { name:'BATT供給', meta:'ECM 121 · 常時電源' },
+  },
+  ign_sw: {
+    en: { name:'IGN SW', meta:'key switch signal → ECM 109' },
+    ja: { name:'IGN SW', meta:'イグニッションSW信号 → ECM 109' },
+  },
+  ecm_relay: {
+    en: { name:'ECM relay control', meta:'ECM 111 · coil drive' },
+    ja: { name:'ECMリレー制御', meta:'ECM 111 · コイル駆動' },
+  },
+  vmot: {
+    en: { name:'VMOT supply', meta:'throttle motor power · ECM 3' },
+    ja: { name:'VMOT電源', meta:'スロットルモータ電源 · ECM 3' },
   },
 
 };
@@ -2171,7 +2190,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     });
   }
   const pinInfo = focusPin!=null
-    ? `<div style="margin-bottom:6px"><b>Pin ECM ${focusPin}</b> · ${PIN_NAME[focusPin]||''} · <code>${PIN_COL[focusPin]||'—'}</code></div>`
+    ? `<div style="margin-bottom:6px"><b>${esc(t('pinEcm'))} ${focusPin}</b> · ${PIN_NAME[focusPin]||''} · <code>${PIN_COL[focusPin]||'—'}</code></div>`
     : '';
   const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = pinInfo + lines.join('');
   revealConns([...connSet]);
@@ -2197,7 +2216,7 @@ function selectPin(p){
         if(pin.ecm===p) cav.classList.add('hl-end'); else cav.classList.add('hl-group');
       });
     });
-    const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = `<b>Pin ECM ${p}</b> · ${PIN_NAME[p]||''} · <code>${PIN_COL[p]||'—'}</code><div style="color:var(--muted)">${t('noWide')}</div>`;
+    const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = `<b>${esc(t('pinEcm'))} ${p}</b> · ${PIN_NAME[p]||''} · <code>${PIN_COL[p]||'—'}</code><div style="color:var(--muted)">${t('noWide')}</div>`;
     revealConns(found);
     return;
   }
