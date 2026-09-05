@@ -73,7 +73,7 @@
   .pin.dim { opacity: 0.22; }
   .pin.hl { outline: 3px solid var(--hl); outline-offset: 1px; box-shadow: 0 0 0 1px #000, 0 0 12px rgba(255,213,79,.55);
     opacity: 1 !important; z-index: 2; }
-  .pin.hl-end { outline-color: var(--hl2); box-shadow: 0 0 0 1px #000, 0 0 12px rgba(79,195,247,.5); }
+  .pin.hl-end { outline-color: var(--hl2); box-shadow: 0 0 0 1px #000, 0 0 12px rgba(79,195,247,.5); opacity: 1 !important; z-index: 2; }
   .pin.hl-group { outline: 2px solid #ab47bc; outline-offset: 1px; opacity: 1 !important; }
 
   body[data-mode="solid"] .pin:not(.empty):not(.unused) {
@@ -176,6 +176,69 @@
   .info { margin-top: 10px; font-size: 12px; line-height: 1.45; color: #cfd8dc; min-height: 70px;
     border-top: 1px solid var(--border); padding-top: 8px; }
   .info b { color: #fff; }
+
+  /* F102 interactive verified pin grid (collapsible; idle = collapsed) */
+  #ecm details.f102-panel {
+    margin-top: 14px;
+    border: 1px solid #2a3344;
+    border-radius: 10px;
+    background: #12161d;
+  }
+  #ecm details.f102-panel > summary {
+    list-style: none; cursor: pointer; user-select: none;
+    padding: 8px 12px; font-size: 13px; font-weight: 700; color: #e8eaed;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #ecm details.f102-panel > summary::-webkit-details-marker { display: none; }
+  #ecm details.f102-panel > summary::before {
+    content: '▾'; font-size: 11px; color: #90a4ae; transition: transform .12s ease;
+  }
+  #ecm details.f102-panel:not([open]) > summary::before {
+    content: '▸'; opacity: 0.55;
+  }
+  #ecm details.f102-panel[open] > summary {
+    border-bottom: 1px solid #2a3344;
+  }
+  #ecm details.f102-panel.hl {
+    border-color: var(--hl);
+    box-shadow: 0 0 0 1px rgba(255,213,79,.28);
+  }
+  #ecm details.f102-panel.hl > summary { color: #ffe082; }
+  #ecm .f102-panel > .legend { padding: 4px 12px 0; }
+  #ecm #f102Blocks {
+    display: flex; gap: 12px; align-items: flex-start;
+    flex-wrap: wrap; justify-content: flex-start;
+    min-width: 0; width: auto; max-width: 100%; padding: 6px 12px 10px;
+  }
+  #ecm #f102Blocks .f102-face-block {
+    display: flex; flex-direction: column; gap: 3px;
+    padding: 6px 6px 4px; border: 1px solid #2a3344; border-radius: 8px;
+    background: #0e1218;
+  }
+  #ecm #f102Blocks .f102-face-block .tag {
+    font-size: 10px; color: #90a4ae; font-weight: 700; text-align: center;
+  }
+  #ecm #f102Blocks .f102-face-block .row {
+    display: flex; gap: 2px; flex-wrap: nowrap;
+  }
+  #ecm #f102Blocks .pin {
+    width: 34px; height: auto; min-height: 44px; padding: 2px 1px;
+    font-size: 9px; line-height: 1.05;
+  }
+  #ecm #f102Blocks .pin small { font-size: 7px; font-weight: 700; opacity: 0.95; }
+  #ecm #f102Blocks .pin .dest {
+    display: block; font-size: 7px; font-weight: 800; color: #90caf9; margin-top: 1px;
+  }
+  #ecm #f102Blocks .pin.empty .dest,
+  #ecm #f102Blocks .pin.unused .dest { color: #555; }
+  /* empty cavities stay visible on face but not clickable */
+  #ecm #f102Blocks .pin.empty {
+    pointer-events: none;
+  }
+  /* wired cavities always clickable even if somehow empty-styled */
+  #ecm #f102Blocks .pin[data-wired="1"] {
+    pointer-events: auto; cursor: pointer;
+  }
   .pill { display: inline-block; padding: 1px 6px; border-radius: 999px; border: 1px solid #445; font-size: 10px; margin-right: 4px; }
 
   .rail-toggles { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-left: 4px; }
@@ -358,6 +421,11 @@
     <div class="legend" id="legend"></div>
     <div class="blocks" id="blocks"></div>
     <div class="info" id="info"></div>
+    <details class="f102-panel" id="f102Panel" open>
+      <summary id="f102Title">F102 · SMJ (mate M72) · PG-85</summary>
+      <div class="legend" id="f102Legend" style="font-size:11px;color:var(--muted)">PG-85 · click cavity → ECM path</div>
+      <div class="blocks" id="f102Blocks"></div>
+    </details>
   </section>
   <section class="card">
     <h2 id="fichasTitle">Fichas · Arnés motor + Habitáculo / Body</h2>
@@ -498,8 +566,8 @@ function buildCircuits(model){
       ecm:[2,16,35,56,75], conn:['af_b1','feed_af_12v','ix_e12_f3'], notes:'Calentador B1 → ECM 2 (GY/R). Pin 3 = 12V fusible (no ECM). Path puede pasar intermedia E12/F3 (ver FSM).'},
     {id:'af_b2', title:'A/F Sensor 1 Bank 2', color:'#2e7d32',
       ecm:[24,76,55,57,58,77], conn:['af_b2','feed_af_12v','ix_e12_f3'], notes:'Calentador B2 → ECM 24 (G/Y). Pin 3 = 12V fusible. Path puede pasar intermedia E12/F3 (ver FSM).'},
-    {id:'app_5v', title:'APP 5V + rails A/C · EVAP · PSP', color:'#f9a825',
-      ecm:[90,91,47,48,49,68], conn:['app','ix_e11_f2','ac_press','evap_press','psp'], notes:'5V APP1/APP2 (90/91) vía intermedia E11/F2 (pedal E113→E11/F2→ECM). Rails compartidos 47/48/49/68 (PSP 5V en 68; señal PSP es ECM 12).'},
+    {id:'app_5v', title:'APP 5V', color:'#f9a825',
+      ecm:[90,91], conn:['app','ix_e11_f2'], notes:'5V APP1/APP2 (90/91) vía E11/F2 (pedal E113→E11/F2→ECM). Rails 47/48/49/68: usar toggle 5V (no se agrupan al click).'},
     {id:'app_gnd', title:'APP grounds', color:'#f9a825',
       ecm:[82,83], conn:['app','ix_e11_f2'], notes:'Tierras sensor APP → ECM 82/83 vía intermedia E11/F2 (pedal E113→E11/F2→ECM · F2 cav 4/2).'},
     {id:'app_sig', title:'APP señales APS1/APS2', color:'#f9a825',
@@ -508,8 +576,7 @@ function buildCircuits(model){
       ecm:[49,70], conn:['ac_press'], notes:'5V ECM 49 (B) · señal ECM 70 (G/R). Sensor en bahía motor / arnés body según ruteo.'},
     {id:'gnd_ecm', title:'ECM ground → body ground', color:'#66bb6a',
       ecm:[1,115,116], conn:['gnd4','e17','ix_f103_f151'], notes:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground vía harness connectors F103, F151.'},
-    {id:'sns_gnd', title:'Sensor grounds (SNS GND)', color:'#ef6c00',
-      ecm:[66,67,78], conn:['knock'], notes:'SNS GND ECM 66/67/78 · shields de sensores a tierra de sensor (FSM EC).'},
+
     {id:'knock', title:'Knock sensor', color:'#42a5f5',
       ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Señal ECM 15 (W) vía intermedia F14/F229 · shield a SNS GND (FSM EC).'},
     {id:'psp', title:'PSP · Power steering pressure', color:'#00897b',
@@ -526,20 +593,32 @@ function buildCircuits(model){
       ecm:[62,81,61,80,60,79], conn:['coil1','coil2','coil3','coil4','coil5','coil6','feed_inj_coil_12v'], notes:'Drive ECM + alimentación 12V común.'},
     {id:'injectors', title:'Inyectores ×6', color:'#9ccc65',
       ecm:[23,42,22,41,21,40], conn:['inj1','inj2','inj3','inj4','inj5','inj6','feed_inj_coil_12v'], notes:'Drive ECM + 12V común.'},
-    {id:'power_ign', title:'Alimentación ECM 12V', color:'#ef5350',
-      ecm:[121,119,120,109,111,104,3], conn:['ix_e12_f3','batt_feed','ign_sw','ecm_relay','vmot'], notes:'121 BATT always · 119/120 vía IPDM E7-18 (E12/F3) · 109 IGN SW · 111 relay (E9-46) · 104 MOTRLY (E9-47) · 3 VMOT (E8-42).'},
+    {id:'batt_ecm', title:'BATT feed ECM', color:'#ef5350',
+      ecm:[121], conn:['batt_feed'], notes:'ECM 121 always-hot BATT.'},
+    {id:'ign_feeds', title:'IGN feeds ECM 119/120', color:'#ef5350',
+      ecm:[119,120], conn:['ix_e12_f3'], notes:'119/120 vía IPDM E7-18 · intermedia E12/F3.'},
+    {id:'ign_sw', title:'IGN SW → ECM', color:'#ef5350',
+      ecm:[109], conn:['ign_sw','ix_f102_m72'], notes:'IGN SW → ECM 109 (W/B) · F102 17H.'},
+    {id:'ecm_relay_ss', title:'ECM relay / SSOFF', color:'#ef5350',
+      ecm:[111], conn:['ecm_relay','ix_f102_m72'], notes:'SSOFF / relay → ECM 111 (GY/L) · F102 11H · IPDM E9-46.'},
+    {id:'motrly', title:'MOTRLY', color:'#ef5350',
+      ecm:[104], conn:['ecm_relay'], notes:'MOTRLY → ECM 104 · IPDM E9-47.'},
+    {id:'vmot', title:'VMOT supply', color:'#ef5350',
+      ecm:[3], conn:['vmot'], notes:'VMOT supply → ECM 3.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
       ecm:[113], conn:['fp_relay'], notes:'Control relé bomba → ECM 113 (LG/B).'},
     {id:'can', title:'CAN / DLC / combination meter', color:'#7e57c2',
-      ecm:[86,94], conn:['dlc','fuel_level','ascd_ind'], notes:'CAN-L ECM 86 (P) · CAN-H ECM 94 (L) · DLC pines 14/6 · datos vía combination meter / CAN.'},
+      ecm:[86,94], conn:['ecm_f101_can','ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','fuel_level','ascd_ind'], notes:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · también IPDM E9 48/49 · rama E108 2G/7G → ABS/DLC · datos vía combination meter / CAN. Bancada: loom solo 86↔94 = OL (sin terminadores 120Ω). Continuidad ECM↔F102 / ECM↔E9 válida en bancada.'},
     {id:'maf', title:'MAF', color:'#fb8c00',
       ecm:[51], conn:['maf','feed_ckp_maf_12v'], notes:'Señal MAF → ECM 51 (OR).'},
     {id:'tb', title:'ETC throttle body', color:'#029eb7',
       ecm:[4,5,47,50,69], conn:['etc'], notes:'Motor TB ± · TPS1/TPS2 · 5V rail 47.'},
     {id:'ho2s', title:'HO2S2 downstream ×2', color:'#8e24aa',
       ecm:[25,6], conn:['ho2s_b1','ho2s_b2','feed_ho2s_12v'], notes:'Heaters ECM 25 (B1) / 6 (B2) + 12V fusible.'},
-    {id:'evap', title:'EVAP purge + press', color:'#7b1fa2',
-      ecm:[45,32,48], conn:['evap_purge','evap_press'], notes:'Purge ECM 45 · presión ECM 32 · 5V ECM 48.'},
+    {id:'evap_press', title:'EVAP pressure', color:'#7b1fa2',
+      ecm:[32,48,67], conn:['evap_press','ix_f102_m72'], notes:'Señal ECM 32 (F102 19H BR/W) · 5V ECM 48 (F102 18H PU) · GND ECM 67 (F102 20H B/W).'},
+    {id:'evap_purge', title:'EVAP purge', color:'#8e24aa',
+      ecm:[45], conn:['evap_purge'], notes:'Purge solenoid → ECM 45 (no pasa por F102 en path verificado).'},
     {id:'brake_stop', title:'Stop lamp switch', color:'#e53935',
       ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], notes:'Señal freno → ECM 101 (L/OR). Path body puede pasar intermedias E108/M15 y F102/M72 (ver FSM).'},
     {id:'ascd_brake', title:'ASCD brake (+ clutch M/T)', color:'#fb8c00',
@@ -547,7 +626,7 @@ function buildCircuits(model){
     {id:'ascd_steer', title:'ASCD steering (clock spring)', color:'#26c6da',
       ecm:[99,67], conn:['clock_spring','ix_f102_m72'], notes:'Señal ASCD volante → ECM 99 (G/Y) vía clock spring. Tierra ECM 67. Path puede pasar F102/M72 (ver FSM).'},
   {id:'pnp_sw', title:'PNP / park-neutral (A/T)', color:'#ab47bc',
-      ecm:[102], conn:['pnp'], notes:'Interruptor PNP → ECM 102 (BR/Y). Solo A/T.'},
+      ecm:[102], conn:['pnp','ix_f102_m72'], notes:'Interruptor PNP → ECM 102 (BR/Y) vía F102 28H. Solo A/T.'},
 
   ];
   if(model === 'de_early'){
@@ -698,6 +777,9 @@ const CONN_BASE = {
     note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: terminales ECM 1 (B), 115 (B/W), 116 (B/R) = ECM ground → body ground. Path vía harness connectors F103, F151 (también F3/E12 en el diag.). Procedimiento: CHECK ECM GROUND CIRCUIT FOR OPEN AND SHORT.'},
   e17:{group:'motor', sub:'power', name:'Body ground (E17)', meta:'FSM: Body ground · ground point E17', accent:'#66bb6a', shape:'ring',
     pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
+  ecm_f101_can:{group:'motor', sub:'power', name:'ECM F101 · CAN', meta:'conector arnés ECM · CAN-H/L · FSM LAN', accent:'#7e57c2', shape:'tab2',
+    pins:[{id:'94',code:'L',ecm:94,lab:'CAN-H'},{id:'86',code:'P',ecm:86,lab:'CAN-L'}],
+    note:'F101 = conector del arnés a la ECM (lado loom). Solo cavidades CAN verificadas: 94 L = CAN-H · 86 P = CAN-L. Path: F101 → … → F102 26H/27H → M72 → DLC M8 6/14; también IPDM E9 48/49. Bancada: entre 86↔94 en loom solo = OL (terminadores en módulos).'},
 
   /* —— Alimentación en el arnés motor que NO pasa por cavidad ECM (FSM) —— */
   feed_af_12v:{group:'motor', sub:'feeds', name:'12V A/F heaters (fusible)', meta:'pin 3 A/F B1/B2 · no ECM', accent:'#ff7043', shape:'note',
@@ -800,10 +882,12 @@ const CONN_BASE = {
     pins:[], note:'Empalme intermedio Bank 1: path bobinas de encendido (12V/señal/tierra) y VTC/IVT solenoid B1 (ECM 11) hacia IPDM/ECM. Ver EC-458 (IVT) y EC-697 (IGNITION SIGNAL). Mapa de cavidades: ver FSM.'},
   ix_f221_f33:{group:'motor', sub:'intermedias', name:'F221 ↔ F33 · Path inyectores → ECM', meta:'inyectores 1–6 · continuidad a ECM 21–42 · EC-278', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Empalme intermedio del path de inyectores: F33↔F221 entre arnés de inyectores y ECM (cyl1→23 … cyl6→40). Usado en checks de función de inyector (EC-278). Mapa de cavidades: ver FSM.'},
-  ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · Sala máquinas ↔ body', meta:'freno / ASCD / A/F body join · engine room↔cabin', accent:'#fb8c00', shape:'ixnote',
-    pins:[], note:'Empalme sala de máquinas (E108) ↔ body/habitáculo (M15). Aparece en diag. freno, ASCD y varios paths que cruzan al body. Pinout de cara: ver FSM.'},
-  ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · Arnés control ↔ body', meta:'ASCD / freno / meter · control harness↔body', accent:'#26c6da', shape:'ixnote',
-    pins:[], note:'Empalme arnés de control EC (F102) ↔ body (M72). Path ASCD, freno y meter hacia habitáculo. Pinout de cara: ver FSM.'},
+  ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · CAN (rama ABS/DLC)', meta:'2G/7G CAN · engine room↔body · FSM LAN', accent:'#90a4ae', shape:'tab2',
+    pins:[{id:'2G',code:'L',ecm:94,lab:'CAN-H'},{id:'7G',code:'P',ecm:86,lab:'CAN-L'}],
+    note:'Empalme sala de máquinas (E108) ↔ body (M15). Cavidades CAN verificadas: 2G L = CAN-H (cont. DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. DLC 14 / ABS E51-23). Rama hacia ABS/DLC vía body. Otras cavidades (freno/ASCD/A/F) existen; solo se listan pines CAN verificados. Cara: FSM H.S. (intermedias sin Invertida).'},
+  ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ engine control', meta:'blanco · PG-85 · mate M72 · 13 cav. verificadas', accent:'#90a4ae', shape:'f102', face:'smj_h',
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'—',ecm:null},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'—',ecm:null},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'GND',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'—',ecm:null},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'—',ecm:null},{id:'30H',code:'—',ecm:null},{id:'31H',code:'—',ecm:null},{id:'32H',code:'—',ecm:null},{id:'33H',code:'—',ecm:null},{id:'34H',code:'—',ecm:null},{id:'35H',code:'—',ecm:null},{id:'36H',code:'—',ecm:null},{id:'37H',code:'—',ecm:null},{id:'38H',code:'—',ecm:null},{id:'39H',code:'—',ecm:null},{id:'40H',code:'—',ecm:null},{id:'41H',code:'—',ecm:null},{id:'42H',code:'—',ecm:null},{id:'43H',code:'—',ecm:null},{id:'44H',code:'—',ecm:null},{id:'45H',code:'—',ecm:null},{id:'46H',code:'—',ecm:null}],
+    note:'F102 = ENGINE CONTROL HARNESS (white SMJ, PG-85) · mate M72 MAIN HARNESS. Cara FSM H.S. looking into F102 (sin Invertida). Bloques: L 1H–10H · M 11H–29H · R 30H–46H. Verificadas: 1H B/W→67 ASCD ret · 2H B/R→108 ASCD brake · 7H G/Y→99 ASCD steer · 11H GY/L→111 SSOFF · 17H W/B→109 IGN · 18H PU→48 EVAP 5V · 19H BR/W→32 EVAP sig · 20H B/W→67 EVAP GND · 21H L/OR→101 stop · 23H GY/R SC-START/meter · 26H L→94 CAN-H · 27H P→86 CAN-L · 28H BR/Y→102 PNP. Demás cavidades vacías/nc. Path CAN: ECM F101 94/86 → F102 26H/27H → M72 → DLC M8 6/14.'},
 
   /* —— Habitáculo / pedales / ASCD —— */
   pnp:{group:'body', sub:'pedals', name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
@@ -845,7 +929,7 @@ function rebuildIndexes(){
 
 function activeConnIds(model){
   // IPDM left out of web UI (still in print pack); exclude legacy non-FSM ids if present
-  const hide = new Set(['orange_box','blue_box']);
+  const hide = new Set(['orange_box','blue_box','ix_f102_m72']); /* F102 UI = #f102Panel */
   let ids = Object.keys(CONN_BASE).filter(id => !id.startsWith('ipdm_') && !hide.has(id));
   if(model === 'de_early'){
     ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2');
@@ -1260,6 +1344,49 @@ function svgIxNote(cid, f){
   </svg>`;
 }
 
+
+/** F102 SMJ · PG-85 H.S. looking into F102 (ENGINE CONTROL HARNESS, white).
+ *  Three blocks 2-row: L 1–5/6–10 · M 11–20/21–29 · R 30–38/39–46.
+ *  Intermedias: always FSM H.S. — do NOT apply flipRow / ECM Invertida.
+ *  Mate M72 (MAIN HARNESS) mirrors rows on PG-85. Primary ficha = F102. */
+function svgF102(cid, f){
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const blocks = [
+    { top:['1H','2H','3H','4H','5H'], bot:['6H','7H','8H','9H','10H'] },
+    { top:['11H','12H','13H','14H','15H','16H','17H','18H','19H','20H'], bot:['21H','22H','23H','24H','25H','26H','27H','28H','29H'] },
+    { top:['30H','31H','32H','33H','34H','35H','36H','37H','38H'], bot:['39H','40H','41H','42H','43H','44H','45H','46H'] },
+  ];
+  const cw=22, ch=30, gap=2, blockGap=8, padX=8, padTop=16;
+  const maxTop = Math.max(...blocks.map(b=>b.top.length));
+  let cavities='', x=padX;
+  blocks.forEach((blk, bi)=>{
+    const cols = Math.max(blk.top.length, blk.bot.length);
+    blk.top.forEach((id,i)=>{
+      const p = byId[id] || {id, code:'—', ecm:null};
+      cavities += cavGroup(cid, p, x+i*(cw+gap), padTop, cw, ch, 2);
+    });
+    blk.bot.forEach((id,i)=>{
+      const p = byId[id] || {id, code:'—', ecm:null};
+      cavities += cavGroup(cid, p, x+i*(cw+gap), padTop+ch+gap, cw, ch, 2);
+    });
+    // block divider tick
+    if(bi < blocks.length-1){
+      const dx = x + cols*(cw+gap) + blockGap/2 - 1;
+      cavities += `<line x1="${dx}" y1="${padTop-2}" x2="${dx}" y2="${padTop+2*ch+gap+2}" stroke="${f.accent}" stroke-width="1" opacity="0.45"/>`;
+    }
+    x += cols*(cw+gap) + blockGap;
+  });
+  const W = x - blockGap + padX;
+  const H = padTop + 2*ch + gap + 10;
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <path class="lock-tab" d="M${W/2-18} 2 h36 l6 10 H${W/2-24} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
+    <text x="${padX+2}" y="14" font-size="7" fill="#90a4ae" font-weight="700">F102</text>
+    <text x="${W-padX-2}" y="14" text-anchor="end" font-size="6.5" fill="#78909c">mate M72 · PG-85 H.S.</text>
+    ${cavities}
+  </svg>`;
+}
+
 function renderConnSvg(cid, f){
   f = Object.assign({}, f, { accent: accentForConn(f) });
   switch(f.shape){
@@ -1282,6 +1409,8 @@ function renderConnSvg(cid, f){
     case 'clock': return svgClock(cid,f);
     case 'note': return svgNote(cid,f);
     case 'ixnote': return svgIxNote(cid,f);
+    case 'f102':
+    case 'smj_h': return svgF102(cid,f);
     default: return svgTabN(cid,f,f.pins.length||2);
   }
 }
@@ -1332,6 +1461,8 @@ const I18N = {
     orientFsm: '📘 <b>FSM NORMAL</b> · como impreso en EC-123 · <b>1 a la IZQUIERDA</b> · 121 a la DERECHA · bloques 1–5 | 6–81 | 82–113 | 114–121 (espejo horizontal de la vista bancada)',
     noCirc: 'Sin circuito mapeado para ese pin.',
     noWide: 'Sin grupo de circuito amplio; mostrando fichas directas.',
+    f102Title: 'F102 · SMJ (mate M72) · PG-85 cara',
+    f102Legend: 'PG-85 H.S. · 1H–46H · click cable → fichas / ECM',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
   en: {
@@ -1366,6 +1497,8 @@ const I18N = {
     orientFsm: '📘 <b>FSM NORMAL</b> · as printed on EC-123 · <b>1 on the LEFT</b> · 121 on the RIGHT · blocks 1–5 | 6–81 | 82–113 | 114–121 (horizontal mirror of bay view)',
     noCirc: 'No circuit mapped for that pin.',
     noWide: 'No wide circuit group; showing direct connector cards.',
+    f102Title: 'F102 · SMJ (mate M72) · PG-85 face',
+    f102Legend: 'PG-85 H.S. · 1H–46H · click wire → fichas / ECM',
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
   },
   ja: {
@@ -1400,6 +1533,8 @@ const I18N = {
     orientFsm: '📘 <b>FSM通常</b> · EC-123印刷どおり · <b>1が左</b> · 121が右 · ブロック 1–5 | 6–81 | 82–113 | 114–121（ルーム視点の左右反転）',
     noCirc: 'そのピンに対応する回路がありません。',
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
+    f102Title: 'F102 · SMJ（mate M72）· PG-85',
+    f102Legend: 'PG-85 H.S. · 1H–46H · クリックで ECM / フィチャ',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
 };
@@ -1413,7 +1548,7 @@ const TITLES_I18N = {
   app_sig: {en:'APP signals APS1/APS2', ja:'APP信号 APS1/APS2'},
   ac_press: {en:'A/C refrigerant pressure', ja:'A/C冷媒圧力'},
   gnd_ecm: {en:'ECM ground → body ground', ja:'ECM ground → body ground'},
-  sns_gnd: {en:'Sensor grounds (SNS GND)', ja:'センサアース (SNS GND)'},
+
   knock: {en:'Knock sensor', ja:'ノックセンサ'},
   psp: {en:'PSP · Power steering pressure', ja:'PSP · パワステ圧力'},
   ckp: {en:'CKP / POS', ja:'CKP / POS'},
@@ -1422,13 +1557,20 @@ const TITLES_I18N = {
   ect: {en:'ECT', ja:'ECT'},
   ign_coils: {en:'Ignition coils ×6', ja:'イグニッションコイル ×6'},
   injectors: {en:'Injectors ×6', ja:'インジェクタ ×6'},
-  power_ign: {en:'ECM 12V power supply', ja:'ECM 12V電源'},
+  batt_ecm: {en:'BATT feed ECM', ja:'BATT供給 ECM'},
+  ign_feeds: {en:'IGN feeds ECM 119/120', ja:'IGN供給 ECM 119/120'},
+  ign_sw: {en:'IGN SW → ECM', ja:'IGN SW → ECM'},
+  ecm_relay_ss: {en:'ECM relay / SSOFF', ja:'ECMリレー / SSOFF'},
+  motrly: {en:'MOTRLY', ja:'MOTRLY'},
+  vmot: {en:'VMOT supply', ja:'VMOT供給'},
+
   fp_relay: {en:'Fuel pump relay', ja:'フューエルポンプリレー'},
   can: {en:'CAN / DLC / combination meter', ja:'CAN / DLC / コンビネーションメータ'},
   maf: {en:'MAF', ja:'MAF'},
   tb: {en:'ETC throttle body', ja:'ETCスロットルボディ'},
   ho2s: {en:'HO2S2 downstream ×2', ja:'HO2S2 下流 ×2'},
-  evap: {en:'EVAP purge + press', ja:'EVAPパージ + 圧力'},
+  evap_press: {en:'EVAP pressure', ja:'EVAP圧力'},
+  evap_purge: {en:'EVAP purge', ja:'EVAPパージ'},
   brake_stop: {en:'Stop lamp switch', ja:'ストップランプスイッチ'},
   ascd_brake: {en:'ASCD brake (+ clutch M/T)', ja:'ASCDブレーキ（+クラッチ M/T）'},
   ascd_steer: {en:'ASCD steering (clock spring)', ja:'ASCDステアリング（クロックスプリング）'},
@@ -1439,12 +1581,12 @@ const TITLES_I18N = {
 const NOTES_I18N = {
   af_b1: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。FSM 2005。'},
   af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
-  app_5v: {en:'5V APP1/APP2 (90/91) via intermediate E11/F2 (pedal E113→E11/F2→ECM); shared rails 47/48/49/68.', ja:'5V APP1/APP2 (90/91) は中間E11/F2経由（ペダルE113→F2→ECM）。共有レール47/48/49/68。'},
+  app_5v: {en:'5V APP1/APP2 (90/91) via E11/F2. Shared rails 47/48/49/68 → use 5V toggle.', ja:'APP1/APP2 5V (90/91) E11/F2経由。共有レール 47/48/49/68 は 5V トグル。'},
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
   app_sig: {en:'APS1→106 · APS2→98 via intermediate E11/F2 (pedal E113→E11/F2→ECM).', ja:'APS1→106 · APS2→98（中間E11/F2経由）。'},
   ac_press: {en:'5V ECM 49 (B) · signal ECM 70 (G/R). Sensor in engine bay / body harness per routing.', ja:'5V ECM 49 (B) · 信号 ECM 70 (G/R)。センサはエンジンルーム/ボディ側配線。'},
   gnd_ecm: {en:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground via harness connectors F103, F151.', ja:'FSM EC POWER SUPPLY AND GROUND CIRCUIT：ECM ground（1 / 115 / 116）→ body ground（ハーネスコネクタ F103, F151）。'},
-  sns_gnd: {en:'SNS GND ECM 66/67/78 · sensor shields to sensor ground (FSM EC).', ja:'SNS GND ECM 66/67/78 · センサシールド → センサアース（FSM EC）。'},
+
   knock: {en:'Signal ECM 15 (W) via intermediate F14/F229 · shield to SNS GND (FSM EC).', ja:'信号 ECM 15 (W) は中間F14/F229経由 · シールドはSNS GNDへ（FSM EC）。'},
   psp: {en:'PSP signal → ECM 12 (L/W) · 5V rail ECM 68 (R/W) · ground via SNS GND. FSM 2005 EC.', ja:'PSP信号 → ECM 12 (L/W) · 5Vレール ECM 68 (R/W) · アースはSNS GND。FSM 2005 EC。'},
   ckp: {en:'CKP signal → ECM 13 (W/L). 12V feed on connector.', ja:'CKP信号 → ECM 13 (W/L)。コネクタに12V供給。'},
@@ -1453,13 +1595,14 @@ const NOTES_I18N = {
   ect: {en:'ECT signal → ECM 73 (BR/Y).', ja:'ECT信号 → ECM 73 (BR/Y)。'},
   ign_coils: {en:'ECM drive + common 12V feed.', ja:'ECM駆動 + 共通12V。'},
   injectors: {en:'ECM drive + common 12V.', ja:'ECM駆動 + 共通12V。'},
-  power_ign: {en:'121 BATT always · 119/120 via IPDM E7-18 (E12/F3) · 109 IGN SW · 111 relay (E9-46) · 104 MOTRLY (E9-47) · 3 VMOT (E8-42).', ja:'121 常時BATT · 119/120 IPDM E7-18 (E12/F3) · 109 IGN SW · 111リレー (E9-46) · 104 MOTRLY (E9-47) · 3 VMOT (E8-42)。'},
+
   fp_relay: {en:'Fuel pump relay control → ECM 113 (LG/B).', ja:'フューエルポンプリレー制御 → ECM 113 (LG/B)。'},
-  can: {en:'CAN-L ECM 86 (P) · CAN-H ECM 94 (L) · DLC pins 14/6 · data via combination meter / CAN.', ja:'CAN-L ECM 86 (P) · CAN-H ECM 94 (L) · DLC 14/6 · コンビネーションメータ/CAN経由。'},
+  can: {en:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · also IPDM E9 48/49 · branch E108 2G/7G → ABS/DLC · data via combination meter / CAN. Bench: loom alone 86↔94 = OL (no 120Ω terminators). Continuity ECM↔F102 / ECM↔E9 valid on bench.', ja:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · 経路 ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · IPDM E9 48/49 · 分岐 E108 2G/7G → ABS/DLC · コンビネーションメータ/CAN。ベンチ: ハーネスのみ 86↔94 = OL（120Ω終端なし）。ECM↔F102 / ECM↔E9 連続は有効。'},
   maf: {en:'MAF signal → ECM 51 (OR).', ja:'MAF信号 → ECM 51 (OR)。'},
   tb: {en:'TB motor ± · TPS1/TPS2 · 5V rail 47.', ja:'TBモータ± · TPS1/TPS2 · 5Vレール47。'},
   ho2s: {en:'Heaters ECM 25 (B1) / 6 (B2) + fused 12V.', ja:'ヒータ ECM 25 (B1) / 6 (B2) + ヒューズ12V。'},
-  evap: {en:'Purge ECM 45 · pressure ECM 32 · 5V ECM 48.', ja:'パージ ECM 45 · 圧力 ECM 32 · 5V ECM 48。'},
+  evap_press: {en:'Signal ECM 32 (F102 19H) · 5V ECM 48 (F102 18H) · GND 67 (F102 20H).', ja:'信号 ECM 32 (F102 19H) · 5V ECM 48 (F102 18H) · GND 67 (F102 20H)。'},
+  evap_purge: {en:'Purge solenoid → ECM 45.', ja:'パージソレノイド → ECM 45。'},
   brake_stop: {en:'Brake signal → ECM 101 (L/OR). Stop lamp switch under pedal.', ja:'ブレーキ信号 → ECM 101 (L/OR)。ストップランプSWはペダル下。'},
   ascd_brake: {en:'ASCD brake → ECM 108 (B/R). On M/T the clutch switch is in series on the same signal path.', ja:'ASCDブレーキ → ECM 108 (B/R)。MTではクラッチSWが同信号経路に直列。'},
   ascd_steer: {en:'ASCD steering → ECM 99 (G/Y) via combination switch / clock spring (term. 14). Ground via ECM 67 (B/W) (term. 15).', ja:'ASCDステア → ECM 99 (G/Y)（コンビスイッチ/クロックスプリング端子14）。アースは ECM 67 (B/W)（端子15）。'},
@@ -1597,6 +1740,117 @@ function makePinEl(p){
   return d;
 }
 
+
+/** F102 SMJ · full PG-85 face (3 blocks, 1H–46H) — interactive in #ecm. */
+const F102_FACE_BLOCKS = [
+  { tag: 'L · 1H–10H', top:['1H','2H','3H','4H','5H'], bot:['6H','7H','8H','9H','10H'] },
+  { tag: 'M · 11H–29H', top:['11H','12H','13H','14H','15H','16H','17H','18H','19H','20H'], bot:['21H','22H','23H','24H','25H','26H','27H','28H','29H'] },
+  { tag: 'R · 30H–46H', top:['30H','31H','32H','33H','34H','35H','36H','37H','38H'], bot:['39H','40H','41H','42H','43H','44H','45H','46H'] },
+];
+
+function makeF102PinEl(pin){
+  const d = document.createElement('div');
+  const code = pin.code || '';
+  const hasWire = !!(code && code !== '—' && code !== '-' && code !== 'nc');
+  const wcol = parseWire(code);
+  d.className = 'pin' + (hasWire ? '' : ' empty');
+  d.dataset.cav = String(pin.id);
+  d.dataset.conn = 'ix_f102_m72';
+  if(hasWire) d.dataset.wired = '1';
+  if(pin.ecm != null) d.dataset.ecm = String(pin.ecm); // not data-pin — avoid colliding with ECM grid
+  const rail = cavRailOf(pin);
+  if(rail) d.dataset.rail = rail;
+  d.style.borderColor = hasWire ? wcol.c1 : '#333';
+  if(hasWire && wcol.tracer){
+    d.classList.add('has-tracer');
+    d.style.setProperty('--tracer', wcol.c2);
+    d.style.setProperty('--pin-fill', `linear-gradient(135deg, ${wcol.c1} 50%, ${wcol.c2} 50%)`);
+  } else if(hasWire){
+    d.style.setProperty('--pin-fill', wcol.c1);
+  }
+  d.style.setProperty('--pin-fg', hasWire ? fgForWire(wcol) : '#555');
+  const mid = hasWire
+    ? ((pin.lab != null && pin.lab !== '') ? pin.lab : code)
+    : '—';
+  let dest = '—';
+  if(pin.ecm != null) dest = '→' + pin.ecm;
+  else if(hasWire && pin.lab === 'START') dest = '→SC';
+  else if(hasWire) dest = '→—';
+  d.innerHTML = `${esc(String(pin.id))}<small>${esc(String(mid))}</small><span class="dest">${esc(dest)}</span>`;
+  const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
+  d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}`;
+  if(hasWire){
+    d.onclick = (ev) => { ev.stopPropagation(); selectConnPin('ix_f102_m72', pin.id); };
+  }
+  return d;
+}
+
+function renderF102(){
+  const panel = document.getElementById('f102Panel');
+  const blocksEl = document.getElementById('f102Blocks');
+  const titleEl = document.getElementById('f102Title');
+  const legendEl = document.getElementById('f102Legend');
+  if(!panel || !blocksEl) return;
+  if(titleEl) titleEl.textContent = t('f102Title');
+  if(legendEl) legendEl.textContent = t('f102Legend');
+  const conf = CONN['ix_f102_m72'] || CONN_BASE['ix_f102_m72'];
+  const byId = {};
+  (conf && conf.pins || []).forEach(p => {
+    if(p) byId[String(p.id)] = p;
+  });
+  blocksEl.innerHTML = '';
+  F102_FACE_BLOCKS.forEach(g => {
+    const blk = document.createElement('div');
+    blk.className = 'f102-face-block';
+    const mkRow = (ids) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      ids.forEach(id => {
+        const p = byId[id] || {id, code:'—', ecm:null};
+        row.appendChild(makeF102PinEl(p));
+      });
+      return row;
+    };
+    blk.appendChild(mkRow(g.top));
+    blk.appendChild(mkRow(g.bot));
+    const tagEl = document.createElement('div');
+    tagEl.className = 'tag';
+    tagEl.textContent = g.tag;
+    blk.appendChild(tagEl);
+    blocksEl.appendChild(blk);
+  });
+  // No selection → open; if currently highlighted as F102 hit, stay open
+  if(panel.classList.contains('hl')) panel.open = true;
+  else if(!document.querySelector('.pin.hl,.pin.hl-group,.pin.hl-end,.pin.hl-rail,.ficha.hl')){
+    panel.open = true; // idle / no selection
+  }
+  // else: active selection without F102 hl — leave collapsed (syncF102PanelForSelection owns this)
+}
+
+function f102PinEl(cavId){
+  return document.querySelector(`#f102Blocks .pin[data-conn="ix_f102_m72"][data-cav="${CSS.escape(String(cavId))}"]`);
+}
+
+/**
+ * F102 panel visibility:
+ *  - no active selection (clearHL) → OPEN (visible)
+ *  - selection includes ix_f102_m72 → OPEN + highlight
+ *  - selection excludes F102 → COLLAPSED (hidden)
+ */
+function setF102PanelOpen(wantOpen){
+  const panel = document.getElementById('f102Panel');
+  if(!panel) return;
+  panel.open = !!wantOpen;
+}
+/** Call while a selection is active: open only if F102 is in the conn set. */
+function syncF102PanelForSelection(connIds){
+  const panel = document.getElementById('f102Panel');
+  if(!panel) return;
+  const hit = [...new Set((connIds||[]).filter(Boolean))].includes('ix_f102_m72');
+  panel.open = hit;
+  if(hit) panel.classList.add('hl');
+}
+
 function updateOrientBanner(){
   const orient = document.getElementById('ecmOrient').value;
   const ban = document.getElementById('orientBanner');
@@ -1621,6 +1875,7 @@ function renderECM(){
     hrBanner.classList.add('show');
     title.textContent = t('ecmTitleHr');
     blocksEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--muted);min-width:320px;line-height:1.5">${t('hrGrid')}</div>`;
+    renderF102();
     return;
   }
   hrBanner.classList.remove('show');
@@ -1638,6 +1893,7 @@ function renderECM(){
     const tagEl=document.createElement('div'); tagEl.className='tag'; tagEl.textContent=tag; blk.appendChild(tagEl);
     blocksEl.appendChild(blk);
   });
+  renderF102();
 }
 
 /** Classic pin size — no aggressive shrink (prefer overflow-x scroll over crushing EC-123 shape) */
@@ -1694,16 +1950,22 @@ const CONN_I18N = {
       note:'インジェクタ経路中間: F33↔F221（インジェクタハーネス〜ECM、cyl1→23 … cyl6→40）。インジェクタ機能点検 (EC-278)。キャビティ: FSM参照。' },
   },
   ix_e108_m15: {
-    en: { name:'E108 ↔ M15 · Engine room ↔ body', meta:'brake / ASCD / A/F body join · engine room↔cabin',
-      note:'Engine-room (E108) ↔ body/cabin (M15) join. Appears on brake, ASCD, and other body-crossing diagrams. Face pinout: see FSM.' },
-    ja: { name:'E108 ↔ M15 · エンジンルーム ↔ ボディ', meta:'ブレーキ / ASCD / A/F · エンジンルーム↔車室内',
-      note:'エンジンルーム (E108) ↔ ボディ/車室内 (M15)。ブレーキ・ASCDなど車体横断図に出現。端子配列: FSM参照。' },
+    en: { name:'E108 ↔ M15 · CAN (ABS/DLC branch)', meta:'2G/7G CAN · engine room↔body · FSM LAN',
+      note:'Engine-room (E108) ↔ body (M15). Verified CAN cavities: 2G L = CAN-H (cont. to DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. to DLC 14 / ABS E51-23). Branch toward ABS/DLC via body. Other cavities (brake/ASCD/A/F) exist; only verified CAN pins listed. Face: FSM H.S. (intermedias — no Invertida).' },
+    ja: { name:'E108 ↔ M15 · CAN（ABS/DLC分岐）', meta:'2G/7G CAN · エンジンルーム↔ボディ · FSM LAN',
+      note:'エンジンルーム (E108) ↔ ボディ (M15)。確認済CAN: 2G L = CAN-H（DLC 6 / ABS E51-20）· 7G P = CAN-L（DLC 14 / ABS E51-23）。ボディ経由でABS/DLCへ分岐。他キャビティ（ブレーキ/ASCD等）あり; CANのみ掲載。面: FSM H.S.（中間はInvertidaなし）。' },
   },
   ix_f102_m72: {
-    en: { name:'F102 ↔ M72 · Control harness ↔ body', meta:'ASCD / brake / meter · control harness↔body',
-      note:'EC control harness (F102) ↔ body (M72). ASCD, brake, and meter paths into the cabin. Face pinout: see FSM.' },
-    ja: { name:'F102 ↔ M72 · 制御ハーネス ↔ ボディ', meta:'ASCD / ブレーキ / メータ · 制御ハーネス↔ボディ',
-      note:'EC制御ハーネス (F102) ↔ ボディ (M72)。ASCD・ブレーキ・メータの車室内経路。端子配列: FSM参照。' },
+    en: { name:'F102 ↔ M72 · SMJ engine control', meta:'white · PG-85 · mate M72 · 13 verified cavities',
+      note:'F102 = ENGINE CONTROL HARNESS (white SMJ, PG-85) · mate M72 MAIN HARNESS. Face FSM H.S. looking into F102 (no Invertida). Blocks: L 1H–10H · M 11H–29H · R 30H–46H. Verified: 1H B/W→67 ASCD ret · 2H B/R→108 ASCD brake · 7H G/Y→99 ASCD steer · 11H GY/L→111 SSOFF · 17H W/B→109 IGN · 18H PU→48 EVAP 5V · 19H BR/W→32 EVAP sig · 20H B/W→67 EVAP GND · 21H L/OR→101 stop · 23H GY/R SC-START/meter · 26H L→94 CAN-H · 27H P→86 CAN-L · 28H BR/Y→102 PNP. Other cavities empty/nc. CAN path: ECM F101 94/86 → F102 26H/27H → M72 → DLC M8 6/14.' },
+    ja: { name:'F102 ↔ M72 · SMJエンジン制御', meta:'白 · PG-85 · mate M72 · 確認済13キャビティ',
+      note:'F102 = ENGINE CONTROL HARNESS（白SMJ、PG-85）· mate M72 MAIN HARNESS。面: FSM H.S.（F102を見る向き・Invertidaなし）。ブロック: L 1H–10H · M 11H–29H · R 30H–46H。確認済: 1H B/W→67 ASCD ret · 2H B/R→108 ASCD brake · 7H G/Y→99 ASCD steer · 11H GY/L→111 SSOFF · 17H W/B→109 IGN · 18H PU→48 EVAP 5V · 19H BR/W→32 EVAP sig · 20H B/W→67 EVAP GND · 21H L/OR→101 stop · 23H GY/R SC-START/meter · 26H L→94 CAN-H · 27H P→86 CAN-L · 28H BR/Y→102 PNP。他は空/nc。CAN経路: ECM F101 94/86 → F102 26H/27H → M72 → DLC M8 6/14。' },
+  },
+  ecm_f101_can: {
+    en: { name:'ECM F101 · CAN', meta:'ECM harness connector · CAN-H/L · FSM LAN',
+      note:'F101 = ECM harness connector on the loom. Verified CAN cavities only: 94 L = CAN-H · 86 P = CAN-L. Path: F101 → … → F102 26H/27H → M72 → DLC M8 6/14; also IPDM E9 48/49. Bench: loom alone 86↔94 = OL (terminators in modules).' },
+    ja: { name:'ECM F101 · CAN', meta:'ECMハーネスコネクタ · CAN-H/L · FSM LAN',
+      note:'F101 = エンジンハーネス側のECMコネクタ。確認済CANのみ: 94 L = CAN-H · 86 P = CAN-L。経路: F101 → … → F102 26H/27H → M72 → DLC M8 6/14; IPDM E9 48/49 も。ベンチ: ハーネスのみ 86↔94 = OL（終端はモジュール側）。' },
   },
 
   feed_ho2s_12v: {
@@ -1888,6 +2150,8 @@ function renderFichas(){
   const ids = activeConnIds(model);
   CONN = {};
   ids.forEach(id => { CONN[id] = CONN_BASE[id]; });
+  /* F102 lives in #f102Panel (hidden from side fichas) but must stay in CONN for click/HL */
+  if(CONN_BASE['ix_f102_m72']) CONN['ix_f102_m72'] = CONN_BASE['ix_f102_m72'];
 
   GROUPS.forEach(g=>{
     const gIds = ids.filter(id => (CONN[id].group||'motor') === g.id);
@@ -1991,6 +2255,8 @@ function currentSelectedConnIds(){
   document.querySelectorAll('#fichas .ficha.hl').forEach(el=>{
     if(el.dataset.conn) ids.add(el.dataset.conn);
   });
+  const panel = document.getElementById('f102Panel');
+  if(panel && panel.classList.contains('hl')) ids.add('ix_f102_m72');
   return [...ids];
 }
 
@@ -2093,7 +2359,7 @@ function updateSelectedTop(connIds){
   removeSelectedTop();
   const root = document.getElementById('fichas');
   if(!root) return;
-  const ids = [...new Set((connIds||[]).filter(id => id && CONN[id]))];
+  const ids = [...new Set((connIds||[]).filter(id => id && CONN[id] && id !== 'ix_f102_m72'))];
   if(ids.length < 1) return;
 
   // Distinct (group, sub) buckets in stable order
@@ -2157,9 +2423,21 @@ function updateSelectedTop(connIds){
 
 function revealConns(connIds){
   const ids = [...new Set((connIds||[]).filter(Boolean))];
-  if(!ids.length) return;
+  if(!ids.length){
+    // Selection active but no conns (or empty) → F102 not involved → collapse
+    setF102PanelOpen(false);
+    return;
+  }
   let first = null;
   ids.forEach(cid=>{
+    if(cid === 'ix_f102_m72'){
+      const panel = document.getElementById('f102Panel');
+      if(panel){
+        panel.classList.add('hl');
+        panel.open = true;
+        if(!first) first = panel;
+      }
+    }
     const f = document.querySelector(`.ficha[data-conn="${CSS.escape(cid)}"]`);
     if(!f) return;
     if(!first) first = f;
@@ -2179,6 +2457,16 @@ function revealConns(connIds){
   });
   updateSelectedTop(ids);
   promoteSelectedInGroups(ids);
+  syncF102PanelForSelection(ids);
+  /* collapse-idle can race; re-open any parent that still holds a highlighted ficha */
+  document.querySelectorAll('#fichas .ficha.hl').forEach(f=>{
+    const sub = f.closest('details.ficha-sub');
+    const sec = f.closest('details.ficha-sec');
+    if(sub) sub.open = true;
+    if(sec) sec.open = true;
+  });
+  const top = document.getElementById('selTop');
+  if(top) top.open = true;
   const topFirst = document.querySelector('#selTop .ficha');
   const scrollEl = topFirst || first;
   if(scrollEl){
@@ -2190,9 +2478,10 @@ function clearHL(){
   removeSelectedTop();
   restoreCollapsedSubs();
   restoreFichaOrder();
-  document.querySelectorAll('.pin,.ficha,.cav-hit').forEach(el=>{
+  document.querySelectorAll('.pin,.ficha,.cav-hit,.f102-panel').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','rail-5v','rail-12v','rail-gnd');
   });
+  setF102PanelOpen(true); // no selection → F102 visible
 }
 function dimAll(){
   document.querySelectorAll('.pin:not(.empty), .ficha').forEach(el=>el.classList.add('dim'));
@@ -2225,13 +2514,17 @@ function applyRailFilter(){
   document.querySelectorAll('.cav-hit').forEach(el => el.classList.add('dim'));
 
   const matchedConns = new Set();
-  // ECM grid
-  document.querySelectorAll('.pin[data-pin]').forEach(el=>{
-    const p = +el.dataset.pin;
-    const r = PIN_RAIL[p] || el.dataset.rail || null;
+  // ECM grid + F102 interactive pins
+  document.querySelectorAll('#blocks .pin[data-pin], #f102Blocks .pin').forEach(el=>{
+    const r = el.dataset.rail || (el.dataset.pin ? PIN_RAIL[+el.dataset.pin] : null) || null;
     if(r && activeRails.has(r)){
       el.classList.remove('dim');
       el.classList.add('hl-rail', 'rail-'+r);
+      if(el.closest('#f102Blocks')){
+        const panel = document.getElementById('f102Panel');
+        if(panel) panel.classList.add('hl');
+        matchedConns.add('ix_f102_m72');
+      }
     }
   });
   // Ficha cavities
@@ -2240,11 +2533,10 @@ function applyRailFilter(){
       const r = cavRailOf(pin);
       if(!(r && activeRails.has(r))) return;
       matchedConns.add(cid);
-      const cav = document.querySelector(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`);
-      if(cav){
+      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
         cav.classList.remove('dim');
         cav.classList.add('hl-rail', 'rail-'+r);
-      }
+      });
     });
   });
   matchedConns.forEach(cid=>{
@@ -2270,6 +2562,18 @@ function toggleRail(rail){
   applyRailFilter();
 }
 
+/** F102 cavities whose ECM pin is in the active set (or focus). */
+function f102HitsForEcm(ecmSet, focusPin=null){
+  const conf = CONN['ix_f102_m72'] || CONN_BASE['ix_f102_m72'];
+  const hits = [];
+  (conf && conf.pins || []).forEach(p=>{
+    if(p.ecm==null) return;
+    const e = Number(p.ecm);
+    if(ecmSet.has(e) || (focusPin!=null && e===Number(focusPin))) hits.push(p);
+  });
+  return hits;
+}
+
 function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   activeRails.clear(); updateRailButtons();
   clearHL();
@@ -2284,8 +2588,21 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     cir.conn.forEach(cid=>connSet.add(cid));
     lines.push(`<div><span class="pill" style="border-color:${cir.color};color:${cir.color}">${cir.id}</span><b>${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
+  /* Auto-attach F102 whenever any ECM on the path crosses the SMJ */
+  const f102Hits = f102HitsForEcm(ecmSet, focusPin);
+  if(f102Hits.length){
+    connSet.add('ix_f102_m72');
+    const bits = f102Hits.map(p=>{
+      const lab = p.lab ? ` ${esc(p.lab)}` : '';
+      const focus = (focusPin!=null && Number(p.ecm)===Number(focusPin)) || (focusConn==='ix_f102_m72' && String(focusCav)===String(p.id));
+      const tag = focus ? '<b>' : '';
+      const tagE = focus ? '</b>' : '';
+      return `${tag}<code>F102·${esc(String(p.id))}</code>${lab} · ${esc(p.code||'')} → ECM ${esc(String(p.ecm))}${tagE}`;
+    });
+    lines.push(`<div style="color:var(--muted);margin-top:4px"><span class="pill" style="border-color:#90a4ae;color:#90a4ae">F102</span>${bits.join(' · ')}</div>`);
+  }
   ecmSet.forEach(p=>{
-    const el=document.querySelector(`.pin[data-pin="${p}"]`);
+    const el=document.querySelector(`#blocks .pin[data-pin="${p}"]`);
     if(!el) return;
     el.classList.remove('dim');
     if(focusPin!=null && p===focusPin) el.classList.add('hl');
@@ -2294,21 +2611,48 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   connSet.forEach(cid=>{
     const f=document.querySelector(`.ficha[data-conn="${cid}"]`);
     if(f){ f.classList.remove('dim'); f.classList.add('hl'); }
+    if(cid === 'ix_f102_m72'){
+      const panel = document.getElementById('f102Panel');
+      if(panel) panel.classList.add('hl');
+    }
     const conf=CONN[cid];
     if(!conf) return;
     conf.pins.forEach(p=>{
-      const cav=document.querySelector(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(p.id)}"]`);
-      if(!cav) return;
-      if(focusConn===cid && focusCav===p.id) cav.classList.add('hl-end');
-      else if(focusPin!=null && p.ecm===focusPin) cav.classList.add('hl-end');
-      else cav.classList.add('hl-group');
+      const isFocusCav = focusConn===cid && String(focusCav)===String(p.id);
+      const onFocusEcm = focusPin!=null && p.ecm!=null && Number(p.ecm)===Number(focusPin);
+      const onPathEcm = p.ecm!=null && ecmSet.has(Number(p.ecm));
+      /* exact pin = yellow hl (same as ECM); siblings on path = hl-group */
+      const cls = (isFocusCav || onFocusEcm) ? 'hl' : 'hl-group';
+      if(cid !== 'ix_f102_m72' || isFocusCav || onPathEcm){
+        document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`).forEach(cav=>{
+          cav.classList.remove('dim','hl','hl-end','hl-group');
+          cav.classList.add(cls);
+        });
+      }
+      if(cid === 'ix_f102_m72'){
+        const fp = f102PinEl(p.id);
+        if(!fp) return;
+        if(!(isFocusCav || onPathEcm)) return; /* skip empty / off-path cavities on full face */
+        fp.classList.remove('dim','hl','hl-end','hl-group');
+        fp.classList.add(cls);
+      }
     });
   });
   if(focusPin!=null){
     document.querySelectorAll('.cav-hit').forEach(cav=>{
       const cid=cav.dataset.conn; const pid=cav.dataset.cav;
-      const p=(CONN[cid]&&CONN[cid].pins||[]).find(x=>x.id===pid);
-      if(p && p.ecm===focusPin){ cav.classList.add('hl-end'); cav.classList.remove('hl-group'); }
+      const p=(CONN[cid]&&CONN[cid].pins||[]).find(x=>String(x.id)===String(pid));
+      if(p && p.ecm!=null && Number(p.ecm)===Number(focusPin)){
+        cav.classList.remove('dim','hl-group','hl-end');
+        cav.classList.add('hl');
+      }
+    });
+    document.querySelectorAll('#f102Blocks .pin[data-cav]').forEach(fp=>{
+      const p=(CONN['ix_f102_m72']&&CONN['ix_f102_m72'].pins||[]).find(x=>String(x.id)===String(fp.dataset.cav));
+      if(p && p.ecm!=null && Number(p.ecm)===Number(focusPin)){
+        fp.classList.remove('dim','hl-group','hl-end');
+        fp.classList.add('hl');
+      }
     });
   }
   const pinInfo = focusPin!=null
@@ -2327,15 +2671,22 @@ function selectPin(p){
     });
     activeRails.clear(); updateRailButtons();
     clearHL(); dimAll();
-    const el=document.querySelector(`.pin[data-pin="${p}"]`);
+    const el=document.querySelector(`#blocks .pin[data-pin="${p}"]`);
     if(el){ el.classList.remove('dim'); el.classList.add('hl'); }
     found.forEach(cid=>{
       const f=document.querySelector(`.ficha[data-conn="${cid}"]`);
       if(f){ f.classList.remove('dim'); f.classList.add('hl'); }
+      if(cid === 'ix_f102_m72'){
+        const panel = document.getElementById('f102Panel');
+        if(panel) panel.classList.add('hl');
+      }
       (CONN[cid].pins||[]).forEach(pin=>{
-        const cav=document.querySelector(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(pin.id)}"]`);
-        if(!cav) return;
-        if(pin.ecm===p) cav.classList.add('hl-end'); else cav.classList.add('hl-group');
+        const cls = (pin.ecm!=null && Number(pin.ecm)===Number(p)) ? 'hl' : 'hl-group';
+        document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>cav.classList.add(cls));
+        if(cid === 'ix_f102_m72'){
+          const fp = f102PinEl(pin.id);
+          if(fp){ fp.classList.remove('dim'); fp.classList.add(cls); }
+        }
       });
     });
     const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = `<b>${esc(t('pinEcm'))} ${p}</b> · ${PIN_NAME[p]||''} · <code>${PIN_COL[p]||'—'}</code><div style="color:var(--muted)">${t('noWide')}</div>`;
@@ -2346,7 +2697,7 @@ function selectPin(p){
 }
 
 function selectConn(cid){
-  const conf=CONN[cid];
+  const conf=CONN[cid] || CONN_BASE[cid];
   const circs = connToCirc[cid] || [];
   if(circs.length) selectCircuits(circs, null, cid, null); /* reveal via selectCircuits */
   else {
@@ -2354,11 +2705,18 @@ function selectConn(cid){
     clearHL(); dimAll();
     const f=document.querySelector(`.ficha[data-conn="${cid}"]`);
     if(f){ f.classList.remove('dim'); f.classList.add('hl'); }
+    if(cid === 'ix_f102_m72'){
+      const panel = document.getElementById('f102Panel');
+      if(panel) panel.classList.add('hl');
+    }
     (conf&&conf.pins||[]).forEach(p=>{
-      const cav=document.querySelector(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(p.id)}"]`);
-      if(cav) cav.classList.add('hl-group');
+      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`).forEach(cav=>cav.classList.add('hl-group'));
+      if(cid === 'ix_f102_m72'){
+        const fp = f102PinEl(p.id);
+        if(fp && p.code && p.code !== '—'){ fp.classList.remove('dim'); fp.classList.add('hl-group'); }
+      }
       if(p.ecm!=null){
-        const el=document.querySelector(`.pin[data-pin="${p.ecm}"]`);
+        const el=document.querySelector(`#blocks .pin[data-pin="${p.ecm}"]`);
         if(el){ el.classList.remove('dim'); el.classList.add('hl-group'); }
       }
     });
@@ -2372,21 +2730,39 @@ function selectConn(cid){
 }
 
 function selectConnPin(cid, cavId){
-  const conf=CONN[cid];
+  const conf=CONN[cid] || CONN_BASE[cid];
   if(!conf) return;
   const pin=(conf.pins||[]).find(x=>String(x.id)===String(cavId));
   if(pin && pin.ecm!=null){
-    selectPin(pin.ecm);
-    if(pin.note){
+    let circs = pinToCirc[pin.ecm] || [];
+    /* Prefer circuits that actually list this connector (e.g. F102 18H → evap_press, not app_5v) */
+    const viaConn = circs.filter(id=>{
+      const cir = CIRCUITS.find(x=>x.id===id);
+      return cir && (cir.conn||[]).includes(cid);
+    });
+    if(viaConn.length) circs = viaConn;
+    if(circs.length){
+      selectCircuits(circs, pin.ecm, cid, String(cavId));
+    } else {
+      selectPin(pin.ecm);
+    }
+    if(pin.note || pin.lab){
       const infoEl=document.getElementById('info');
-      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(cid)}·${esc(cavId)}</code> · ${esc(pin.code||'')} — ${esc(pin.note)}</div>`;
+      const extra = pin.note ? ` — ${esc(pin.note)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
+      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>F102·${esc(cavId)}</code> · ${esc(pin.code||'')}${extra} → ECM ${esc(String(pin.ecm))}</div>`;
     }
   } else {
-    selectConn(cid);
-    if(pin && (pin.note || pin.code)){
+    const circs = connToCirc[cid] || [];
+    if(circs.length) selectCircuits(circs, null, cid, String(cavId));
+    else {
+      selectConn(cid);
+      const fp = f102PinEl(cavId);
+      if(fp){ fp.classList.remove('dim'); fp.classList.add('hl-end'); }
+    }
+    if(pin && (pin.note || pin.code || pin.lab)){
       const infoEl=document.getElementById('info');
-      const extra = pin.note ? ` — ${esc(pin.note)}` : '';
-      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(cavId)}</code> · ${esc(pin.code||'')}${extra}</div>`;
+      const extra = pin.note ? ` — ${esc(pin.note)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
+      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>F102·${esc(cavId)}</code> · ${esc(pin.code||'')}${extra}</div>`;
     }
   }
 }
@@ -2410,6 +2786,7 @@ function applyColorMode(){
   document.body.dataset.mode = mode === 'solid' ? 'solid' : 'outlines';
   const root = document.getElementById('fichas');
   if(root && root.children.length) renderFichas();
+  renderF102();
 }
 
 function applyOrient(){
