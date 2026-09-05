@@ -141,6 +141,9 @@
   .ficha h3 { margin: 0 0 2px; font-size: 12px; color: #f1f3f5; }
   .ficha .meta, .ficha .note-body, .ficha .note-pins { display: none; font-size: 11px; color: #d0d5dd; margin-bottom: 6px; }
   .ficha.hl .meta, .ficha.hl .note-body, .ficha.hl .note-pins { display: block; }
+  #fichas { display: flex; flex-direction: column; gap: 10px; }
+  .ficha-sec.sel-top > summary { background: #2a2410; border-color: #5d4e1a; color: #ffe082; }
+  .ficha-sec.sel-top { border-color: #5d4e1a; }
   .conn-svg { width: 100%; height: auto; display: block; margin: 0 auto 2px; }
   .cav-hit { cursor: pointer; }
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
@@ -1237,6 +1240,12 @@ const I18N = {
     searchPh: 'Buscar: 101, ASCD, APP, stop, CAN…',
     clear: 'Limpiar',
     fichasTitle: 'Fichas · Arnés motor + Habitáculo / Body',
+    selTopTitle: '選択中',
+    selTopSub: '選択を上に · 下に通常グループ',
+    selTopTitle: 'Selected',
+    selTopSub: 'selection on top · full groups below',
+    selTopTitle: 'Seleccionados',
+    selTopSub: 'selección arriba · grupos completos abajo',
     footer: 'Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio. Colores y pinouts según MEC61-style EC (2005 DE) salvo donde se indique variante.',
     legendNote: 'R/W = base/tracer (base / trazador)',
     infoEmpty: 'Click cualquier pin o ficha para ver la conexión completa.',
@@ -1588,6 +1597,57 @@ function renderFichas(){
 }
 
 
+
+function removeSelectedTop(){
+  const top = document.getElementById('selTop');
+  if(top) top.remove();
+}
+
+/** Selected fichas first (top), then normal groups stay below. */
+function updateSelectedTop(connIds){
+  removeSelectedTop();
+  const root = document.getElementById('fichas');
+  if(!root) return;
+  const ids = [...new Set((connIds||[]).filter(id => id && CONN[id]))];
+  if(ids.length < 1) return;
+  const groupSet = new Set(ids.map(id => CONN[id].group || 'motor'));
+  // Promote when 2+ fichas or spanning 2+ groups (or any multi-hit selection)
+  if(ids.length < 2 && groupSet.size < 2) return;
+
+  const top = document.createElement('details');
+  top.id = 'selTop';
+  top.className = 'ficha-sec sel-top';
+  top.open = true;
+  const sum = document.createElement('summary');
+  sum.innerHTML = `${esc(t('selTopTitle'))}<span>${esc(t('selTopSub'))} · ${ids.length}</span>`;
+  top.appendChild(sum);
+  const body = document.createElement('div');
+  body.className = 'fichas-body';
+  const grid = document.createElement('div');
+  grid.className = 'fichas-grid';
+  // Keep stable order: by group then SUB_ORDER then name
+  const ordered = ids.slice().sort((a,b)=>{
+    const ga = CONN[a].group||'motor', gb = CONN[b].group||'motor';
+    const gi = GROUPS.findIndex(g=>g.id===ga), gj = GROUPS.findIndex(g=>g.id===gb);
+    if(gi!==gj) return gi-gj;
+    const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
+    const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
+    const ia = sa<0?999:sa, ib = sb<0?999:sb;
+    if(ia!==ib) return ia-ib;
+    return String(CONN[a].name).localeCompare(String(CONN[b].name));
+  });
+  ordered.forEach(id=>{
+    const el = makeFichaEl(id, CONN[id]);
+    el.classList.add('hl');
+    el.classList.remove('dim');
+    grid.appendChild(el);
+  });
+  body.appendChild(grid);
+  top.appendChild(body);
+  root.insertBefore(top, root.firstChild);
+}
+
+
 function revealConns(connIds){
   const ids = [...new Set((connIds||[]).filter(Boolean))];
   if(!ids.length) return;
@@ -1610,12 +1670,16 @@ function revealConns(connIds){
       if(g) localStorage.setItem(g.ls, '1');
     }
   });
-  if(first){
-    try { first.scrollIntoView({block:'nearest', behavior:'smooth'}); } catch(e) {}
+  updateSelectedTop(ids);
+  const topFirst = document.querySelector('#selTop .ficha');
+  const scrollEl = topFirst || first;
+  if(scrollEl){
+    try { scrollEl.scrollIntoView({block:'nearest', behavior:'smooth'}); } catch(e) {}
   }
 }
 
 function clearHL(){
+  removeSelectedTop();
   document.querySelectorAll('.pin,.ficha,.cav-hit').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','rail-5v','rail-12v','rail-gnd');
   });
