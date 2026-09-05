@@ -1746,6 +1746,17 @@ const CONN_I18N = {
       note:'インジェクタ×6とコイル×6の共通12V（通常リレー/IPDMからのR）。ECMはアース側駆動のみ（INJ/IGN）。IPDMキャビティ: FSM参照。' },
   },
 
+  gnd4: {
+    en: { name:'F103 ↔ F151 · ECM ground', meta:'ECM 1 / 115 / 116 → body ground · EC POWER SUPPLY AND GROUND',
+      note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: ECM terminals 1 (B), 115 (B/W), 116 (B/R) = ECM ground → body ground. Path via harness connectors F103, F151 (also F3/E12 on the diagram). Procedure: CHECK ECM GROUND CIRCUIT FOR OPEN AND SHORT.' },
+    ja: { name:'F103 ↔ F151 · ECM ground', meta:'ECM 1 / 115 / 116 → body ground · EC POWER SUPPLY AND GROUND',
+      note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: ECM端子 1 (B), 115 (B/W), 116 (B/R) = ECM ground → body ground。経路はハーネスコネクタ F103, F151（図では F3/E12 も）。手順: CHECK ECM GROUND CIRCUIT FOR OPEN AND SHORT。' },
+  },
+  e17: {
+    en: { name:'Body ground (E17)', meta:'FSM: Body ground · ground point E17' },
+    ja: { name:'Body ground (E17)', meta:'FSM: Body ground · アースポイント E17' },
+  },
+
 };
 
 function connField(id, f, field){
