@@ -1290,6 +1290,8 @@ const I18N = {
     lblLang: 'Idioma',
     collapseIdle: 'Colapsar subcats sin selección',
     optsSummary: 'Opciones / Options',
+    railActive: 'Rails activos',
+    railActiveHint: 'pines/cavidades coincidentes resaltados; resto atenuado. Click de nuevo en el botón para apagar.',
     warnSummary: '⚠ Orientación ECM',
     optOutlines: 'Contornos',
     optSolid: 'Sólidos',
@@ -1328,6 +1330,8 @@ const I18N = {
     lblLang: 'Language',
     collapseIdle: 'Collapse unused subcategories',
     optsSummary: 'Options',
+    railActive: 'Rails active',
+    railActiveHint: 'matching pins/cavities highlighted; rest dimmed. Click the button again to turn off.',
     warnSummary: '⚠ ECM orientation',
     optOutlines: 'Outlines',
     optSolid: 'Solid',
@@ -1356,6 +1360,8 @@ const I18N = {
     lblOrient: 'ECM向き',
     lblLang: '言語',
     collapseIdle: '未選択のサブを折りたたむ',
+    railActive: 'レール ON',
+    railActiveHint: '一致ピン/キャビティを強調、他は薄く。もう一度ボタンでオフ。',
     optsSummary: 'オプション / Options',
     warnSummary: '⚠ ECM向き',
     optOutlines: '実線枠',
@@ -1378,6 +1384,38 @@ const I18N = {
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
+};
+
+
+const TITLES_I18N = {
+  af_b1: {en:'A/F Sensor 1 Bank 1', ja:'A/Fセンサ1 バンク1'},
+  af_b2: {en:'A/F Sensor 1 Bank 2', ja:'A/Fセンサ1 バンク2'},
+  app_5v: {en:'APP 5V + A/C · EVAP · PSP rails', ja:'APP 5V + A/C · EVAP · PSPレール'},
+  app_gnd: {en:'APP grounds', ja:'APPアース'},
+  app_sig: {en:'APP signals APS1/APS2', ja:'APP信号 APS1/APS2'},
+  ac_press: {en:'A/C refrigerant pressure', ja:'A/C冷媒圧力'},
+  gnd_ecm: {en:'ECM ground → body ground', ja:'ECM ground → body ground'},
+  sns_gnd: {en:'Sensor grounds (SNS GND)', ja:'センサアース (SNS GND)'},
+  knock: {en:'Knock sensor', ja:'ノックセンサ'},
+  psp: {en:'PSP · Power steering pressure', ja:'PSP · パワステ圧力'},
+  ckp: {en:'CKP / POS', ja:'CKP / POS'},
+  cmp: {en:'Cam PHASE', ja:'カム PHASE'},
+  iat: {en:'IAT', ja:'IAT'},
+  ect: {en:'ECT', ja:'ECT'},
+  ign_coils: {en:'Ignition coils ×6', ja:'イグニッションコイル ×6'},
+  injectors: {en:'Injectors ×6', ja:'インジェクタ ×6'},
+  power_ign: {en:'ECM 12V power supply', ja:'ECM 12V電源'},
+  fp_relay: {en:'Fuel pump relay', ja:'フューエルポンプリレー'},
+  can: {en:'CAN / DLC / combination meter', ja:'CAN / DLC / コンビネーションメータ'},
+  maf: {en:'MAF', ja:'MAF'},
+  tb: {en:'ETC throttle body', ja:'ETCスロットルボディ'},
+  ho2s: {en:'HO2S2 downstream ×2', ja:'HO2S2 下流 ×2'},
+  evap: {en:'EVAP purge + press', ja:'EVAPパージ + 圧力'},
+  brake_stop: {en:'Stop lamp switch', ja:'ストップランプスイッチ'},
+  ascd_brake: {en:'ASCD brake (+ clutch M/T)', ja:'ASCDブレーキ（+クラッチ M/T）'},
+  ascd_steer: {en:'ASCD steering (clock spring)', ja:'ASCDステアリング（クロックスプリング）'},
+  pnp_sw: {en:'PNP / park-neutral (A/T)', ja:'PNP / パーキング・ニュートラル（A/T）'},
+  vtc: {en:'VTC intake ×2 (DE early)', ja:'VTC吸気 ×2（DE early）'},
 };
 
 const NOTES_I18N = {
@@ -1423,6 +1461,11 @@ function t(key){
   return (pack[key] != null ? pack[key] : (I18N.es[key] || key));
 }
 
+function circuitTitle(cir){
+  if(lang === 'es') return cir.title;
+  const tr = TITLES_I18N[cir.id];
+  return (tr && tr[lang]) || cir.title;
+}
 function circuitNotes(cir){
   if(lang === 'es') return cir.notes;
   const n = NOTES_I18N[cir.id];
@@ -1988,7 +2031,7 @@ function applyRailFilter(){
   const info = document.getElementById('info');
   info.dataset.locked = '1';
   info.dataset.railMode = '1';
-  info.innerHTML = `<div>${pills}<b>Rails activos</b> — pines/cavidades coincidentes resaltados; resto atenuado. Click de nuevo en el botón para apagar.</div>`;
+  info.innerHTML = `<div>${pills}<b>${esc(t('railActive'))}</b> — ${esc(t('railActiveHint'))}</div>`;
 }
 
 function toggleRail(rail){
@@ -2009,7 +2052,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     if(!cir) return;
     cir.ecm.forEach(p=>ecmSet.add(p));
     cir.conn.forEach(cid=>connSet.add(cid));
-    lines.push(`<div><span class="pill" style="border-color:${cir.color};color:${cir.color}">${cir.id}</span><b>${cir.title}</b> — ${circuitNotes(cir)}</div>`);
+    lines.push(`<div><span class="pill" style="border-color:${cir.color};color:${cir.color}">${cir.id}</span><b>${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
   ecmSet.forEach(p=>{
     const el=document.querySelector(`.pin[data-pin="${p}"]`);
