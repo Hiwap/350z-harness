@@ -159,17 +159,10 @@
   .cav-label { font-size: 7px; font-weight: 800; fill: #111; pointer-events: none; opacity: 0.9; }
   .cav-sub, .cav-code { font-size: 7.5px; font-weight: 800; fill: #222; pointer-events: none; }
   .cav-ecm { font-size: 7px; font-weight: 700; fill: #222; pointer-events: none; opacity: 0.95; }
-  /* Solid mode: let per-cavity ink (style=) win — CSS fill was forcing #111 on black wires */
-  body[data-mode="solid"] .cav-label,
-  body[data-mode="solid"] .cav-sub,
-  body[data-mode="solid"] .cav-code,
-  body[data-mode="solid"] .cav-ecm {
-    fill: none; /* presentation/style on <text> supplies the real fill */
-  }
+  /* Solid mode: colored lab-5v/12v/gnd !important must not override wire ink */
   body[data-mode="solid"] .cav-label.lab-5v,
   body[data-mode="solid"] .cav-label.lab-12v,
   body[data-mode="solid"] .cav-label.lab-gnd {
-    fill: none !important;
     filter: none;
   }
   .lock-tab { fill: #263238; stroke: #78909c; stroke-width: 1.2; }
@@ -440,11 +433,11 @@ function fgForWireCav(w){
 }
 function svgInk(fill, withHalo){
   const f = fill || '#f5f5f5';
-  // style= beats stylesheet .cav-label { fill:#111 } (presentation attrs do not)
-  if(!withHalo) return `style="fill:${f}"`;
+  // !important beats .cav-label { fill:#111 } and .lab-5v/12v/gnd colored fills
+  if(!withHalo) return `style="fill:${f} !important"`;
   const lightInk = hexLum(f) >= 0.5;
   const stroke = lightInk ? '#000' : '#fff';
-  return `style="fill:${f};stroke:${stroke};stroke-width:1.35px;paint-order:stroke fill;stroke-linejoin:round"`;
+  return `style="fill:${f} !important;stroke:${stroke};stroke-width:1.35px;paint-order:stroke fill;stroke-linejoin:round"`;
 }
 
 /* ========== OEM pin data (2005 VQ35DE FSM) ========== */
