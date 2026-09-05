@@ -866,6 +866,10 @@ function labClass(lab){
   if(u === 'GND' || u === 'SNS' || u === 'SH' || u === 'TIERRA' || u.startsWith('GND')) return 'lab-gnd';
   return '';
 }
+function isRailLab(lab){
+  const u = String(lab||'').toUpperCase().trim();
+  return u === '5V' || u === '12V' || u === 'GND' || u === 'SNS' || u === 'SH' || u === 'TIERRA' || u.startsWith('GND');
+}
 function cavDisplayLab(pin){
   return (pin.lab != null && pin.lab !== '') ? String(pin.lab) : String(pin.id);
 }
@@ -911,12 +915,19 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const codeY = y + h/2 + 2;
   const ecmY = y + h - 5;
   const railAttr = rail ? ` data-rail="${rail}"` : '';
+  // First line 5V/12V/GND: dark pill + white (readable on any wire, e.g. HO2S2 12V)
+  const railTop = mode === 'solid' && isRailLab(disp);
+  const idFill = railTop ? '#ffffff' : txtFill;
+  const idPill = railTop
+    ? `<rect x="${x+2}" y="${y+1.5}" width="${w-4}" height="9" rx="2" fill="rgba(0,0,0,0.78)"/>`
+    : '';
   return `<g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr} role="button">
     ${defs}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
     ${inset}
-    <text class="cav-label ${lc}" x="${x+w/2}" y="${idY}" text-anchor="middle" ${ink(txtFill)}>${esc(disp)}</text>
+    ${idPill}
+    <text class="cav-label ${lc}" x="${x+w/2}" y="${idY}" text-anchor="middle" ${ink(idFill)}>${esc(disp)}</text>
     <text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" ${ink(mode==='solid'?txtFill:'#111')}>${esc(code)}</text>
     <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(mode==='solid'?txtFill:'#1565c0')}>${esc(ecmTxt)}</text>
   </g>`;
@@ -1014,13 +1025,16 @@ function svgRing(cid, f){
   const mode = document.body.dataset.mode || 'outlines';
   const txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#111';
   const ink = (c) => svgInk(c, mode === 'solid' && hexLum(c) >= 0.5);
+  const railTop = mode === 'solid' && isRailLab(p.id);
+  const idFill = railTop ? '#ffffff' : txtFill;
+  const idPill = railTop ? `<rect x="28" y="18" width="34" height="12" rx="2" fill="rgba(0,0,0,0.78)"/>` : '';
   return `<svg class="conn-svg" viewBox="0 0 90 84" xmlns="http://www.w3.org/2000/svg">
     <g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(p.id)}">
       ${defs}
       <circle class="cav-face" cx="45" cy="34" r="22" fill="none" stroke="${f.accent}" stroke-width="3"/>
       <circle class="cavity cav-face" cx="45" cy="34" r="10" style="stroke:${sc};--cav-fill:${fillVal}"/>
       ${inset}
-      <text class="cav-label" x="45" y="30" text-anchor="middle" ${ink(txtFill)}>${esc(p.id)}</text>
+      ${idPill}<text class="cav-label" x="45" y="30" text-anchor="middle" ${ink(idFill)}>${esc(p.id)}</text>
       <text class="cav-sub cav-code" x="45" y="64" text-anchor="middle" ${ink(txtFill)}>${esc(p.code||'')}</text>
       <text class="cav-ecm" x="45" y="76" text-anchor="middle" ${ink(txtFill)}>${esc(ecmTxt)}</text>
     </g>
