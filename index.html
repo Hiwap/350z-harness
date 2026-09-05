@@ -573,6 +573,18 @@ const SUB_I18N = {
 
 const SUB_ORDER = ['power','feeds','sensors','actuators','intermedias','pedals','ascd','dlc'];
 
+/** One border color per subcategory (ficha groups). */
+const SUB_ACCENT = {
+  power:       '#66bb6a',  /* tierras / poder */
+  feeds:       '#ff8a65',  /* feeds sin ECM */
+  sensors:     '#42a5f5',  /* sensores */
+  actuators:   '#7e57c2',  /* actuadores */
+  intermedias: '#90a4ae',  /* fichas E/F */
+  pedals:      '#ffa726',  /* pedales / freno */
+  ascd:        '#26c6da',  /* ASCD / volante */
+  dlc:         '#ab47bc',  /* DLC / red */
+};
+
 
 const CONN_BASE = {
   /* —— Poder / tierras · ficha del plug ECM (EC-123) —— */
@@ -1211,6 +1223,7 @@ function svgIxNote(cid, f){
 }
 
 function renderConnSvg(cid, f){
+  f = Object.assign({}, f, { accent: accentForConn(f) });
   switch(f.shape){
     case 'af6': return svgAf6(cid,f);
     case 'rect6': return svgRect6(cid,f);
@@ -1538,12 +1551,17 @@ function renderECM(){
 /** Classic pin size — no aggressive shrink (prefer overflow-x scroll over crushing EC-123 shape) */
 function fitEcmPins(){ /* no-op: CSS vars stay at classic ~34×32 */ }
 
+function accentForConn(f){
+  if(f && f.sub && SUB_ACCENT[f.sub]) return SUB_ACCENT[f.sub];
+  return (f && f.accent) || '#546e7a';
+}
+
 function makeFichaEl(id, f){
   const el=document.createElement('div');
   el.className = 'ficha' + (f.shape==='note' || f.shape==='ixnote' ? ' note-card' : '');
   el.dataset.conn=id;
   el.dataset.ord = String(++_fichaOrd);
-  el.style.borderColor = f.accent || '#546e7a';
+  el.style.borderColor = accentForConn(f);
   let extra = '';
   if(f.note){
     extra = `<div class="note-body">${esc(f.note)}</div>`;
@@ -1605,6 +1623,9 @@ function renderFichas(){
       const ssum=document.createElement('summary');
       const subLabel = (SUB_I18N[sk] && SUB_I18N[sk][lang]) || (SUB_I18N[sk] && SUB_I18N[sk].es) || sk;
       ssum.textContent = subLabel;
+      const subCol = SUB_ACCENT[sk] || '#546e7a';
+      sub.style.borderColor = subCol;
+      ssum.style.borderLeft = '3px solid ' + subCol;
       sub.appendChild(ssum);
       const grid=document.createElement('div');
       grid.className='fichas-grid';
