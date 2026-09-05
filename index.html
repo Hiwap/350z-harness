@@ -273,12 +273,51 @@
   }
   #ecm details.f102-panel.hl > summary { color: #ffe082; }
   #ecm .f102-panel > .legend { padding: 4px 12px 0; }
+
+  /* PG-85 style white SMJ shell (looking into F102) */
+  #ecm .f102-shell {
+    margin: 6px 10px 10px;
+    padding: 22px 10px 8px;
+    background: #eceff1;
+    border: 2px solid #78909c;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: inset 0 0 0 1px #fff;
+  }
+  #ecm .f102-shell::before {
+    content: '';
+    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+    width: 56px; height: 12px;
+    background: #cfd8dc;
+    border: 1.5px solid #607d8b;
+    border-radius: 4px 4px 2px 2px;
+  }
+  #ecm .f102-shell-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 8px; margin: 0 2px 8px; flex-wrap: wrap;
+  }
+  #ecm .f102-shell-head .fid {
+    font-size: 12px; font-weight: 800; color: #263238;
+    background: #fff; border: 1px solid #90a4ae; border-radius: 999px;
+    padding: 1px 10px;
+  }
+  #ecm .f102-shell-head .meta {
+    font-size: 10px; font-weight: 700; color: #546e7a;
+  }
+  #ecm .f102-shell-foot {
+    margin-top: 6px; font-size: 10px; font-weight: 700; color: #455a64;
+    text-align: center;
+  }
+  #ecm .f102-shell-foot .hnote {
+    display: block; font-weight: 600; color: #607d8b; margin-top: 2px;
+  }
+
   #ecm #f102Blocks {
-    display: flex; gap: 12px; align-items: flex-start;
-    flex-wrap: nowrap; /* L|M|R like PG-85 — never stack */
+    display: flex; gap: 10px; align-items: flex-start;
+    flex-wrap: nowrap;
     justify-content: flex-start;
     min-width: 0; width: 100%; max-width: 100%;
-    padding: 6px 12px 10px;
+    padding: 0 2px 4px;
     box-sizing: border-box;
     overflow-x: auto;
     overflow-y: hidden;
@@ -287,24 +326,24 @@
   }
   #ecm #f102Blocks .f102-face-block {
     display: flex; flex-direction: column; gap: 3px;
-    padding: 6px 6px 4px; border: 1px solid #2a3344; border-radius: 8px;
-    background: #0e1218;
+    padding: 6px 5px 4px; border: 1.5px solid #607d8b; border-radius: 6px;
+    background: #fff;
     flex: 0 0 auto;
     max-width: 100%;
   }
   #ecm #f102Blocks .f102-face-block .tag {
-    font-size: 10px; color: #90a4ae; font-weight: 700; text-align: center;
+    font-size: 9px; color: #546e7a; font-weight: 800; text-align: center;
   }
   #ecm #f102Blocks .f102-face-block .row {
     display: flex; gap: 2px; flex-wrap: nowrap;
-    justify-content: flex-start; /* shorter bot rows leave gap on the right like PG-85 */
+    justify-content: flex-start;
   }
   #ecm #f102Blocks .pin {
     width: 30px; height: auto; min-height: 42px; padding: 2px 1px;
     font-size: 8.5px; line-height: 1.05;
     flex: 0 0 auto;
+    color: #111;
   }
-  /* PG-85: left block cavities are larger than mid/right */
   #ecm #f102Blocks .f102-face-block.pin-lg .pin {
     width: 40px; min-height: 48px; font-size: 9.5px;
   }
@@ -317,22 +356,29 @@
   #ecm #f102Blocks .f102-face-block.pin-sm .pin .dest { font-size: 6px; }
   #ecm #f102Blocks .pin small { font-size: 7px; font-weight: 700; opacity: 0.95; }
   #ecm #f102Blocks .pin .dest {
-    display: block; font-size: 7px; font-weight: 800; color: #90caf9; margin-top: 1px;
+    display: block; font-size: 7px; font-weight: 800; color: #1565c0; margin-top: 1px;
   }
+  #ecm #f102Blocks .pin.empty {
+    background: #fafafa; border-color: #90a4ae; color: #455a64;
+    border-style: solid;
+  }
+  #ecm #f102Blocks .pin.empty .dest { color: #90a4ae; }
   #ecm #f102Blocks .pin.f102-spacer {
     visibility: hidden; pointer-events: none; border: none; background: transparent;
     min-height: 0;
   }
-  #ecm #f102Blocks .pin.empty .dest,
-  #ecm #f102Blocks .pin.unused .dest { color: #555; }
-  /* empty cavities stay visible on face but not clickable */
-  #ecm #f102Blocks .pin.empty {
-    pointer-events: none;
-  }
-  /* wired cavities always clickable even if somehow empty-styled */
+  #ecm #f102Blocks .pin.empty { pointer-events: none; }
   #ecm #f102Blocks .pin[data-wired="1"] {
     pointer-events: auto; cursor: pointer;
   }
+  /* HL on light shell */
+  #ecm #f102Blocks .pin.hl,
+  #ecm #f102Blocks .pin.hl-end,
+  #ecm #f102Blocks .pin.hl-group {
+    opacity: 1 !important;
+  }
+  #ecm #f102Blocks .pin.dim { opacity: 0.28; }
+
   .pill { display: inline-block; padding: 1px 6px; border-radius: 999px; border: 1px solid #445; font-size: 10px; margin-right: 4px; }
 
   .rail-toggles { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-left: 4px; }
@@ -1596,7 +1642,7 @@ const I18N = {
     noCirc: 'Sin circuito mapeado para ese pin.',
     noWide: 'Sin grupo de circuito amplio; mostrando fichas directas.',
     f102Title: 'F102 · SMJ (mate M72) · PG-85 cara',
-    f102Legend: 'PG-85 H.S. looking into F102 (sin espejo) · L grande · M/R chicos · scroll propio',
+    f102Legend: 'Como PG-85: carcasa blanca · L grande · M/R chicos. “H” = letra de terminal (1H–46H), no zona del auto.',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
   en: {
@@ -1632,7 +1678,7 @@ const I18N = {
     noCirc: 'No circuit mapped for that pin.',
     noWide: 'No wide circuit group; showing direct connector cards.',
     f102Title: 'F102 · SMJ (mate M72) · PG-85 face',
-    f102Legend: 'PG-85 H.S. looking into F102 (no mirror) · L large · M/R small · own scroll',
+    f102Legend: 'Like PG-85: white shell · L large · M/R small. “H” = terminal letter (1H–46H), not a car zone.',
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
   },
   ja: {
@@ -1668,7 +1714,7 @@ const I18N = {
     noCirc: 'そのピンに対応する回路がありません。',
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
     f102Title: 'F102 · SMJ（mate M72）· PG-85',
-    f102Legend: 'PG-85 H.S.（F102を見る向き・ミラーなし）· L大 · M/R小 · 独自スクロール',
+    f102Legend: 'PG-85風: 白シェル · L大 · M/R小。「H」は端子記号（1H–46H）で車の区画ではない。',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
 };
@@ -2009,6 +2055,15 @@ function renderF102(){
     if(p) byId[String(p.id)] = p;
   });
   blocksEl.innerHTML = '';
+  const shell = document.createElement('div');
+  shell.className = 'f102-shell';
+  const head = document.createElement('div');
+  head.className = 'f102-shell-head';
+  head.innerHTML = '<span class="fid">F102 (White)</span><span class="meta">H.S. · ENGINE CONTROL HARNESS · mate M72</span>';
+  shell.appendChild(head);
+  const face = document.createElement('div');
+  face.className = 'f102-face-inner';
+  face.style.cssText = 'display:flex;gap:10px;align-items:flex-start;flex-wrap:nowrap;width:max-content;';
   F102_FACE_BLOCKS.forEach(g => {
     const blk = document.createElement('div');
     blk.className = 'f102-face-block pin-' + (g.pinSize || 'sm');
@@ -2034,8 +2089,15 @@ function renderF102(){
     tagEl.className = 'tag';
     tagEl.textContent = g.tag;
     blk.appendChild(tagEl);
-    blocksEl.appendChild(blk);
+    face.appendChild(blk);
   });
+  shell.appendChild(face);
+  const foot = document.createElement('div');
+  foot.className = 'f102-shell-foot';
+  foot.innerHTML = 'PG-85 · looking into F102 (sin espejo — el espejo es M72)'
+    + '<span class="hnote">La “H” de 1H…46H es la serie de terminal del FSM, no un sector del auto.</span>';
+  shell.appendChild(foot);
+  blocksEl.appendChild(shell);
   // No selection → open; if currently highlighted as F102 hit, stay open
   if(panel.classList.contains('hl')) panel.open = true;
   else if(!document.querySelector('.pin.hl,.pin.hl-group,.pin.hl-end,.pin.hl-rail,.ficha.hl')){
