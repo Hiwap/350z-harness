@@ -1291,7 +1291,9 @@ const I18N = {
     collapseIdle: 'Colapsar subcats sin selección',
     optsSummary: 'Opciones / Options',
     railActive: 'Rails activos',
-    pinEcm: 'ECM pin',
+    pinEcm: 'Pin ECM',
+    railGnd: 'Tierra / GND',
+    railTitle: 'Resaltar rails de poder / tierra',
     railActiveHint: 'pines/cavidades coincidentes resaltados; resto atenuado. Click de nuevo en el botón para apagar.',
     warnSummary: '⚠ Orientación ECM',
     optOutlines: 'Contornos',
@@ -1332,6 +1334,8 @@ const I18N = {
     collapseIdle: 'Collapse unused subcategories',
     optsSummary: 'Options',
     railActive: 'Rails active',
+    railGnd: 'Ground / GND',
+    railTitle: 'Highlight power / ground rails',
     pinEcm: 'ECM pin',
     railActiveHint: 'matching pins/cavities highlighted; rest dimmed. Click the button again to turn off.',
     warnSummary: '⚠ ECM orientation',
@@ -1363,6 +1367,8 @@ const I18N = {
     lblLang: '言語',
     collapseIdle: '未選択のサブを折りたたむ',
     railActive: 'レール ON',
+    railGnd: 'アース / GND',
+    railTitle: '電源/アースレールを強調',
     pinEcm: 'ECMピン',
     railActiveHint: '一致ピン/キャビティを強調、他は薄く。もう一度ボタンでオフ。',
     optsSummary: 'オプション / Options',
@@ -1504,6 +1510,8 @@ function applyLang(){
   setLabel('lblLang', 'lblLang');
   const cit = document.getElementById('lblCollapseIdleTxt');
   if(cit) cit.textContent = t('collapseIdle');
+  const rg = document.getElementById('railGnd'); if(rg) rg.textContent = t('railGnd');
+  const rt = document.getElementById('railToggles'); if(rt) rt.title = t('railTitle');
   const oo = document.getElementById('optOutlines'); if(oo) oo.textContent = t('optOutlines');
   const os = document.getElementById('optSolid'); if(os) os.textContent = t('optSolid');
   const oi = document.getElementById('optInv'); if(oi) oi.textContent = t('optInv');
