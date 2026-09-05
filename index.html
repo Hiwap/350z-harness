@@ -1726,6 +1726,26 @@ const CONN_I18N = {
     ja: { name:'VMOT電源', meta:'スロットルモータ電源 · ECM 3' },
   },
 
+
+  coil1: { en:{name:'Coil 1', meta:'ECM62 Y/R'}, ja:{name:'コイル1', meta:'ECM62 Y/R'} },
+  coil2: { en:{name:'Coil 2', meta:'ECM81 G/B'}, ja:{name:'コイル2', meta:'ECM81 G/B'} },
+  coil3: { en:{name:'Coil 3', meta:'ECM61 L/R'}, ja:{name:'コイル3', meta:'ECM61 L/R'} },
+  coil4: { en:{name:'Coil 4', meta:'ECM80 GY'}, ja:{name:'コイル4', meta:'ECM80 GY'} },
+  coil5: { en:{name:'Coil 5', meta:'ECM60 PU/W'}, ja:{name:'コイル5', meta:'ECM60 PU/W'} },
+  coil6: { en:{name:'Coil 6', meta:'ECM79 GY/R'}, ja:{name:'コイル6', meta:'ECM79 GY/R'} },
+  inj1: { en:{name:'Injector 1', meta:'ECM23 R/B'}, ja:{name:'インジェクタ1', meta:'ECM23 R/B'} },
+  inj2: { en:{name:'Injector 2', meta:'ECM42 B/R'}, ja:{name:'インジェクタ2', meta:'ECM42 B/R'} },
+  inj3: { en:{name:'Injector 3', meta:'ECM22 R/Y'}, ja:{name:'インジェクタ3', meta:'ECM22 R/Y'} },
+  inj4: { en:{name:'Injector 4', meta:'ECM41 W/B'}, ja:{name:'インジェクタ4', meta:'ECM41 W/B'} },
+  inj5: { en:{name:'Injector 5', meta:'ECM21 SB'}, ja:{name:'インジェクタ5', meta:'ECM21 SB'} },
+  inj6: { en:{name:'Injector 6', meta:'ECM40 LG'}, ja:{name:'インジェクタ6', meta:'ECM40 LG'} },
+  feed_inj_coil_12v: {
+    en: { name:'12V rail injectors / coils', meta:'common relay/IPDM · not ECM',
+      note:'Common 12V rail for injectors ×6 and coils ×6 on the engine harness (typically R from relay/IPDM). The ECM only provides the ground-side drive (INJ/IGN pins). IPDM cavity: see FSM.' },
+    ja: { name:'12Vレール インジェクタ/コイル', meta:'共通リレー/IPDM · ECM外',
+      note:'インジェクタ×6とコイル×6の共通12V（通常リレー/IPDMからのR）。ECMはアース側駆動のみ（INJ/IGN）。IPDMキャビティ: FSM参照。' },
+  },
+
 };
 
 function connField(id, f, field){
