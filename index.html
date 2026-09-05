@@ -1212,9 +1212,11 @@ function svgNote(cid, f){
   const pins = flipRow((f.pins||[]).slice(0,2));
   let cavities='';
   pins.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*66, 28, 58, 38, 4); });
+  // Feed SVG badge: always English (JA strings are too wide; EN is universal here)
+  const enName = (CONN_I18N[cid] && CONN_I18N[cid].en && CONN_I18N[cid].en.name) || f.name || 'feed';
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <rect class="shell" x="4" y="4" width="140" height="70" rx="6" style="stroke:${f.accent}"/>
-    <text x="74" y="18" text-anchor="middle" font-size="8" fill="#90caf9" font-weight="700">${esc(connField(cid, f, 'name').slice(0, 28) || 'feed')}</text>
+    <text x="74" y="18" text-anchor="middle" font-size="8" fill="#90caf9" font-weight="700">${esc(String(enName).slice(0, 28))}</text>
     ${cavities}
   </svg>`;
 }
