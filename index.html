@@ -408,7 +408,7 @@ function fgForWire(w){
   return fgFor(w.c1);
 }
 
-/* ========== OEM pin data (2005 FSM MEC61-style) ========== */
+/* ========== OEM pin data (2005 VQ35DE FSM) ========== */
 const PIN_COL = {"1":"B","2":"GY/R","3":"G","4":"L/B","5":"L/Y","6":"P/L","10":"W/G","11":"P","12":"L/W","13":"W/L","14":"R/L","15":"W","16":"LG/B","21":"SB","22":"R/Y","23":"R/B","24":"G/Y","25":"P/B","32":"BR/W","33":"R","34":"Y/G","35":"L/W","40":"LG","41":"W/B","42":"B/R","45":"G/W","47":"W/R","48":"PU","49":"B","50":"G","51":"OR","55":"L/B","56":"W/L","57":"L","58":"W","60":"PU/W","61":"L/R","62":"Y/R","66":"L","67":"B/W","68":"R/W","69":"Y","70":"G/R","73":"BR/Y","75":"P/B","76":"LG","77":"P","78":"B/Y","79":"GY/R","80":"GY","81":"G/B","82":"G/Y","83":"G/R","85":"LG","86":"P","90":"LG","91":"B/OR","94":"L","98":"G/B","99":"G/Y","101":"L/OR","102":"BR/Y","104":"SB","106":"G/OR","107":"GY/R","108":"B/R","109":"W/B","111":"GY/L","113":"LG/B","115":"B/W","116":"B/R","117":"G/W","119":"R/W","120":"P","121":"R/W"};
 
 const PIN_NAME = {
@@ -479,7 +479,7 @@ function buildCircuits(model){
     {id:'ac_press', title:'A/C refrigerant pressure', color:'#ef6c00',
       ecm:[49,70], conn:['ac_press'], notes:'5V ECM 49 (B) · señal ECM 70 (G/R). Sensor en bahía motor / arnés body según ruteo.'},
     {id:'gnd_ecm', title:'ECM power grounds → E17', color:'#66bb6a',
-      ecm:[1,115,116], conn:['gnd4','e17'], notes:'Empalme de fábrica 4-pin (blanco): tierras de poder ECM 1/115/116 → body ground E17 (RH). No es sensor.'},
+      ecm:[1,115,116], conn:['gnd4','e17'], notes:'Empalme de fábrica 4-pin (blanco): tierras de poder ECM 1/115/116 → body ground E17 (RH).'},
     {id:'sns_gnd', title:'Sensor grounds (SNS GND)', color:'#ef6c00',
       ecm:[66,67,78], conn:['knock'], notes:'SNS GND ECM 66/67/78 · shields de sensores a tierra de sensor (FSM EC).'},
     {id:'knock', title:'Knock sensor', color:'#42a5f5',
@@ -666,7 +666,7 @@ const CONN_BASE = {
     pins:[{id:'VMOT',code:'G',ecm:3,rail:'12v'},{id:'relay',code:'12V',ecm:null,rail:'12v'}]},
   gnd4:{group:'motor', sub:'power', name:'Empalme tierra ECM (4-pin blanco)', meta:'1 / 115 / 116 → E17 (RH)', accent:'#66bb6a', shape:'rect4',
     pins:[{id:'A',code:'B',ecm:1,rail:'gnd'},{id:'B',code:'B/W',ecm:115,rail:'gnd'},{id:'C',code:'B/R',ecm:116,rail:'gnd'},{id:'D',code:'B',ecm:null,rail:'gnd'}],
-    note:'Empalme intermedio de fábrica (4-pin blanco): une tierras de poder ECM 1/115/116 al body ground E17 (RH). No es sensor.'},
+    note:'Empalme de fábrica 4-pin (blanco): une tierras de poder ECM 1/115/116 al body ground E17 (RH).'},
   e17:{group:'motor', sub:'power', name:'E17 body ground', meta:'Body ground E17 · RH engine bay (FSM)', accent:'#66bb6a', shape:'ring',
     pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
 
@@ -676,10 +676,10 @@ const CONN_BASE = {
     note:'En el arnés motor: alimentación 12V fusionada al pin 3 de cada A/F Sensor 1 (B1/B2). No entra a la ECM — solo el drive de calentador (ECM 2 / 24) y señales. Ver FSM EC A/F.'},
   feed_ho2s_12v:{group:'motor', sub:'feeds', name:'12V HO2S2 heaters (fusible)', meta:'post-cat · no ECM', accent:'#ce93d8', shape:'note',
     pins:[{id:'B1-12V',code:'12V',ecm:null,rail:'12v'},{id:'B2-12V',code:'12V',ecm:null,rail:'12v'}],
-    note:'12V fusionado a calentadores HO2S2 B1/B2 en el arnés; la ECM solo conmuta el lado de control (ECM 25 / 6). Sin inventar nº de fusible — ver FSM EC HO2S.'},
+    note:'12V fusionado a calentadores HO2S2 B1/B2 en el arnés; la ECM solo conmuta el lado de control (ECM 25 / 6). Nº de fusible: ver FSM EC HO2S.'},
   feed_inj_coil_12v:{group:'motor', sub:'feeds', name:'12V rail iny / bobinas', meta:'común relé/IPDM · no ECM', accent:'#ffca28', shape:'note',
     pins:[{id:'INJ+',code:'R',ecm:null,rail:'12v'},{id:'COIL+',code:'R',ecm:null,rail:'12v'}],
-    note:'Rail 12V común de inyectores ×6 y bobinas ×6 en el arnés motor (típic. cable R desde relé/IPDM). La ECM solo hace el drive a masa (pines INJ/IGN). No inventamos cavidad IPDM aquí.'},
+    note:'Rail 12V común de inyectores ×6 y bobinas ×6 en el arnés motor (típic. cable R desde relé/IPDM). La ECM solo hace el drive a masa (pines INJ/IGN). Cavidad IPDM: ver FSM.'},
   feed_ckp_maf_12v:{group:'motor', sub:'feeds', name:'12V CKP / MAF (arnés)', meta:'feed sensor · no ECM', accent:'#ffa726', shape:'note',
     pins:[{id:'CKP+',code:'R/W',ecm:null,rail:'12v'},{id:'MAF+',code:'R',ecm:null,rail:'12v'}],
     note:'Alimentación 12V en conectores CKP y MAF del arnés motor (no son pines ECM). Señales: CKP→13, MAF→51. Tierras locales / SNS según FSM.'},
@@ -716,7 +716,7 @@ const CONN_BASE = {
     pins:[{id:'5V',code:'PU',ecm:48,rail:'5v'},{id:'sig',code:'BR/W',ecm:32},{id:'GND',code:'B',ecm:null,rail:'gnd'}]},
   psp:{group:'motor', sub:'sensors', name:'PSP · Power steering pressure', meta:'sensor dirección · señal ECM 12', accent:'#00897b', shape:'tab3',
     pins:[{id:'SIG',code:'L/W',ecm:12},{id:'5V',code:'R/W',ecm:68,rail:'5v'},{id:'GND',code:'SNS',ecm:null,rail:'gnd'}],
-    note:'FSM 2005 EC: señal PSP → ECM 12 (L/W azul/blanco) · 5V → ECM 68 (R/W) · tierra vía SNS GND (no inventamos cavidad exacta de tierra).'},
+    note:'FSM 2005 EC: señal PSP → ECM 12 (L/W azul/blanco) · 5V → ECM 68 (R/W) · tierra vía SNS GND (cavidad exacta: ver FSM).'},
 
   /* —— Actuadores motor —— */
   coil1:{group:'motor', sub:'actuators', name:'Bobina 1', meta:'ECM62 Y/R', accent:'#f57f17', shape:'tab2', pins:[{id:'ECM',code:'Y/R',ecm:62},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
@@ -759,22 +759,22 @@ const CONN_BASE = {
     ],
     note:'PATH APP: pedal E113 → E11/F2 → ECM. APP usa 6 circuitos (cavidades 2,3,4,5,9,10). Unused en APP: 1,6,7,8. Cara F2 H.S. FSM: top 1–5 / bot 6–10. Colores = F2→ECM. Labs 5V/GND en rails APP.'},
   ix_e10_f1:{group:'motor', sub:'intermedias', name:'E10 ↔ F1 · Empalme sala máquinas ↔ arnés control', meta:'arnés engine room ↔ EC control · p.ej. A/C press (EC-720)', accent:'#78909c', shape:'ixnote',
-    pins:[], note:'Empalme intermedio entre arnés de sala de máquinas (E10) y arnés de control EC (F1). Aparece en diag. de sensor de presión A/C (EC-720) entre ECM y sensor. Pinout de cara no mapeado aquí — no inventamos cavidades.'},
+    pins:[], note:'Empalme intermedio entre arnés de sala de máquinas (E10) y arnés de control EC (F1). Aparece en diag. de sensor de presión A/C (EC-720) entre ECM y sensor. Pinout de cara: ver diagrama FSM correspondiente.'},
   ix_e12_f3:{group:'motor', sub:'intermedias', name:'E12 ↔ F3 · Path A/F + VB/VMOT', meta:'bahía motor · A/F · poder VB (119/120) · VMOT (ECM 3)', accent:'#ef6c00', shape:'ixnote',
-    pins:[], note:'Empalme en bahía motor: path A/F y también VB (IPDM E7-18→ECM 119/120) / VMOT (E8-42→ECM 3). También listado en path de tierras ECM (con F103/F151). Pinout de cara no mapeado completo — solo par y función conocidos.'},
+    pins:[], note:'Empalme en bahía motor: path A/F y también VB (IPDM E7-18→ECM 119/120) / VMOT (E8-42→ECM 3). También listado en path de tierras ECM (con F103/F151). Solo par/función conocidos aquí; pinout de cara: ver FSM.'},
   ix_f14_f229:{group:'motor', sub:'intermedias', name:'F14 ↔ F229 · Path Knock', meta:'intermedia sub-arnés knock · señal→15 · shield→tierra', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd'}],
-    note:'Intermedia F14/F229 del path knock (FSM): señal W→ECM 15 · shield→SNS GND. Cara pin-number FSM no detallada aquí — solo circuitos.'},
+    note:'Intermedia F14/F229 del path knock (FSM): señal W→ECM 15 · shield→SNS GND. Referencia de circuito FSM; cara pin-number: ver manual.'},
   ix_f103_f151:{group:'motor', sub:'intermedias', name:'F103 ↔ F151 · Tierras ECM → body', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171', accent:'#78909c', shape:'ixnote',
-    pins:[], note:'Empalme de tierras ECM: continuidad ECM 1, 115, 116 ↔ body ground pasa por F103/F151 (y también E12/F3). Ver EC-169/171 POWER SUPPLY AND GROUND CIRCUIT. Sin pinout de cara inventado.'},
+    pins:[], note:'Empalme de tierras ECM: continuidad ECM 1, 115, 116 ↔ body ground pasa por F103/F151 (y también E12/F3). Ver EC-169/171 POWER SUPPLY AND GROUND CIRCUIT. Pinout de cara: ver FSM.'},
   ix_f18_f201:{group:'motor', sub:'intermedias', name:'F18 ↔ F201 · Path bobinas + VTC B1', meta:'Bank 1 · ignition coils · IVT solenoid B1 · EC-458/697', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Empalme intermedio Bank 1: path bobinas de encendido (12V/señal/tierra) y VTC/IVT solenoid B1 (ECM 11) hacia IPDM/ECM. Ver EC-458 (IVT) y EC-697 (IGNITION SIGNAL). Sin mapa de cavidades inventado.'},
   ix_f221_f33:{group:'motor', sub:'intermedias', name:'F221 ↔ F33 · Path inyectores → ECM', meta:'inyectores 1–6 · continuidad a ECM 21–42 · EC-278', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Empalme intermedio del path de inyectores: F33↔F221 entre arnés de inyectores y ECM (cyl1→23 … cyl6→40). Usado en checks de función de inyector (EC-278). Sin mapa de cavidades inventado.'},
   ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · Sala máquinas ↔ body', meta:'freno / ASCD / A/F body join · engine room↔cabin', accent:'#fb8c00', shape:'ixnote',
-    pins:[], note:'Empalme sala de máquinas (E108) ↔ body/habitáculo (M15). Aparece en diag. freno, ASCD y varios paths que cruzan al body. Sin pinout de cara inventado.'},
+    pins:[], note:'Empalme sala de máquinas (E108) ↔ body/habitáculo (M15). Aparece en diag. freno, ASCD y varios paths que cruzan al body. Pinout de cara: ver FSM.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · Arnés control ↔ body', meta:'ASCD / freno / meter · control harness↔body', accent:'#26c6da', shape:'ixnote',
-    pins:[], note:'Empalme arnés de control EC (F102) ↔ body (M72). Path ASCD, freno y meter hacia habitáculo. Sin pinout de cara inventado.'},
+    pins:[], note:'Empalme arnés de control EC (F102) ↔ body (M72). Path ASCD, freno y meter hacia habitáculo. Pinout de cara: ver FSM.'},
 
   /* —— Habitáculo / pedales / ASCD —— */
   pnp:{group:'body', sub:'pedals', name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
@@ -815,7 +815,7 @@ function rebuildIndexes(){
 }
 
 function activeConnIds(model){
-  // IPDM connectors removed from web UI (PDF/print pack still has them)
+  // IPDM left out of web UI (still in print pack); exclude legacy non-FSM ids if present
   const hide = new Set(['orange_box','blue_box']);
   let ids = Object.keys(CONN_BASE).filter(id => !id.startsWith('ipdm_') && !hide.has(id));
   if(model === 'de_early'){
@@ -1353,7 +1353,7 @@ const NOTES_I18N = {
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
   app_sig: {en:'APS1→106 · APS2→98 via intermediate E11/F2 (pedal E113→E11/F2→ECM).', ja:'APS1→106 · APS2→98（中間E11/F2経由）。'},
   ac_press: {en:'5V ECM 49 (B) · signal ECM 70 (G/R). Sensor in engine bay / body harness per routing.', ja:'5V ECM 49 (B) · 信号 ECM 70 (G/R)。センサはエンジンルーム/ボディ側配線。'},
-  gnd_ecm: {en:'Factory 4-pin white splice: ECM power grounds 1/115/116 → body ground E17 (RH). Not a sensor.', ja:'工場4ピン白スプライス：ECM電源アース1/115/116 → ボディアースE17（RH）。センサではない。'},
+  gnd_ecm: {en:'Factory 4-pin white splice: ECM power grounds 1/115/116 → body ground E17 (RH).', ja:'工場4ピン白スプライス：ECM電源アース1/115/116 → ボディアースE17（RH）。'},
   sns_gnd: {en:'SNS GND ECM 66/67/78 · sensor shields to sensor ground (FSM EC).', ja:'SNS GND ECM 66/67/78 · センサシールド → センサアース（FSM EC）。'},
   knock: {en:'Signal ECM 15 (W) via intermediate F14/F229 · shield to SNS GND (FSM EC).', ja:'信号 ECM 15 (W) は中間F14/F229経由 · シールドはSNS GNDへ（FSM EC）。'},
   psp: {en:'PSP signal → ECM 12 (L/W) · 5V rail ECM 68 (R/W) · ground via SNS GND. FSM 2005 EC.', ja:'PSP信号 → ECM 12 (L/W) · 5Vレール ECM 68 (R/W) · アースはSNS GND。FSM 2005 EC。'},
