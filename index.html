@@ -109,12 +109,12 @@
     white-space: nowrap;
   }
   #blocks .pin .dest {
-    display: block; font-size: calc(var(--pin-sm, 8px) - 1px); font-weight: 800;
+    display: block; font-size: var(--pin-sm, 8px); font-weight: 800;
     margin-top: 1px; max-width: 100%; overflow: hidden; text-overflow: clip;
-    white-space: nowrap; line-height: 1;
-    letter-spacing: -0.03em;
-    /* don't inherit wire fill ink — accent set inline */
-    text-shadow: none;
+    white-space: nowrap; line-height: 1.05;
+    letter-spacing: -0.02em;
+    /* readable on any wire fill: dark halo + keep accent color inline */
+    text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95), 0 0 1px #000;
   }
   body[data-mode="solid"] #blocks .pin .pn,
   body[data-mode="solid"] #blocks .pin .pw {
@@ -223,7 +223,7 @@
   .cav-hit { cursor: pointer; }
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.hl-end .cav-face { stroke: var(--hl2) !important; stroke-width: 2.5; }
-  .cav-hit.hl-group .cav-face { stroke: #ab47bc !important; stroke-width: 2; }
+  .cav-hit.hl-group .cav-face { stroke: var(--hl) !important; stroke-width: 2; opacity: 0.85; }
   .cav-label { font-size: 7px; font-weight: 800; fill: #111; pointer-events: none; opacity: 0.9; }
   .cav-sub, .cav-code { font-size: 7.5px; font-weight: 800; fill: #222; pointer-events: none; }
   .cav-ecm { font-size: 7px; font-weight: 700; fill: #222; pointer-events: none; opacity: 0.95; }
@@ -1592,7 +1592,7 @@ const I18N = {
     noCirc: 'Sin circuito mapeado para ese pin.',
     noWide: 'Sin grupo de circuito amplio; mostrando fichas directas.',
     f102Title: 'F102 · SMJ (mate M72) · PG-85 cara',
-    f102Legend: 'F102 · SMJ · L grande · M/R chicos · click cavidad → ECM',
+    f102Legend: 'F102 · SMJ · click cavidad → ECM',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
   en: {
@@ -1628,7 +1628,7 @@ const I18N = {
     noCirc: 'No circuit mapped for that pin.',
     noWide: 'No wide circuit group; showing direct connector cards.',
     f102Title: 'F102 · SMJ (mate M72) · PG-85 face',
-    f102Legend: 'F102 · SMJ · L large · M/R small · click cavity → ECM',
+    f102Legend: 'F102 · SMJ · click cavity → ECM',
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
   },
   ja: {
@@ -1664,7 +1664,7 @@ const I18N = {
     noCirc: 'そのピンに対応する回路がありません。',
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
     f102Title: 'F102 · SMJ（mate M72）· PG-85',
-    f102Legend: 'F102 · SMJ · L大 · M/R小 · クリック → ECM',
+    f102Legend: 'F102 · SMJ · クリック → ECM',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
 };
@@ -1934,7 +1934,7 @@ function makePinEl(p){
       }
     }
     const col = accentForConn(dest.f);
-    destHtml = `<span class="dest" style="color:${col}">${esc(text)}</span>`;
+    destHtml = `<span class="dest" style="color:#ffe082;border-bottom:2px solid ${esc(col)}">${esc(text)}</span>`;
     destTitle = ` → ${dest.f.name||dest.cid}${cavId ? ' · pin '+cavId : ''}`;
     d.dataset.destConn = dest.cid;
     if(cavId) d.dataset.destCav = cavId;
@@ -2836,7 +2836,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       const onFocusEcm = focusPin!=null && p.ecm!=null && Number(p.ecm)===Number(focusPin);
       const onPathEcm = p.ecm!=null && ecmSet.has(Number(p.ecm));
       /* exact pin = yellow hl (same as ECM); siblings on path = hl-group */
-      const cls = (isFocusCav || onFocusEcm) ? 'hl' : 'hl-group';
+      const cls = (isFocusCav || onFocusEcm || onPathEcm) ? 'hl' : 'hl-group';
       if(cid !== 'ix_f102_m72' || isFocusCav || onPathEcm){
         document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`).forEach(cav=>{
           cav.classList.remove('dim','hl','hl-end','hl-group');
