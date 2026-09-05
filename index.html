@@ -1642,7 +1642,7 @@ const I18N = {
     noCirc: 'Sin circuito mapeado para ese pin.',
     noWide: 'Sin grupo de circuito amplio; mostrando fichas directas.',
     f102Title: 'F102 · SMJ (mate M72) · PG-85 cara',
-    f102Legend: 'Como PG-85: carcasa blanca · L grande · M/R chicos. “H” = letra de terminal (1H–46H), no zona del auto.',
+    f102Legend: 'F102 · SMJ · L grande · M/R chicos · click cavidad → ECM',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
   en: {
@@ -1678,7 +1678,7 @@ const I18N = {
     noCirc: 'No circuit mapped for that pin.',
     noWide: 'No wide circuit group; showing direct connector cards.',
     f102Title: 'F102 · SMJ (mate M72) · PG-85 face',
-    f102Legend: 'Like PG-85: white shell · L large · M/R small. “H” = terminal letter (1H–46H), not a car zone.',
+    f102Legend: 'F102 · SMJ · L large · M/R small · click cavity → ECM',
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
   },
   ja: {
@@ -1714,7 +1714,7 @@ const I18N = {
     noCirc: 'そのピンに対応する回路がありません。',
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
     f102Title: 'F102 · SMJ（mate M72）· PG-85',
-    f102Legend: 'PG-85風: 白シェル · L大 · M/R小。「H」は端子記号（1H–46H）で車の区画ではない。',
+    f102Legend: 'F102 · SMJ · L大 · M/R小 · クリック → ECM',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
 };
@@ -2059,7 +2059,7 @@ function renderF102(){
   shell.className = 'f102-shell';
   const head = document.createElement('div');
   head.className = 'f102-shell-head';
-  head.innerHTML = '<span class="fid">F102 (White)</span><span class="meta">H.S. · ENGINE CONTROL HARNESS · mate M72</span>';
+  head.innerHTML = '<span class="fid">F102 (White)</span><span class="meta">ENGINE CONTROL HARNESS · mate M72</span>';
   shell.appendChild(head);
   const face = document.createElement('div');
   face.className = 'f102-face-inner';
@@ -2094,8 +2094,7 @@ function renderF102(){
   shell.appendChild(face);
   const foot = document.createElement('div');
   foot.className = 'f102-shell-foot';
-  foot.innerHTML = 'PG-85 · looking into F102 (sin espejo — el espejo es M72)'
-    + '<span class="hnote">La “H” de 1H…46H es la serie de terminal del FSM, no un sector del auto.</span>';
+  foot.innerHTML = 'F102 · ENGINE CONTROL HARNESS · mate M72 · PG-85';
   shell.appendChild(foot);
   blocksEl.appendChild(shell);
   // No selection → open; if currently highlighted as F102 hit, stay open
