@@ -900,7 +900,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
     : '';
   const mode = document.body.dataset.mode || 'outlines';
   const disp = cavDisplayLab(pin);
-  const lc = labClass(disp);
+  const lc = mode === 'solid' ? '' : labClass(disp);
   const rail = cavRailOf(pin);
   let txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#111';
   if(mode !== 'solid' && lc === 'lab-5v') txtFill = '#F9A825';
