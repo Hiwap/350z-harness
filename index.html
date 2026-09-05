@@ -145,6 +145,10 @@
   .ficha.hl .meta, .ficha.hl .note-body, .ficha.hl .note-pins { display: block; }
   #fichas { display: flex; flex-direction: column; gap: 10px; }
   .ficha-sec.sel-top > summary { background: #2a2410; border-color: #5d4e1a; color: #ffe082; }
+  .ficha-sec.sel-top > summary span {
+    display: block; font-weight: 500; color: #d7c48a; white-space: normal;
+    line-height: 1.35; margin-top: 4px; font-size: 11px;
+  }
   .ficha-sec.sel-top { border-color: #5d4e1a; }
   .conn-svg { width: 100%; height: auto; display: block; margin: 0 auto 2px; }
   .cav-hit { cursor: pointer; }
@@ -537,6 +541,11 @@ const GROUPS = [
   {id:'motor', ls:'z33_grp_motor'},
   {id:'body', ls:'z33_grp_body'},
 ];
+
+const GROUP_SHORT = {
+  motor: {es:'Arnés', en:'Engine', ja:'エンジン'},
+  body:  {es:'Habitáculo', en:'Cabin', ja:'車室内'},
+};
 
 const GROUP_I18N = {
   motor: {
@@ -1248,10 +1257,13 @@ const I18N = {
     clear: 'Limpiar',
     fichasTitle: 'Fichas · Arnés motor + Habitáculo / Body',
     selTopTitle: '選択グループ',
+    selTopGroups: 'グループ',
     selTopSub: '選択を上に · 下に通常グループ',
     selTopTitle: 'Selected groups',
+    selTopGroups: 'groups',
     selTopSub: 'selection on top · full groups below',
     selTopTitle: 'Grupos seleccionados',
+    selTopGroups: 'grupos',
     selTopSub: 'selección arriba · grupos completos abajo',
     footer: 'Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio. Colores y pinouts según MEC61-style EC (2005 DE) salvo donde se indique variante.',
     legendNote: 'R/W = base/tracer (base / trazador)',
@@ -1746,6 +1758,14 @@ function removeSelectedTop(){
 }
 
 /** Selected fichas first (top), then normal groups stay below. */
+function selectedBucketLabel(groupId, subKey){
+  const gShort = (GROUP_SHORT[groupId] && (GROUP_SHORT[groupId][lang] || GROUP_SHORT[groupId].es)) || groupId;
+  const subLabel = (SUB_I18N[subKey] && (SUB_I18N[subKey][lang] || SUB_I18N[subKey].es)) || subKey;
+  // intermedias already says "Fichas…"; others get "Arnés · Sensores" style
+  if(subKey === 'intermedias') return subLabel;
+  return gShort + ' · ' + subLabel;
+}
+
 function updateSelectedTop(connIds){
   removeSelectedTop();
   const root = document.getElementById('fichas');
@@ -1756,12 +1776,35 @@ function updateSelectedTop(connIds){
   // Promote when 2+ fichas or spanning 2+ groups (or any multi-hit selection)
   if(ids.length < 2 && groupSet.size < 2) return;
 
+  // Distinct (group, sub) buckets in stable order
+  const bucketKeys = [];
+  const seen = new Set();
+  const orderedIds = ids.slice().sort((a,b)=>{
+    const ga = CONN[a].group||'motor', gb = CONN[b].group||'motor';
+    const gi = GROUPS.findIndex(g=>g.id===ga), gj = GROUPS.findIndex(g=>g.id===gb);
+    if(gi!==gj) return gi-gj;
+    const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
+    const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
+    return (sa<0?999:sa) - (sb<0?999:sb);
+  });
+  orderedIds.forEach(id=>{
+    const g = CONN[id].group || 'motor';
+    const s = CONN[id].sub || 'other';
+    const key = g + '|' + s;
+    if(seen.has(key)) return;
+    seen.add(key);
+    bucketKeys.push({g, s});
+  });
+  const names = bucketKeys.map(b => selectedBucketLabel(b.g, b.s));
+  const n = bucketKeys.length;
+
   const top = document.createElement('details');
   top.id = 'selTop';
   top.className = 'ficha-sec sel-top';
   top.open = true;
   const sum = document.createElement('summary');
-  sum.innerHTML = `${esc(t('selTopTitle'))}<span>${groupSet.size}</span>`;
+  // e.g. "3 grupos: Arnés · Sensores, Fichas intermedias E/F, Habitáculo · Pedales / frenos"
+  sum.innerHTML = `${esc(String(n) + ' ' + t('selTopGroups'))}<span>${esc(names.join(', '))}</span>`;
   top.appendChild(sum);
   const body = document.createElement('div');
   body.className = 'fichas-body';
