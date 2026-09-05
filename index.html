@@ -924,7 +924,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
 }
 
 
-/** Face L/R mirror follows ECM orient: Invertida = mirror each face row L↔R of FSM H.S. (ECM + APP + IPDM E3–E9 + tabs/rects) */
+/** Face L/R mirror follows ECM orient for ECM/APP/IPDM/sensors. Intermedias (E11/F2, F14/…) stay FSM H.S. — no Invertida flip. */
 function isFaceInv(){
   const el = document.getElementById('ecmOrient');
   return !el || el.value === 'invertida';
@@ -974,7 +974,9 @@ function svgTabN(cid, f, n){
   const W = 28 + cols*40;
   const H = 72;
   let cavities='';
-  flipRow(f.pins.slice(0,cols)).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*40, 24, 34, 38, 4); });
+  // Intermedias keep FSM H.S. pin order (no Invertida L/R)
+  const row = (f.sub === 'intermedias') ? f.pins.slice(0,cols) : flipRow(f.pins.slice(0,cols));
+  row.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*40, 24, 34, 38, 4); });
   const tabX = W/2 - 16;
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${tabX} 2 h32 l5 10 H${tabX-5} Z" style="stroke:${f.accent}"/>
@@ -1224,9 +1226,10 @@ function svgNote(cid, f){
 
 
 function svgRect10(cid, f){
+  // Intermedias (E11/F2): always FSM H.S. top 1–5 / bot 6–10 — do NOT follow ECM Invertida
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const top = flipRow(['1','2','3','4','5']).map(id=>byId[id]).filter(Boolean);
-  const bot = flipRow(['6','7','8','9','10']).map(id=>byId[id]).filter(Boolean);
+  const top = ['1','2','3','4','5'].map(id=>byId[id]).filter(Boolean);
+  const bot = ['6','7','8','9','10'].map(id=>byId[id]).filter(Boolean);
   const W=210, H=100;
   let cavities='';
   top.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 10+i*38, 20, 34, 34, 3); });
