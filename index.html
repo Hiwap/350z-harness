@@ -550,8 +550,8 @@
     <div class="blocks" id="blocks"></div>
     <div class="info" id="info"></div>
     <details class="f102-panel" id="f102Panel" open>
-      <summary id="f102Title">F102 · SMJ (mate M72) · PG-85</summary>
-      <div class="legend" id="f102Legend" style="font-size:11px;color:var(--muted)">PG-85 · click cavity → ECM path</div>
+      <summary id="f102Title">F102 · SMJ</summary>
+      <div class="legend" id="f102Legend" style="font-size:11px;color:var(--muted);display:none"></div>
       <div class="blocks" id="f102Blocks"></div>
     </details>
   </section>
@@ -1013,9 +1013,9 @@ const CONN_BASE = {
   ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · CAN (rama ABS/DLC)', meta:'2G/7G CAN · engine room↔body · FSM LAN', accent:'#90a4ae', shape:'tab2',
     pins:[{id:'2G',code:'L',ecm:94,lab:'CAN-H'},{id:'7G',code:'P',ecm:86,lab:'CAN-L'}],
     note:'Empalme sala de máquinas (E108) ↔ body (M15). Cavidades CAN verificadas: 2G L = CAN-H (cont. DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. DLC 14 / ABS E51-23). Rama hacia ABS/DLC vía body. Otras cavidades (freno/ASCD/A/F) existen; solo se listan pines CAN verificados. Cara: FSM H.S. (intermedias sin Invertida).'},
-  ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ engine control', meta:'blanco · PG-85 · mate M72 · 13 cav. verificadas', accent:'#90a4ae', shape:'f102', face:'smj_h',
+  ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
     pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'—',ecm:null},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'—',ecm:null},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'GND',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'—',ecm:null},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'—',ecm:null},{id:'30H',code:'—',ecm:null},{id:'31H',code:'—',ecm:null},{id:'32H',code:'—',ecm:null},{id:'33H',code:'—',ecm:null},{id:'34H',code:'—',ecm:null},{id:'35H',code:'—',ecm:null},{id:'36H',code:'—',ecm:null},{id:'37H',code:'—',ecm:null},{id:'38H',code:'—',ecm:null},{id:'39H',code:'—',ecm:null},{id:'40H',code:'—',ecm:null},{id:'41H',code:'—',ecm:null},{id:'42H',code:'—',ecm:null},{id:'43H',code:'—',ecm:null},{id:'44H',code:'—',ecm:null},{id:'45H',code:'—',ecm:null},{id:'46H',code:'—',ecm:null}],
-    note:'F102 = ENGINE CONTROL HARNESS (white SMJ, PG-85) · mate M72 MAIN HARNESS. Cara FSM H.S. F102. Bloques: L 1H–10H · M 11H–29H · R 30H–46H. Verificadas: 1H B/W→67 ASCD ret · 2H B/R→108 ASCD brake · 7H G/Y→99 ASCD steer · 11H GY/L→111 SSOFF · 17H W/B→109 IGN · 18H PU→48 EVAP 5V · 19H BR/W→32 EVAP sig · 20H B/W→67 EVAP GND · 21H L/OR→101 stop · 23H GY/R SC-START/meter · 26H L→94 CAN-H · 27H P→86 CAN-L · 28H BR/Y→102 PNP. Demás cavidades vacías/nc. Path CAN: ECM F101 94/86 → F102 26H/27H → M72 → DLC M8 6/14.'},
+  note:'F102 ↔ M72 · PG-85 · 13 cav. con cable verificado.'},
 
   /* —— Habitáculo / pedales / ASCD —— */
   pnp:{group:'body', sub:'pedals', name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
@@ -1591,8 +1591,8 @@ const I18N = {
     orientFsm: '📘 <b>FSM NORMAL</b> · como impreso en EC-123 · <b>1 a la IZQUIERDA</b> · 121 a la DERECHA · bloques 1–5 | 6–81 | 82–113 | 114–121 (espejo horizontal de la vista bancada)',
     noCirc: 'Sin circuito mapeado para ese pin.',
     noWide: 'Sin grupo de circuito amplio; mostrando fichas directas.',
-    f102Title: 'F102 · SMJ (mate M72) · PG-85 cara',
-    f102Legend: 'F102 · SMJ · click cavidad → ECM',
+    f102Title: 'F102 · SMJ',
+    f102Legend: '',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
   en: {
@@ -1627,8 +1627,8 @@ const I18N = {
     orientFsm: '📘 <b>FSM NORMAL</b> · as printed on EC-123 · <b>1 on the LEFT</b> · 121 on the RIGHT · blocks 1–5 | 6–81 | 82–113 | 114–121 (horizontal mirror of bay view)',
     noCirc: 'No circuit mapped for that pin.',
     noWide: 'No wide circuit group; showing direct connector cards.',
-    f102Title: 'F102 · SMJ (mate M72) · PG-85 face',
-    f102Legend: 'F102 · SMJ · click cavity → ECM',
+    f102Title: 'F102 · SMJ',
+    f102Legend: '',
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
   },
   ja: {
@@ -1663,8 +1663,8 @@ const I18N = {
     orientFsm: '📘 <b>FSM通常</b> · EC-123印刷どおり · <b>1が左</b> · 121が右 · ブロック 1–5 | 6–81 | 82–113 | 114–121（ルーム視点の左右反転）',
     noCirc: 'そのピンに対応する回路がありません。',
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
-    f102Title: 'F102 · SMJ（mate M72）· PG-85',
-    f102Legend: 'F102 · SMJ · クリック → ECM',
+    f102Title: 'F102 · SMJ',
+    f102Legend: '',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
 };
@@ -1998,7 +1998,11 @@ function renderF102(){
   const legendEl = document.getElementById('f102Legend');
   if(!panel || !blocksEl) return;
   if(titleEl) titleEl.textContent = t('f102Title');
-  if(legendEl) legendEl.textContent = t('f102Legend');
+  if(legendEl){
+    const lg = t('f102Legend');
+    legendEl.textContent = lg || '';
+    legendEl.style.display = lg ? '' : 'none';
+  }
   const conf = CONN['ix_f102_m72'] || CONN_BASE['ix_f102_m72'];
   const byId = {};
   (conf && conf.pins || []).forEach(p => {
@@ -2170,11 +2174,10 @@ const CONN_I18N = {
       note:'エンジンルーム (E108) ↔ ボディ (M15)。確認済CAN: 2G L = CAN-H（DLC 6 / ABS E51-20）· 7G P = CAN-L（DLC 14 / ABS E51-23）。ボディ経由でABS/DLCへ分岐。他キャビティ（ブレーキ/ASCD等）あり; CANのみ掲載。面: FSM H.S.（中間はInvertidaなし）。' },
   },
   ix_f102_m72: {
-    en: { name:'F102 ↔ M72 · SMJ engine control', meta:'white · PG-85 · mate M72 · 13 verified cavities',
-      note:'F102 = ENGINE CONTROL HARNESS (white SMJ, PG-85) · mate M72 MAIN HARNESS. Face FSM H.S. F102. Blocks: L 1H–10H · M 11H–29H · R 30H–46H. Verified: 1H B/W→67 ASCD ret · 2H B/R→108 ASCD brake · 7H G/Y→99 ASCD steer · 11H GY/L→111 SSOFF · 17H W/B→109 IGN · 18H PU→48 EVAP 5V · 19H BR/W→32 EVAP sig · 20H B/W→67 EVAP GND · 21H L/OR→101 stop · 23H GY/R SC-START/meter · 26H L→94 CAN-H · 27H P→86 CAN-L · 28H BR/Y→102 PNP. Other cavities empty/nc. CAN path: ECM F101 94/86 → F102 26H/27H → M72 → DLC M8 6/14.' },
-    ja: { name:'F102 ↔ M72 · SMJエンジン制御', meta:'白 · PG-85 · mate M72 · 確認済13キャビティ',
-      note:'F102 = ENGINE CONTROL HARNESS（白SMJ、PG-85）· mate M72 MAIN HARNESS。面: FSM H.S.（F102を見る向き・Invertidaなし）。ブロック: L 1H–10H · M 11H–29H · R 30H–46H。確認済: 1H B/W→67 ASCD ret · 2H B/R→108 ASCD brake · 7H G/Y→99 ASCD steer · 11H GY/L→111 SSOFF · 17H W/B→109 IGN · 18H PU→48 EVAP 5V · 19H BR/W→32 EVAP sig · 20H B/W→67 EVAP GND · 21H L/OR→101 stop · 23H GY/R SC-START/meter · 26H L→94 CAN-H · 27H P→86 CAN-L · 28H BR/Y→102 PNP。他は空/nc。CAN経路: ECM F101 94/86 → F102 26H/27H → M72 → DLC M8 6/14。' },
+    en: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'F102 ↔ M72 · PG-85.' },
+    ja: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'F102 ↔ M72 · PG-85。' },
   },
+
   ecm_f101_can: {
     en: { name:'ECM F101 · CAN', meta:'ECM harness connector · CAN-H/L · FSM LAN',
       note:'F101 = ECM harness connector on the loom. Verified CAN cavities only: 94 L = CAN-H · 86 P = CAN-L. Path: F101 → … → F102 26H/27H → M72 → DLC M8 6/14; also IPDM E9 48/49. Bench: loom alone 86↔94 = OL (terminators in modules).' },
