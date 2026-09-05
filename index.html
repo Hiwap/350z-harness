@@ -1793,9 +1793,6 @@ function updateSelectedTop(connIds){
   if(!root) return;
   const ids = [...new Set((connIds||[]).filter(id => id && CONN[id]))];
   if(ids.length < 1) return;
-  const groupSet = new Set(ids.map(id => CONN[id].group || 'motor'));
-  // Promote when 2+ fichas or spanning 2+ groups (or any multi-hit selection)
-  if(ids.length < 2 && groupSet.size < 2) return;
 
   // Distinct (group, sub) buckets in stable order
   const bucketKeys = [];
@@ -1818,6 +1815,8 @@ function updateSelectedTop(connIds){
   });
   const names = bucketKeys.map(b => selectedBucketLabel(b.g, b.s));
   const n = bucketKeys.length;
+  // Single bucket (e.g. pin 115 → only Poder/tierras): skip sel-top; category already promoted
+  if(n < 2) return;
 
   const top = document.createElement('details');
   top.id = 'selTop';
