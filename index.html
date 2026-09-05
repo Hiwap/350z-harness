@@ -1240,11 +1240,11 @@ const I18N = {
     searchPh: 'Buscar: 101, ASCD, APP, stop, CAN…',
     clear: 'Limpiar',
     fichasTitle: 'Fichas · Arnés motor + Habitáculo / Body',
-    selTopTitle: '選択中',
+    selTopTitle: '選択グループ',
     selTopSub: '選択を上に · 下に通常グループ',
-    selTopTitle: 'Selected',
+    selTopTitle: 'Selected groups',
     selTopSub: 'selection on top · full groups below',
-    selTopTitle: 'Seleccionados',
+    selTopTitle: 'Grupos seleccionados',
     selTopSub: 'selección arriba · grupos completos abajo',
     footer: 'Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio. Colores y pinouts según MEC61-style EC (2005 DE) salvo donde se indique variante.',
     legendNote: 'R/W = base/tracer (base / trazador)',
@@ -1553,6 +1553,7 @@ function renderFichas(){
     const sec=document.createElement('details');
     sec.className='ficha-sec';
     sec.dataset.grp = g.id;
+    sec.dataset.ord = String(++_fichaOrd);
     const saved = localStorage.getItem(g.ls);
     sec.open = saved === null ? true : saved === '1';
     const sum=document.createElement('summary');
@@ -1574,6 +1575,7 @@ function renderFichas(){
       const sub=document.createElement('details');
       sub.className='ficha-sub';
       sub.dataset.sub = sk;
+      sub.dataset.ord = String(++_fichaOrd);
       const lsKey = 'z33_sub_' + g.id + '_' + sk;
       const subSaved = localStorage.getItem(lsKey);
       sub.open = subSaved === null ? true : subSaved === '1';
@@ -1602,10 +1604,11 @@ function renderFichas(){
 
 
 
-/** Within each subgroup grid, move selected fichas to the front (keep relative order). */
+/** Selected fichas first in their grid; active subs first; active groups under #selTop. */
 function promoteSelectedInGroups(connIds){
   const set = new Set((connIds||[]).filter(Boolean));
   if(!set.size) return;
+
   document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) .fichas-grid').forEach(grid=>{
     const kids = [...grid.children];
     const sel = kids.filter(el => set.has(el.dataset.conn));
@@ -1613,6 +1616,35 @@ function promoteSelectedInGroups(connIds){
     if(!sel.length) return;
     [...sel, ...rest].forEach(el => grid.appendChild(el));
   });
+
+  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) > .fichas-body').forEach(body=>{
+    const subs = [...body.querySelectorAll(':scope > details.ficha-sub')];
+    if(subs.length < 2) return;
+    const active = [], idle = [];
+    subs.forEach(sub=>{
+      const hit = [...sub.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
+      (hit ? active : idle).push(sub);
+    });
+    if(!active.length) return;
+    [...active, ...idle].forEach(sub => body.appendChild(sub));
+  });
+
+  const root = document.getElementById('fichas');
+  if(root){
+    const top = document.getElementById('selTop');
+    const secs = [...root.querySelectorAll(':scope > details.ficha-sec:not(.sel-top)')];
+    const active = [], idle = [];
+    secs.forEach(sec=>{
+      const hit = [...sec.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
+      (hit ? active : idle).push(sec);
+    });
+    // Rebuild order: selTop (if any), active groups, idle groups
+    const frag = document.createDocumentFragment();
+    if(top) frag.appendChild(top);
+    active.forEach(sec => frag.appendChild(sec));
+    idle.forEach(sec => frag.appendChild(sec));
+    root.appendChild(frag);
+  }
 }
 
 function restoreFichaOrder(){
@@ -1624,6 +1656,23 @@ function restoreFichaOrder(){
     });
     kids.forEach(el => grid.appendChild(el));
   });
+  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) > .fichas-body').forEach(body=>{
+    const subs = [...body.querySelectorAll(':scope > details.ficha-sub')];
+    subs.sort((a,b)=>{
+      const oa = parseInt(a.dataset.ord||'0',10), ob = parseInt(b.dataset.ord||'0',10);
+      return oa-ob;
+    });
+    subs.forEach(sub => body.appendChild(sub));
+  });
+  const root = document.getElementById('fichas');
+  if(root){
+    const secs = [...root.querySelectorAll(':scope > details.ficha-sec:not(.sel-top)')];
+    secs.sort((a,b)=>{
+      const oa = parseInt(a.dataset.ord||'0',10), ob = parseInt(b.dataset.ord||'0',10);
+      return oa-ob;
+    });
+    secs.forEach(sec => root.appendChild(sec));
+  }
 }
 
 
@@ -1648,7 +1697,7 @@ function updateSelectedTop(connIds){
   top.className = 'ficha-sec sel-top';
   top.open = true;
   const sum = document.createElement('summary');
-  sum.innerHTML = `${esc(t('selTopTitle'))}<span>${ids.length}</span>`;
+  sum.innerHTML = `${esc(t('selTopTitle'))}<span>${groupSet.size}</span>`;
   top.appendChild(sum);
   const body = document.createElement('div');
   body.className = 'fichas-body';
