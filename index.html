@@ -41,7 +41,7 @@
 
   #ecm {
     overflow-x: auto; overflow-y: auto; min-width: 0;
-    --pin-w: 34px; --pin-h: 32px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 10px; --pin-sm: 8px;
+    --pin-w: 34px; --pin-h: 40px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 10px; --pin-sm: 8px;
   }
   .blocks {
     display: flex; gap: var(--block-gap, 10px); align-items: flex-start;
@@ -52,13 +52,20 @@
   .block .tag { text-align: center; font-size: 11px; color: #c5cad3; margin-top: 4px; font-weight: 600; }
   .row { display: flex; gap: var(--pin-gap, 3px); }
   .pin {
-    width: var(--pin-w, 34px); height: var(--pin-h, 32px); border-radius: 5px; border: 2.5px solid #555;
+    width: var(--pin-w, 34px); height: auto; min-height: var(--pin-h, 32px); border-radius: 5px; border: 2.5px solid #555;
     background: #12161d; color: #eee; font-size: var(--pin-fs, 10px); font-weight: 700;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     cursor: pointer; line-height: 1.05; user-select: none; position: relative;
     flex: 0 0 auto;
+    padding: 2px 1px;
+    box-sizing: border-box;
   }
   .pin small { font-size: var(--pin-sm, 8px); font-weight: 700; opacity: 1; }
+  #blocks .pin .dest {
+    display: block; font-size: calc(var(--pin-sm, 8px) - 1px); font-weight: 800;
+    margin-top: 1px; max-width: 100%; overflow: hidden; text-overflow: clip;
+    white-space: nowrap; line-height: 1;
+  }
   .pin.empty, .pin.unused {
     border-style: dashed; border-color: #333; color: #555;
     cursor: default; pointer-events: none;
@@ -320,7 +327,7 @@
 
   /* Mild mobile shrink only — keep recognizable EC-123 proportions (≥24px); scroll if needed */
   @media (max-width: 900px) {
-    #ecm { --pin-w: 28px; --pin-h: 26px; --pin-gap: 2px; --block-gap: 8px; --pin-fs: 9px; --pin-sm: 7px; }
+    #ecm { --pin-w: 28px; --pin-h: 34px; --pin-gap: 2px; --block-gap: 8px; --pin-fs: 9px; --pin-sm: 7px; }
     #ecm #f102Blocks {
       flex-direction: column; flex-wrap: nowrap; gap: 8px;
       overflow-x: visible; width: 100%;
@@ -336,7 +343,7 @@
     #ecm #f102Blocks .pin .dest { font-size: 6.5px; }
   }
   @media (max-width: 600px) {
-    #ecm { --pin-w: 24px; --pin-h: 22px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
+    #ecm { --pin-w: 24px; --pin-h: 30px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
     #ecm details.f102-panel { margin-top: 10px; }
     #ecm #f102Blocks { padding: 4px 6px 8px; gap: 6px; }
     #ecm #f102Blocks .f102-face-block { padding: 4px 2px 2px; }
@@ -360,7 +367,7 @@
   }
   @media (orientation: landscape) and (max-height: 500px) {
     main { grid-template-columns: 1fr; }
-    #ecm { order: -1; --pin-w: 24px; --pin-h: 22px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
+    #ecm { order: -1; --pin-w: 24px; --pin-h: 30px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
     .pin { border-radius: 4px; border-width: 2px; }
     .block .tag { font-size: 9px; margin-top: 2px; }
   }
@@ -1733,6 +1740,58 @@ function isPinActive(p){
   return false;
 }
 
+
+/** Prefer endpoint ficha over SMJ / feeds / IPDM when labeling an ECM pin. */
+const CONN_SHORT = {
+  batt_feed:'BATT', ign_sw:'IGN', ecm_relay:'RLY', vmot:'VMOT', gnd4:'GND', e17:'E17',
+  ecm_f101_can:'CAN', af_b1:'A/F1', af_b2:'A/F2', ho2s_b1:'HO2S1', ho2s_b2:'HO2S2',
+  maf:'MAF', knock:'KNK', ckp:'CKP', cmp_b1:'CMP1', cmp_b2:'CMP2', ect:'ECT', iat:'IAT',
+  etc:'ETC', ac_press:'A/C', evap_press:'EVAP', evap_purge:'PRG', psp:'PSP',
+  coil1:'IGN1', coil2:'IGN2', coil3:'IGN3', coil4:'IGN4', coil5:'IGN5', coil6:'IGN6',
+  inj1:'INJ1', inj2:'INJ2', inj3:'INJ3', inj4:'INJ4', inj5:'INJ5', inj6:'INJ6',
+  app:'APP', pnp:'PNP', stop_lamp:'STP', ascd_brake:'ASCDb', ascd_clutch:'ASCDc',
+  clock_spring:'ASCD', ascd_ind:'IND', fuel_level:'FUEL', dlc:'DLC',
+  fp_relay:'FP', vtc_b1:'VTC1', vtc_b2:'VTC2', vtc_ex_b1:'VTCe1', vtc_ex_b2:'VTCe2',
+  ix_f102_m72:'F102', ix_e11_f2:'E11', ix_e12_f3:'E12', ix_e108_m15:'E108',
+  ix_f103_f151:'F103', ix_f14_f229:'F14',
+};
+
+function connRankForEcmLabel(cid, f){
+  if(!cid) return 999;
+  if(cid === 'ix_f102_m72') return 90;
+  if(String(cid).startsWith('ipdm_')) return 85;
+  if(String(cid).startsWith('feed_')) return 80;
+  if(String(cid).startsWith('ix_') || (f && f.sub === 'intermedias')) return 70;
+  if(f && f.sub === 'power') return 40;
+  return 10; /* sensors / actuators / body endpoints first */
+}
+
+function primaryConnForEcm(pin){
+  const p = Number(pin);
+  const found = [];
+  const pool = Object.keys(CONN).length ? CONN : CONN_BASE;
+  Object.entries(pool).forEach(([cid,f])=>{
+    if(!(f && f.pins)) return;
+    if(f.pins.some(x => x.ecm!=null && Number(x.ecm)===p)) found.push([cid,f]);
+  });
+  if(!found.length && pool !== CONN_BASE){
+    Object.entries(CONN_BASE).forEach(([cid,f])=>{
+      if(!(f && f.pins)) return;
+      if(f.pins.some(x => x.ecm!=null && Number(x.ecm)===p)) found.push([cid,f]);
+    });
+  }
+  if(!found.length) return null;
+  found.sort((a,b)=> connRankForEcmLabel(a[0],a[1]) - connRankForEcmLabel(b[0],b[1]));
+  return { cid: found[0][0], f: found[0][1] };
+}
+
+function shortConnLabel(cid, f){
+  if(CONN_SHORT[cid]) return CONN_SHORT[cid];
+  const raw = (f && (f.name||'')) || String(cid||'');
+  const tok = String(raw).split(/[\s·↔\/\-]+/).filter(Boolean)[0] || String(cid||'?');
+  return tok.slice(0,5).toUpperCase();
+}
+
 function makePinEl(p){
   const d = document.createElement('div');
   if(p==null){
@@ -1763,8 +1822,18 @@ function makePinEl(p){
     d.style.setProperty('--pin-fill', wcol.c1);
   }
   d.style.setProperty('--pin-fg', fgForWire(wcol));
-  d.innerHTML = `${p}<small>${code||'·'}</small>`;
-  d.title = `Pin ${p} ${PIN_NAME[p]||''} ${code}`;
+  const dest = primaryConnForEcm(p);
+  let destHtml = `<span class="dest" style="color:#555">—</span>`;
+  let destTitle = '';
+  if(dest){
+    const lab = shortConnLabel(dest.cid, dest.f);
+    const col = accentForConn(dest.f);
+    destHtml = `<span class="dest" style="color:${col}">${esc(lab)}</span>`;
+    destTitle = ` → ${dest.f.name||dest.cid}`;
+    d.dataset.destConn = dest.cid;
+  }
+  d.innerHTML = `${p}<small>${code||'·'}</small>${destHtml}`;
+  d.title = `Pin ${p} ${PIN_NAME[p]||''} ${code}${destTitle}`;
   d.onclick = () => selectPin(p);
   return d;
 }
