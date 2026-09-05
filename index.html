@@ -768,9 +768,9 @@ const CONN_BASE = {
   ix_f103_f151:{group:'motor', sub:'intermedias', name:'F103 ↔ F151 · Tierras ECM → body', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Empalme de tierras ECM: continuidad ECM 1, 115, 116 ↔ body ground pasa por F103/F151 (y también E12/F3). Ver EC-169/171 POWER SUPPLY AND GROUND CIRCUIT. Pinout de cara: ver FSM.'},
   ix_f18_f201:{group:'motor', sub:'intermedias', name:'F18 ↔ F201 · Path bobinas + VTC B1', meta:'Bank 1 · ignition coils · IVT solenoid B1 · EC-458/697', accent:'#78909c', shape:'ixnote',
-    pins:[], note:'Empalme intermedio Bank 1: path bobinas de encendido (12V/señal/tierra) y VTC/IVT solenoid B1 (ECM 11) hacia IPDM/ECM. Ver EC-458 (IVT) y EC-697 (IGNITION SIGNAL). Sin mapa de cavidades inventado.'},
+    pins:[], note:'Empalme intermedio Bank 1: path bobinas de encendido (12V/señal/tierra) y VTC/IVT solenoid B1 (ECM 11) hacia IPDM/ECM. Ver EC-458 (IVT) y EC-697 (IGNITION SIGNAL). Mapa de cavidades: ver FSM.'},
   ix_f221_f33:{group:'motor', sub:'intermedias', name:'F221 ↔ F33 · Path inyectores → ECM', meta:'inyectores 1–6 · continuidad a ECM 21–42 · EC-278', accent:'#78909c', shape:'ixnote',
-    pins:[], note:'Empalme intermedio del path de inyectores: F33↔F221 entre arnés de inyectores y ECM (cyl1→23 … cyl6→40). Usado en checks de función de inyector (EC-278). Sin mapa de cavidades inventado.'},
+    pins:[], note:'Empalme intermedio del path de inyectores: F33↔F221 entre arnés de inyectores y ECM (cyl1→23 … cyl6→40). Usado en checks de función de inyector (EC-278). Mapa de cavidades: ver FSM.'},
   ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · Sala máquinas ↔ body', meta:'freno / ASCD / A/F body join · engine room↔cabin', accent:'#fb8c00', shape:'ixnote',
     pins:[], note:'Empalme sala de máquinas (E108) ↔ body/habitáculo (M15). Aparece en diag. freno, ASCD y varios paths que cruzan al body. Pinout de cara: ver FSM.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · Arnés control ↔ body', meta:'ASCD / freno / meter · control harness↔body', accent:'#26c6da', shape:'ixnote',
@@ -799,7 +799,7 @@ const CONN_BASE = {
     note:'Nivel de combustible no llega por cavidad directa al ECM: va al combination meter y se comparte por CAN (ECM 86/94).'},
   ascd_ind:{group:'body', sub:'ascd', name:'ASCD indicator', meta:'vía combination meter / CAN', accent:'#26c6da', shape:'note',
     pins:[{id:'CAN-L',code:'P',ecm:86},{id:'CAN-H',code:'L',ecm:94}],
-    note:'Indicador ASCD (CRUISE) en el combination meter · comunicación vía bus CAN con ECM 86/94. Sin cavidad directa inventada.'},
+    note:'Indicador ASCD (CRUISE) en el combination meter · comunicación vía bus CAN con ECM 86/94. Sin cavidad directa al ECM; ver FSM CAN/meter.'},
 };
 
 let CONN = {};
