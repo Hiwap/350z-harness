@@ -208,22 +208,31 @@
   #ecm #f102Blocks {
     display: flex; gap: 12px; align-items: flex-start;
     flex-wrap: wrap; justify-content: flex-start;
-    min-width: 0; width: auto; max-width: 100%; padding: 6px 12px 10px;
+    min-width: 0; width: 100%; max-width: 100%;
+    padding: 6px 12px 10px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
   }
   #ecm #f102Blocks .f102-face-block {
     display: flex; flex-direction: column; gap: 3px;
     padding: 6px 6px 4px; border: 1px solid #2a3344; border-radius: 8px;
     background: #0e1218;
+    flex: 0 0 auto;
+    max-width: 100%;
   }
   #ecm #f102Blocks .f102-face-block .tag {
     font-size: 10px; color: #90a4ae; font-weight: 700; text-align: center;
   }
   #ecm #f102Blocks .f102-face-block .row {
     display: flex; gap: 2px; flex-wrap: nowrap;
+    justify-content: center;
   }
   #ecm #f102Blocks .pin {
     width: 34px; height: auto; min-height: 44px; padding: 2px 1px;
     font-size: 9px; line-height: 1.05;
+    flex: 0 0 auto;
   }
   #ecm #f102Blocks .pin small { font-size: 7px; font-weight: 700; opacity: 0.95; }
   #ecm #f102Blocks .pin .dest {
@@ -315,9 +324,33 @@
   /* Mild mobile shrink only — keep recognizable EC-123 proportions (≥24px); scroll if needed */
   @media (max-width: 900px) {
     #ecm { --pin-w: 28px; --pin-h: 26px; --pin-gap: 2px; --block-gap: 8px; --pin-fs: 9px; --pin-sm: 7px; }
+    #ecm #f102Blocks {
+      flex-direction: column; flex-wrap: nowrap; gap: 8px;
+      overflow-x: visible; width: 100%;
+    }
+    #ecm #f102Blocks .f102-face-block {
+      width: 100%; align-items: center;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      padding: 6px 4px 4px;
+    }
+    #ecm #f102Blocks .pin {
+      width: 28px; min-height: 40px; font-size: 8px;
+    }
+    #ecm #f102Blocks .pin small { font-size: 6.5px; }
+    #ecm #f102Blocks .pin .dest { font-size: 6.5px; }
   }
   @media (max-width: 600px) {
     #ecm { --pin-w: 24px; --pin-h: 22px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
+    #ecm details.f102-panel { margin-top: 10px; }
+    #ecm #f102Blocks { padding: 4px 6px 8px; gap: 6px; }
+    #ecm #f102Blocks .f102-face-block { padding: 4px 2px 2px; }
+    #ecm #f102Blocks .f102-face-block .tag { font-size: 9px; }
+    #ecm #f102Blocks .pin {
+      width: 22px; min-height: 36px; font-size: 7px; padding: 1px 0;
+      border-width: 2px;
+    }
+    #ecm #f102Blocks .pin small { font-size: 5.5px; }
+    #ecm #f102Blocks .pin .dest { font-size: 5.5px; margin-top: 0; }
     .pin { border-width: 2px; border-radius: 4px; }
     .pin.has-tracer::after { inset: 1px; border-width: 1.5px; }
     .block .tag { font-size: 9px; }
