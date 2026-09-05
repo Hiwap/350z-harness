@@ -361,7 +361,7 @@
 </main>
 <footer id="pageFooter">
   Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio.
-  Colores y pinouts según MEC61-style EC (2005 DE) salvo donde se indique variante.
+  Colores y pinouts según FSM EC/PG 2005 VQ35DE salvo donde se indique variante.
 </footer>
 <script>
 /* ========== Color map ========== */
@@ -479,11 +479,11 @@ function buildCircuits(model){
     {id:'ac_press', title:'A/C refrigerant pressure', color:'#ef6c00',
       ecm:[49,70], conn:['ac_press'], notes:'5V ECM 49 (B) · señal ECM 70 (G/R). Sensor en bahía motor / arnés body según ruteo.'},
     {id:'gnd_ecm', title:'ECM power grounds → E17', color:'#66bb6a',
-      ecm:[1,115,116], conn:['gnd4','e17'], notes:'Empalme tierra ECM 4-pin (blanco) une grounds de poder ECM 1/115/116 al chasis E17 (lado pass). No es sensor.'},
-    {id:'sns_gnd', title:'Sensor grounds / joint shield', color:'#ef6c00',
-      ecm:[66,67,78], conn:['orange_box','knock'], notes:'SNS GND ECM 66/67/78 · joint shield (caja naranja) empalme shield sensores → tierra.'},
+      ecm:[1,115,116], conn:['gnd4','e17'], notes:'Empalme de fábrica 4-pin (blanco): tierras de poder ECM 1/115/116 → body ground E17 (RH). No es sensor.'},
+    {id:'sns_gnd', title:'Sensor grounds (SNS GND)', color:'#ef6c00',
+      ecm:[66,67,78], conn:['knock'], notes:'SNS GND ECM 66/67/78 · shields de sensores a tierra de sensor (FSM EC).'},
     {id:'knock', title:'Knock sensor', color:'#42a5f5',
-      ecm:[15,116], conn:['knock','ix_f14_f229','orange_box'], notes:'Señal ECM 15 (W) vía intermedia F14/F229 · shield vía joint naranja a tierra.'},
+      ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Señal ECM 15 (W) vía intermedia F14/F229 · shield a SNS GND (FSM EC).'},
     {id:'psp', title:'PSP · Power steering pressure', color:'#00897b',
       ecm:[12,68], conn:['psp'], notes:'Señal PSP → ECM 12 (L/W) · 5V rail ECM 68 (R/W) · tierra vía SNS GND. FSM 2005 EC.'},
     {id:'ckp', title:'CKP / POS', color:'#ab47bc',
@@ -664,10 +664,10 @@ const CONN_BASE = {
     pins:[{id:'CTRL',code:'GY/L',ecm:111},{id:'coil+',code:'12V',ecm:null}]},
   vmot:{group:'motor', sub:'power', name:'VMOT alim', meta:'alimentación motor TB · ECM 3', accent:'#029eb7', shape:'tab2',
     pins:[{id:'VMOT',code:'G',ecm:3,rail:'12v'},{id:'relay',code:'12V',ecm:null,rail:'12v'}]},
-  gnd4:{group:'motor', sub:'power', name:'Empalme tierra ECM (4-pin blanco)', meta:'1 / 115 / 116 → E17 (pass)', accent:'#66bb6a', shape:'rect4',
+  gnd4:{group:'motor', sub:'power', name:'Empalme tierra ECM (4-pin blanco)', meta:'1 / 115 / 116 → E17 (RH)', accent:'#66bb6a', shape:'rect4',
     pins:[{id:'A',code:'B',ecm:1,rail:'gnd'},{id:'B',code:'B/W',ecm:115,rail:'gnd'},{id:'C',code:'B/R',ecm:116,rail:'gnd'},{id:'D',code:'B',ecm:null,rail:'gnd'}],
-    note:'Empalme intermedio de fábrica (4-pin blanco): une tierras de poder ECM 1/115/116 al chasis E17. No es sensor.'},
-  e17:{group:'motor', sub:'power', name:'E17 body ground', meta:'Body ground E17 · RH engine bay bolt', accent:'#66bb6a', shape:'ring',
+    note:'Empalme intermedio de fábrica (4-pin blanco): une tierras de poder ECM 1/115/116 al body ground E17 (RH). No es sensor.'},
+  e17:{group:'motor', sub:'power', name:'E17 body ground', meta:'Body ground E17 · RH engine bay (FSM)', accent:'#66bb6a', shape:'ring',
     pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
 
   /* —— Alimentación en el arnés motor que NO pasa por cavidad ECM (FSM) —— */
@@ -697,7 +697,7 @@ const CONN_BASE = {
     pins:[{id:'12V',code:'R',ecm:null,rail:'12v'},{id:'GND',code:'B',ecm:null,rail:'gnd'},{id:'SIG',code:'OR',ecm:51}]},
   knock:{group:'motor', sub:'sensors', name:'Knock sensor', meta:'2-pin · vía intermedia F14/F229', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'1',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd',lab:'SH'}],
-    note:'Hay conexión intermedia F14/F229 (sub-arnés knock en valle). Señal W → ECM 15; shield vía joint naranja → tierra.'},
+    note:'Path knock (FSM): señal W → ECM 15 vía F14/F229; shield → SNS GND.'},
   ckp:{group:'motor', sub:'sensors', name:'CKP POS', meta:'3-pin', accent:'#ab47bc', shape:'tab3',
     pins:[{id:'PWR',code:'R/W',ecm:null,rail:'12v'},{id:'SIG',code:'W/L',ecm:13},{id:'GND',code:'B',ecm:null,rail:'gnd'}]},
   cmp_b1:{group:'motor', sub:'sensors', name:'CMP PHASE B1', meta:'leva R', accent:'#ec407a', shape:'tab2',
@@ -717,12 +717,6 @@ const CONN_BASE = {
   psp:{group:'motor', sub:'sensors', name:'PSP · Power steering pressure', meta:'sensor dirección · señal ECM 12', accent:'#00897b', shape:'tab3',
     pins:[{id:'SIG',code:'L/W',ecm:12},{id:'5V',code:'R/W',ecm:68,rail:'5v'},{id:'GND',code:'SNS',ecm:null,rail:'gnd'}],
     note:'FSM 2005 EC: señal PSP → ECM 12 (L/W azul/blanco) · 5V → ECM 68 (R/W) · tierra vía SNS GND (no inventamos cavidad exacta de tierra).'},
-  orange_box:{group:'motor', sub:'sensors', name:'Joint shield (caja naranja)', meta:'empalme shield sensores → SNS GND (ECM 66/67)', accent:'#ef6c00', shape:'box',
-    pins:[{id:'SH',code:'B',ecm:66,rail:'gnd'},{id:'SH2',code:'B',ecm:67,rail:'gnd'}],
-    note:'Empalme / splice pack de shield estilo OEM en el arnés motor (color naranja físico). No es conector FSM con número oficial — une shields (p.ej. knock) hacia SNS GND.'},
-  blue_box:{group:'motor', sub:'sensors', name:'Joint splice (caja azul)', meta:'empalme arnés · función no confirmada en FSM', accent:'#1565c0', shape:'box',
-    pins:[{id:'SP',code:'?',ecm:null}],
-    note:'Identificado por color físico azul en el arnés motor (joint/splice pack). No es nombre oficial FSM; no inventamos pines ni función hasta confirmar en diagrama.'},
 
   /* —— Actuadores motor —— */
   coil1:{group:'motor', sub:'actuators', name:'Bobina 1', meta:'ECM62 Y/R', accent:'#f57f17', shape:'tab2', pins:[{id:'ECM',code:'Y/R',ecm:62},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
@@ -770,7 +764,7 @@ const CONN_BASE = {
     pins:[], note:'Empalme en bahía motor: path A/F y también VB (IPDM E7-18→ECM 119/120) / VMOT (E8-42→ECM 3). También listado en path de tierras ECM (con F103/F151). Pinout de cara no mapeado completo — solo par y función conocidos.'},
   ix_f14_f229:{group:'motor', sub:'intermedias', name:'F14 ↔ F229 · Path Knock', meta:'intermedia sub-arnés knock · señal→15 · shield→tierra', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd'}],
-    note:'Intermedia F14/F229 del sub-arnés knock (valle). Circuitos conocidos: señal W→ECM 15 · shield→tierra (joint naranja / SNS). Cara pin-number FSM de esta ficha no detallada aquí — solo circuitos.'},
+    note:'Intermedia F14/F229 del path knock (FSM): señal W→ECM 15 · shield→SNS GND. Cara pin-number FSM no detallada aquí — solo circuitos.'},
   ix_f103_f151:{group:'motor', sub:'intermedias', name:'F103 ↔ F151 · Tierras ECM → body', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Empalme de tierras ECM: continuidad ECM 1, 115, 116 ↔ body ground pasa por F103/F151 (y también E12/F3). Ver EC-169/171 POWER SUPPLY AND GROUND CIRCUIT. Sin pinout de cara inventado.'},
   ix_f18_f201:{group:'motor', sub:'intermedias', name:'F18 ↔ F201 · Path bobinas + VTC B1', meta:'Bank 1 · ignition coils · IVT solenoid B1 · EC-458/697', accent:'#78909c', shape:'ixnote',
@@ -822,7 +816,8 @@ function rebuildIndexes(){
 
 function activeConnIds(model){
   // IPDM connectors removed from web UI (PDF/print pack still has them)
-  let ids = Object.keys(CONN_BASE).filter(id => !id.startsWith('ipdm_'));
+  const hide = new Set(['orange_box','blue_box']);
+  let ids = Object.keys(CONN_BASE).filter(id => !id.startsWith('ipdm_') && !hide.has(id));
   if(model === 'de_early'){
     ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2');
   }
@@ -1278,7 +1273,7 @@ const I18N = {
     selTopTitle: 'Grupos seleccionados',
     selTopGroups: 'grupos',
     selTopSub: 'selección arriba · grupos completos abajo',
-    footer: 'Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio. Colores y pinouts según MEC61-style EC (2005 DE) salvo donde se indique variante.',
+    footer: 'Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio. Colores y pinouts según FSM EC/PG 2005 VQ35DE salvo donde se indique variante.',
     legendNote: 'R/W = base/tracer (base / trazador)',
     infoEmpty: 'Click cualquier pin o ficha para ver la conexión completa.',
     ecmTitle: 'EC-123 · ECM pin grid (VQ35DE)',
@@ -1307,7 +1302,7 @@ const I18N = {
     searchPh: 'Search: 101, ASCD, APP, stop, CAN…',
     clear: 'Clear',
     fichasTitle: 'Connectors · Engine harness + Cabin / Body',
-    footer: 'OEM FSM reference · NicoClub / jdmfsm · not a substitute for the service manual. Colors & pinouts per MEC61-style EC (2005 DE) unless noted.',
+    footer: 'OEM FSM reference · NicoClub / jdmfsm · not a substitute for the service manual. Colors & pinouts per 2005 VQ35DE FSM EC/PG unless noted.',
     legendNote: 'R/W = base/tracer',
     infoEmpty: 'Click any pin or connector card to see the full connection.',
     ecmTitle: 'EC-123 · ECM pin grid (VQ35DE)',
@@ -1336,7 +1331,7 @@ const I18N = {
     searchPh: '検索: 101, ASCD, APP, stop, CAN…',
     clear: 'クリア',
     fichasTitle: 'コネクタ · エンジンハーネス + 車室内 / ボディ',
-    footer: 'OEM FSM参照 · NicoClub / jdmfsm · サービスマニュアルの代用ではありません。色とピン配列はMEC61系 EC（2005 DE）準拠（注記がある場合を除く）。',
+    footer: 'OEM FSM参照 · NicoClub / jdmfsm · サービスマニュアルの代用ではありません。色とピン配列は2005 VQ35DE FSM EC/PG準拠（注記がある場合を除く）。',
     legendNote: 'R/W = ベース/トレーサー',
     infoEmpty: 'ピンまたはコネクタカードをクリックすると接続全体を表示します。',
     ecmTitle: 'EC-123 · ECMピン配列（VQ35DE）',
@@ -1358,9 +1353,9 @@ const NOTES_I18N = {
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
   app_sig: {en:'APS1→106 · APS2→98 via intermediate E11/F2 (pedal E113→E11/F2→ECM).', ja:'APS1→106 · APS2→98（中間E11/F2経由）。'},
   ac_press: {en:'5V ECM 49 (B) · signal ECM 70 (G/R). Sensor in engine bay / body harness per routing.', ja:'5V ECM 49 (B) · 信号 ECM 70 (G/R)。センサはエンジンルーム/ボディ側配線。'},
-  gnd_ecm: {en:'Factory 4-pin white ECM ground joint: power grounds 1/115/116 → chassis E17 (pass). Not a sensor.', ja:'工場4ピン白アースジョイント：ECM電源アース1/115/116 → シャーシE17（助手席側）。センサではない。'},
-  sns_gnd: {en:'SNS GND ECM 66/67/78 · orange shield joint → sensor ground.', ja:'SNS GND ECM 66/67/78 · オレンジシールドジョイント → センサアース。'},
-  knock: {en:'Signal ECM 15 (W) via intermediate F14/F229 · shield via orange joint to ground.', ja:'信号 ECM 15 (W) は中間F14/F229経由 · シールドはオレンジジョイント経由でアース。'},
+  gnd_ecm: {en:'Factory 4-pin white splice: ECM power grounds 1/115/116 → body ground E17 (RH). Not a sensor.', ja:'工場4ピン白スプライス：ECM電源アース1/115/116 → ボディアースE17（RH）。センサではない。'},
+  sns_gnd: {en:'SNS GND ECM 66/67/78 · sensor shields to sensor ground (FSM EC).', ja:'SNS GND ECM 66/67/78 · センサシールド → センサアース（FSM EC）。'},
+  knock: {en:'Signal ECM 15 (W) via intermediate F14/F229 · shield to SNS GND (FSM EC).', ja:'信号 ECM 15 (W) は中間F14/F229経由 · シールドはSNS GNDへ（FSM EC）。'},
   psp: {en:'PSP signal → ECM 12 (L/W) · 5V rail ECM 68 (R/W) · ground via SNS GND. FSM 2005 EC.', ja:'PSP信号 → ECM 12 (L/W) · 5Vレール ECM 68 (R/W) · アースはSNS GND。FSM 2005 EC。'},
   ckp: {en:'CKP signal → ECM 13 (W/L). 12V feed on connector.', ja:'CKP信号 → ECM 13 (W/L)。コネクタに12V供給。'},
   cmp: {en:'CMP B1 → ECM 33 (R) · CMP B2 → ECM 14 (R/L).', ja:'CMP B1 → ECM 33 (R) · CMP B2 → ECM 14 (R/L)。'},
