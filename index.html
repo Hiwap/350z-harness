@@ -65,6 +65,7 @@
     display: block; font-size: calc(var(--pin-sm, 8px) - 1px); font-weight: 800;
     margin-top: 1px; max-width: 100%; overflow: hidden; text-overflow: clip;
     white-space: nowrap; line-height: 1;
+    letter-spacing: -0.02em;
   }
   .pin.empty, .pin.unused {
     border-style: dashed; border-color: #333; color: #555;
@@ -1827,10 +1828,15 @@ function makePinEl(p){
   let destTitle = '';
   if(dest){
     const lab = shortConnLabel(dest.cid, dest.f);
+    const cav = (dest.f.pins||[]).find(x => x.ecm!=null && Number(x.ecm)===Number(p));
+    const cavId = cav && cav.id != null ? String(cav.id) : '';
+    /* short name + pin/cavity on that ficha, e.g. EVAP·sig */
+    const text = cavId ? (lab + '·' + cavId) : lab;
     const col = accentForConn(dest.f);
-    destHtml = `<span class="dest" style="color:${col}">${esc(lab)}</span>`;
-    destTitle = ` → ${dest.f.name||dest.cid}`;
+    destHtml = `<span class="dest" style="color:${col}">${esc(text)}</span>`;
+    destTitle = ` → ${dest.f.name||dest.cid}${cavId ? ' · pin '+cavId : ''}`;
     d.dataset.destConn = dest.cid;
+    if(cavId) d.dataset.destCav = cavId;
   }
   d.innerHTML = `${p}<small>${code||'·'}</small>${destHtml}`;
   d.title = `Pin ${p} ${PIN_NAME[p]||''} ${code}${destTitle}`;
