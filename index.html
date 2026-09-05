@@ -139,7 +139,8 @@
   .ficha.dim { opacity: 0.25; }
   .ficha.hl { border-color: var(--hl); box-shadow: 0 0 0 2px rgba(255,213,79,.35); opacity: 1 !important; }
   .ficha h3 { margin: 0 0 2px; font-size: 12px; color: #f1f3f5; }
-  .ficha .meta { font-size: 11px; color: #d0d5dd; margin-bottom: 6px; }
+  .ficha .meta, .ficha .note-body, .ficha .note-pins { display: none; font-size: 11px; color: #d0d5dd; margin-bottom: 6px; }
+  .ficha.hl .meta, .ficha.hl .note-body, .ficha.hl .note-pins { display: block; }
   .conn-svg { width: 100%; height: auto; display: block; margin: 0 auto 2px; }
   .cav-hit { cursor: pointer; }
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
@@ -485,7 +486,7 @@ function buildCircuits(model){
     {id:'injectors', title:'Inyectores ×6', color:'#9ccc65',
       ecm:[23,42,22,41,21,40], conn:['inj1','inj2','inj3','inj4','inj5','inj6','feed_inj_coil_12v'], notes:'Drive ECM + 12V común.'},
     {id:'power_ign', title:'Alimentación ECM 12V', color:'#ef5350',
-      ecm:[121,119,120,109,111,104,3], conn:['ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9','ipdm_legend','ix_e12_f3','batt_feed','ign_sw','ecm_relay','vmot'], notes:'121 BATT always · 119/120 vía IPDM E7-18 (E12/F3) · 109 IGN SW · 111 relay (E9-46) · 104 MOTRLY (E9-47) · 3 VMOT (E8-42).'},
+      ecm:[121,119,120,109,111,104,3], conn:['ix_e12_f3','batt_feed','ign_sw','ecm_relay','vmot'], notes:'121 BATT always · 119/120 vía IPDM E7-18 (E12/F3) · 109 IGN SW · 111 relay (E9-46) · 104 MOTRLY (E9-47) · 3 VMOT (E8-42).'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
       ecm:[113], conn:['fp_relay'], notes:'Control relé bomba → ECM 113 (LG/B).'},
     {id:'can', title:'CAN / DLC / combination meter', color:'#7e57c2',
@@ -530,9 +531,9 @@ const GROUPS = [
 
 const GROUP_I18N = {
   motor: {
-    es: {title:'Arnés motor', sub:'sensores · actuadores · intermedias E/F · poder / grounds · IPDM'},
-    en: {title:'Engine harness', sub:'sensors · actuators · intermediate E/F · power / grounds · IPDM'},
-    ja: {title:'エンジンハーネス', sub:'センサ · アクチュエータ · 中間E/F · 電源/アース · IPDM'},
+    es: {title:'Arnés motor', sub:'sensores · actuadores · intermedias E/F · poder / grounds'},
+    en: {title:'Engine harness', sub:'sensors · actuators · intermediate E/F · power / grounds'},
+    ja: {title:'エンジンハーネス', sub:'センサ · アクチュエータ · 中間E/F · 電源/アース'},
   },
   body: {
     es: {title:'Habitáculo / Body', sub:'APP · freno · ASCD · clock spring · DLC · CAN / meter'},
@@ -790,9 +791,10 @@ function rebuildIndexes(){
 }
 
 function activeConnIds(model){
-  const ids = Object.keys(CONN_BASE);
+  // IPDM connectors removed from web UI (PDF/print pack still has them)
+  let ids = Object.keys(CONN_BASE).filter(id => !id.startsWith('ipdm_'));
   if(model === 'de_early'){
-    return ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2');
+    ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2');
   }
   return ids;
 }
