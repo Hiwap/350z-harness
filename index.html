@@ -1389,7 +1389,7 @@ const I18N = {
 
 const TITLES_I18N = {
   af_b1: {en:'A/F Sensor 1 Bank 1', ja:'A/Fセンサ1 バンク1'},
-  af_b2: {en:'A/F Sensor 1 Bank 2', ja:'A/Fセンサ1 バンク2'},
+  af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
   app_5v: {en:'APP 5V + A/C · EVAP · PSP rails', ja:'APP 5V + A/C · EVAP · PSPレール'},
   app_gnd: {en:'APP grounds', ja:'APPアース'},
   app_sig: {en:'APP signals APS1/APS2', ja:'APP信号 APS1/APS2'},
@@ -1419,7 +1419,7 @@ const TITLES_I18N = {
 };
 
 const NOTES_I18N = {
-  af_b1: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM). FSM 2005 map.', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。FSM 2005。'},
+  af_b1: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。FSM 2005。'},
   af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V.', ja:'ヒータB2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V。'},
   app_5v: {en:'5V APP1/APP2 (90/91) via intermediate E11/F2 (pedal E113→E11/F2→ECM); shared rails 47/48/49/68.', ja:'5V APP1/APP2 (90/91) は中間E11/F2経由（ペダルE113→F2→ECM）。共有レール47/48/49/68。'},
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
@@ -1684,7 +1684,29 @@ const CONN_I18N = {
       note:'EC control harness (F102) ↔ body (M72). ASCD, brake, and meter paths into the cabin. Face pinout: see FSM.' },
     ja: { name:'F102 ↔ M72 · 制御ハーネス ↔ ボディ', meta:'ASCD / ブレーキ / メータ · 制御ハーネス↔ボディ',
       note:'EC制御ハーネス (F102) ↔ ボディ (M72)。ASCD・ブレーキ・メータの車室内経路。端子配列: FSM参照。' },
+  },,
+
+  feed_ho2s_12v: {
+    en: { name:'12V HO2S2 heaters (fused)', meta:'post-cat · not ECM',
+      note:'Fused 12V to HO2S2 B1/B2 heaters in the harness; the ECM only switches the control side (ECM 25 / 6). Fuse number: see FSM EC HO2S.' },
+    ja: { name:'12V HO2S2ヒータ（ヒューズ）', meta:'ポストキャット · ECM外',
+      note:'ハーネス上のヒューズ12Vが HO2S2 B1/B2 ヒータへ。ECMは制御側のみ切替（ECM 25 / 6）。ヒューズ番号: FSM EC HO2S 参照。' },
   },
+  feed_af_12v: {
+    en: { name:'12V A/F heaters (fused)', meta:'A/F B1/B2 pin 3 · not ECM',
+      note:'On the engine harness: fused 12V feed to pin 3 of each A/F Sensor 1 (B1/B2). Does not enter the ECM — only the heater drive does (ECM 2 / 24).' },
+    ja: { name:'12V A/Fヒータ（ヒューズ）', meta:'A/F B1/B2 ピン3 · ECM外',
+      note:'エンジンハーネスのヒューズ12Vが各 A/F Sensor 1 (B1/B2) のピン3へ。ECMには入らない — ヒータ駆動のみ（ECM 2 / 24）。' },
+  },
+  ho2s_b1: {
+    en: { name:'HO2S2 B1', meta:'post-cat RH' },
+    ja: { name:'HO2S2 B1', meta:'ポストキャット 右' },
+  },
+  ho2s_b2: {
+    en: { name:'HO2S2 B2', meta:'post-cat LH' },
+    ja: { name:'HO2S2 B2', meta:'ポストキャット 左' },
+  },
+
 };
 
 function connField(id, f, field){
