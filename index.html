@@ -1628,6 +1628,72 @@ function accentForConn(f){
   return (f && f.accent) || '#546e7a';
 }
 
+
+/** Connector card name / meta / note — ES lives in CONN_BASE; EN/JA here. */
+const CONN_I18N = {
+  ix_e11_f2: {
+    en: { name:'E11 ↔ F2 · APP path (pedal)', meta:'10-pin GY · E113→E11/F2→ECM · EC-523',
+      note:'APP path: pedal E113 → E11/F2 → ECM. APP uses 6 circuits (cavities 2,3,4,5,9,10). Unused for APP: 1,6,7,8. F2 face H.S. FSM: top 1–5 / bot 6–10. Colors = F2→ECM. 5V/GND labels on APP rails.' },
+    ja: { name:'E11 ↔ F2 · APP経路（ペダル）', meta:'10ピン GY · E113→E11/F2→ECM · EC-523',
+      note:'APP経路: ペダル E113 → E11/F2 → ECM。APPは6回路（キャビティ 2,3,4,5,9,10）。APP未使用: 1,6,7,8。F2面 H.S. FSM: 上1–5 / 下6–10。色 = F2→ECM。' },
+  },
+  ix_e10_f1: {
+    en: { name:'E10 ↔ F1 · Engine room ↔ control harness', meta:'engine-room harness ↔ EC control · e.g. A/C press (EC-720)',
+      note:'Intermediate join between engine-room harness (E10) and EC control harness (F1). Appears on A/C refrigerant pressure diagram (EC-720) between ECM and sensor. Face pinout: see matching FSM diagram.' },
+    ja: { name:'E10 ↔ F1 · エンジンルーム ↔ 制御ハーネス', meta:'エンジンルーム ↔ EC制御 · 例: A/C圧力 (EC-720)',
+      note:'エンジンルームハーネス (E10) と EC制御ハーネス (F1) の中間接続。A/C冷媒圧力図 (EC-720) でECM〜センサ間に出現。端子配列: 該当FSM図を参照。' },
+  },
+  ix_e12_f3: {
+    en: { name:'E12 ↔ F3 · A/F + VB/VMOT path', meta:'engine bay · A/F · VB power (119/120) · VMOT (ECM 3)',
+      note:'Engine-bay join: A/F path plus VB (IPDM E7-18→ECM 119/120) / VMOT (E8-42→ECM 3). Also listed on ECM ground path (with F103/F151). Pair/function only here; face pinout: see FSM.' },
+    ja: { name:'E12 ↔ F3 · A/F + VB/VMOT経路', meta:'エンジンベイ · A/F · VB (119/120) · VMOT (ECM 3)',
+      note:'エンジンベイ中間: A/F経路および VB (IPDM E7-18→ECM 119/120) / VMOT (E8-42→ECM 3)。ECMアース経路にも記載 (F103/F151)。端子配列: FSM参照。' },
+  },
+  ix_f14_f229: {
+    en: { name:'F14 ↔ F229 · Knock path', meta:'knock sub-harness intermediate · signal→15 · shield→ground',
+      note:'Knock-path intermediate F14/F229 (FSM): signal W→ECM 15 · shield→SNS GND. Circuit reference; face pin numbers: see service manual.' },
+    ja: { name:'F14 ↔ F229 · ノック経路', meta:'ノックサブハーネス中間 · 信号→15 · シールド→アース',
+      note:'ノック経路中間 F14/F229 (FSM): 信号 W→ECM 15 · シールド→SNS GND。回路参照; 端子番号: サービスマニュアル参照。' },
+  },
+  ix_f103_f151: {
+    en: { name:'F103 ↔ F151 · ECM grounds → body', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171',
+      note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: continuity ECM ground 1/115/116 ↔ body ground. Malfunction check lists harness connectors F103, F151 (and F3/E12).' },
+    ja: { name:'F103 ↔ F151 · ECMアース → ボディ', meta:'4ピン · ECM 1/115/116 → body ground · EC-169/171',
+      note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: ECM ground 1/115/116 ↔ body ground 連続性。点検リストはハーネスコネクタ F103, F151（および F3/E12）。' },
+  },
+  ix_f18_f201: {
+    en: { name:'F18 ↔ F201 · Coils + VTC B1 path', meta:'Bank 1 · ignition coils · IVT solenoid B1 · EC-458/697',
+      note:'Bank 1 intermediate: ignition coil path (12V/signal/ground) and VTC/IVT solenoid B1 (ECM 11) toward IPDM/ECM. See EC-458 (IVT) and EC-697 (IGNITION SIGNAL). Cavity map: see FSM.' },
+    ja: { name:'F18 ↔ F201 · コイル + VTC B1経路', meta:'バンク1 · イグニッションコイル · IVTソレノイド B1 · EC-458/697',
+      note:'バンク1中間: イグニッションコイル経路 (12V/信号/アース) と VTC/IVTソレノイド B1 (ECM 11)。EC-458 (IVT)・EC-697 (IGNITION SIGNAL) 参照。キャビティ: FSM参照。' },
+  },
+  ix_f221_f33: {
+    en: { name:'F221 ↔ F33 · Injectors → ECM path', meta:'injectors 1–6 · continuity to ECM 21–42 · EC-278',
+      note:'Injector-path intermediate: F33↔F221 between injector harness and ECM (cyl1→23 … cyl6→40). Used in injector function checks (EC-278). Cavity map: see FSM.' },
+    ja: { name:'F221 ↔ F33 · インジェクタ → ECM経路', meta:'インジェクタ 1–6 · ECM 21–42 連続 · EC-278',
+      note:'インジェクタ経路中間: F33↔F221（インジェクタハーネス〜ECM、cyl1→23 … cyl6→40）。インジェクタ機能点検 (EC-278)。キャビティ: FSM参照。' },
+  },
+  ix_e108_m15: {
+    en: { name:'E108 ↔ M15 · Engine room ↔ body', meta:'brake / ASCD / A/F body join · engine room↔cabin',
+      note:'Engine-room (E108) ↔ body/cabin (M15) join. Appears on brake, ASCD, and other body-crossing diagrams. Face pinout: see FSM.' },
+    ja: { name:'E108 ↔ M15 · エンジンルーム ↔ ボディ', meta:'ブレーキ / ASCD / A/F · エンジンルーム↔車室内',
+      note:'エンジンルーム (E108) ↔ ボディ/車室内 (M15)。ブレーキ・ASCDなど車体横断図に出現。端子配列: FSM参照。' },
+  },
+  ix_f102_m72: {
+    en: { name:'F102 ↔ M72 · Control harness ↔ body', meta:'ASCD / brake / meter · control harness↔body',
+      note:'EC control harness (F102) ↔ body (M72). ASCD, brake, and meter paths into the cabin. Face pinout: see FSM.' },
+    ja: { name:'F102 ↔ M72 · 制御ハーネス ↔ ボディ', meta:'ASCD / ブレーキ / メータ · 制御ハーネス↔ボディ',
+      note:'EC制御ハーネス (F102) ↔ ボディ (M72)。ASCD・ブレーキ・メータの車室内経路。端子配列: FSM参照。' },
+  },
+};
+
+function connField(id, f, field){
+  const base = (f && f[field]) || '';
+  if(lang === 'es') return base;
+  const tr = CONN_I18N[id] && CONN_I18N[id][lang];
+  return (tr && tr[field]) || base;
+}
+
 function makeFichaEl(id, f){
   const el=document.createElement('div');
   el.className = 'ficha' + (f.shape==='note' || f.shape==='ixnote' ? ' note-card' : '');
@@ -1635,10 +1701,11 @@ function makeFichaEl(id, f){
   el.dataset.ord = String(++_fichaOrd);
   el.style.borderColor = accentForConn(f);
   let extra = '';
-  if(f.note){
-    extra = `<div class="note-body">${esc(f.note)}</div>`;
+  const noteTxt = connField(id, f, 'note');
+  if(noteTxt){
+    extra = `<div class="note-body">${esc(noteTxt)}</div>`;
   }
-  el.innerHTML = `<h3>${esc(f.name)}</h3><div class="meta">${esc(f.meta)}</div>${renderConnSvg(id,f)}${extra}`;
+  el.innerHTML = `<h3>${esc(connField(id, f, 'name'))}</h3><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   el.querySelectorAll('.cav-hit').forEach(cav=>{
     cav.addEventListener('click', e=>{
       e.stopPropagation();
@@ -2134,8 +2201,9 @@ function selectConn(cid){
     });
     const infoEl=document.getElementById('info'); infoEl.dataset.locked='1';
     delete infoEl.dataset.railMode;
-    const note = (conf && conf.note) ? `<div style="color:var(--muted);margin-top:4px">${esc(conf.note)}</div>` : '';
-    infoEl.innerHTML = `<b>${esc(conf&&conf.name||cid)}</b> — ${esc(conf&&conf.meta||'')}${note}`;
+    const noteTxt = conf ? connField(cid, conf, 'note') : '';
+    const note = noteTxt ? `<div style="color:var(--muted);margin-top:4px">${esc(noteTxt)}</div>` : '';
+    infoEl.innerHTML = `<b>${esc(conf ? connField(cid, conf, 'name') : cid)}</b> — ${esc(conf ? connField(cid, conf, 'meta') : '')}${note}`;
     revealConns([cid]);
   }
 }
