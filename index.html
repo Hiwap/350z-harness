@@ -50,6 +50,23 @@
   }
   .block { display: flex; flex-direction: column; gap: 3px; flex: 0 0 auto; }
   .block .tag { text-align: center; font-size: 11px; color: #c5cad3; margin-top: 4px; font-weight: 600; }
+  /* ECM face: separate the connector shells so groups read clearly */
+  #ecm #blocks {
+    gap: 20px;
+    padding: 10px 4px 6px;
+  }
+  #ecm #blocks .block {
+    gap: 4px;
+    padding: 6px 5px 4px;
+    border: 1px solid #2a3344;
+    border-radius: 8px;
+    background: #0e1218;
+  }
+  #ecm #blocks .block .tag {
+    margin-top: 6px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+  }
   .row { display: flex; gap: var(--pin-gap, 3px); }
   .pin {
     width: var(--pin-w, 34px); height: auto; min-height: var(--pin-h, 32px); border-radius: 5px; border: 2.5px solid #555;
@@ -354,6 +371,8 @@
   /* Mild mobile shrink only — keep recognizable EC-123 proportions (≥24px); scroll if needed */
   @media (max-width: 900px) {
     #ecm { --pin-w: 28px; --pin-h: 34px; --pin-gap: 2px; --block-gap: 8px; --pin-fs: 9px; --pin-sm: 7px; }
+    #ecm #blocks { gap: 14px; }
+    #ecm #blocks .block { padding: 4px 3px 2px; }
     #ecm #f102Blocks {
       flex-direction: column; flex-wrap: nowrap; gap: 8px;
       overflow-x: visible; width: 100%;
@@ -370,6 +389,7 @@
   }
   @media (max-width: 600px) {
     #ecm { --pin-w: 24px; --pin-h: 30px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
+    #ecm #blocks { gap: 12px; }
     #ecm details.f102-panel { margin-top: 10px; }
     #ecm #f102Blocks { padding: 4px 6px 8px; gap: 6px; }
     #ecm #f102Blocks .f102-face-block { padding: 4px 2px 2px; }
