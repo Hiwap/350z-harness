@@ -50,22 +50,28 @@
   }
   .block { display: flex; flex-direction: column; gap: 3px; flex: 0 0 auto; }
   .block .tag { text-align: center; font-size: 11px; color: #c5cad3; margin-top: 4px; font-weight: 600; }
-  /* ECM face: separate the connector shells so groups read clearly */
+  /* ECM face: light shell separation; middle blocks split 2+2 rows like FSM */
   #ecm #blocks {
-    gap: 20px;
-    padding: 10px 4px 6px;
+    gap: 12px;
+    padding: 8px 2px 4px;
   }
   #ecm #blocks .block {
-    gap: 4px;
-    padding: 6px 5px 4px;
+    gap: 3px;
+    padding: 4px 4px 2px;
     border: 1px solid #2a3344;
     border-radius: 8px;
     background: #0e1218;
   }
   #ecm #blocks .block .tag {
-    margin-top: 6px;
+    margin-top: 4px;
     font-size: 10px;
     letter-spacing: 0.02em;
+  }
+  /* Middle shells (4 rows): visual break after row 2 → groups of 2 rows */
+  #ecm #blocks .block-mid .row:nth-child(2) {
+    margin-bottom: 7px;
+    padding-bottom: 7px;
+    border-bottom: 1px dashed #3d4a5c;
   }
   .row { display: flex; gap: var(--pin-gap, 3px); }
   .pin {
@@ -371,7 +377,7 @@
   /* Mild mobile shrink only — keep recognizable EC-123 proportions (≥24px); scroll if needed */
   @media (max-width: 900px) {
     #ecm { --pin-w: 28px; --pin-h: 34px; --pin-gap: 2px; --block-gap: 8px; --pin-fs: 9px; --pin-sm: 7px; }
-    #ecm #blocks { gap: 14px; }
+    #ecm #blocks { gap: 10px; }
     #ecm #blocks .block { padding: 4px 3px 2px; }
     #ecm #f102Blocks {
       flex-direction: column; flex-wrap: nowrap; gap: 8px;
@@ -389,7 +395,7 @@
   }
   @media (max-width: 600px) {
     #ecm { --pin-w: 24px; --pin-h: 30px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
-    #ecm #blocks { gap: 12px; }
+    #ecm #blocks { gap: 8px; }
     #ecm details.f102-panel { margin-top: 10px; }
     #ecm #f102Blocks { padding: 4px 6px 8px; gap: 6px; }
     #ecm #f102Blocks .f102-face-block { padding: 4px 2px 2px; }
@@ -2041,7 +2047,8 @@ function renderECM(){
   const blocks = getBlocks(orient);
   blocksEl.innerHTML = '';
   blocks.forEach(([rows, tag])=>{
-    const blk=document.createElement('div'); blk.className='block';
+    const blk=document.createElement('div');
+    blk.className = 'block' + (rows.length === 4 ? ' block-mid' : ' block-end');
     rows.forEach(r=>{
       const row=document.createElement('div'); row.className='row';
       r.forEach(p=>row.appendChild(makePinEl(p)));
