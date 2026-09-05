@@ -19,6 +19,8 @@
   header .sub { color: #c5cad3; font-size: 12px; }
   .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .controls label { font-size: 11px; color: #c5cad3; display: flex; flex-direction: column; gap: 2px; }
+  .controls label.chk { flex-direction: row; align-items: center; gap: 8px; max-width: 280px; cursor: pointer; }
+  .controls label.chk input { accent-color: #ffe082; width: 16px; height: 16px; }
   select, input[type=search], button {
     background: #12161d; border: 1px solid var(--border); color: var(--text);
     border-radius: 8px; padding: 7px 10px; font-size: 12px;
@@ -318,6 +320,10 @@
           <option value="en">English</option>
           <option value="ja">日本語</option>
         </select>
+      </label>
+      <label class="chk" id="lblCollapseIdle">
+        <input type="checkbox" id="collapseIdleSubs" checked />
+        <span id="lblCollapseIdleTxt">Colapsar subcats sin selección</span>
       </label>
     </div>
   </details>
@@ -1231,6 +1237,7 @@ const I18N = {
     lblColor: 'Color',
     lblOrient: 'Orientación ECM',
     lblLang: 'Idioma',
+    collapseIdle: 'Colapsar subcats sin selección',
     optsSummary: 'Opciones / Options',
     warnSummary: '⚠ Orientación ECM',
     optOutlines: 'Contornos',
@@ -1265,6 +1272,7 @@ const I18N = {
     lblColor: 'Color',
     lblOrient: 'ECM orientation',
     lblLang: 'Language',
+    collapseIdle: 'Collapse unused subcategories',
     optsSummary: 'Options',
     warnSummary: '⚠ ECM orientation',
     optOutlines: 'Outlines',
@@ -1293,6 +1301,7 @@ const I18N = {
     lblColor: '色表示',
     lblOrient: 'ECM向き',
     lblLang: '言語',
+    collapseIdle: '未選択のサブを折りたたむ',
     optsSummary: 'オプション / Options',
     warnSummary: '⚠ ECM向き',
     optOutlines: '実線枠',
@@ -1393,6 +1402,8 @@ function applyLang(){
   setLabel('lblColor', 'lblColor');
   setLabel('lblOrient', 'lblOrient');
   setLabel('lblLang', 'lblLang');
+  const cit = document.getElementById('lblCollapseIdleTxt');
+  if(cit) cit.textContent = t('collapseIdle');
   const oo = document.getElementById('optOutlines'); if(oo) oo.textContent = t('optOutlines');
   const os = document.getElementById('optSolid'); if(os) os.textContent = t('optSolid');
   const oi = document.getElementById('optInv'); if(oi) oi.textContent = t('optInv');
@@ -1605,6 +1616,58 @@ function renderFichas(){
 
 
 /** Selected fichas first in their grid; active subs first; active groups under #selTop. */
+
+const LS_COLLAPSE_IDLE = 'z33_collapseIdleSubs';
+
+function collapseIdleEnabled(){
+  const el = document.getElementById('collapseIdleSubs');
+  if(el) return !!el.checked;
+  return localStorage.getItem(LS_COLLAPSE_IDLE) !== '0';
+}
+
+function applyCollapseIdleSubs(connIds){
+  // Reopen anything we auto-collapsed on the previous pick, then collapse idle again
+  restoreCollapsedSubs();
+  if(!collapseIdleEnabled()) return;
+  const set = new Set((connIds||[]).filter(Boolean));
+  if(!set.size) return;
+  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) details.ficha-sub').forEach(sub=>{
+    const hit = [...sub.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
+    if(hit){
+      if(!sub.open) sub.open = true;
+      return;
+    }
+    if(sub.open){
+      sub.dataset.wasOpen = '1';
+      sub.open = false;
+    }
+  });
+}
+
+function restoreCollapsedSubs(){
+  document.querySelectorAll('#fichas details.ficha-sub[data-was-open="1"]').forEach(sub=>{
+    sub.open = true;
+    delete sub.dataset.wasOpen;
+  });
+}
+
+function currentSelectedConnIds(){
+  const ids = new Set();
+  document.querySelectorAll('#fichas .ficha.hl').forEach(el=>{
+    if(el.dataset.conn) ids.add(el.dataset.conn);
+  });
+  return [...ids];
+}
+
+function onCollapseIdleToggle(){
+  const el = document.getElementById('collapseIdleSubs');
+  if(!el) return;
+  localStorage.setItem(LS_COLLAPSE_IDLE, el.checked ? '1' : '0');
+  if(el.checked) applyCollapseIdleSubs(currentSelectedConnIds());
+  else restoreCollapsedSubs();
+}
+
+
 function promoteSelectedInGroups(connIds){
   const set = new Set((connIds||[]).filter(Boolean));
   if(!set.size) return;
@@ -1645,6 +1708,7 @@ function promoteSelectedInGroups(connIds){
     idle.forEach(sec => frag.appendChild(sec));
     root.appendChild(frag);
   }
+  applyCollapseIdleSubs(connIds);
 }
 
 function restoreFichaOrder(){
@@ -1759,6 +1823,7 @@ function revealConns(connIds){
 
 function clearHL(){
   removeSelectedTop();
+  restoreCollapsedSubs();
   restoreFichaOrder();
   document.querySelectorAll('.pin,.ficha,.cav-hit').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','rail-5v','rail-12v','rail-gnd');
@@ -1992,6 +2057,7 @@ document.getElementById('model').addEventListener('change', applyModel);
 document.getElementById('colorMode').addEventListener('change', applyColorMode);
 document.getElementById('ecmOrient').addEventListener('change', applyOrient);
 document.getElementById('lang').addEventListener('change', applyLang);
+document.getElementById('collapseIdleSubs').addEventListener('change', onCollapseIdleToggle);
 
 document.getElementById('clear').onclick=()=>{
   activeRails.clear(); updateRailButtons();
@@ -2045,6 +2111,11 @@ document.getElementById('q').addEventListener('input', e=>{
   if(o && ['invertida','fsm'].includes(o)) document.getElementById('ecmOrient').value = o;
   else document.getElementById('ecmOrient').value = 'invertida';
   if(L && ['es','en','ja'].includes(L)) document.getElementById('lang').value = L;
+  const collapseEl = document.getElementById('collapseIdleSubs');
+  if(collapseEl){
+    const saved = localStorage.getItem(LS_COLLAPSE_IDLE);
+    collapseEl.checked = saved === null ? true : saved === '1';
+  }
   const optsBox = document.getElementById('optsBox');
   const warnBox = document.getElementById('warnBox');
   if(optsBox){
