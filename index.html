@@ -40,7 +40,7 @@
   body[data-mode="solid"] .sw i { background: currentColor; border-color: #111; }
 
   #ecm {
-    overflow-x: auto; overflow-y: auto; min-width: 0;
+    overflow-x: visible; overflow-y: visible; min-width: 0;
     --pin-w: 34px; --pin-h: 40px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 10px; --pin-sm: 8px;
   }
   .blocks {
@@ -54,6 +54,14 @@
   #ecm #blocks {
     gap: 12px;
     padding: 8px 2px 4px;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    justify-content: flex-start;
   }
   #ecm #blocks .block {
     gap: 3px;
@@ -267,10 +275,15 @@
   #ecm .f102-panel > .legend { padding: 4px 12px 0; }
   #ecm #f102Blocks {
     display: flex; gap: 12px; align-items: flex-start;
-    flex-wrap: wrap; justify-content: flex-start;
+    flex-wrap: nowrap; /* L|M|R like PG-85 — never stack */
+    justify-content: flex-start;
     min-width: 0; width: 100%; max-width: 100%;
     padding: 6px 12px 10px;
     box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
   }
   #ecm #f102Blocks .f102-face-block {
     display: flex; flex-direction: column; gap: 3px;
@@ -399,11 +412,11 @@
     #ecm #blocks { gap: 10px; }
     #ecm #blocks .block { padding: 4px 3px 2px; }
     #ecm #f102Blocks {
-      flex-direction: column; flex-wrap: nowrap; gap: 8px;
-      overflow-x: visible; width: 100%;
+      flex-direction: row; flex-wrap: nowrap; gap: 8px;
+      /* keep own horizontal scroll — do not stack L/M/R */
     }
     #ecm #f102Blocks .f102-face-block {
-      width: 100%; align-items: center;
+      width: auto; align-items: flex-start;
       padding: 6px 4px 4px;
     }
     #ecm #f102Blocks .pin {
@@ -1583,7 +1596,7 @@ const I18N = {
     noCirc: 'Sin circuito mapeado para ese pin.',
     noWide: 'Sin grupo de circuito amplio; mostrando fichas directas.',
     f102Title: 'F102 · SMJ (mate M72) · PG-85 cara',
-    f102Legend: 'PG-85 H.S. · 1H–46H · click cable → fichas / ECM',
+    f102Legend: 'PG-85 H.S. looking into F102 (sin espejo) · L grande · M/R chicos · scroll propio',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
   en: {
@@ -1619,7 +1632,7 @@ const I18N = {
     noCirc: 'No circuit mapped for that pin.',
     noWide: 'No wide circuit group; showing direct connector cards.',
     f102Title: 'F102 · SMJ (mate M72) · PG-85 face',
-    f102Legend: 'PG-85 H.S. · 1H–46H · click wire → fichas / ECM',
+    f102Legend: 'PG-85 H.S. looking into F102 (no mirror) · L large · M/R small · own scroll',
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
   },
   ja: {
@@ -1655,7 +1668,7 @@ const I18N = {
     noCirc: 'そのピンに対応する回路がありません。',
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
     f102Title: 'F102 · SMJ（mate M72）· PG-85',
-    f102Legend: 'PG-85 H.S. · 1H–46H · クリックで ECM / フィチャ',
+    f102Legend: 'PG-85 H.S.（F102を見る向き・ミラーなし）· L大 · M/R小 · 独自スクロール',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
 };
