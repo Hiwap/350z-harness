@@ -1238,8 +1238,11 @@ function svgRect10(cid, f){
 function svgIxNote(cid, f){
   const W=168, H=78;
   // Line1 = mate pair id (from name before ·); Line2 = short job (ixRole or meta)
-  const pair = (f.name||cid).split('·')[0].trim();
-  const job = (f.ixRole || f.meta || '').trim();
+  // Must use connField so EN/JA don't keep Spanish SVG labels
+  const locName = connField(cid, f, 'name');
+  const locMeta = connField(cid, f, 'meta');
+  const pair = (locName||cid).split('·')[0].trim();
+  const job = (f.ixRole || locMeta || '').trim();
   const job1 = job.slice(0, 36);
   const job2 = job.length > 36 ? job.slice(36, 70) : '';
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
