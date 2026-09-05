@@ -44,7 +44,7 @@
     --pin-w: 34px; --pin-h: 40px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 10px; --pin-sm: 8px;
   }
   .blocks {
-    display: flex; gap: var(--block-gap, 10px); align-items: flex-start;
+    display: flex; gap: var(--block-gap, 10px); align-items: center;
     justify-content: center; flex-wrap: nowrap;
     min-width: max-content; width: max-content; max-width: none; padding: 8px 0 4px; overflow-x: visible;
   }
@@ -61,11 +61,36 @@
     box-sizing: border-box;
   }
   .pin small { font-size: var(--pin-sm, 8px); font-weight: 700; opacity: 1; }
+  #blocks .pin {
+    overflow: hidden;
+  }
+  #blocks .pin .pn,
+  #blocks .pin .pw {
+    color: var(--pin-fg, #eee);
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+  }
   #blocks .pin .dest {
     display: block; font-size: calc(var(--pin-sm, 8px) - 1px); font-weight: 800;
     margin-top: 1px; max-width: 100%; overflow: hidden; text-overflow: clip;
     white-space: nowrap; line-height: 1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    /* don't inherit wire fill ink — accent set inline */
+    text-shadow: none;
+  }
+  body[data-mode="solid"] #blocks .pin .pn,
+  body[data-mode="solid"] #blocks .pin .pw {
+    color: var(--pin-fg, #111);
+    text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.9);
+  }
+  /* Light wire fills (W/Y/…): keep nº + color readable */
+  body[data-mode="solid"] #blocks .pin.light-wire .pn,
+  body[data-mode="solid"] #blocks .pin.light-wire .pw {
+    color: #111 !important;
+    text-shadow: none;
   }
   .pin.empty, .pin.unused {
     border-style: dashed; border-color: #333; color: #555;
@@ -1745,7 +1770,7 @@ function isPinActive(p){
 /** Prefer endpoint ficha over SMJ / feeds / IPDM when labeling an ECM pin. */
 const CONN_SHORT = {
   batt_feed:'BATT', ign_sw:'IGN', ecm_relay:'RLY', vmot:'VMOT', gnd4:'GND', e17:'E17',
-  ecm_f101_can:'CAN', af_b1:'A/F1', af_b2:'A/F2', ho2s_b1:'HO2S1', ho2s_b2:'HO2S2',
+  ecm_f101_can:'CAN', af_b1:'AF1', af_b2:'AF2', ho2s_b1:'O2B1', ho2s_b2:'O2B2',
   maf:'MAF', knock:'KNK', ckp:'CKP', cmp_b1:'CMP1', cmp_b2:'CMP2', ect:'ECT', iat:'IAT',
   etc:'ETC', ac_press:'A/C', evap_press:'EVAP', evap_purge:'PRG', psp:'PSP',
   coil1:'IGN1', coil2:'IGN2', coil3:'IGN3', coil4:'IGN4', coil5:'IGN5', coil6:'IGN6',
@@ -1823,6 +1848,7 @@ function makePinEl(p){
     d.style.setProperty('--pin-fill', wcol.c1);
   }
   d.style.setProperty('--pin-fg', fgForWire(wcol));
+  if(LIGHT_FILLS.has(wcol.c1) && !wcol.tracer) d.classList.add('light-wire');
   const dest = primaryConnForEcm(p);
   let destHtml = `<span class="dest" style="color:#555">—</span>`;
   let destTitle = '';
@@ -1830,15 +1856,22 @@ function makePinEl(p){
     const lab = shortConnLabel(dest.cid, dest.f);
     const cav = (dest.f.pins||[]).find(x => x.ecm!=null && Number(x.ecm)===Number(p));
     const cavId = cav && cav.id != null ? String(cav.id) : '';
-    /* short name + pin/cavity on that ficha, e.g. EVAP·sig */
-    const text = cavId ? (lab + '·' + cavId) : lab;
+    /* keep ≤6 chars so nº + wire stay readable on small pins (W/Y were clipping) */
+    let text = lab;
+    if(cavId){
+      const combo = lab + '·' + cavId;
+      text = combo.length <= 6 ? combo : (lab.length <= 4 ? lab : lab.slice(0,4));
+      if(text === lab && cavId && (lab + '·' + cavId).length > 6){
+        /* prefer name; cav still in title */
+      }
+    }
     const col = accentForConn(dest.f);
     destHtml = `<span class="dest" style="color:${col}">${esc(text)}</span>`;
     destTitle = ` → ${dest.f.name||dest.cid}${cavId ? ' · pin '+cavId : ''}`;
     d.dataset.destConn = dest.cid;
     if(cavId) d.dataset.destCav = cavId;
   }
-  d.innerHTML = `${p}<small>${code||'·'}</small>${destHtml}`;
+  d.innerHTML = `<span class="pn">${p}</span><small class="pw">${esc(code||'·')}</small>${destHtml}`;
   d.title = `Pin ${p} ${PIN_NAME[p]||''} ${code}${destTitle}`;
   d.onclick = () => selectPin(p);
   return d;
