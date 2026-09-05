@@ -416,13 +416,16 @@ function fgForWire(w){
   if(w.tracer) return '#f5f5f5';
   return fgFor(w.c1);
 }
-/** Ficha cavities (SVG): pick ink from avg luminance — no heavy halo (blobs on small text). */
+/** Ficha cavities (SVG): light ink when any half is dark (B, B/W, B/R…); dark ink only if both halves are light. */
 function fgForWireCav(w){
   if(!w) return '#111';
   if(w.tracer){
-    const L = (hexLum(w.c1) + hexLum(w.c2)) / 2;
-    return L > 0.42 ? '#111' : '#f5f5f5';
+    const L1 = hexLum(w.c1), L2 = hexLum(w.c2);
+    // Black / dark half present → light label (readable on the black part)
+    if(Math.min(L1, L2) < 0.38) return '#f5f5f5';
+    return '#111';
   }
+  // Solid B (#111) etc. → fgFor already returns light
   return fgFor(w.c1);
 }
 function svgInk(fill, forceHalo){
