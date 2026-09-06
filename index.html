@@ -1606,14 +1606,15 @@ function cavOrEmpty(cid, byId, id, x, y, w, h){
 /** IPDM E3 · PG-26 H.S.: vertical 2-pin, top=2 bottom=1 · 1-col → Invertida L/R = same */
 function svgIpdmE3(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const W=60, H=112, cw=40, ch=38;
+  /* Compact 2-pin — keep ~original footprint; labels still readable at ch=34 */
+  const W=56, H=100, cw=36, ch=34;
   // single column: L↔R mirror has no effect (keep FSM H.S. top=2 bot=1)
   let cavities = '';
   cavities += cavOrEmpty(cid, byId, '2', 10, 18, cw, ch);
-  cavities += cavOrEmpty(cid, byId, '1', 10, 62, cw, ch);
+  cavities += cavOrEmpty(cid, byId, '1', 10, 56, cw, ch);
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M12 2 h32 l5 10 H7 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="52" height="96" rx="5" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="48" height="84" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
