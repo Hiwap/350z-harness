@@ -55,6 +55,18 @@
   }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
   .card h2 { margin: 0 0 8px; font-size: 13px; color: #c5cae9; }
+  #ecm .ecm-head {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px;
+    margin: 0 0 8px;
+  }
+  #ecm .ecm-head h2 { margin: 0; }
+  #ecm .ecm-sel-count {
+    font-size: 12px; font-weight: 700; color: #ffe082;
+    background: #2a2410; border: 1px solid #5d4e1a;
+    border-radius: 999px; padding: 3px 10px;
+  }
+  #ecm .ecm-sel-count[hidden] { display: none !important; }
+
   .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
   .sw { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #cfd5de; }
   .sw i { width: 12px; height: 12px; border-radius: 3px; border: 2px solid; display: inline-block; background: transparent; }
@@ -794,7 +806,10 @@
 </header>
 <main>
   <section class="card" id="ecm">
-    <h2 id="ecmTitle">EC-123 · ECM pin grid</h2>
+    <div class="ecm-head">
+      <h2 id="ecmTitle">EC-123 · ECM pin grid</h2>
+      <span id="ecmSelCount" class="ecm-sel-count" hidden></span>
+    </div>
     <div class="banner-hr" id="hrBanner"></div>
     <details class="warn-box" id="warnBox">
       <summary id="warnSummary">⚠ Orientación ECM</summary>
@@ -2335,6 +2350,7 @@ const I18N = {
     unkPin: '—',
     ecmTitle: 'EC-123 · ECM pin grid (VQ35DE)',
     ecmTitleHr: 'ECM HR · pinout distinto (3 conectores)',
+    ecmSelCount: '{n} pines seleccionados',
     hrBanner: '<b>VQ35HR (2007–2008):</b> ECM de 3 conectores / arquitectura distinta. El grid EC-123 de un conector (DE) no aplica. Pinout distinto — ver FSM 2007 EC. Debajo se muestran fichas motor + habitáculo donde aplican (pinout ECM distinto).',
     hrGrid: '<b style="color:#ffb74d">Pinout ECM distinto — ver FSM 2007 EC</b><br/>El conector único EC-123 (VQ35DE) no aplica al VQ35HR.<br/>Usa las fichas del lado motor a la derecha donde correspondan.',
     orientInv: '⚠ <b>INVERTIDA (bancada)</b> · ARRIBA · <b>121 a la IZQUIERDA</b> · PALANCA arriba · bloques 114–121 | 82–113 | 6–81 | 1–5',
@@ -2376,6 +2392,7 @@ const I18N = {
     unkPin: '—',
     ecmTitle: 'EC-123 · ECM pin grid (VQ35DE)',
     ecmTitleHr: 'HR ECM · different pinout (3 connectors)',
+    ecmSelCount: '{n} pins selected',
     hrBanner: '<b>VQ35HR (2007–2008):</b> 3-connector ECM / different architecture. The single-connector EC-123 (DE) grid does not apply. Different pinout — see 2007 FSM EC. Engine + cabin cards below still apply where relevant.',
     hrGrid: '<b style="color:#ffb74d">Different ECM pinout — see 2007 FSM EC</b><br/>The single EC-123 connector (VQ35DE) does not apply to VQ35HR.<br/>Use the engine-side connector cards on the right where they apply.',
     orientInv: '⚠ <b>INVERTED (engine bay)</b> · UP · <b>121 on the LEFT</b> · lever up · blocks 114–121 | 82–113 | 6–81 | 1–5',
@@ -2417,6 +2434,7 @@ const I18N = {
     unkPin: '—',
     ecmTitle: 'EC-123 · ECMピン配列（VQ35DE）',
     ecmTitleHr: 'HR ECM · ピン配列が異なる（3コネクタ）',
+    ecmSelCount: '{n} ピン選択中',
     hrBanner: '<b>VQ35HR（2007–2008）:</b> 3コネクタECM / 構成が異なります。DEの単一コネクタEC-123グリッドは適用されません。ピン配列は別 — FSM 2007 ECを参照。下のエンジン＋車室内カードは該当箇所で利用できます。',
     hrGrid: '<b style="color:#ffb74d">ECMピン配列が異なります — FSM 2007 ECを参照</b><br/>VQ35DEの単一EC-123コネクタはVQ35HRには適用されません。<br/>右側のエンジン側コネクタカードを適宜使用してください。',
     orientInv: '⚠ <b>反転（エンジンルーム）</b> · 上 · <b>121が左</b> · レバー上 · ブロック 114–121 | 82–113 | 6–81 | 1–5',
@@ -3492,6 +3510,7 @@ function clearHL(){
   restoreCollapsedSubs();
   restoreFichaOrder();
   clearSelectionClasses();
+  updateEcmSelCount(0);
   setF102PanelOpen(true); // no selection → F102 visible
 }
 function dimAll(){
@@ -3584,6 +3603,23 @@ function f102HitsForEcm(ecmSet, focusPin=null){
   return hits;
 }
 
+
+function updateEcmSelCount(n){
+  const el = document.getElementById('ecmSelCount');
+  if(!el) return;
+  const count = (n == null)
+    ? document.querySelectorAll('#blocks .pin.hl, #blocks .pin.hl-group, #blocks .pin.hl-end').length
+    : Number(n);
+  if(count >= 2){
+    const tmpl = t('ecmSelCount') || '{n}';
+    el.textContent = tmpl.replace('{n}', String(count));
+    el.hidden = false;
+  } else {
+    el.textContent = '';
+    el.hidden = true;
+  }
+}
+
 function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   activeRails.clear(); updateRailButtons();
   clearHL();
@@ -3619,6 +3655,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     if(focusPin!=null && p===focusPin) el.classList.add('hl');
     else el.classList.add('hl-group');
   });
+  updateEcmSelCount(ecmSet.size);
   connSet.forEach(cid=>{
     markFichaHL(cid, true);
     if(cid === 'ix_f102_m72' && !collapseF102){
