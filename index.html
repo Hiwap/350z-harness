@@ -3455,8 +3455,9 @@ function revealConns(connIds, opts){
       if(sk) localStorage.setItem('z33_sub_' + sk, '1');
     }
   });
-  /* Keep fichas in place: no selTop bump, no scroll jump on click */
-  removeSelectedTop();
+  /* selTop / promote OK — but do not scrollIntoView (no jump) */
+  updateSelectedTop(ids);
+  promoteSelectedInGroups(ids);
   syncF102PanelForSelection(ids, { collapseF102 });
   if(collapseF102) setF102PanelOpen(false);
   /* collapse-idle can race; re-open any parent that still holds a highlighted ficha */
@@ -3466,6 +3467,9 @@ function revealConns(connIds, opts){
     const sec = f.closest('details.ficha-sec');
     if(sec) sec.open = true;
   });
+  const top = document.getElementById('selTop');
+  if(top) top.open = true;
+  /* intentionally no scrollIntoView */
 }
 
 let selKey = null; /* 'pin:N' | 'cav:cid:id' — second click clears */
