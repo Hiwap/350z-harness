@@ -3336,18 +3336,81 @@ function withFichasScrollPinned(fn){
   const root = document.getElementById('fichas');
   const y = root ? root.scrollTop : 0;
   const wy = window.scrollY || window.pageYOffset || 0;
+  /* Prefer anchoring to the first highlighted ficha in the panel (not selTop clone) */
+  let anchor = null, anchorTop = 0;
+  if(root){
+    anchor = root.querySelector('.ficha-sec:not(.sel-top) .ficha.hl, .ficha-sec:not(.sel-top) .ficha-wrap.hl');
+    if(anchor){
+      const ar = anchor.getBoundingClientRect();
+      const rr = root.getBoundingClientRect();
+      anchorTop = ar.top - rr.top + y;
+    }
+  }
   try { fn(); }
   finally {
-    if(root) root.scrollTop = y;
+    if(root){
+      if(anchor && anchor.isConnected){
+        const ar = anchor.getBoundingClientRect();
+        const rr = root.getBoundingClientRect();
+        const now = ar.top - rr.top + root.scrollTop;
+        root.scrollTop = Math.max(0, now - (anchorTop - y));
+      } else {
+        root.scrollTop = y;
+      }
+    }
     try { window.scrollTo(0, wy); } catch(e) {}
   }
 }
 
 function promoteSelectedInGroups(connIds){
-  /* Do not reorder fichas inside their group / move sections — that shifts the scroll.
-     Selection strip is #selTop only. Still collapse idle subs if enabled. */
+  /* Selected fichas first inside each grid; active sections under #selTop.
+     Scroll is pinned by withFichasScrollPinned in revealConns. */
   const set = new Set((connIds||[]).filter(Boolean));
   if(!set.size) return;
+
+  const cidOf = el => el.dataset.conn
+    || (el.querySelector && el.querySelector('.ficha') && el.querySelector('.ficha').dataset.conn);
+
+  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) .fichas-grid').forEach(grid=>{
+    const kids = [...grid.children];
+    const sel = kids.filter(el => set.has(cidOf(el)));
+    const rest = kids.filter(el => !set.has(cidOf(el)));
+    if(!sel.length) return;
+    [...sel, ...rest].forEach(el => grid.appendChild(el));
+  });
+
+  /* Active nests (Bobinas / Inyectores) first inside actuators body */
+  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) > .fichas-body').forEach(body=>{
+    const nests = [...body.querySelectorAll(':scope > details.ficha-nest')];
+    if(nests.length < 2) return;
+    const active = [], idle = [];
+    nests.forEach(nest=>{
+      const hit = [...nest.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
+      (hit ? active : idle).push(nest);
+    });
+    if(!active.length) return;
+    const loose = [...body.querySelectorAll(':scope > .fichas-grid')];
+    const frag = document.createDocumentFragment();
+    loose.forEach(g => frag.appendChild(g));
+    [...active, ...idle].forEach(n => frag.appendChild(n));
+    body.appendChild(frag);
+  });
+
+  const root = document.getElementById('fichas');
+  if(root){
+    const top = document.getElementById('selTop');
+    const secs = [...root.querySelectorAll(':scope > details.ficha-sec:not(.sel-top)')];
+    const active = [], idle = [];
+    secs.forEach(sec=>{
+      const hit = [...sec.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
+      (hit ? active : idle).push(sec);
+    });
+    const frag = document.createDocumentFragment();
+    if(top) frag.appendChild(top);
+    active.forEach(sec => frag.appendChild(sec));
+    idle.forEach(sec => frag.appendChild(sec));
+    root.appendChild(frag);
+  }
   applyCollapseIdleSubs(connIds);
 }
 
@@ -3479,7 +3542,7 @@ function revealConns(connIds, opts){
       if(sk) localStorage.setItem('z33_sub_' + sk, '1');
     }
   });
-  /* selTop stays; no in-group promote reorder; pin scroll so panel does not jump */
+  /* selTop + promote selected to front of group; pin scroll to limit jump */
   withFichasScrollPinned(()=>{
     updateSelectedTop(ids);
     promoteSelectedInGroups(ids);
