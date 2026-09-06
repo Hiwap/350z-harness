@@ -244,6 +244,12 @@
   .ficha.dim { opacity: 0.25; }
   .ficha.hl { border-color: var(--hl); box-shadow: 0 0 0 2px rgba(255,213,79,.35); opacity: 1 !important; }
   .ficha h3 { margin: 0 0 2px; font-size: 12px; color: #f1f3f5; }
+  .ficha h3 .ficha-code {
+    display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px; font-weight: 800; color: #ffe082; background: #2a2410;
+    border: 1px solid #5d4e1a; border-radius: 4px; padding: 0 5px; margin-right: 4px;
+    letter-spacing: 0.02em; vertical-align: 1px;
+  }
   .ficha .meta, .ficha .note-body, .ficha .note-pins { display: none; font-size: 11px; color: #d0d5dd; margin-bottom: 6px; }
   .ficha.hl .meta, .ficha.hl .note-body, .ficha.hl .note-pins { display: block; }
   #fichas { display: flex; flex-direction: column; gap: 10px; }
@@ -819,10 +825,30 @@ function buildCircuits(model){
       ecm:[34], conn:['iat'], notes:'Señal IAT → ECM 34 (Y/G).'},
     {id:'ect', title:'ECT', color:'#5c6bc0',
       ecm:[73], conn:['ect'], notes:'Señal ECT → ECM 73 (BR/Y).'},
-    {id:'ign_coils', title:'Bobinas ×6', color:'#26a69a',
-      ecm:[62,81,61,80,60,79], conn:['coil1','coil2','coil3','coil4','coil5','coil6','feed_inj_coil_12v'], notes:'Drive ECM + alimentación 12V común.'},
-    {id:'injectors', title:'Inyectores ×6', color:'#9ccc65',
-      ecm:[23,42,22,41,21,40], conn:['inj1','inj2','inj3','inj4','inj5','inj6','feed_inj_coil_12v'], notes:'Drive ECM + 12V común.'},
+    {id:'coil_1', title:'Bobina 1', color:'#26a69a',
+      ecm:[62], conn:['coil1','feed_inj_coil_12v'], notes:'Drive ECM 62 + 12V común.'},
+    {id:'coil_2', title:'Bobina 2', color:'#26a69a',
+      ecm:[81], conn:['coil2','feed_inj_coil_12v'], notes:'Drive ECM 81 + 12V común.'},
+    {id:'coil_3', title:'Bobina 3', color:'#26a69a',
+      ecm:[61], conn:['coil3','feed_inj_coil_12v'], notes:'Drive ECM 61 + 12V común.'},
+    {id:'coil_4', title:'Bobina 4', color:'#26a69a',
+      ecm:[80], conn:['coil4','feed_inj_coil_12v'], notes:'Drive ECM 80 + 12V común.'},
+    {id:'coil_5', title:'Bobina 5', color:'#26a69a',
+      ecm:[60], conn:['coil5','feed_inj_coil_12v'], notes:'Drive ECM 60 + 12V común.'},
+    {id:'coil_6', title:'Bobina 6', color:'#26a69a',
+      ecm:[79], conn:['coil6','feed_inj_coil_12v'], notes:'Drive ECM 79 + 12V común.'},
+    {id:'inj_1', title:'Inyector 1', color:'#9ccc65',
+      ecm:[23], conn:['inj1','feed_inj_coil_12v'], notes:'Drive ECM 23 + 12V común.'},
+    {id:'inj_2', title:'Inyector 2', color:'#9ccc65',
+      ecm:[42], conn:['inj2','feed_inj_coil_12v'], notes:'Drive ECM 42 + 12V común.'},
+    {id:'inj_3', title:'Inyector 3', color:'#9ccc65',
+      ecm:[22], conn:['inj3','feed_inj_coil_12v'], notes:'Drive ECM 22 + 12V común.'},
+    {id:'inj_4', title:'Inyector 4', color:'#9ccc65',
+      ecm:[41], conn:['inj4','feed_inj_coil_12v'], notes:'Drive ECM 41 + 12V común.'},
+    {id:'inj_5', title:'Inyector 5', color:'#9ccc65',
+      ecm:[21], conn:['inj5','feed_inj_coil_12v'], notes:'Drive ECM 21 + 12V común.'},
+    {id:'inj_6', title:'Inyector 6', color:'#9ccc65',
+      ecm:[40], conn:['inj6','feed_inj_coil_12v'], notes:'Drive ECM 40 + 12V común.'},
     {id:'batt_ecm', title:'BATT feed ECM', color:'#ef5350',
       ecm:[121], conn:['batt_feed'], notes:'ECM 121 always-hot BATT.'},
     {id:'ign_feeds', title:'IGN feeds ECM 119/120', color:'#ef5350',
@@ -1808,8 +1834,10 @@ const TITLES_I18N = {
   cmp: {en:'Cam PHASE', ja:'カム PHASE'},
   iat: {en:'IAT', ja:'IAT'},
   ect: {en:'ECT', ja:'ECT'},
-  ign_coils: {en:'Ignition coils ×6', ja:'イグニッションコイル ×6'},
-  injectors: {en:'Injectors ×6', ja:'インジェクタ ×6'},
+  coil_1: {en:'Coil 1', ja:'コイル1'}, coil_2: {en:'Coil 2', ja:'コイル2'}, coil_3: {en:'Coil 3', ja:'コイル3'},
+  coil_4: {en:'Coil 4', ja:'コイル4'}, coil_5: {en:'Coil 5', ja:'コイル5'}, coil_6: {en:'Coil 6', ja:'コイル6'},
+  inj_1: {en:'Injector 1', ja:'インジェクタ1'}, inj_2: {en:'Injector 2', ja:'インジェクタ2'}, inj_3: {en:'Injector 3', ja:'インジェクタ3'},
+  inj_4: {en:'Injector 4', ja:'インジェクタ4'}, inj_5: {en:'Injector 5', ja:'インジェクタ5'}, inj_6: {en:'Injector 6', ja:'インジェクタ6'},
   batt_ecm: {en:'BATT feed ECM', ja:'BATT供給 ECM'},
   ign_feeds: {en:'IGN feeds ECM 119/120', ja:'IGN供給 ECM 119/120'},
   ign_sw: {en:'IGN SW → ECM', ja:'IGN SW → ECM'},
@@ -1850,7 +1878,12 @@ const NOTES_I18N = {
   iat: {en:'IAT signal → ECM 34 (Y/G).', ja:'IAT信号 → ECM 34 (Y/G)。'},
   ect: {en:'ECT signal → ECM 73 (BR/Y).', ja:'ECT信号 → ECM 73 (BR/Y)。'},
   ign_coils: {en:'ECM drive + common 12V feed.', ja:'ECM駆動 + 共通12V。'},
-  injectors: {en:'ECM drive + common 12V.', ja:'ECM駆動 + 共通12V。'},
+  inj_1: {en:'ECM 23 drive + common 12V.', ja:'ECM 23 + 共通12V。'},
+  inj_2: {en:'ECM 42 drive + common 12V.', ja:'ECM 42 + 共通12V。'},
+  inj_3: {en:'ECM 22 drive + common 12V.', ja:'ECM 22 + 共通12V。'},
+  inj_4: {en:'ECM 41 drive + common 12V.', ja:'ECM 41 + 共通12V。'},
+  inj_5: {en:'ECM 21 drive + common 12V.', ja:'ECM 21 + 共通12V。'},
+  inj_6: {en:'ECM 40 drive + common 12V.', ja:'ECM 40 + 共通12V。'},
 
   fp_relay: {en:'Fuel pump relay control → ECM 113 (LG/B).', ja:'フューエルポンプリレー制御 → ECM 113 (LG/B)。'},
   ftt: {en:'FTT → ECM 107 (GY/R) via M72/F102 · fuel level sensor unit term. 4.', ja:'FTT → ECM 107 (GY/R) · M72/F102経由。'},
@@ -2487,7 +2520,9 @@ function makeFichaEl(id, f){
   if(noteTxt){
     extra = `<div class="note-body">${esc(noteTxt)}</div>`;
   }
-  el.innerHTML = `<h3>${esc(connField(id, f, 'name'))}</h3><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
+  const code = CONN_SHORT[id] || '';
+  const codeHtml = code ? `<span class="ficha-code">${esc(code)}</span> ` : '';
+  el.innerHTML = `<h3>${codeHtml}${esc(connField(id, f, 'name'))}</h3><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   el.querySelectorAll('.cav-hit').forEach(cav=>{
     cav.addEventListener('click', e=>{
       e.stopPropagation();
@@ -2740,6 +2775,9 @@ function updateSelectedTop(connIds){
   });
   const names = bucketKeys.map(b => selectedBucketLabel(b.g, b.s));
   const n = bucketKeys.length;
+  // Short codes of selected fichas (I5, C1, …)
+  const codes = orderedIds.map(id => CONN_SHORT[id]).filter(Boolean);
+  const codesTxt = codes.length ? codes.join(' · ') : '';
   // Single bucket (e.g. pin 115 → only Poder/tierras): skip sel-top; category already promoted
   if(n < 2) return;
 
@@ -2748,8 +2786,9 @@ function updateSelectedTop(connIds){
   top.className = 'ficha-sec sel-top';
   top.open = true;
   const sum = document.createElement('summary');
-  // e.g. "3 grupos: Arnés · Sensores, Fichas intermedias E/F, Habitáculo · Pedales / frenos"
-  sum.innerHTML = `${esc(String(n) + ' ' + t('selTopGroups'))}<span>${esc(names.join(', '))}</span>`;
+  // e.g. "3 grupos: …" + ficha codes
+  const subLine = codesTxt ? (names.join(', ') + ' · ' + codesTxt) : names.join(', ');
+  sum.innerHTML = `${esc(String(n) + ' ' + t('selTopGroups'))}<span>${esc(subLine)}</span>`;
   top.appendChild(sum);
   const body = document.createElement('div');
   body.className = 'fichas-body';
