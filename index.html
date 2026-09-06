@@ -1093,9 +1093,9 @@ let CIRCUITS = [];
 function buildCircuits(model){
   const base = [
     {id:'af_b1', title:'A/F Sensor 1 Bank 1', color:'#ef6c00',
-      ecm:[2,16,35,56,75], conn:['af_b1','feed_af_12v','ix_e12_f3'], notes:'Calentador B1 → ECM 2 (GY/R). Pin 3 = 12V fusible (no ECM). Path puede pasar intermedia E12/F3 (ver FSM).'},
+      ecm:[2,16,35,56,75], conn:['af_b1','feed_af_12v','ix_e12_f3'], notes:'Calentador B1 → ECM 2 (GY/R). Pin 3 = 12V fusible (no ECM).'},
     {id:'af_b2', title:'A/F Sensor 1 Bank 2', color:'#2e7d32',
-      ecm:[24,76,57,58,77], conn:['af_b2','feed_af_12v','ix_e12_f3'], notes:'Calentador B2 → ECM 24 (G/Y). Señales 76/77/57/58 · pin 3 = 12V fusible. Path puede pasar intermedia E12/F3 (ver FSM).'},
+      ecm:[24,76,57,58,77], conn:['af_b2','feed_af_12v','ix_e12_f3'], notes:'Calentador B2 → ECM 24 (G/Y). Señales 76/77/57/58 · pin 3 = 12V fusible.'},
     {id:'app_5v', title:'APP 5V', color:'#f9a825',
       ecm:[90,91], conn:['app','ix_e11_f2'], notes:'5V APP1/APP2 (90/91) vía E11/F2 (pedal E113→E11/F2→ECM). Rails 47/48/49/68: usar toggle 5V (no se agrupan al click).'},
     {id:'app_gnd', title:'APP grounds', color:'#f9a825',
@@ -1184,11 +1184,11 @@ function buildCircuits(model){
     {id:'evap_vent', title:'EVAP canister vent', color:'#6a1b9a',
       ecm:[117], conn:['evap_vent'], notes:'Vent control → ECM 117 (G/W) · B1/M12 · DTC P0447/P1446.'},
     {id:'brake_stop', title:'Stop lamp switch', color:'#e53935',
-      ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], notes:'Señal freno → ECM 101 (L/OR). Path body puede pasar intermedias E108/M15 y F102/M72 (ver FSM).'},
+      ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], notes:'Señal freno → ECM 101 (L/OR) · vía E108/M15 · F102/M72.'},
     {id:'ascd_brake', title:'ASCD brake (+ clutch M/T)', color:'#fb8c00',
-      ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], f102:['2H'], notes:'ASCD brake → ECM 108 (B/R). En M/T clutch en serie. Intermedias posibles E108/M15 · F102/M72 (ver FSM).'},
+      ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], f102:['2H'], notes:'ASCD brake → ECM 108 (B/R). En M/T clutch en serie · vía E108/M15 · F102 2H.'},
     {id:'ascd_steer', title:'ASCD steering (clock spring)', color:'#26c6da',
-      ecm:[99,67], conn:['clock_spring','ix_f102_m72'], f102:['1H','7H'], notes:'Señal ASCD volante → ECM 99 (G/Y) vía clock spring. Tierra ECM 67. Path puede pasar F102/M72 (ver FSM).'},
+      ecm:[99,67], conn:['clock_spring','ix_f102_m72'], f102:['1H','7H'], notes:'Señal ASCD volante → ECM 99 (G/Y) vía clock spring · Tierra ECM 67 · F102 1H/7H.'},
   {id:'pnp_sw', title:'PNP / park-neutral (A/T)', color:'#ab47bc',
       ecm:[102], conn:['pnp','ix_f102_m72'], notes:'Interruptor PNP → ECM 102 (BR/Y) vía F102 28H. Solo A/T.'},
 
@@ -1199,7 +1199,7 @@ function buildCircuits(model){
   } else if(model === 'de_revup'){
     base.push({id:'vtc', title:'VTC intake + exhaust ×4 (Rev-Up)', color:'#d81b60',
       ecm:[11,10], conn:['vtc_b1','vtc_b2','vtc_ex_b1','vtc_ex_b2','ix_f18_f201','ix_e12_f3'],
-      notes:'VTC: ECM11 B1 vía F18 · ECM10 B2 solo. Rev-Up también escape (ver FSM).'});
+      notes:'VTC: ECM11 B1 vía F18 · ECM10 B2 solo. Rev-Up también escape.'});
   } else {
     base.push({id:'vtc', title:'VTC (HR — ver FSM)', color:'#d81b60',
       ecm:[], conn:['vtc_b1','vtc_b2'], notes:'VQ35HR: control VTC distinto / ECM 3-conector. Ver FSM 2007 EC.'});
@@ -1365,7 +1365,7 @@ const CONN_BASE = {
     pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
   ecm_f101_can:{group:'motor', sub:'power', name:'ECM F101 · CAN', meta:'conector arnés ECM · CAN-H/L · FSM LAN', accent:'#7e57c2', shape:'tab2',
     pins:[{id:'94',code:'L',ecm:94,lab:'CAN-H'},{id:'86',code:'P',ecm:86,lab:'CAN-L'}],
-    note:'F101 = conector del arnés a la ECM (lado loom). Solo cavidades CAN verificadas: 94 L = CAN-H · 86 P = CAN-L. Path: F101 → … → F102 26H/27H → M72 → DLC M8 6/14; también IPDM E9 48/49. Bancada: entre 86↔94 en loom solo = OL (terminadores en módulos).'},
+    note:'F101 = conector del arnés a la ECM (lado loom). CAN: 94 L = CAN-H · 86 P = CAN-L · vía F102 26H/27H → M72 → DLC M8 6/14 · también IPDM E9 48/49.'},
 
   /* —— Alimentación en el arnés motor que NO pasa por cavidad ECM (FSM) —— */
   feed_af_12v:{group:'motor', sub:'feeds', name:'12V calentadores A/F (fusible)', meta:'pin 3 A/F B1/B2 · no ECM', accent:'#ff7043', shape:'note',
@@ -1373,10 +1373,10 @@ const CONN_BASE = {
     note:'En el arnés motor: alimentación 12V fusionada al pin 3 de cada A/F Sensor 1 (B1/B2). No entra a la ECM — solo el drive de calentador (ECM 2 / 24) y señales. Ver FSM EC A/F.'},
   feed_ho2s_12v:{group:'motor', sub:'feeds', name:'12V calentadores HO2S2 (fusible)', meta:'post-cat · no ECM', accent:'#ce93d8', shape:'note',
     pins:[{id:'B1-12V',code:'12V',ecm:null,rail:'12v'},{id:'B2-12V',code:'12V',ecm:null,rail:'12v'}],
-    note:'12V fusionado a calentadores HO2S2 B1/B2 en el arnés; la ECM solo conmuta el lado de control (ECM 25 / 6). Nº de fusible: ver FSM EC HO2S.'},
+    note:'12V fusionado a calentadores HO2S2 B1/B2 en el arnés; la ECM solo conmuta el lado de control (ECM 25 / 6).'},
   feed_inj_coil_12v:{group:'motor', sub:'feeds', name:'12V rail iny / bobinas', meta:'común relé/IPDM · no ECM', accent:'#ffca28', shape:'note',
     pins:[{id:'INJ+',code:'R',ecm:null,rail:'12v'},{id:'COIL+',code:'R',ecm:null,rail:'12v'}],
-    note:'Rail 12V común de inyectores ×6 y bobinas ×6 en el arnés motor (típic. cable R desde relé/IPDM). La ECM solo hace el drive a masa (pines INJ/IGN). Cavidad IPDM: ver FSM.'},
+    note:'Rail 12V común de inyectores ×6 y bobinas ×6 en el arnés motor (típic. cable R desde relé/IPDM). La ECM solo hace el drive a masa (pines INJ/IGN).'},
   feed_ckp_maf_12v:{group:'motor', sub:'feeds', name:'12V CKP / MAF (arnés)', meta:'feed sensor · no ECM', accent:'#ffa726', shape:'note',
     pins:[{id:'CKP+',code:'R/W',ecm:null,rail:'12v'},{id:'MAF+',code:'R',ecm:null,rail:'12v'}],
     note:'Alimentación 12V en conectores CKP y MAF del arnés motor (no son pines ECM). Señales: CKP→13, MAF→51. Tierras locales / SNS según FSM.'},
@@ -1499,7 +1499,7 @@ const CONN_BASE = {
       {id:'7',lab:'VB',code:'R/W',ecm:119,rail:'12v'},
       {id:'8',code:'—',ecm:null}
     ],
-    note:'FSM EC-167/169 H.S. F3 (GY): cav 7 R/W → ECM 119 (VB) · cav 4 P → ECM 120 (VB) · cav 5 W/L → feed ign (IPDM E7-17, no pin ECM) · cav 6 B → E17/E43 body GND. Path A/F heater 12V también lista E12/F3 (cav exacta TBD). No pasa por F102. Cav 1–3/8: sin circuito verificado aún.'},
+    note:'FSM EC-167/169 H.S. F3 (GY): cav 7 R/W → ECM 119 (VB) · cav 4 P → ECM 120 (VB) · cav 5 W/L → feed ign (IPDM E7-17, no pin ECM) · cav 6 B → E17/E43 body GND.'},
   ix_f14_f229:{group:'motor', sub:'sensors', name:'F14 ↔ F229 · Knock', meta:'intermedia sub-arnés knock · señal→15 · shield→tierra', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd'}],
     note:'Intermedia F14/F229 del path knock (FSM): señal W→ECM 15 · shield→SNS GND. Referencia de circuito FSM; cara pin-number: ver manual.'},
@@ -1529,7 +1529,7 @@ const CONN_BASE = {
     note:'FSM EC-705: F33 cav1→I5/ECM21 · 2→I3/22 · 3→I4/41 · 4→I2/42 · 5=12V · 6→I1/23 · 7→I6/40 · 8 nc. Mate F221. No es F18 (6-pin bobinas).'},
   ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · Rama CAN', meta:'2G/7G CAN · engine room↔body · FSM LAN', accent:'#90a4ae', shape:'tab2',
     pins:[{id:'2G',code:'L',ecm:94,lab:'CAN-H'},{id:'7G',code:'P',ecm:86,lab:'CAN-L'}],
-    note:'Empalme sala de máquinas (E108) ↔ body (M15). Cavidades CAN verificadas: 2G L = CAN-H (cont. DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. DLC 14 / ABS E51-23). Rama hacia ABS/DLC vía body. Otras cavidades (freno/ASCD/A/F) existen; solo se listan pines CAN verificados. Cara: FSM H.S. (intermedias sin Invertida).'},
+    note:'Empalme sala de máquinas (E108) ↔ body (M15). CAN: 2G L = CAN-H (DLC 6 / ABS E51-20) · 7G P = CAN-L (DLC 14 / ABS E51-23). Rama hacia ABS/DLC vía body.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔body', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
     pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'—',ecm:null},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'—',ecm:null},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'—',ecm:null},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'—',ecm:null},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
   note:'Puente SMJ motor↔carrocería · 13 cavidades con cable.'},
@@ -1561,7 +1561,7 @@ const CONN_BASE = {
     note:'Nivel de combustible no llega por cavidad directa al ECM: va al combination meter y se comparte por CAN (ECM 86/94).'},
   ascd_ind:{group:'body', sub:'ascd_dlc', name:'ASCD · Indicador CRUISE', meta:'vía combination meter / CAN', accent:'#26c6da', shape:'note',
     pins:[{id:'CAN-L',code:'P',ecm:86},{id:'CAN-H',code:'L',ecm:94}],
-    note:'Indicador ASCD (CRUISE) en el combination meter · comunicación vía bus CAN con ECM 86/94. Sin cavidad directa al ECM; ver FSM CAN/meter.'},
+    note:'Indicador ASCD (CRUISE) en el combination meter · vía bus CAN con ECM 86/94.'},
 };
 
 let CONN = {};
@@ -2473,7 +2473,7 @@ const TITLES_I18N = {
     ja: { name:'バックランプスイッチ', meta:'F36 · M/Tリバース · LT-183' },
   },
   af_b1: {en:'A/F Sensor 1 Bank 1', ja:'A/Fセンサ1 バンク1'},
-  af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
+  af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
   app_5v: {en:'APP 5V + A/C · EVAP · PSP rails', ja:'APP 5V + A/C · EVAP · PSPレール'},
   app_gnd: {en:'APP grounds', ja:'APPアース'},
   app_sig: {en:'APP signals APS1/APS2', ja:'APP信号 APS1/APS2'},
@@ -2518,8 +2518,8 @@ const TITLES_I18N = {
 };
 
 const NOTES_I18N = {
-  af_b1: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。FSM 2005。'},
-  af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
+  af_b1: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM).', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。FSM 2005。'},
+  af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
   app_5v: {en:'5V APP1/APP2 (90/91) via E11/F2. Shared rails 47/48/49/68 → use 5V toggle.', ja:'APP1/APP2 5V (90/91) E11/F2経由。共有レール 47/48/49/68 は 5V トグル。'},
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
   app_sig: {en:'APS1→106 · APS2→98 via intermediate E11/F2 (pedal E113→E11/F2→ECM).', ja:'APS1→106 · APS2→98（中間E11/F2経由）。'},
@@ -2921,7 +2921,7 @@ const CONN_I18N = {
   },
   ix_e12_f3: {
     en: { name:'E12 ↔ F3 · A/F + VB path', meta:'8-pin GY · VB 119/120 · IGN · GND E17 · EC-167 · not via F102',
-      note:'FSM EC-167/169: F3 cav7 R/W→ECM 119 · cav4 P→ECM 120 · cav5 W/L→IGN feed · cav6 B→E17/E43. A/F heater 12V also lists E12/F3 (cavity TBD). Cav 1–3/8 TBD.' },
+      note:'FSM EC-167/169: F3 cav7 R/W→ECM 119 · cav4 P→ECM 120 · cav5 W/L→IGN feed · cav6 B→E17/E43.' },
     ja: { name:'E12 ↔ F3 · A/F + VB経路', meta:'8ピン GY · VB 119/120 · IGN · GND E17 · F102経由なし',
       note:'FSM EC-167/169: F3 cav7 R/W→ECM 119 · cav4 P→ECM 120 · cav5 W/L→IGN · cav6 B→E17/E43。他キャビティ未確認。' },
   },
@@ -2963,14 +2963,14 @@ const CONN_I18N = {
 
   ecm_f101_can: {
     en: { name:'ECM F101 · CAN', meta:'ECM harness connector · CAN-H/L · FSM LAN',
-      note:'F101 = ECM harness connector on the loom. Verified CAN cavities only: 94 L = CAN-H · 86 P = CAN-L. Path: F101 → … → F102 26H/27H → M72 → DLC M8 6/14; also IPDM E9 48/49. Bench: loom alone 86↔94 = OL (terminators in modules).' },
+      note:'F101 = ECM harness connector on the loom. CAN: 94 L = CAN-H · 86 P = CAN-L · via F102 26H/27H → M72 → DLC M8 6/14 · also IPDM E9 48/49.' },
     ja: { name:'ECM F101 · CAN', meta:'ECMハーネスコネクタ · CAN-H/L · FSM LAN',
-      note:'F101 = エンジンハーネス側のECMコネクタ。確認済CANのみ: 94 L = CAN-H · 86 P = CAN-L。経路: F101 → … → F102 26H/27H → M72 → DLC M8 6/14; IPDM E9 48/49 も。ベンチ: ハーネスのみ 86↔94 = OL（終端はモジュール側）。' },
+      note:'F101 = エンジンハーネス側のECMコネクタ。CAN: 94 L = CAN-H · 86 P = CAN-L · F102 26H/27H → M72 → DLC M8 6/14 · IPDM E9 48/49。' },
   },
 
   feed_ho2s_12v: {
     en: { name:'12V HO2S2 heaters (fused)', meta:'post-cat · not ECM',
-      note:'Fused 12V to HO2S2 B1/B2 heaters in the harness; the ECM only switches the control side (ECM 25 / 6). Fuse number: see FSM EC HO2S.' },
+      note:'Fused 12V to HO2S2 B1/B2 heaters in the harness; the ECM only switches the control side (ECM 25 / 6).' },
     ja: { name:'HO2S2ヒータ12V（ヒューズ）', meta:'ポストキャット · ECM外',
       note:'ハーネス上のヒューズ12Vが HO2S2 B1/B2 ヒータへ。ECMは制御側のみ切替（ECM 25 / 6）。ヒューズ番号: FSM EC HO2S 参照。' },
   },
@@ -3020,7 +3020,7 @@ const CONN_I18N = {
   inj6: { en:{name:'Injector 6', meta:'ECM40 LG'}, ja:{name:'インジェクタ6', meta:'ECM40 LG'} },
   feed_inj_coil_12v: {
     en: { name:'12V rail injectors / coils', meta:'common relay/IPDM · not ECM',
-      note:'Common 12V rail for injectors ×6 and coils ×6 on the engine harness (typically R from relay/IPDM). The ECM only provides the ground-side drive (INJ/IGN pins). IPDM cavity: see FSM.' },
+      note:'Common 12V rail for injectors ×6 and coils ×6 on the engine harness (typically R from relay/IPDM). The ECM only provides the ground-side drive (INJ/IGN pins).' },
     ja: { name:'インジェクタ/コイル 12Vレール', meta:'共通リレー/IPDM · ECM外',
       note:'インジェクタ×6とコイル×6の共通12V（通常リレー/IPDMからのR）。ECMはアース側駆動のみ（INJ/IGN）。IPDMキャビティ: FSM参照。' },
   },
