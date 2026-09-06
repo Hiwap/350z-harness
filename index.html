@@ -1836,19 +1836,23 @@ function isPinActive(p){
 
 
 /** Prefer endpoint ficha over SMJ / feeds / IPDM when labeling an ECM pin. */
+/** ≤4 chars — 3rd ECM line ID (color = ficha accent). Cav id stays in title only. */
 const CONN_SHORT = {
-  batt_feed:'BATT', ign_sw:'IGN', ecm_relay:'RLY', vmot:'VMOT', gnd4:'GND', e17:'E17',
-  ecm_f101_can:'CAN', af_b1:'AF1', af_b2:'AF2', ho2s_b1:'O2B1', ho2s_b2:'O2B2',
-  maf:'MAF', knock:'KNK', ckp:'CKP', cmp_b1:'CMP1', cmp_b2:'CMP2', ect:'ECT', iat:'IAT',
-  etc:'ETC', ac_press:'A/C', evap_press:'EVAP', evap_purge:'PRG', psp:'PSP',
-  coil1:'IGN1', coil2:'IGN2', coil3:'IGN3', coil4:'IGN4', coil5:'IGN5', coil6:'IGN6',
-  inj1:'INJ1', inj2:'INJ2', inj3:'INJ3', inj4:'INJ4', inj5:'INJ5', inj6:'INJ6',
-  app:'APP', pnp:'PNP', stop_lamp:'STP', ascd_brake:'ASCDb', ascd_clutch:'ASCDc',
-  clock_spring:'ASCD', ascd_ind:'IND', fuel_level:'FUEL', dlc:'DLC',
-  fp_relay:'FP', vtc_b1:'VTC1', vtc_b2:'VTC2', vtc_ex_b1:'VTCe1', vtc_ex_b2:'VTCe2',
-  ix_f102_m72:'F102', ix_e11_f2:'E11', ix_e12_f3:'E12', ix_e108_m15:'E108',
-  ix_f103_f151:'F103', ix_f14_f229:'F14',
+  batt_feed:'BAT', ign_sw:'IGN', ecm_relay:'RLY', vmot:'VMT', gnd4:'GND', e17:'E17',
+  ecm_f101_can:'CAN', af_b1:'AF1', af_b2:'AF2', ho2s_b1:'O21', ho2s_b2:'O22',
+  maf:'MAF', knock:'KN', ckp:'CKP', cmp_b1:'CM1', cmp_b2:'CM2', ect:'ECT', iat:'IAT',
+  etc:'ETC', ac_press:'AC', evap_press:'EV', evap_purge:'PR', psp:'PSP',
+  coil1:'C1', coil2:'C2', coil3:'C3', coil4:'C4', coil5:'C5', coil6:'C6',
+  inj1:'I1', inj2:'I2', inj3:'I3', inj4:'I4', inj5:'I5', inj6:'I6',
+  app:'APP', pnp:'PNP', stop_lamp:'STP', ascd_brake:'AB', ascd_clutch:'ACL',
+  clock_spring:'AS', ascd_ind:'AI', fuel_level:'FL', dlc:'DLC',
+  fp_relay:'FP', vtc_b1:'V1', vtc_b2:'V2', vtc_ex_b1:'X1', vtc_ex_b2:'X2',
+  ix_f102_m72:'F2', ix_e11_f2:'E11', ix_e12_f3:'E12', ix_e108_m15:'E8',
+  ix_f103_f151:'F3', ix_f14_f229:'F14', ix_e10_f1:'E10', ix_f18_f201:'F18',
+  ix_f221_f33:'F21', feed_af_12v:'FA', feed_ho2s_12v:'FH', feed_inj_coil_12v:'FI',
+  feed_ckp_maf_12v:'FM',
 };
+const RAIL_SHORT = { '5v':'5V', '12v':'12V', 'gnd':'GND' };
 
 function connRankForEcmLabel(cid, f){
   if(!cid) return 999;
@@ -1881,9 +1885,8 @@ function primaryConnForEcm(pin){
 
 function shortConnLabel(cid, f){
   if(CONN_SHORT[cid]) return CONN_SHORT[cid];
-  const raw = (f && (f.name||'')) || String(cid||'');
-  const tok = String(raw).split(/[\s·↔\/\-]+/).filter(Boolean)[0] || String(cid||'?');
-  return tok.slice(0,5).toUpperCase();
+  const raw = String(cid||'?').replace(/^ix_/,'').replace(/_/g,'');
+  return raw.slice(0,3).toUpperCase();
 }
 
 function makePinEl(p){
@@ -1924,17 +1927,22 @@ function makePinEl(p){
     const lab = shortConnLabel(dest.cid, dest.f);
     const cav = (dest.f.pins||[]).find(x => x.ecm!=null && Number(x.ecm)===Number(p));
     const cavId = cav && cav.id != null ? String(cav.id) : '';
-    let text = lab;
-    if(cavId){
-      const combo = lab + '·' + cavId;
-      /* show name·pin when it fits; otherwise name (full cav in title) */
-      text = combo.length <= 8 ? combo : lab;
-    }
     const col = accentForConn(dest.f);
-    destHtml = `<span class="dest" style="color:${col}">${esc(text)}</span>`;
-    destTitle = ` → ${dest.f.name||dest.cid}${cavId ? ' · pin '+cavId : ''}`;
+    destHtml = `<span class="dest" style="color:${col}">${esc(lab)}</span>`;
+    destTitle = ` → ${lab}${dest.f.name ? ' · '+dest.f.name : ''}${cavId ? ' · pin '+cavId : ''}`;
     d.dataset.destConn = dest.cid;
     if(cavId) d.dataset.destCav = cavId;
+  } else {
+    /* no ficha: rail / known name shortcuts (e.g. SNS GND 66/78) */
+    const nm = String(PIN_NAME[p]||'');
+    let lab = '', col = '#90a4ae';
+    if(/SNS\s*GND/i.test(nm)) { lab = 'SG'; col = '#ef6c00'; }
+    else if(/APP\s*GND/i.test(nm)) { lab = 'AG'; col = '#f9a825'; }
+    else if(PIN_RAIL[p] && RAIL_SHORT[PIN_RAIL[p]]) { lab = RAIL_SHORT[PIN_RAIL[p]]; col = ({'5v':'#F9A825','12v':'#C62828','gnd':'#2E7D32'})[PIN_RAIL[p]] || col; }
+    if(lab){
+      destHtml = `<span class="dest" style="color:${col}">${esc(lab)}</span>`;
+      destTitle = ` → ${nm || lab}`;
+    }
   }
   d.innerHTML = `<span class="pn">${p}</span><small class="pw">${esc(code||'·')}</small>${destHtml}`;
   d.title = `Pin ${p} ${PIN_NAME[p]||''} ${code}${destTitle}`;
