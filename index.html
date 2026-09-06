@@ -1048,6 +1048,16 @@ const PIN_RAIL = {
   66:'gnd', 67:'gnd', 78:'gnd', 82:'gnd', 83:'gnd'
 };
 
+/* Feeds that ride on full sensor/actuator circuits: when the feed card
+   (or its cavity) is the focus, only list the ECM control pins — not
+   every signal on those sensors. */
+const FEED_ECM_FOCUS = {
+  feed_af_12v: [2, 24],          /* A/F heater drives B1/B2 */
+  feed_ho2s_12v: [6, 25],        /* HO2S2 heater drives */
+  feed_ckp_maf_12v: [13, 51],    /* sensors powered by that 12V (signals) */
+  feed_inj_coil_12v: [21, 22, 23, 40, 41, 42, 60, 61, 62, 79, 80, 81]
+};
+
 /* Canonical inverted layout (bancada): 121 LEFT, lever up, blocks L→R */
 const B1_INV = [[121,120,119],[118,117],[116,115,114]];
 const B2_INV = [[113,112,111,110,109,108,107,106],[105,104,103,102,101,100,99,98],[97,96,95,94,93,92,91,90],[89,88,87,86,85,84,83,82]];
@@ -3576,6 +3586,12 @@ function applyRailFilter(){
   });
   revealConns([...matchedConns]);
 
+  const railEcm = new Set();
+  Object.entries(PIN_RAIL).forEach(([pin, r])=>{
+    if(activeRails.has(r)) railEcm.add(Number(pin));
+  });
+  updateEcmSelCount(railEcm);
+
   const labels = {gnd:'Tierra / GND', '12v':'12V', '5v':'5V'};
   const colors = {gnd:'#2E7D32', '12v':'#C62828', '5v':'#F9A825'};
   const pills = [...activeRails].map(r =>
@@ -3609,16 +3625,17 @@ function f102HitsForEcm(ecmSet, focusPin=null){
 function updateEcmSelCount(nOrPins){
   const el = document.getElementById('ecmSelCount');
   if(!el) return;
+  const domSel = '#blocks .pin.hl, #blocks .pin.hl-group, #blocks .pin.hl-end, #blocks .pin.hl-rail';
   let pins;
   if(Array.isArray(nOrPins) || nOrPins instanceof Set){
     pins = [...nOrPins].map(Number).filter(x=>!isNaN(x));
   } else if(typeof nOrPins === 'number'){
     /* legacy: count only — rebuild from DOM */
-    pins = [...document.querySelectorAll('#blocks .pin.hl, #blocks .pin.hl-group, #blocks .pin.hl-end')]
+    pins = [...document.querySelectorAll(domSel)]
       .map(p => Number(p.dataset.pin)).filter(x=>!isNaN(x));
     if(nOrPins < 2) pins = [];
   } else {
-    pins = [...document.querySelectorAll('#blocks .pin.hl, #blocks .pin.hl-group, #blocks .pin.hl-end')]
+    pins = [...document.querySelectorAll(domSel)]
       .map(p => Number(p.dataset.pin)).filter(x=>!isNaN(x));
   }
   pins = [...new Set(pins)].sort((a,b)=>a-b);
@@ -3647,6 +3664,12 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     cir.conn.forEach(cid=>connSet.add(cid));
     lines.push(`<div><span class="pill" style="border-color:${cir.color};color:${cir.color}">${cir.id}</span><b>${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
+  /* Feed card focus: keep related fichas, but ECM label/highlight = control pins only */
+  if(focusConn && FEED_ECM_FOCUS[focusConn]){
+    ecmSet.clear();
+    FEED_ECM_FOCUS[focusConn].forEach(p=>ecmSet.add(p));
+    connSet.add(focusConn);
+  }
   /* Auto-attach F102 whenever any ECM on the path crosses the SMJ */
   const f102Hits = f102HitsForEcm(ecmSet, focusPin);
   if(f102Hits.length){
