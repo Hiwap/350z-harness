@@ -1182,7 +1182,7 @@ function buildCircuits(model){
     {id:'evap_purge', title:'EVAP purge', color:'#8e24aa',
       ecm:[45], conn:['evap_purge'], notes:'Purge solenoid → ECM 45 (no pasa por F102 en path verificado).'},
     {id:'evap_vent', title:'EVAP canister vent', color:'#6a1b9a',
-      ecm:[117], conn:['evap_vent','ix_f102_m72'], notes:'Vent control → ECM 117 (G/W) · path vía M72/F102 · B1/M12 · DTC P0447/P1446.'},
+      ecm:[117], conn:['evap_vent'], notes:'Vent control → ECM 117 (G/W) · B1/M12 · DTC P0447/P1446. Cruce F102/M72 sin cavidad mapeada aún (no se abre F102 vacío).'},
     {id:'brake_stop', title:'Stop lamp switch', color:'#e53935',
       ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], notes:'Señal freno → ECM 101 (L/OR). Path body puede pasar intermedias E108/M15 y F102/M72 (ver FSM).'},
     {id:'ascd_brake', title:'ASCD brake (+ clutch M/T)', color:'#fb8c00',
@@ -3345,21 +3345,25 @@ function withFichasScrollPinned(fn){
 
 /** After selTop/promote, bring the selection into the fichas panel view. */
 function scrollFichasToSelection(fallbackEl){
-  const root = document.getElementById('fichas');
-  if(!root) return;
-  const el = document.getElementById('selTop')
-    || root.querySelector('.ficha-sec.sel-top')
-    || root.querySelector('.ficha-sec:not(.sel-top) .ficha.hl, .ficha-sec:not(.sel-top) .ficha-wrap.hl')
-    || fallbackEl;
-  if(!el || !el.isConnected) return;
-  try {
-    const er = el.getBoundingClientRect();
-    const rr = root.getBoundingClientRect();
-    const pad = 8;
-    root.scrollTop = Math.max(0, root.scrollTop + (er.top - rr.top) - pad);
-  } catch(e) {
-    try { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch(e2) {}
-  }
+  const run = ()=>{
+    const root = document.getElementById('fichas');
+    if(!root) return;
+    const el = document.getElementById('selTop')
+      || root.querySelector('.ficha-sec.sel-top')
+      || root.querySelector('.ficha-sec:not(.sel-top) .ficha.hl, .ficha-sec:not(.sel-top) .ficha-wrap.hl')
+      || fallbackEl;
+    if(!el || !el.isConnected) return;
+    try {
+      const er = el.getBoundingClientRect();
+      const rr = root.getBoundingClientRect();
+      const pad = 8;
+      root.scrollTop = Math.max(0, root.scrollTop + (er.top - rr.top) - pad);
+    } catch(e) {
+      try { el.scrollIntoView({ block: 'nearest', behavior: 'auto' }); } catch(e2) {}
+    }
+  };
+  /* Wait for collapse/promote/selTop layout so we do not land in empty space */
+  requestAnimationFrame(()=>requestAnimationFrame(run));
 }
 
 function promoteSelectedInGroups(connIds){
@@ -3594,7 +3598,7 @@ function clearHL(){
   setF102PanelOpen(true); // no selection → F102 visible
 }
 function dimAll(){
-  document.querySelectorAll('.pin:not(.empty), .ficha, .ficha-wrap').forEach(el=>el.classList.add('dim'));
+  document.querySelectorAll('.pin:not(.empty), .ficha, .ficha-wrap, .cav-hit').forEach(el=>el.classList.add('dim'));
 }
 
 /* ========== Rail toggles (5V / 12V / GND) ========== */
@@ -3794,6 +3798,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   /* Auto-attach F102 whenever any ECM on the path crosses the SMJ */
   const f102Allow = f102AllowForCircuits(circIds, focusConn==='ix_f102_m72' ? focusCav : null);
   const f102Hits = f102HitsForEcm(ecmSet, focusPin, f102Allow);
+  /* Drop empty F102 attachment (circuit listed SMJ but no cavity maps to these ECM pins) */
+  if(!f102Hits.length && focusConn!=='ix_f102_m72') connSet.delete('ix_f102_m72');
   if(f102Hits.length){
     connSet.add('ix_f102_m72');
     const bits = f102Hits.map(p=>{
@@ -3908,7 +3914,7 @@ function selectPin(p){
     clearSelection();
     return;
   }
-  const circs = pinToCirc[p] || [];
+  const circs = pinToCirc[p] || pinToCirc[Number(p)] || pinToCirc[String(p)] || [];
   if(!circs.length){
     const found=[];
     Object.entries(CONN).forEach(([cid,f])=>{
@@ -4008,7 +4014,7 @@ function selectConnPin(cid, cavId){
   if(pin && pin.ecm!=null){
     const ecmN = Number(pin.ecm);
     /* Same cavity again already handled above; shared ECM (e.g. 67) must not clear other fichas */
-    let circs = pinToCirc[pin.ecm] || pinToCirc[ecmN] || [];
+    let circs = pinToCirc[pin.ecm] || pinToCirc[ecmN] || pinToCirc[String(ecmN)] || [];
     /* Prefer circuits that actually list this connector (e.g. F102 18H → evap_press, not app_5v) */
     const viaConn = circs.filter(id=>{
       const cir = CIRCUITS.find(x=>x.id===id);
