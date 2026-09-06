@@ -340,6 +340,23 @@
     background: #0e1218;
     flex: 0 0 auto;
   }
+  #ecm #f102Blocks .f102-face-block.stub {
+    justify-content: center;
+    min-width: 4.5rem;
+    max-width: 5.5rem;
+    padding: 8px 6px;
+    border-style: dashed;
+    border-color: #3a4558;
+    background: #0c1016;
+  }
+  #ecm #f102Blocks .f102-r-stub {
+    font-size: 10px;
+    font-weight: 700;
+    color: #78909c;
+    text-align: center;
+    line-height: 1.25;
+    white-space: pre-line;
+  }
   #ecm #f102Blocks .f102-face-block .tag {
     font-size: 10px; color: #90a4ae; font-weight: 700; text-align: center;
   }
@@ -1676,7 +1693,7 @@ function svgIxNote(cid, f){
 
 
 /** F102 SMJ · PG-85 H.S. looking into F102 (ENGINE CONTROL HARNESS, white).
- *  Three blocks 2-row: L 1–5/6–10 · M 11–20/21–29 · R 30–38/39–46.
+ *  L+M pin grids; R 30H–46H shown as compact empty stub (no cavity grid).
  *  Intermedias: always FSM H.S. — do NOT apply flipRow / ECM Invertida.
  *  Mate M72 (MAIN HARNESS) mirrors rows on PG-85. Primary ficha = F102. */
 function svgF102(cid, f){
@@ -1684,10 +1701,9 @@ function svgF102(cid, f){
   const blocks = [
     { top:['1H','2H','3H','4H','5H'], bot:['6H','7H','8H','9H','10H'] },
     { top:['11H','12H','13H','14H','15H','16H','17H','18H','19H','20H'], bot:['21H','22H','23H','24H','25H','26H','27H','28H','29H'] },
-    { top:['30H','31H','32H','33H','34H','35H','36H','37H','38H'], bot:['39H','40H','41H','42H','43H','44H','45H','46H'] },
   ];
-  /* PG-85: left block cavities larger; mid/right smaller */
-  const sizes = [{cw:28,ch:34},{cw:18,ch:28},{cw:18,ch:28}];
+  /* PG-85: left larger; mid smaller. R 30H–46H = compact stub (no empty cavities). */
+  const sizes = [{cw:28,ch:34},{cw:18,ch:28}];
   const gap=2, blockGap=8, padX=8, padTop=16;
   let cavities='', x=padX;
   blocks.forEach((blk, bi)=>{
@@ -1708,8 +1724,16 @@ function svgF102(cid, f){
     }
     x += cols*(cw+gap) + blockGap;
   });
+  /* Compact R stub instead of 30H–46H empty cavities */
+  const stubW = 36;
+  const hMax = 2*Math.max(...sizes.map(s=>s.ch)) + gap;
+  cavities += `<rect x="${x}" y="${padTop}" width="${stubW}" height="${hMax}" rx="4" fill="none" stroke="#455a64" stroke-dasharray="3 2" opacity="0.85"/>`;
+  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2-8}" text-anchor="middle" font-size="7" fill="#78909c" font-weight="700">R</text>`;
+  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2+2}" text-anchor="middle" font-size="6" fill="#607d8b">30–46H</text>`;
+  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2+12}" text-anchor="middle" font-size="6" fill="#546e7a">vacías</text>`;
+  x += stubW + blockGap;
   const W = x - blockGap + padX;
-  const H = padTop + 2*Math.max(...sizes.map(s=>s.ch)) + gap + 10;
+  const H = padTop + hMax + 10;
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-18} 2 h36 l6 10 H${W/2-24} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="12" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
@@ -1796,6 +1820,7 @@ const I18N = {
     noWide: 'Sin grupo de circuito amplio; mostrando fichas directas.',
     f102Title: 'F102 · SMJ',
     f102Legend: 'Bloque R 30H–46H: cavidades en cara (PG-85), vacías / sin cable en este arnés.',
+    f102RStub: 'R\n30H–46H\nvacías',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
   en: {
@@ -1833,6 +1858,7 @@ const I18N = {
     noWide: 'No wide circuit group; showing direct connector cards.',
     f102Title: 'F102 · SMJ',
     f102Legend: 'R block 30H–46H: face cavities (PG-85), unused / no wire on this loom.',
+    f102RStub: 'R\n30H–46H\nempty',
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
   },
   ja: {
@@ -1870,6 +1896,7 @@ const I18N = {
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
     f102Title: 'F102 · SMJ',
     f102Legend: 'Rブロック 30H–46H: 顔面上の空き（PG-85）· このハーネスでは未使用。',
+    f102RStub: 'R\n30H–46H\n空き',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
 };
@@ -2114,7 +2141,8 @@ function makePinEl(p){
 const F102_FACE_BLOCKS = [
   { tag: 'L · 1H–10H', pinSize: 'lg', top:['1H','2H','3H','4H','5H'], bot:['6H','7H','8H','9H','10H'] },
   { tag: 'M · 11H–29H', pinSize: 'sm', top:['11H','12H','13H','14H','15H','16H','17H','18H','19H','20H'], bot:['21H','22H','23H','24H','25H','26H','27H','28H','29H'], botPadEnd: 1 },
-  { tag: 'R · 30H–46H · vacías', pinSize: 'sm', top:['30H','31H','32H','33H','34H','35H','36H','37H','38H'], bot:['39H','40H','41H','42H','43H','44H','45H','46H'], botPadEnd: 1 },
+  /* R 30H–46H: PG-85 face cavities exist but unused on this loom — compact stub, no pin grid */
+  { tag: 'R', stub: true },
 ];
 
 function makeF102PinEl(pin){
@@ -2170,6 +2198,16 @@ function renderF102(){
   blocksEl.innerHTML = '';
   F102_FACE_BLOCKS.forEach(g => {
     const blk = document.createElement('div');
+    if(g.stub){
+      blk.className = 'f102-face-block stub';
+      const note = document.createElement('div');
+      note.className = 'f102-r-stub';
+      note.textContent = (t('f102RStub') || 'R 30H–46H').replace(/\\n/g, '\n');
+      note.title = t('f102Legend') || '';
+      blk.appendChild(note);
+      blocksEl.appendChild(blk);
+      return;
+    }
     blk.className = 'f102-face-block pin-' + (g.pinSize || 'sm');
     const mkRow = (ids, padEnd) => {
       const row = document.createElement('div');
