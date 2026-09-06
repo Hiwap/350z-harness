@@ -3295,35 +3295,24 @@ function onCollapseIdleToggle(){
 }
 
 
+
+/** Run DOM mutations without jumping the fichas panel / window scroll. */
+function withFichasScrollPinned(fn){
+  const root = document.getElementById('fichas');
+  const y = root ? root.scrollTop : 0;
+  const wy = window.scrollY || window.pageYOffset || 0;
+  try { fn(); }
+  finally {
+    if(root) root.scrollTop = y;
+    try { window.scrollTo(0, wy); } catch(e) {}
+  }
+}
+
 function promoteSelectedInGroups(connIds){
+  /* Do not reorder fichas inside their group / move sections — that shifts the scroll.
+     Selection strip is #selTop only. Still collapse idle subs if enabled. */
   const set = new Set((connIds||[]).filter(Boolean));
   if(!set.size) return;
-
-  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) .fichas-grid').forEach(grid=>{
-    const kids = [...grid.children];
-    const cidOf = el => el.dataset.conn || (el.querySelector && el.querySelector('.ficha') && el.querySelector('.ficha').dataset.conn);
-    const sel = kids.filter(el => set.has(cidOf(el)));
-    const rest = kids.filter(el => !set.has(cidOf(el)));
-    if(!sel.length) return;
-    [...sel, ...rest].forEach(el => grid.appendChild(el));
-  });
-
-  const root = document.getElementById('fichas');
-  if(root){
-    const top = document.getElementById('selTop');
-    const secs = [...root.querySelectorAll(':scope > details.ficha-sec:not(.sel-top)')];
-    const active = [], idle = [];
-    secs.forEach(sec=>{
-      const hit = [...sec.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
-      (hit ? active : idle).push(sec);
-    });
-    // Rebuild order: selTop (if any), active subs, idle subs
-    const frag = document.createDocumentFragment();
-    if(top) frag.appendChild(top);
-    active.forEach(sec => frag.appendChild(sec));
-    idle.forEach(sec => frag.appendChild(sec));
-    root.appendChild(frag);
-  }
   applyCollapseIdleSubs(connIds);
 }
 
@@ -3455,21 +3444,21 @@ function revealConns(connIds, opts){
       if(sk) localStorage.setItem('z33_sub_' + sk, '1');
     }
   });
-  /* selTop / promote OK — but do not scrollIntoView (no jump) */
-  updateSelectedTop(ids);
-  promoteSelectedInGroups(ids);
-  syncF102PanelForSelection(ids, { collapseF102 });
-  if(collapseF102) setF102PanelOpen(false);
-  /* collapse-idle can race; re-open any parent that still holds a highlighted ficha */
-  document.querySelectorAll('#fichas .ficha.hl').forEach(f=>{
-    const nest = f.closest('details.ficha-nest');
-    if(nest) nest.open = true;
-    const sec = f.closest('details.ficha-sec');
-    if(sec) sec.open = true;
+  /* selTop stays; no in-group promote reorder; pin scroll so panel does not jump */
+  withFichasScrollPinned(()=>{
+    updateSelectedTop(ids);
+    promoteSelectedInGroups(ids);
+    syncF102PanelForSelection(ids, { collapseF102 });
+    if(collapseF102) setF102PanelOpen(false);
+    document.querySelectorAll('#fichas .ficha.hl').forEach(f=>{
+      const nest = f.closest('details.ficha-nest');
+      if(nest) nest.open = true;
+      const sec = f.closest('details.ficha-sec');
+      if(sec) sec.open = true;
+    });
+    const top = document.getElementById('selTop');
+    if(top) top.open = true;
   });
-  const top = document.getElementById('selTop');
-  if(top) top.open = true;
-  /* intentionally no scrollIntoView */
 }
 
 let selKey = null; /* 'pin:N' | 'cav:cid:id' — second click clears */
