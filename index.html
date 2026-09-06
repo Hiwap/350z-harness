@@ -1178,7 +1178,7 @@ function buildCircuits(model){
     {id:'ho2s', title:'HO2S2 downstream ×2', color:'#8e24aa',
       ecm:[74,55,25,6,78], conn:['ho2s_b1','ho2s_b2','feed_ho2s_12v'], notes:'Señal B1→74 (OR) · B2→55 (L/B) · heaters 25/6 + 12V fusible · SNS GND 78.'},
     {id:'evap_press', title:'EVAP pressure', color:'#7b1fa2',
-      ecm:[32,48,67], conn:['evap_press','ix_f102_m72'], notes:'Señal ECM 32 (F102 19H BR/W) · 5V ECM 48 (F102 18H PU) · GND ECM 67 B/W (SNS compartida MAF/IAT/PSP/EVAP · F102 20H).'},
+      ecm:[32,48,67], conn:['evap_press','ix_f102_m72'], f102:['18H','19H','20H'], notes:'Señal ECM 32 (F102 19H BR/W) · 5V ECM 48 (F102 18H PU) · GND ECM 67 B/W (SNS compartida MAF/IAT/PSP/EVAP · F102 20H).'},
     {id:'evap_purge', title:'EVAP purge', color:'#8e24aa',
       ecm:[45], conn:['evap_purge'], notes:'Purge solenoid → ECM 45 (no pasa por F102 en path verificado).'},
     {id:'evap_vent', title:'EVAP canister vent', color:'#6a1b9a',
@@ -1186,9 +1186,9 @@ function buildCircuits(model){
     {id:'brake_stop', title:'Stop lamp switch', color:'#e53935',
       ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], notes:'Señal freno → ECM 101 (L/OR). Path body puede pasar intermedias E108/M15 y F102/M72 (ver FSM).'},
     {id:'ascd_brake', title:'ASCD brake (+ clutch M/T)', color:'#fb8c00',
-      ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], notes:'ASCD brake → ECM 108 (B/R). En M/T clutch en serie. Intermedias posibles E108/M15 · F102/M72 (ver FSM).'},
+      ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], f102:['2H'], notes:'ASCD brake → ECM 108 (B/R). En M/T clutch en serie. Intermedias posibles E108/M15 · F102/M72 (ver FSM).'},
     {id:'ascd_steer', title:'ASCD steering (clock spring)', color:'#26c6da',
-      ecm:[99,67], conn:['clock_spring','ix_f102_m72'], notes:'Señal ASCD volante → ECM 99 (G/Y) vía clock spring. Tierra ECM 67. Path puede pasar F102/M72 (ver FSM).'},
+      ecm:[99,67], conn:['clock_spring','ix_f102_m72'], f102:['1H','7H'], notes:'Señal ASCD volante → ECM 99 (G/Y) vía clock spring. Tierra ECM 67. Path puede pasar F102/M72 (ver FSM).'},
   {id:'pnp_sw', title:'PNP / park-neutral (A/T)', color:'#ab47bc',
       ecm:[102], conn:['pnp','ix_f102_m72'], notes:'Interruptor PNP → ECM 102 (BR/Y) vía F102 28H. Solo A/T.'},
 
@@ -3616,15 +3616,33 @@ function toggleRail(rail){
 }
 
 /** F102 cavities whose ECM pin is in the active set (or focus). */
-function f102HitsForEcm(ecmSet, focusPin=null){
+function f102HitsForEcm(ecmSet, focusPin=null, allowCavs=null){
   const conf = CONN['ix_f102_m72'] || CONN_BASE['ix_f102_m72'];
   const hits = [];
+  const allow = allowCavs && allowCavs.size ? allowCavs : null;
   (conf && conf.pins || []).forEach(p=>{
     if(p.ecm==null) return;
     const e = Number(p.ecm);
-    if(ecmSet.has(e) || (focusPin!=null && e===Number(focusPin))) hits.push(p);
+    if(!(ecmSet.has(e) || (focusPin!=null && e===Number(focusPin)))) return;
+    if(allow && !allow.has(String(p.id))) return;
+    hits.push(p);
   });
   return hits;
+}
+
+/** Union of circuit.f102 cavity ids (when circuits declare SMJ pins). */
+function f102AllowForCircuits(circIds, focusCav=null){
+  const allow = new Set();
+  let any = false;
+  (circIds||[]).forEach(id=>{
+    const cir = CIRCUITS.find(x=>x.id===id);
+    if(cir && Array.isArray(cir.f102) && cir.f102.length){
+      any = true;
+      cir.f102.forEach(c=>allow.add(String(c)));
+    }
+  });
+  if(focusCav!=null && focusCav!=='') allow.add(String(focusCav));
+  return any ? allow : null;
 }
 
 
@@ -3711,7 +3729,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     connSet.add(focusConn);
   }
   /* Auto-attach F102 whenever any ECM on the path crosses the SMJ */
-  const f102Hits = f102HitsForEcm(ecmSet, focusPin);
+  const f102Allow = f102AllowForCircuits(circIds, focusConn==='ix_f102_m72' ? focusCav : null);
+  const f102Hits = f102HitsForEcm(ecmSet, focusPin, f102Allow);
   if(f102Hits.length){
     connSet.add('ix_f102_m72');
     const bits = f102Hits.map(p=>{
@@ -3754,6 +3773,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       if(cid === 'ix_f102_m72'){
         const fp = f102PinEl(p.id);
         if(!fp) return;
+        if(f102Allow && !f102Allow.has(String(p.id)) && !isFocusCav) return;
         if(!(isFocusCav || onPathEcm)) return; /* skip empty / off-path cavities on full face */
         fp.classList.remove('dim','hl','hl-end','hl-group');
         fp.classList.add(cls);
@@ -3932,6 +3952,14 @@ function selectConnPin(cid, cavId){
       return cir && (cir.conn||[]).includes(cid);
     });
     if(viaConn.length) circs = viaConn;
+    /* F102 shared ECM pins (e.g. 67 on 1H ASCD vs 20H SNS): pick circuit by cavity */
+    if(cid === 'ix_f102_m72'){
+      const byCav = circs.filter(id=>{
+        const cir = CIRCUITS.find(x=>x.id===id);
+        return cir && Array.isArray(cir.f102) && cir.f102.map(String).includes(String(cavId));
+      });
+      if(byCav.length) circs = byCav;
+    }
     if(circs.length){
       selectCircuits(circs, pin.ecm, cid, String(cavId));
     } else {
