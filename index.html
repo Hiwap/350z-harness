@@ -99,9 +99,8 @@
   #blocks .pin {
     overflow: hidden;
   }
-  /* Outlines: dark pin face → always light nº/wire text (ignore --pin-fg from solid fills) */
-  #blocks .pin .pn,
-  #blocks .pin .pw {
+  /* Outlines: light pin nº; wire code (.pw) uses per-segment wire colors */
+  #blocks .pin .pn {
     color: #eee;
     position: relative;
     z-index: 1;
@@ -109,6 +108,18 @@
     overflow: hidden;
     white-space: nowrap;
   }
+  #blocks .pin .pw {
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    font-weight: 800;
+  }
+  #blocks .pin .pw .pw-part {
+    text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95), 0 0 1px #000;
+  }
+  #blocks .pin .pw .pw-sep { color: #90a4ae !important; text-shadow: 0 0 2px #000; }
   #blocks .pin .dest {
     display: block; font-size: var(--pin-sm, 8px); font-weight: 800;
     margin-top: 1px; max-width: 100%; overflow: hidden; text-overflow: clip;
@@ -117,16 +128,18 @@
     /* readable on any wire fill: dark halo + keep accent color inline */
     text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95), 0 0 1px #000;
   }
-  body[data-mode="solid"] #blocks .pin .pn,
-  body[data-mode="solid"] #blocks .pin .pw {
+  body[data-mode="solid"] #blocks .pin .pn {
     color: var(--pin-fg, #111);
     text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.9);
   }
-  /* Light wire fills (W/Y/…): keep nº + color readable */
-  body[data-mode="solid"] #blocks .pin.light-wire .pn,
-  body[data-mode="solid"] #blocks .pin.light-wire .pw {
+  /* Light wire fills (W/Y/…): keep pin nº readable */
+  body[data-mode="solid"] #blocks .pin.light-wire .pn {
     color: #111 !important;
     text-shadow: none;
+  }
+  /* F102 mid line when showing wire code */
+  #f102Blocks .pin .pw .pw-part {
+    text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95);
   }
   .pin.empty, .pin.unused {
     border-style: dashed; border-color: #333; color: #555;
@@ -631,6 +644,34 @@ function svgInk(fill, withHalo){
   const lightInk = hexLum(f) >= 0.5;
   const stroke = lightInk ? '#000' : '#fff';
   return `style="fill:${f} !important;stroke:${stroke};stroke-width:1.6px;paint-order:stroke fill;stroke-linejoin:round"`;
+}
+/** Split wire code into colored segments (base / tracer). */
+function wireCodeParts(code){
+  if(!code || code==='·' || code==='-' || code==='—' || code==='nc') return [{t: code||'·', c:'#90a4ae', sep:false}];
+  const w = parseWire(code);
+  if(code==='12V') return [{t:'12V', c: OC['12V'], sep:false}];
+  if(code==='?' ) return [{t:'?', c:'#78909c', sep:false}];
+  if(!w.base) return [{t:String(code), c:'#90a4ae', sep:false}];
+  if(!w.tracer) return [{t:String(w.base), c:w.c1, sep:false}];
+  return [
+    {t:String(w.base), c:w.c1, sep:false},
+    {t:'/', c:'#90a4ae', sep:true},
+    {t:String(w.tracer), c:w.c2, sep:false}
+  ];
+}
+function wireCodeHtml(code){
+  return wireCodeParts(code).map(p =>
+    `<span class="pw-part${p.sep?' pw-sep':''}" style="color:${p.c}">${esc(p.t)}</span>`
+  ).join('');
+}
+/** SVG wire-code text; dual colors as tspans. Halo in solid (and always for dark faces). */
+function wireCodeSvg(code, x, y, cls, withHalo){
+  const parts = wireCodeParts(code);
+  const tspans = parts.map(p => {
+    const st = svgInk(p.c, withHalo).replace(/^style="/,'').replace(/"$/,'');
+    return `<tspan style="${st}">${esc(p.t)}</tspan>`;
+  }).join('');
+  return `<text class="${cls}" x="${x}" y="${y}" text-anchor="middle">${tspans}</text>`;
 }
 
 /* ========== OEM pin data (2005 VQ35DE FSM) ========== */
@@ -1151,7 +1192,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
       style="stroke:${sc};--cav-fill:${fillVal}" />
     ${inset}
     <text class="cav-label ${lc}" x="${x+w/2}" y="${idY}" text-anchor="middle" ${ink(txtFill)}>${esc(disp)}</text>
-    <text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" ${ink(mode==='solid'?txtFill:'#111')}>${esc(code)}</text>
+    ${wireCodeSvg(code, x+w/2, codeY, 'cav-sub cav-code', true)}
     <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(mode==='solid'?txtFill:'#1565c0')}>${esc(ecmTxt)}</text>
   </g>`;
 }
@@ -1257,7 +1298,7 @@ function svgRing(cid, f){
       <circle class="cavity cav-face" cx="45" cy="34" r="10" style="stroke:${sc};--cav-fill:${fillVal}"/>
       ${inset}
       <text class="cav-label" x="45" y="30" text-anchor="middle" ${ink(txtFill)}>${esc(p.id)}</text>
-      <text class="cav-sub cav-code" x="45" y="64" text-anchor="middle" ${ink(txtFill)}>${esc(p.code||'')}</text>
+      ${wireCodeSvg(p.code||'', 45, 64, 'cav-sub cav-code', true)}
       <text class="cav-ecm" x="45" y="76" text-anchor="middle" ${ink(txtFill)}>${esc(ecmTxt)}</text>
     </g>
   </svg>`;
@@ -1972,7 +2013,7 @@ function makePinEl(p){
       destTitle = ` → ${nm || lab}`;
     }
   }
-  d.innerHTML = `<span class="pn">${p}</span><small class="pw">${esc(code||'·')}</small>${destHtml}`;
+  d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>${destHtml}`;
   d.title = `Pin ${p} ${PIN_NAME[p]||''} ${code}${destTitle}`;
   d.onclick = () => selectPin(p);
   return d;
@@ -2008,14 +2049,15 @@ function makeF102PinEl(pin){
     d.style.setProperty('--pin-fill', wcol.c1);
   }
   d.style.setProperty('--pin-fg', hasWire ? fgForWire(wcol) : '#555');
-  const mid = hasWire
-    ? ((pin.lab != null && pin.lab !== '') ? pin.lab : code)
-    : '—';
+  const useLab = hasWire && pin.lab != null && pin.lab !== '';
+  const midHtml = !hasWire
+    ? esc('—')
+    : (useLab ? esc(String(pin.lab)) : wireCodeHtml(code));
   let dest = '—';
   if(pin.ecm != null) dest = '→' + pin.ecm;
   else if(hasWire && pin.lab === 'START') dest = '→SC';
   else if(hasWire) dest = '→—';
-  d.innerHTML = `${esc(String(pin.id))}<small>${esc(String(mid))}</small><span class="dest">${esc(dest)}</span>`;
+  d.innerHTML = `${esc(String(pin.id))}<small class="pw">${midHtml}</small><span class="dest">${esc(dest)}</span>`;
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
   d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}`;
   if(hasWire){
