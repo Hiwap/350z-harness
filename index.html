@@ -1202,7 +1202,7 @@ function buildCircuits(model){
       notes:'VTC: ECM11 B1 vía F18 · ECM10 B2 solo. Rev-Up también escape.'});
   } else {
     base.push({id:'vtc', title:'VTC (HR — ver FSM)', color:'#d81b60',
-      ecm:[], conn:['vtc_b1','vtc_b2'], notes:'VQ35HR: control VTC distinto / ECM 3-conector. Ver FSM 2007 EC.'});
+      ecm:[], conn:['vtc_b1','vtc_b2'], notes:'VQ35HR: control VTC distinto / ECM 3-conector.'});
   }
   return base;
 }
@@ -1370,7 +1370,7 @@ const CONN_BASE = {
   /* —— Alimentación en el arnés motor que NO pasa por cavidad ECM (FSM) —— */
   feed_af_12v:{group:'motor', sub:'feeds', name:'12V calentadores A/F (fusible)', meta:'pin 3 A/F B1/B2 · no ECM', accent:'#ff7043', shape:'note',
     pins:[{id:'AF1-3',code:'12V',ecm:null,rail:'12v'},{id:'AF2-3',code:'12V',ecm:null,rail:'12v'}],
-    note:'En el arnés motor: alimentación 12V fusionada al pin 3 de cada A/F Sensor 1 (B1/B2). No entra a la ECM — solo el drive de calentador (ECM 2 / 24) y señales. Ver FSM EC A/F.'},
+    note:'En el arnés motor: alimentación 12V fusionada al pin 3 de cada A/F Sensor 1 (B1/B2). No entra a la ECM — solo el drive de calentador (ECM 2 / 24) y señales.'},
   feed_ho2s_12v:{group:'motor', sub:'feeds', name:'12V calentadores HO2S2 (fusible)', meta:'post-cat · no ECM', accent:'#ce93d8', shape:'note',
     pins:[{id:'B1-12V',code:'12V',ecm:null,rail:'12v'},{id:'B2-12V',code:'12V',ecm:null,rail:'12v'}],
     note:'12V fusionado a calentadores HO2S2 B1/B2 en el arnés; la ECM solo conmuta el lado de control (ECM 25 / 6).'},
@@ -2952,7 +2952,7 @@ const CONN_I18N = {
   },
   ix_e108_m15: {
     en: { name:'E108 ↔ M15 · CAN (ABS/DLC branch)', meta:'2G/7G CAN · engine room↔body · FSM LAN',
-      note:'Engine-room (E108) ↔ body (M15). Verified CAN cavities: 2G L = CAN-H (cont. to DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. to DLC 14 / ABS E51-23). Branch toward ABS/DLC via body. Other cavities (brake/ASCD/A/F) exist; only verified CAN pins listed. Face: FSM H.S. (intermedias — no Invertida).' },
+      note:'Engine-room (E108) ↔ body (M15). CAN: 2G L = CAN-H (cont. to DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. to DLC 14 / ABS E51-23). Branch toward ABS/DLC via body.S. (intermedias — no Invertida).' },
     ja: { name:'E108 ↔ M15 · CAN（ABS/DLC分岐）', meta:'2G/7G CAN · エンジンルーム↔ボディ · FSM LAN',
       note:'エンジンルーム (E108) ↔ ボディ (M15)。確認済CAN: 2G L = CAN-H（DLC 6 / ABS E51-20）· 7G P = CAN-L（DLC 14 / ABS E51-23）。ボディ経由でABS/DLCへ分岐。他キャビティ（ブレーキ/ASCD等）あり; CANのみ掲載。面: FSM H.S.（中間はInvertidaなし）。' },
   },
@@ -3110,7 +3110,7 @@ const CONN_I18N = {
   },
   ascd_ind: {
     en: { name:'ASCD indicator', meta:'via combination meter / CAN',
-      note:'ASCD (CRUISE) indicator in the combination meter · communication over CAN with ECM 86/94. No direct ECM cavity; see FSM CAN/meter.' },
+      note:'ASCD (CRUISE) indicator in the combination meter · over CAN with ECM 86/94.' },
     ja: { name:'ASCDインジケータ', meta:'コンビネーションメータ / CAN 経由',
       note:'コンビネーションメータの ASCD (CRUISE) 表示 · ECM 86/94 とCAN通信。直接ECMキャビティなし。' },
   },
