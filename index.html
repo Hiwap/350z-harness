@@ -540,10 +540,77 @@
     .fichas { max-height: 78vh; }
     .info { color: #e8eaed; }
     .orient { font-size: 12px; padding: 7px 8px; }
+
+    /* Options: full width in portrait / narrow */
+    header { align-items: stretch; }
+    details.opts {
+      flex: 1 1 100%;
+      width: 100%;
+      max-width: 100%;
+    }
+    details.opts .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      width: 100%;
+    }
+    details.opts .controls label {
+      width: 100%;
+      max-width: none;
+    }
+    details.opts .controls label.chk {
+      max-width: none;
+      width: 100%;
+    }
+    details.opts .controls select,
+    details.opts .controls button {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+    .search {
+      margin-left: 0;
+      flex: 1 1 100%;
+      width: 100%;
+    }
+    .search input[type=search] {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+    }
+    .rail-toggles {
+      flex: 1 1 100%;
+      width: 100%;
+      justify-content: stretch;
+    }
+    .rail-toggles .rail-btn { flex: 1; }
   }
   @media (orientation: portrait) and (max-width: 900px) {
     .conn-svg { max-height: none; }
     .fichas { max-height: 80vh; }
+    header { align-items: stretch; }
+    details.opts {
+      flex: 1 1 100%;
+      width: 100%;
+      max-width: 100%;
+    }
+    details.opts .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      width: 100%;
+    }
+    details.opts .controls label,
+    details.opts .controls label.chk {
+      width: 100%;
+      max-width: none;
+    }
+    details.opts .controls select {
+      width: 100%;
+      min-width: 0;
+    }
   }
 </style>
 </head>
