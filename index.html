@@ -3364,9 +3364,17 @@ function withFichasScrollPinned(fn){
 
 function promoteSelectedInGroups(connIds){
   /* Selected fichas first inside each grid; active sections under #selTop.
-     Scroll is pinned by withFichasScrollPinned in revealConns. */
-  const set = new Set((connIds||[]).filter(Boolean));
+     Scroll is pinned by withFichasScrollPinned in revealConns.
+     Single-ficha picks: no DOM reorder (avoids dragging the view up with the card). */
+  const raw = (connIds||[]).filter(Boolean);
+  const set = new Set(raw);
   if(!set.size) return;
+
+  const sideIds = raw.filter(id => id !== 'ix_f102_m72');
+  if(sideIds.length <= 1){
+    applyCollapseIdleSubs(connIds);
+    return;
+  }
 
   const cidOf = el => el.dataset.conn
     || (el.querySelector && el.querySelector('.ficha') && el.querySelector('.ficha').dataset.conn);
