@@ -99,9 +99,10 @@
   #blocks .pin {
     overflow: hidden;
   }
+  /* Outlines: dark pin face → always light nº/wire text (ignore --pin-fg from solid fills) */
   #blocks .pin .pn,
   #blocks .pin .pw {
-    color: var(--pin-fg, #eee);
+    color: #eee;
     position: relative;
     z-index: 1;
     max-width: 100%;
