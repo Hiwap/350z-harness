@@ -3256,8 +3256,7 @@ function selectPin(p){
     const el=document.querySelector(`#blocks .pin[data-pin="${p}"]`);
     if(el){ el.classList.remove('dim'); el.classList.add('hl'); }
     found.forEach(cid=>{
-      const f=document.querySelector(`.ficha[data-conn="${cid}"]`);
-      if(f){ f.classList.remove('dim'); f.classList.add('hl'); }
+      markFichaHL(cid, true);
       if(cid === 'ix_f102_m72'){
         const panel = document.getElementById('f102Panel');
         if(panel) panel.classList.add('hl');
