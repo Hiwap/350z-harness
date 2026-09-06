@@ -1129,8 +1129,8 @@ const CONN_BASE = {
     pins:[{id:'2G',code:'L',ecm:94,lab:'CAN-H'},{id:'7G',code:'P',ecm:86,lab:'CAN-L'}],
     note:'Empalme sala de máquinas (E108) ↔ body (M15). Cavidades CAN verificadas: 2G L = CAN-H (cont. DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. DLC 14 / ABS E51-23). Rama hacia ABS/DLC vía body. Otras cavidades (freno/ASCD/A/F) existen; solo se listan pines CAN verificados. Cara: FSM H.S. (intermedias sin Invertida).'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'—',ecm:null},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'—',ecm:null},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'GND',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'—',ecm:null},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'—',ecm:null},{id:'30H',code:'—',ecm:null},{id:'31H',code:'—',ecm:null},{id:'32H',code:'—',ecm:null},{id:'33H',code:'—',ecm:null},{id:'34H',code:'—',ecm:null},{id:'35H',code:'—',ecm:null},{id:'36H',code:'—',ecm:null},{id:'37H',code:'—',ecm:null},{id:'38H',code:'—',ecm:null},{id:'39H',code:'—',ecm:null},{id:'40H',code:'—',ecm:null},{id:'41H',code:'—',ecm:null},{id:'42H',code:'—',ecm:null},{id:'43H',code:'—',ecm:null},{id:'44H',code:'—',ecm:null},{id:'45H',code:'—',ecm:null},{id:'46H',code:'—',ecm:null}],
-  note:'F102 ↔ M72 · PG-85 · 13 cav. con cable verificado.'},
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'—',ecm:null},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'—',ecm:null},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'GND',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'—',ecm:null},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'—',ecm:null},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+  note:'F102 ↔ M72 · PG-85 · 13 cav. con cable verificado. Bloque R 30H–46H: cavidades de cara PG-85 presentes; sin cable (nc) en este arnés.'},
 
   /* —— Habitáculo / pedales / ASCD —— */
   pnp:{group:'body', sub:'pedals', name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
@@ -1712,7 +1712,7 @@ const I18N = {
     noCirc: 'Sin circuito mapeado para ese pin.',
     noWide: 'Sin grupo de circuito amplio; mostrando fichas directas.',
     f102Title: 'F102 · SMJ',
-    f102Legend: '',
+    f102Legend: 'Bloque R 30H–46H: cavidades en cara (PG-85), vacías / sin cable en este arnés.',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
   en: {
@@ -1749,7 +1749,7 @@ const I18N = {
     noCirc: 'No circuit mapped for that pin.',
     noWide: 'No wide circuit group; showing direct connector cards.',
     f102Title: 'F102 · SMJ',
-    f102Legend: '',
+    f102Legend: 'R block 30H–46H: face cavities (PG-85), unused / no wire on this loom.',
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
   },
   ja: {
@@ -1786,7 +1786,7 @@ const I18N = {
     noCirc: 'そのピンに対応する回路がありません。',
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
     f102Title: 'F102 · SMJ',
-    f102Legend: '',
+    f102Legend: 'Rブロック 30H–46H: 顔面上の空き（PG-85）· このハーネスでは未使用。',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
 };
@@ -2087,7 +2087,7 @@ function makePinEl(p){
 const F102_FACE_BLOCKS = [
   { tag: 'L · 1H–10H', pinSize: 'lg', top:['1H','2H','3H','4H','5H'], bot:['6H','7H','8H','9H','10H'] },
   { tag: 'M · 11H–29H', pinSize: 'sm', top:['11H','12H','13H','14H','15H','16H','17H','18H','19H','20H'], bot:['21H','22H','23H','24H','25H','26H','27H','28H','29H'], botPadEnd: 1 },
-  { tag: 'R · 30H–46H', pinSize: 'sm', top:['30H','31H','32H','33H','34H','35H','36H','37H','38H'], bot:['39H','40H','41H','42H','43H','44H','45H','46H'], botPadEnd: 1 },
+  { tag: 'R · 30H–46H · vacías', pinSize: 'sm', top:['30H','31H','32H','33H','34H','35H','36H','37H','38H'], bot:['39H','40H','41H','42H','43H','44H','45H','46H'], botPadEnd: 1 },
 ];
 
 function makeF102PinEl(pin){
