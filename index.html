@@ -1170,7 +1170,7 @@ function buildCircuits(model){
 {id:'dlc_k', title:'DLC K-line (CONSULT)', color:'#7e57c2',
       ecm:[85], conn:['dlc'], notes:'ECM 85 (LG) → DLC pin 7 · Data link / CONSULT-II / GST.'},
     {id:'can', title:'CAN / DLC / combination meter', color:'#7e57c2',
-      ecm:[86,94], conn:['ecm_f101_can','ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','fuel_level','ascd_ind'], notes:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · también IPDM E9 48/49 · rama E108 2G/7G → ABS/DLC · datos vía combination meter / CAN. Bancada: loom solo 86↔94 = OL (sin terminadores 120Ω). Continuidad ECM↔F102 / ECM↔E9 válida en bancada.'},
+      ecm:[86,94], conn:['ecm_f101_can','ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','fuel_level','ascd_ind'], notes:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · también IPDM E9 48/49 · rama E108 2G/7G → ABS/DLC · datos vía combination meter / CAN.'},
     {id:'maf', title:'MAF', color:'#fb8c00',
       ecm:[51], conn:['maf','feed_ckp_maf_12v'], notes:'Señal MAF → ECM 51 (OR).'},
     {id:'tb', title:'ETC throttle body', color:'#029eb7',
