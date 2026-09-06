@@ -1294,7 +1294,6 @@ function cavRailOf(pin){
 }
 function cavGroup(cid, pin, x, y, w, h, rx){
   const code = pin.code || '';
-  const ecmTxt = pin.ecm != null ? ('→'+pin.ecm) : '—';
   const wcol = parseWire(code);
   const sc = wcol.c1;
   const rx0 = rx||3;
@@ -1313,26 +1312,28 @@ function cavGroup(cid, pin, x, y, w, h, rx){
         fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
   const mode = document.body.dataset.mode || 'outlines';
-  const disp = cavDisplayLab(pin);
-  const lc = mode === 'solid' ? '' : labClass(disp);
+  /* Face order (fichas, not ECM grid): ECM top · wire code mid · cavity name/id bottom */
+  const disp = String(pin.id); /* real cavity id on face; lab stays in title */
+  const lc = mode === 'solid' ? '' : labClass(cavDisplayLab(pin));
   const rail = cavRailOf(pin);
   let txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
   if(mode !== 'solid' && lc === 'lab-5v') txtFill = '#F9A825';
   if(mode !== 'solid' && lc === 'lab-12v') txtFill = '#C62828';
   if(mode !== 'solid' && lc === 'lab-gnd') txtFill = '#81C784';
   const ink = (c) => svgInk(c, true);
-  const idY = y + 9;
+  const ecmY = y + 9;
   const codeY = y + h/2 + 2;
-  const ecmY = y + h - 5;
+  const idY = y + h - 5;
   const railAttr = rail ? ` data-rail="${rail}"` : '';
+  const ecmFace = pin.ecm != null ? String(pin.ecm) : '—';
   return `<g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr} role="button">
     ${defs}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
     ${inset}
-    <text class="cav-label ${lc}" x="${x+w/2}" y="${idY}" text-anchor="middle" ${ink(txtFill)}>${esc(disp)}</text>
+    <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(mode==='solid'?txtFill:'#90caf9')}>${esc(ecmFace)}</text>
     ${wireCodeSvg(code, x+w/2, codeY, 'cav-sub cav-code', true)}
-    <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(mode==='solid'?txtFill:'#90caf9')}>${esc(ecmTxt)}</text>
+    <text class="cav-label ${lc}" x="${x+w/2}" y="${idY}" text-anchor="middle" ${ink(txtFill)}>${esc(disp)}</text>
   </g>`;
 }
 
@@ -1436,9 +1437,9 @@ function svgRing(cid, f){
       <circle class="cav-face" cx="45" cy="34" r="22" fill="none" stroke="${f.accent}" stroke-width="3"/>
       <circle class="cavity cav-face" cx="45" cy="34" r="10" style="stroke:${sc};--cav-fill:${fillVal}"/>
       ${inset}
-      <text class="cav-label" x="45" y="30" text-anchor="middle" ${ink(txtFill)}>${esc(p.id)}</text>
+      <text class="cav-ecm" x="45" y="30" text-anchor="middle" ${ink(txtFill)}>${esc(p.ecm != null ? String(p.ecm) : '—')}</text>
       ${wireCodeSvg(p.code||'', 45, 64, 'cav-sub cav-code', true)}
-      <text class="cav-ecm" x="45" y="76" text-anchor="middle" ${ink(txtFill)}>${esc(ecmTxt)}</text>
+      <text class="cav-label" x="45" y="76" text-anchor="middle" ${ink(txtFill)}>${esc(p.id)}</text>
     </g>
   </svg>`;
 }
@@ -2138,12 +2139,9 @@ function makeF102PinEl(pin){
   }
   d.style.setProperty('--pin-fg', hasWire ? fgForWire(wcol) : '#555');
   const midHtml = hasWire ? wireCodeHtml(code) : esc('—');
-  let dest = '—';
-  if(pin.ecm != null) dest = '→' + pin.ecm;
-  else if(hasWire && pin.lab === 'START') dest = '→SC';
-  else if(hasWire && pin.lab) dest = String(pin.lab);
-  else if(hasWire) dest = '→—';
-  d.innerHTML = `${esc(String(pin.id))}<small class="pw">${midHtml}</small><span class="dest">${esc(dest)}</span>`;
+  const ecmTop = pin.ecm != null ? String(pin.ecm) : (hasWire ? '—' : '');
+  /* Same order as fichas: ECM · wire code · cavity id (not ECM grid) */
+  d.innerHTML = `<span class="dest">${esc(ecmTop || '—')}</span><small class="pw">${midHtml}</small><span class="pn">${esc(String(pin.id))}</span>`;
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
   d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}`;
   if(hasWire){
