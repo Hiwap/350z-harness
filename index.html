@@ -249,25 +249,41 @@
   .ficha-sub:not([open]) > summary::before { opacity: 0.5; }
   .ficha-sub[open] > summary { border-bottom: 1px solid #2a3140; }
   .fichas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; padding: 10px; }
+  .ficha-wrap {
+    display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  }
+  .ficha-wrap.dim { opacity: 0.25; }
+  .ficha-wrap.hl { opacity: 1 !important; }
+  /* Invented ECM hunt ref — OUTSIDE the ficha border */
+  .ficha-ref {
+    display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    padding: 0 2px;
+  }
+  .ficha-ref .ref-code {
+    font-size: 12px; font-weight: 800; color: #90caf9;
+    text-shadow: 0 0 2px #000;
+  }
+  .ficha-ref .ref-ecm {
+    font-size: 11px; font-weight: 700; color: #ffe082;
+  }
   .ficha {
     border: 1px solid #37474f; border-radius: 10px; padding: 8px; background: #12161d;
     cursor: pointer; transition: .15s ease;
+  }
+  .ficha-wrap.hl > .ficha {
+    border-color: var(--hl); box-shadow: 0 0 0 2px rgba(255,213,79,.35);
   }
   .ficha.note-card .note-body { font-size: 10px; color: #cfd8dc; line-height: 1.35; margin-top: 4px; }
   .ficha.note-card .note-pins { font-size: 10px; color: var(--hl2); margin-top: 4px; }
   .ficha.dim { opacity: 0.25; }
   .ficha.hl { border-color: var(--hl); box-shadow: 0 0 0 2px rgba(255,213,79,.35); opacity: 1 !important; }
   .ficha h3 { margin: 0 0 2px; font-size: 12px; color: #f1f3f5; }
-  /* Same short codes as ECM pin 3rd line (I5, EV, FT…) */
-  .ficha h3 .ficha-code {
-    display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 12px; font-weight: 800; color: #90caf9;
-    text-shadow: 0 0 2px #000, 0 1px 2px rgba(0,0,0,.9);
-    background: #0d1520; border: 1px solid #1565c0; border-radius: 4px;
-    padding: 1px 6px; margin-right: 6px; letter-spacing: 0.03em; vertical-align: 1px;
-  }
   .ficha .meta, .ficha .note-body, .ficha .note-pins { display: none; font-size: 11px; color: #d0d5dd; margin-bottom: 6px; }
   .ficha.hl .meta, .ficha.hl .note-body, .ficha.hl .note-pins { display: block; }
+  /* ECM 3rd line: invented ref + ficha cavity pin */
+  #blocks .pin .dest .dest-ref { font-weight: 800; }
+  #blocks .pin .dest .dest-pin { font-weight: 700; opacity: 0.95; margin-left: 1px; }
   #fichas { display: flex; flex-direction: column; gap: 10px; }
   .ficha-sec.sel-top > summary { background: #2a2410; border-color: #5d4e1a; color: #ffe082; }
   .ficha-sec.sel-top > summary span {
@@ -2158,6 +2174,14 @@ function ecmDestCodesForConns(connIds){
   });
   return out;
 }
+function markFichaHL(cid, on){
+  const id = String(cid);
+  document.querySelectorAll(`.ficha-wrap[data-conn="${CSS.escape(id)}"], .ficha[data-conn="${CSS.escape(id)}"]`).forEach(el=>{
+    if(on){ el.classList.remove('dim'); el.classList.add('hl'); }
+    else { el.classList.remove('hl'); }
+  });
+}
+
 
 
 function makePinEl(p){
@@ -2199,8 +2223,10 @@ function makePinEl(p){
     const cav = (dest.f.pins||[]).find(x => x.ecm!=null && Number(x.ecm)===Number(p));
     const cavId = cav && cav.id != null ? String(cav.id) : '';
     const col = accentForConn(dest.f);
-    destHtml = `<span class="dest" style="color:${col}">${esc(lab)}</span>`;
-    destTitle = ` → ${lab}${dest.f.name ? ' · '+dest.f.name : ''}${cavId ? ' · pin '+cavId : ''}`;
+    /* Invented ref (I5) + ficha cavity pin (adentro de la ficha) */
+    const pinPart = cavId ? `<span class="dest-pin">·${esc(cavId)}</span>` : '';
+    destHtml = `<span class="dest" style="color:${col}"><span class="dest-ref">${esc(lab)}</span>${pinPart}</span>`;
+    destTitle = ` → ${lab}${cavId ? ' · ficha pin '+cavId : ''}${dest.f.name ? ' · '+dest.f.name : ''}`;
     d.dataset.destConn = dest.cid;
     if(cavId) d.dataset.destCav = cavId;
   } else {
@@ -2313,7 +2339,7 @@ function renderF102(){
   });
   // No selection → open; if currently highlighted as F102 hit, stay open
   if(panel.classList.contains('hl')) panel.open = true;
-  else if(!document.querySelector('.pin.hl,.pin.hl-group,.pin.hl-end,.pin.hl-rail,.ficha.hl')){
+  else if(!document.querySelector('.pin.hl,.pin.hl-group,.pin.hl-end,.pin.hl-rail,.ficha.hl,.ficha-wrap.hl')){
     panel.open = true; // idle / no selection
   }
   // else: active selection without F102 hl — leave collapsed (syncF102PanelForSelection owns this)
@@ -2617,33 +2643,45 @@ function connField(id, f, field){
 }
 
 function makeFichaEl(id, f){
+  const wrap=document.createElement('div');
+  wrap.className = 'ficha-wrap';
+  wrap.dataset.conn=id;
+  wrap.dataset.ord = String(++_fichaOrd);
+
   const el=document.createElement('div');
   el.className = 'ficha' + (f.shape==='note' || f.shape==='ixnote' ? ' note-card' : '');
   el.dataset.conn=id;
-  el.dataset.ord = String(++_fichaOrd);
   el.style.borderColor = accentForConn(f);
   let extra = '';
   const noteTxt = connField(id, f, 'note');
   if(noteTxt){
     extra = `<div class="note-body">${esc(noteTxt)}</div>`;
   }
-  /* ECM hunt code (same 3rd-line label as pin grid) — skip feeds / empty */
-  let code = '';
+  /* Outside border: invented hunt ref (I5…) + ECM pin #s for pairing */
+  let refHtml = '';
   if(!String(id).startsWith('feed_') && (f.pins||[]).some(p => p.ecm != null)){
-    code = shortConnLabel(id, f) || '';
+    const code = shortConnLabel(id, f) || '';
+    const ecmPins = [...new Set((f.pins||[]).filter(p => p.ecm != null).map(p => Number(p.ecm)))]
+      .filter(n => !isNaN(n)).sort((a,b)=>a-b);
+    if(code){
+      const ecmPart = ecmPins.length ? `<span class="ref-ecm" title="Pin(es) ECM">·${esc(ecmPins.join(' '))}</span>` : '';
+      refHtml = `<div class="ficha-ref" title="Referencia inventada (misma que en ECM) · pin ECM"><span class="ref-code">${esc(code)}</span>${ecmPart}</div>`;
+    }
   }
-  const codeHtml = code
-    ? `<span class="ficha-code" title="Código ECM (misma etiqueta que en la grilla)">${esc(code)}</span> `
-    : '';
-  el.innerHTML = `<h3>${codeHtml}${esc(connField(id, f, 'name'))}</h3><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
+  /* Inside border: real name + ficha cavity pins (SVG) */
+  el.innerHTML = `<h3>${esc(connField(id, f, 'name'))}</h3><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   el.querySelectorAll('.cav-hit').forEach(cav=>{
     cav.addEventListener('click', e=>{
       e.stopPropagation();
       selectConnPin(cav.dataset.conn, cav.dataset.cav);
     });
   });
-  el.onclick=()=>selectConn(id);
-  return el;
+  const go = ()=>selectConn(id);
+  el.onclick=go;
+  wrap.onclick=go;
+  if(refHtml) wrap.insertAdjacentHTML('afterbegin', refHtml);
+  wrap.appendChild(el);
+  return wrap;
 }
 
 let _fichaOrd = 0;
@@ -2762,7 +2800,7 @@ function restoreCollapsedSubs(){
 
 function currentSelectedConnIds(){
   const ids = new Set();
-  document.querySelectorAll('#fichas .ficha.hl').forEach(el=>{
+  document.querySelectorAll('#fichas .ficha.hl, #fichas .ficha-wrap.hl').forEach(el=>{
     if(el.dataset.conn) ids.add(el.dataset.conn);
   });
   const panel = document.getElementById('f102Panel');
@@ -2785,8 +2823,9 @@ function promoteSelectedInGroups(connIds){
 
   document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) .fichas-grid').forEach(grid=>{
     const kids = [...grid.children];
-    const sel = kids.filter(el => set.has(el.dataset.conn));
-    const rest = kids.filter(el => !set.has(el.dataset.conn));
+    const cidOf = el => el.dataset.conn || (el.querySelector && el.querySelector('.ficha') && el.querySelector('.ficha').dataset.conn);
+    const sel = kids.filter(el => set.has(cidOf(el)));
+    const rest = kids.filter(el => !set.has(cidOf(el)));
     if(!sel.length) return;
     [...sel, ...rest].forEach(el => grid.appendChild(el));
   });
@@ -2952,7 +2991,7 @@ function revealConns(connIds){
         if(!first) first = panel;
       }
     }
-    const f = document.querySelector(`.ficha[data-conn="${CSS.escape(cid)}"]`);
+    const f = document.querySelector(`.ficha-wrap[data-conn="${CSS.escape(cid)}"]`) || document.querySelector(`.ficha[data-conn="${CSS.escape(cid)}"]`);
     if(!f) return;
     if(!first) first = f;
     const sub = f.closest('details.ficha-sub');
@@ -2992,13 +3031,13 @@ function clearHL(){
   removeSelectedTop();
   restoreCollapsedSubs();
   restoreFichaOrder();
-  document.querySelectorAll('.pin,.ficha,.cav-hit,.f102-panel').forEach(el=>{
+  document.querySelectorAll('.pin,.ficha,.ficha-wrap,.cav-hit,.f102-panel').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','rail-5v','rail-12v','rail-gnd');
   });
   setF102PanelOpen(true); // no selection → F102 visible
 }
 function dimAll(){
-  document.querySelectorAll('.pin:not(.empty), .ficha').forEach(el=>el.classList.add('dim'));
+  document.querySelectorAll('.pin:not(.empty), .ficha, .ficha-wrap').forEach(el=>el.classList.add('dim'));
 }
 
 /* ========== Rail toggles (5V / 12V / GND) ========== */
@@ -3054,8 +3093,7 @@ function applyRailFilter(){
     });
   });
   matchedConns.forEach(cid=>{
-    const f = document.querySelector(`.ficha[data-conn="${cid}"]`);
-    if(f){ f.classList.remove('dim'); f.classList.add('hl'); }
+    markFichaHL(cid, true);
   });
   revealConns([...matchedConns]);
 
@@ -3123,8 +3161,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     else el.classList.add('hl-group');
   });
   connSet.forEach(cid=>{
-    const f=document.querySelector(`.ficha[data-conn="${cid}"]`);
-    if(f){ f.classList.remove('dim'); f.classList.add('hl'); }
+    markFichaHL(cid, true);
     if(cid === 'ix_f102_m72'){
       const panel = document.getElementById('f102Panel');
       if(panel) panel.classList.add('hl');
@@ -3248,8 +3285,7 @@ function selectConn(cid){
   else {
     activeRails.clear(); updateRailButtons();
     clearHL(); dimAll();
-    const f=document.querySelector(`.ficha[data-conn="${cid}"]`);
-    if(f){ f.classList.remove('dim'); f.classList.add('hl'); }
+    markFichaHL(cid, true);
     if(cid === 'ix_f102_m72'){
       const panel = document.getElementById('f102Panel');
       if(panel) panel.classList.add('hl');
