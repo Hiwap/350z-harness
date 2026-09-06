@@ -9,6 +9,7 @@
     --bg: #0f1115; --panel: #1a1f27; --text: #e8eaed; --muted: #c5cad3;
     --hl: #ffd54f; --hl2: #4fc3f7; --ok: #66bb6a; --warn: #ffb74d; --accent: #4fc3f7;
     --border: #2a3140;
+    --main-left: 1.45fr; --main-right: 1fr;
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
@@ -30,8 +31,28 @@
   button:hover, select:hover { border-color: var(--accent); }
   .search { margin-left: auto; display: flex; gap: 8px; align-items: center; }
   input[type=search] { min-width: 180px; }
-  main { display: grid; grid-template-columns: 1.45fr 1fr; gap: 12px; padding: 12px; }
-  @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
+  main {
+    display: grid;
+    grid-template-columns: var(--main-left) 6px var(--main-right);
+    gap: 0 0;
+    column-gap: 0;
+    row-gap: 12px;
+    padding: 12px;
+  }
+  .main-splitter {
+    width: 6px; margin: 0; padding: 0; border: 0; cursor: col-resize;
+    background: transparent; position: relative; align-self: stretch;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  .main-splitter::before {
+    content: ''; position: absolute; left: 2px; top: 10px; bottom: 10px;
+    width: 2px; border-radius: 1px; background: #3a4558; transition: background .15s ease;
+  }
+  .main-splitter:hover::before, .main-splitter.dragging::before { background: #4fc3f7; }
+  @media (max-width: 1100px) {
+    main { grid-template-columns: 1fr; gap: 12px; }
+    .main-splitter { display: none !important; }
+  }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
   .card h2 { margin: 0 0 8px; font-size: 13px; color: #c5cae9; }
   .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
@@ -41,7 +62,7 @@
 
   #ecm {
     overflow-x: visible; overflow-y: visible; min-width: 0;
-    --pin-w: 40px; --pin-h: 48px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 11px; --pin-sm: 9px;
+    --pin-w: 45px; --pin-h: 54px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 12px; --pin-sm: 10px;
   }
   .blocks {
     display: flex; gap: var(--block-gap, 10px); align-items: center;
@@ -144,12 +165,44 @@
   }
   body[data-mode="solid"] #blocks .pin .pn {
     color: var(--pin-fg, #111);
-    text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.9);
+    text-shadow:
+      -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+      -1.5px 0 0 #000, 1.5px 0 0 #000, 0 -1.5px 0 #000, 0 1.5px 0 #000,
+      0 0 3px #000, 0 1px 2px rgba(0,0,0,.95);
   }
-  /* Light wire fills (W/Y/…): keep pin nº readable */
+  /* Light wire fills (W/Y/…): dark ink + black halo for readability */
   body[data-mode="solid"] #blocks .pin.light-wire .pn {
     color: #111 !important;
-    text-shadow: none;
+    text-shadow:
+      -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff,
+      0 0 2px rgba(255,255,255,.85);
+  }
+  body[data-mode="solid"] #blocks .pin .pw .pw-plain,
+  body[data-mode="solid"] #blocks .pin .dest {
+    text-shadow:
+      -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+      -1.5px 0 0 #000, 1.5px 0 0 #000, 0 -1.5px 0 #000, 0 1.5px 0 #000,
+      0 0 3px #000;
+  }
+  body[data-mode="solid"] #f102Blocks .pin .pn,
+  body[data-mode="solid"] #f102Blocks .pin .dest,
+  body[data-mode="solid"] #f102Blocks .pin .pw .pw-plain {
+    text-shadow:
+      -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+      -1.5px 0 0 #000, 1.5px 0 0 #000, 0 -1.5px 0 #000, 0 1.5px 0 #000,
+      0 0 3px #000;
+  }
+  body[data-mode="solid"] #f102Blocks .pin.light-wire .pn {
+    color: #111 !important;
+    text-shadow:
+      -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff,
+      0 0 2px rgba(255,255,255,.85);
+  }
+  /* Ficha cavity SVG labels: stronger stroke halo on solid fills */
+  body[data-mode="solid"] .cav-ecm,
+  body[data-mode="solid"] .cav-label,
+  body[data-mode="solid"] .cav-code tspan {
+    paint-order: stroke fill;
   }
   /* F102 mid line when showing wire code */
   #f102Blocks .pin .pw .pw-part:not(.pw-plain) {
@@ -180,7 +233,9 @@
 
   body[data-mode="solid"] .pin:not(.empty):not(.unused) {
     background: var(--pin-fill, #12161d); color: var(--pin-fg, #f5f5f5);
-    text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.9);
+    text-shadow:
+      -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+      0 0 3px #000, 0 1px 2px rgba(0,0,0,.95);
   }
   body[data-mode="solid"] .pin small { color: inherit; opacity: .95; }
   .cav-tracer { pointer-events: none; }
@@ -217,6 +272,7 @@
   }
   .ficha-sec:not([open]) > summary::before { opacity: 0.5; }
   .ficha-sec > summary span { color: #c5cad3; font-weight: 500; font-size: 11px; }
+  .ficha-sec > summary .sub-label { flex: 1; min-width: 0; color: #e3e8ef; font-weight: 700; font-size: 12px; }
   .ficha-sec[open] > summary { border-bottom: 1px solid var(--border); border-radius: 10px 10px 0 0; }
   .fichas-body { padding: 6px 8px 10px; display: flex; flex-direction: column; gap: 6px; }
   .ficha-sub {
@@ -236,15 +292,45 @@
   }
   .ficha-sub:not([open]) > summary::before { opacity: 0.5; }
   .ficha-sub[open] > summary { border-bottom: 1px solid #2a3140; }
-  .fichas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; padding: 10px; }
+  .ficha-nest {
+    border: 1px solid #2a3140; border-radius: 8px; background: #12161d;
+    margin-top: 4px;
+  }
+  .ficha-nest > summary {
+    cursor: pointer; list-style: none; user-select: none;
+    font-size: 12px; font-weight: 700; color: #e3e8ef;
+    padding: 8px 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ficha-nest > summary .sub-label { flex: 1; min-width: 0; }
+  .ficha-nest > summary::-webkit-details-marker { display: none; }
+  .ficha-nest > summary::before {
+    content: '▾'; color: #78909c; font-size: 10px; display: inline-block;
+    margin-right: 4px; opacity: 1; transition: opacity .15s ease;
+  }
+  .ficha-nest:not([open]) > summary::before { opacity: 0.5; }
+  .ficha-nest[open] > summary { border-bottom: 1px solid #2a3140; }
+  .fichas-grid {
+    display: flex; flex-wrap: wrap; gap: 10px; padding: 10px;
+    align-items: flex-start;
+  }
+  /* Stack E3 under E8 in IPDM (use empty vertical space) */
+  .ficha-stack {
+    display: flex; flex-direction: column; gap: 8px;
+    align-items: flex-start; width: fit-content; max-width: 100%;
+  }
   .ficha-wrap {
     display: flex; flex-direction: column; gap: 4px; min-width: 0;
+    width: fit-content; max-width: 100%;
   }
   .ficha-wrap.dim { opacity: 0.25; }
   .ficha-wrap.hl { opacity: 1 !important; }
   .ficha {
     border: 1px solid #37474f; border-radius: 10px; padding: 8px; background: #12161d;
     cursor: pointer; transition: .15s ease;
+    overflow-x: auto;
+    width: fit-content; max-width: 100%;
+    box-sizing: border-box;
   }
   .ficha-wrap.hl > .ficha {
     border-color: var(--hl); box-shadow: 0 0 0 2px rgba(255,213,79,.35);
@@ -263,7 +349,7 @@
     line-height: 1.35; margin-top: 4px; font-size: 11px;
   }
   .ficha-sec.sel-top { border-color: #5d4e1a; }
-  .conn-svg { width: 100%; height: auto; display: block; margin: 0 auto 2px; }
+  .conn-svg { width: auto; height: auto; max-width: 100%; display: block; margin: 0 auto 2px; }
   .cav-hit { cursor: pointer; pointer-events: all; }
   .cav-hit .cav-face { pointer-events: all; }
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
@@ -274,10 +360,21 @@
   .cav-code { font-size: 8px; font-weight: 800; fill: none; pointer-events: none; }
   .cav-code tspan { paint-order: stroke fill; }
   .cav-ecm { font-size: 7.5px; font-weight: 700; fill: #90caf9; pointer-events: none; opacity: 0.95; }
-  /* Dense IPDM / short cavities: keep 3 lines readable with color-codes toggle */
+  /* Dense IPDM / short cavities: keep 3 lines readable */
   .cav-hit.cav-compact .cav-ecm { font-size: 6.5px; }
   .cav-hit.cav-compact .cav-code { font-size: 7px; }
   .cav-hit.cav-compact .cav-label { font-size: 6.5px; }
+  /* Unknown terminal (no verified FSM color) — not physical empty */
+  .cav-hit.cav-unknown .cav-face {
+    fill: #1a1f28 !important;
+    stroke: #78909c !important;
+    stroke-width: 1.6;
+    stroke-dasharray: 3 2;
+    --cav-fill: #263238;
+  }
+  .cav-hit.cav-unknown .cav-ecm { fill: #90a4ae !important; }
+  .cav-hit.cav-unknown .cav-code { fill: #b0bec5 !important; }
+  .cav-hit.cav-unknown.hl .cav-face { stroke: var(--hl) !important; stroke-dasharray: none; stroke-width: 2.5; }
   /* Solid mode: colored lab-5v/12v/gnd !important must not override wire ink */
   body[data-mode="solid"] .cav-label.lab-5v,
   body[data-mode="solid"] .cav-label.lab-12v,
@@ -294,13 +391,45 @@
   body[data-mode="solid"] .shell { fill: #0f1319; }
   body[data-mode="outlines"] .lock-tab { fill: #1a222d; }
 
+  /* F102 face + detail/info: side-by-side when open+wide; stack full-width when collapsed */
+  .f102-detail-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .f102-detail-row #f102Panel {
+    flex: 0 1 auto;
+    margin-top: 0;
+    max-width: 100%;
+  }
+  .f102-detail-row .info {
+    flex: 1 1 240px;
+    min-width: 240px;
+    margin-top: 0;
+    border-top: none;
+    padding-top: 4px;
+  }
+  /* Collapsed F102: stack summary on top, #info full width below (no beside) */
+  #f102DetailRow:has(#f102Panel:not([open])) {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+  #f102DetailRow:has(#f102Panel:not([open])) > #f102Panel,
+  #f102DetailRow:has(#f102Panel:not([open])) > .info {
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
   .info { margin-top: 10px; font-size: 12px; line-height: 1.45; color: #cfd8dc; min-height: 70px;
     border-top: 1px solid var(--border); padding-top: 8px; }
   .info b { color: #fff; }
 
   /* F102 interactive verified pin grid (collapsible; idle = collapsed) */
   #ecm details.f102-panel {
-    margin-top: 14px;
+    margin-top: 0;
     border: 1px solid #2a3344;
     border-radius: 10px;
     background: #12161d;
@@ -378,24 +507,36 @@
     display: flex; gap: 2px; flex-wrap: nowrap;
     justify-content: flex-start;
   }
+  #ecm #f102Blocks {
+    --f102-pin-w: 45px;
+    --f102-pin-h: 64px;
+    --f102-pin-fs: 11.9px;
+    --f102-pin-sm: 9.3px;
+    --f102-pin-lg-w: 58px;
+    --f102-pin-lg-h: 71px;
+    --f102-pin-lg-fs: 13.2px;
+    --f102-pin-sm-w: 40px;
+    --f102-pin-sm-h: 61px;
+    --f102-pin-sm-fs: 11.3px;
+  }
   #ecm #f102Blocks .pin {
-    width: 34px; height: auto; min-height: 48px; padding: 2px 1px;
-    font-size: 9px; line-height: 1.05;
+    width: var(--f102-pin-w); height: auto; min-height: var(--f102-pin-h); padding: 2px 1px;
+    font-size: var(--f102-pin-fs); line-height: 1.05;
     flex: 0 0 auto;
   }
   #ecm #f102Blocks .f102-face-block.pin-lg .pin {
-    width: 44px; min-height: 54px; font-size: 10px;
+    width: var(--f102-pin-lg-w); min-height: var(--f102-pin-lg-h); font-size: var(--f102-pin-lg-fs);
   }
-  #ecm #f102Blocks .f102-face-block.pin-lg .pin small { font-size: 8px; }
-  #ecm #f102Blocks .f102-face-block.pin-lg .pin .dest { font-size: 8px; }
+  #ecm #f102Blocks .f102-face-block.pin-lg .pin small { font-size: var(--f102-pin-sm); }
+  #ecm #f102Blocks .f102-face-block.pin-lg .pin .dest { font-size: var(--f102-pin-sm); }
   #ecm #f102Blocks .f102-face-block.pin-sm .pin {
-    width: 30px; min-height: 46px; font-size: 8.5px;
+    width: var(--f102-pin-sm-w); min-height: var(--f102-pin-sm-h); font-size: var(--f102-pin-sm-fs);
   }
-  #ecm #f102Blocks .f102-face-block.pin-sm .pin small { font-size: 7px; }
-  #ecm #f102Blocks .f102-face-block.pin-sm .pin .dest { font-size: 7px; }
-  #ecm #f102Blocks .pin small { font-size: 7px; font-weight: 700; opacity: 0.95; }
+  #ecm #f102Blocks .f102-face-block.pin-sm .pin small { font-size: var(--f102-pin-sm); }
+  #ecm #f102Blocks .f102-face-block.pin-sm .pin .dest { font-size: var(--f102-pin-sm); }
+  #ecm #f102Blocks .pin small { font-size: var(--f102-pin-sm); font-weight: 700; opacity: 0.95; }
   #ecm #f102Blocks .pin .dest {
-    display: block; font-size: 7px; font-weight: 800; color: #90caf9; margin-top: 1px;
+    display: block; font-size: var(--f102-pin-sm); font-weight: 800; color: #90caf9; margin-top: 1px;
   }
   #ecm #f102Blocks .pin.empty {
     pointer-events: none;
@@ -543,37 +684,17 @@
       width: auto; align-items: flex-start;
       padding: 6px 4px 4px;
     }
-    #ecm #f102Blocks .pin {
-      width: 28px; min-height: 42px; font-size: 8px;
-    }
-    #ecm #f102Blocks .f102-face-block.pin-lg .pin {
-      width: 36px; min-height: 48px; font-size: 9px;
-    }
-    #ecm #f102Blocks .f102-face-block.pin-sm .pin {
-      width: 26px; min-height: 40px; font-size: 7.5px;
-    }
-    #ecm #f102Blocks .pin small { font-size: 7px; }
-    #ecm #f102Blocks .pin .dest { font-size: 7px; }
+    /* F102 pin sizes: fixed --f102-pin-* (no Options slider) */
   }
   @media (max-width: 600px) {
     #ecm { --pin-w: 32px; --pin-h: 42px; --pin-gap: 2px; --block-gap: 7px; --pin-fs: 9.5px; --pin-sm: 8px; }
     #ecm #blocks { gap: 8px; }
-    #ecm details.f102-panel { margin-top: 10px; }
+    #ecm details.f102-panel { margin-top: 0; }
     #ecm #f102Blocks { padding: 4px 6px 8px; gap: 6px; }
     #ecm #f102Blocks .f102-face-block { padding: 4px 2px 2px; }
     #ecm #f102Blocks .f102-face-block .tag { font-size: 9px; }
-    #ecm #f102Blocks .pin {
-      width: 26px; min-height: 40px; font-size: 7.5px; padding: 1px 0;
-      border-width: 2px;
-    }
-    #ecm #f102Blocks .f102-face-block.pin-lg .pin {
-      width: 34px; min-height: 46px; font-size: 8.5px;
-    }
-    #ecm #f102Blocks .f102-face-block.pin-sm .pin {
-      width: 24px; min-height: 38px; font-size: 7px;
-    }
-    #ecm #f102Blocks .pin small { font-size: 6.5px; }
-    #ecm #f102Blocks .pin .dest { font-size: 6.5px; margin-top: 0; }
+    #ecm #f102Blocks .pin { padding: 1px 0; border-width: 2px; }
+    /* F102 pin sizes: fixed --f102-pin-* (no Options slider) */
     .pin { border-width: 2px; border-radius: 4px; }
     .pin.has-tracer::after { inset: 1px; border-width: 1.5px; }
     .block .tag { font-size: 9px; }
@@ -582,11 +703,13 @@
   /* landscape phone: stack columns so ECM uses full width first */
   @media (orientation: landscape) and (max-width: 1100px) {
     main { grid-template-columns: 1fr; gap: 8px; padding: 8px; }
+    .main-splitter { display: none !important; }
     #ecm { order: -1; }
     .fichas { max-height: 55vh; }
   }
   @media (orientation: landscape) and (max-height: 500px) {
     main { grid-template-columns: 1fr; }
+    .main-splitter { display: none !important; }
     #ecm { order: -1; --pin-w: 30px; --pin-h: 38px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 9px; --pin-sm: 7.5px; }
     .pin { border-radius: 4px; border-width: 2px; }
     .block .tag { font-size: 9px; margin-top: 2px; }
@@ -601,10 +724,10 @@
     .ficha h3 { font-size: 11px; }
     .ficha .meta { font-size: 10px; color: #dde1e8; margin-bottom: 4px; }
     .fichas-grid {
-      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
       gap: 8px; padding: 8px;
     }
-    .conn-svg { max-height: none; width: 100%; }
+    .f102-detail-row .info { min-width: min(240px, 100%); flex-basis: 100%; }
+    .conn-svg { max-height: none; width: auto; max-width: 100%; }
     .fichas { max-height: 78vh; }
     .info { color: #e8eaed; }
     .orient { font-size: 12px; padding: 7px 8px; }
@@ -654,10 +777,6 @@
         <input type="checkbox" id="collapseIdleSubs" checked />
         <span id="lblCollapseIdleTxt">Colapsar subcats sin selección</span>
       </label>
-      <label class="chk" id="lblColorCodes">
-        <input type="checkbox" id="colorCodes" />
-        <span id="lblColorCodesTxt">Códigos de color en texto</span>
-      </label>
     </div>
   </details>
   <div class="hdr-tools">
@@ -683,15 +802,18 @@
     </details>
     <div class="legend" id="legend"></div>
     <div class="blocks" id="blocks"></div>
-    <div class="info" id="info"></div>
-    <details class="f102-panel" id="f102Panel" open>
-      <summary id="f102Title">F102 · SMJ · PG-85</summary>
-      <div class="legend" id="f102Legend" style="font-size:11px;color:var(--muted);display:none"></div>
-      <div class="blocks" id="f102Blocks"></div>
-    </details>
+    <div class="f102-detail-row" id="f102DetailRow">
+      <details class="f102-panel" id="f102Panel" open>
+        <summary id="f102Title">F102 · SMJ · PG-85</summary>
+        <div class="legend" id="f102Legend" style="font-size:11px;color:var(--muted);display:none"></div>
+        <div class="blocks" id="f102Blocks"></div>
+      </details>
+      <div class="info" id="info"></div>
+    </div>
   </section>
-  <section class="card">
-    <h2 id="fichasTitle">Fichas · Arnés motor + Habitáculo / Body</h2>
+  <div class="main-splitter" id="mainSplitter" role="separator" aria-orientation="vertical" aria-label="Resize columns" title="Drag to resize"></div>
+  <section class="card" id="fichasCard">
+    <h2 id="fichasTitle">Fichas</h2>
     <div class="fichas" id="fichas"></div>
   </section>
 </main>
@@ -764,7 +886,9 @@ function svgInk(fill, withHalo){
   if(!withHalo) return `style="fill:${f} !important"`;
   const lightInk = hexLum(f) >= 0.5;
   const stroke = lightInk ? '#000' : '#fff';
-  return `style="fill:${f} !important;stroke:${stroke};stroke-width:0.9px;paint-order:stroke fill;stroke-linejoin:round"`;
+  const solid = (document.body.dataset.mode || 'outlines') === 'solid';
+  const sw = solid ? (lightInk ? 1.35 : 1.2) : 0.9;
+  return `style="fill:${f} !important;stroke:${stroke};stroke-width:${sw}px;paint-order:stroke fill;stroke-linejoin:round"`;
 }
 /** Split wire code into colored segments (base / tracer). */
 /** Brighter inks for wire-code text on dark faces (fills stay OC). */
@@ -777,8 +901,8 @@ function wireInk(token, hex){
   return OC_TEXT[token] || hex || '#b0bec5';
 }
 function colorCodesEnabled(){
-  const el = document.getElementById('colorCodes');
-  return !!(el && el.checked);
+  /* Options toggle removed — always plain readable wire-code text */
+  return false;
 }
 function wireCodeParts(code){
   if(!code || code==='·' || code==='-' || code==='—' || code==='nc') return [{t: code||'·', c:'#90a4ae', sep:false}];
@@ -812,12 +936,16 @@ function wireCodeSvgInk(c, sw){
 function wireCodeSvg(code, x, y, cls, withHalo, strokeW){
   const parts = wireCodeParts(code);
   const fancy = colorCodesEnabled();
+  const solid = (document.body.dataset.mode || 'outlines') === 'solid';
+  /* Plain text still gets black stroke halo in solid so W/Y fills stay readable */
+  const forceHalo = withHalo !== false && (fancy || solid);
+  const sw = strokeW == null ? (solid ? 1.55 : 1.4) : (solid ? Math.max(strokeW, 1.35) : strokeW);
   const tspans = parts.map(p => {
     let st;
-    if(withHalo === false || !fancy){
+    if(!forceHalo){
       st = `fill:${p.c} !important`;
     } else {
-      st = wireCodeSvgInk(p.c, strokeW);
+      st = wireCodeSvgInk(p.c, sw);
     }
     return `<tspan style="${st}">${esc(p.t)}</tspan>`;
   }).join('');
@@ -828,19 +956,72 @@ function wireCodeSvg(code, x, y, cls, withHalo, strokeW){
 const PIN_COL = {"1":"B","2":"GY/R","3":"G","4":"L/B","5":"L/Y","6":"P/L","10":"W/G","11":"P","12":"L/W","13":"W/L","14":"R/L","15":"W","16":"LG/B","21":"SB","22":"R/Y","23":"R/B","24":"G/Y","25":"P/B","32":"BR/W","33":"R","34":"Y/G","35":"L/W","40":"LG","41":"W/B","42":"B/R","45":"G/W","47":"W/R","48":"PU","49":"B/Y","50":"G","51":"OR","55":"L/B","56":"W/L","57":"L","58":"W","60":"PU/W","61":"L/R","62":"Y/R","66":"L","67":"B/W","68":"R/W","69":"Y","70":"G/R","73":"BR/Y","74":"OR","75":"P/B","76":"LG","77":"P","78":"B/Y","79":"GY/R","80":"GY","81":"G/B","82":"G/Y","83":"G/R","85":"LG","86":"P","90":"LG","91":"B/OR","94":"L","98":"G/B","99":"G/Y","101":"L/OR","102":"BR/Y","104":"SB","106":"G/OR","107":"GY/R","108":"B/R","109":"W/B","111":"GY/L","113":"LG/B","115":"B/W","116":"B/R","117":"G/W","119":"R/W","120":"P","121":"R/W"};
 
 const PIN_NAME = {
-  1:"GND ECM",2:"A/F heater B1",3:"VMOT supply",4:"TB motor −",5:"TB motor +",
-  6:"HO2S2 htr B2",10:"VTC intake B2",11:"VTC intake B1",12:"PSP sensor",13:"CKP signal",14:"CMP B2",15:"Knock",
-  16:"A/F B1 input",21:"INJ5",22:"INJ3",23:"INJ1",24:"A/F heater B2",25:"HO2S2 htr B1",
-  32:"EVAP press",33:"CMP B1",34:"IAT",35:"A/F B1",40:"INJ6",41:"INJ4",42:"INJ2",
-  45:"EVAP purge",47:"5V rail",48:"5V EVAP",49:"5V A/C",50:"TPS1",51:"MAF",
-  55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",60:"IGN5",61:"IGN3",62:"IGN1",
-  66:"SNS GND",67:"SNS GND / ASCD",68:"5V PSP",69:"TPS2",70:"A/C press",73:"ECT",74:"HO2S2 B1",75:"A/F B1",76:"A/F B2",
-  77:"A/F B2",78:"SNS GND",79:"IGN6",80:"IGN4",81:"IGN2",82:"APP GND",83:"APP GND",
-  85:"DLC K-line",86:"CAN-L",90:"5V APP1",91:"5V APP2",94:"CAN-H",98:"APS2",99:"ASCD steering",
-  101:"Stop lamp",102:"PNP switch",104:"MOTRLY",106:"APS1",107:"Fuel tank temp",108:"ASCD brake",
-  109:"IGN SW",111:"ECM relay",113:"FP relay",114:"—",115:"GND ECM",116:"GND ECM",117:"EVAP vent",
-  118:"—",119:"IGN 12V",120:"IGN 12V",121:"BATT 12V"
+  1:"Tierra ECM (GND)",2:"Calentador A/F B1",3:"VMOT (alim. motor mariposa)",4:"Motor TB −",5:"Motor TB +",
+  6:"Calentador HO2S2 B2",10:"VTC admisión B2",11:"VTC admisión B1",12:"Sensor PSP",13:"Señal CKP",
+  14:"CMP B2",15:"Knock (detonación)",16:"Entrada A/F B1",21:"Inyector 5",22:"Inyector 3",
+  23:"Inyector 1",24:"Calentador A/F B2",25:"Calentador HO2S2 B1",32:"Presión EVAP",33:"CMP B1",
+  34:"IAT (temp. admisión)",35:"A/F B1",40:"Inyector 6",41:"Inyector 4",42:"Inyector 2",
+  45:"Purga EVAP",47:"Rail 5V",48:"5V EVAP",49:"5V A/C",50:"TPS1",
+  51:"MAF (caudal de aire)",55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",
+  60:"Bobina 5",61:"Bobina 3",62:"Bobina 1",66:"Tierra sensores (SNS)",67:"Tierra SNS / ASCD",
+  68:"5V PSP",69:"TPS2",70:"Presión A/C",73:"ECT (temp. refrigerante)",74:"HO2S2 B1",
+  75:"A/F B1",76:"A/F B2",77:"A/F B2",78:"Tierra sensores (SNS)",79:"Bobina 6",
+  80:"Bobina 4",81:"Bobina 2",82:"Tierra APP",83:"Tierra APP",85:"DLC K-line",
+  86:"CAN-L",90:"5V APP1",91:"5V APP2",94:"CAN-H",98:"APS2 (pedal)",
+  99:"ASCD volante",101:"Stop lamp (freno)",102:"Interruptor PNP",104:"MOTRLY (relé mariposa)",106:"APS1 (pedal)",
+  107:"Temp. tanque combustible",108:"Freno ASCD",109:"Interruptor IGN",111:"Relé ECM (SSOFF)",113:"Relé bomba combustible",
+  114:"—",115:"Tierra ECM (GND)",116:"Tierra ECM (GND)",117:"Venteo EVAP",118:"—",
+  119:"VB (alimentación ECM)",120:"VB (alimentación ECM)",121:"BATT 12V (siempre hot)"
 };
+const PIN_NAME_EN = {
+  1:"ECM ground (GND)",2:"A/F heater B1",3:"VMOT (throttle motor supply)",4:"TB motor −",5:"TB motor +",
+  6:"HO2S2 heater B2",10:"VTC intake B2",11:"VTC intake B1",12:"PSP sensor",13:"CKP signal",
+  14:"CMP B2",15:"Knock sensor",16:"A/F B1 input",21:"Injector 5",22:"Injector 3",
+  23:"Injector 1",24:"A/F heater B2",25:"HO2S2 heater B1",32:"EVAP pressure",33:"CMP B1",
+  34:"IAT (intake air temp)",35:"A/F B1",40:"Injector 6",41:"Injector 4",42:"Injector 2",
+  45:"EVAP purge",47:"5V rail",48:"5V EVAP",49:"5V A/C",50:"TPS1",
+  51:"MAF (air flow)",55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",
+  60:"Coil 5",61:"Coil 3",62:"Coil 1",66:"Sensor ground (SNS)",67:"SNS ground / ASCD",
+  68:"5V PSP",69:"TPS2",70:"A/C pressure",73:"ECT (coolant temp)",74:"HO2S2 B1",
+  75:"A/F B1",76:"A/F B2",77:"A/F B2",78:"Sensor ground (SNS)",79:"Coil 6",
+  80:"Coil 4",81:"Coil 2",82:"APP ground",83:"APP ground",85:"DLC K-line",
+  86:"CAN-L",90:"5V APP1",91:"5V APP2",94:"CAN-H",98:"APS2 (pedal)",
+  99:"ASCD steering",101:"Stop lamp (brake)",102:"PNP switch",104:"MOTRLY (throttle relay)",106:"APS1 (pedal)",
+  107:"Fuel tank temp",108:"ASCD brake",109:"IGN switch",111:"ECM relay (SSOFF)",113:"Fuel pump relay",
+  114:"—",115:"ECM ground (GND)",116:"ECM ground (GND)",117:"EVAP vent",118:"—",
+  119:"VB (ECM power)",120:"VB (ECM power)",121:"BATT 12V (always hot)"
+};
+const PIN_NAME_JA = {
+  1:"ECMアース (GND)",2:"A/Fヒータ B1",3:"VMOT（スロットルモータ電源）",4:"TBモータ −",5:"TBモータ +",
+  6:"HO2S2ヒータ B2",10:"VTC吸気 B2",11:"VTC吸気 B1",12:"PSPセンサ",13:"CKP信号",
+  14:"CMP B2",15:"ノックセンサ",16:"A/F B1入力",21:"インジェクタ5",22:"インジェクタ3",
+  23:"インジェクタ1",24:"A/Fヒータ B2",25:"HO2S2ヒータ B1",32:"EVAP圧力",33:"CMP B1",
+  34:"IAT（吸気温）",35:"A/F B1",40:"インジェクタ6",41:"インジェクタ4",42:"インジェクタ2",
+  45:"EVAPパージ",47:"5Vレール",48:"5V EVAP",49:"5V A/C",50:"TPS1",
+  51:"MAF（エアフロ）",55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",
+  60:"コイル5",61:"コイル3",62:"コイル1",66:"センサアース (SNS)",67:"SNSアース / ASCD",
+  68:"5V PSP",69:"TPS2",70:"A/C圧力",73:"ECT（冷却水温）",74:"HO2S2 B1",
+  75:"A/F B1",76:"A/F B2",77:"A/F B2",78:"センサアース (SNS)",79:"コイル6",
+  80:"コイル4",81:"コイル2",82:"APPアース",83:"APPアース",85:"DLC K線",
+  86:"CAN-L",90:"5V APP1",91:"5V APP2",94:"CAN-H",98:"APS2（ペダル）",
+  99:"ASCDステア",101:"ストップランプ（ブレーキ）",102:"PNPスイッチ",104:"MOTRLY（スロットルリレー）",106:"APS1（ペダル）",
+  107:"燃料タンク温度",108:"ASCDブレーキ",109:"イグニッションSW",111:"ECMリレー (SSOFF)",113:"フューエルポンプリレー",
+  114:"—",115:"ECMアース (GND)",116:"ECMアース (GND)",117:"EVAPベント",118:"—",
+  119:"VB（ECM電源）",120:"VB（ECM電源）",121:"BATT 12V（常時）"
+};
+function pinName(n){
+  const k = Number(n);
+  if(lang === 'en') return (PIN_NAME_EN[k] != null ? PIN_NAME_EN[k] : (PIN_NAME[k]||''));
+  if(lang === 'ja') return (PIN_NAME_JA[k] != null ? PIN_NAME_JA[k] : (PIN_NAME[k]||''));
+  return PIN_NAME[k]||'';
+}
+function pinNote(pin){
+  if(!pin) return '';
+  if(lang === 'en' && pin.note_en) return pin.note_en;
+  if(lang === 'ja' && pin.note_ja) return pin.note_ja;
+  return pin.note || '';
+}
+
 
 /* Explicit ECM rail tags: '5v' | '12v' | 'gnd' | null */
 const PIN_RAIL = {
@@ -998,6 +1179,7 @@ function buildCircuits(model){
 }
 
 /* ========== Connectors ========== */
+/* Outer motor/body split removed from UI; kept for CONN.group metadata only. */
 const GROUPS = [
   {id:'motor', ls:'z33_grp_motor'},
   {id:'body', ls:'z33_grp_body'},
@@ -1023,124 +1205,144 @@ const GROUP_I18N = {
 
 const SUB_I18N = {
   power:       {es:'Poder / tierras', en:'Power / grounds', ja:'電源 / アース'},
+  ipdm:        {es:'IPDM', en:'IPDM', ja:'IPDM'},
   feeds:       {es:'Alimentación / sin ECM', en:'Feeds (non-ECM)', ja:'電源フィード（ECM外）'},
   sensors:     {es:'Sensores', en:'Sensors', ja:'センサ'},
   actuators:   {es:'Actuadores', en:'Actuators', ja:'アクチュエータ'},
   intermedias: {es:'Paths multi E/F', en:'Multi E/F paths', ja:'複数経路 E/F'},
   pedals:      {es:'Pedales / frenos', en:'Pedals / brakes', ja:'ペダル / ブレーキ'},
-  ascd:        {es:'ASCD / volante', en:'ASCD / steering', ja:'ASCD / ステアリング'},
-  dlc:         {es:'DLC / red', en:'DLC / network', ja:'DLC / ネットワーク'},
+  ascd_dlc:    {es:'ASCD / DLC', en:'ASCD / DLC', ja:'ASCD / DLC'},
   other:       {es:'Otros', en:'Other', ja:'その他'},
 };
 
-const SUB_ORDER = ['power','feeds','sensors','actuators','intermedias','pedals','ascd','dlc'];
+const SUB_ORDER = ['power','ipdm','feeds','sensors','actuators','intermedias','pedals','ascd_dlc'];
 
 /** One border color per subcategory (ficha groups). */
 const SUB_ACCENT = {
   power:       '#66bb6a',  /* tierras / poder */
+  ipdm:        '#ef5350',  /* IPDM E/R */
   feeds:       '#ff8a65',  /* feeds sin ECM */
   sensors:     '#42a5f5',  /* sensores */
   actuators:   '#7e57c2',  /* actuadores */
   intermedias: '#90a4ae',  /* fichas E/F */
   pedals:      '#ffa726',  /* pedales / freno */
-  ascd:        '#26c6da',  /* ASCD / volante */
-  dlc:         '#ab47bc',  /* DLC / red */
+  ascd_dlc:    '#7e57c2',  /* ASCD / DLC / network */
 };
 
 
 const CONN_BASE = {
   /* —— Poder / tierras · ficha del plug ECM (EC-123) —— */
 
-  batt_feed:{group:'motor', sub:'power', name:'BATT feed', meta:'ECM 121 · always hot', accent:'#ef5350', shape:'tab2',
+  batt_feed:{group:'motor', sub:'power', name:'BATT feed · ECM 121', meta:'ECM 121 · always hot', accent:'#ef5350', shape:'tab2',
     pins:[{id:'BATT',code:'R/W',ecm:121,rail:'12v'},{id:'fuse',code:'12V',ecm:null,rail:'12v'}]},
-  ipdm_e3:{group:'motor', sub:'power', name:'IPDM E3', meta:'2-pin · batt in · PG-26', accent:'#ef5350', shape:'ipdm_e3',
+  ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3',
     pins:[
-      {id:'1',code:'W',ecm:null,rail:'12v',note:'Battery in'},
-      {id:'2',code:'W/L',ecm:null,rail:'12v',note:'Battery in'}
+      {id:'1',code:'W',ecm:null,rail:'12v',note:'Entrada batería 12V (W) desde fusible links · PG-27.',note_en:'Battery 12V in (W) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W) · ヒュージブルリンク · PG-27。'},
+      {id:'2',code:'W/L',ecm:null,rail:'12v',note:'Entrada batería 12V (W/L) desde fusible links · PG-27.',note_en:'Battery 12V in (W/L) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W/L) · ヒュージブルリンク · PG-27。'}
     ],
-    note:'IPDM E3 · entrada batería. Cara PG-26 H.S.: arriba 2, abajo 1 (1 col · Invertida L/R sin cambio).'},
-  ipdm_e7:{group:'motor', sub:'power', name:'IPDM E7', meta:'VB / back-up / lamps / wiper · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7',
+    note:'IPDM E3 · entrada batería. Cara rotada 90° CCW vs H.S. vertical: 1 fila L→R cav 2 luego 1 (FSM); Invertida = 1 luego 2.'},
+  ipdm_e7:{group:'motor', sub:'ipdm', name:'IPDM E7 · Luces / limpia / ECM', meta:'VB / back-up / faros / limpia · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7',
     pins:[
-      {id:'17',code:'W/L',ecm:null,rail:'12v',note:'Ignition system (ECM relay out)'},
-      {id:'18',code:'R/W',ecm:119,rail:'12v',note:'VB→ECM 119; también 120 vía E12/F3 (P)'},
-      {id:'20',code:'R',ecm:null,rail:'12v',note:'Headlamp low RH'},
-      {id:'21',code:'PU',ecm:null,rail:'12v',note:'Wiper LO'},
-      {id:'22',code:'R/L',ecm:null,rail:'12v',note:'Park/tail lamps'},
-      {id:'25',code:'G/Y',ecm:null,rail:'12v',note:'Clutch interlock pwr (M/T) fuse 89'},
-      {id:'26',code:'G/W',ecm:null,rail:'12v',circ:'backup_lamp',note:'Back-up lamp feed → E10/F1 cav2 Y/R → F36 · LT-183 fuse 83'},
-      {id:'27',code:'BR',ecm:null,rail:'12v',note:'Headlamp high RH'},
-      {id:'28',code:'R/Y',ecm:null,rail:'12v',note:'Headlamp high LH'},
-      {id:'30',code:'R/B',ecm:null,rail:'12v',note:'Headlamp low LH'},
-      {id:'31',code:'L/B',ecm:null,rail:'12v',note:'Wiper HI'},
-      {id:'32',code:'L/Y',ecm:null,rail:'12v',note:'Wiper auto-stop'}
+      {id:'17',code:'W/L',ecm:null,rail:'12v',note:'Alimentación sistema encendido / salida relé ECM (W/L) → bobinas/condensador vía E12/F3 · EC-167/689.',note_en:'Ignition system / ECM relay switched power (W/L) → coils/condenser via E12/F3 · EC-167/689.',note_ja:'イグニッション / ECMリレー出力 (W/L) → コイル等（E12/F3経由）· EC-167/689。'},
+      {id:'18',code:'R/W',ecm:119,rail:'12v',note:'VB alimentación ECM (R/W) → ECM 119; también ECM 120 vía E12/F3 (P) · EC-167.',note_en:'ECM VB power (R/W) → ECM 119; also ECM 120 via E12/F3 (P) · EC-167.',note_ja:'ECM VB電源 (R/W) → ECM 119; E12/F3経由で ECM 120 (P) · EC-167。'},
+      {id:'19',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'20',code:'R',ecm:null,rail:'12v',note:'Luz baja faro RH (R) → front combination lamp RH · LT-16/47.',note_en:'Headlamp low RH (R) → front combination lamp RH · LT-16/47.',note_ja:'ヘッドランプLo RH (R) · LT-16/47。'},
+      {id:'21',code:'PU',ecm:null,rail:'12v',note:'Limpia parabrisas LO (PU) → motor limpia · WW-15.',note_en:'Front wiper low (PU) → wiper motor · WW-15.',note_ja:'ワイパーLo (PU) · WW-15。'},
+      {id:'22',code:'R/L',ecm:null,rail:'12v',note:'Luces de posición / matrícula / cola (R/L) · LT-197.',note_en:'Parking / license / tail lamps (R/L) · LT-197.',note_ja:'車幅灯/ライセンス/テール (R/L) · LT-197。'},
+      {id:'23',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'24',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'25',code:'G/Y',ecm:null,rail:'12v',note:'Alimentación interlock embrague M/T / fusible 89 (G/Y) · SC-13.',note_en:'Clutch interlock power (M/T) / fuse 89 (G/Y) · SC-13.',note_ja:'クラッチインターロック電源 (M/T) / ヒューズ89 (G/Y) · SC-13。'},
+      {id:'26',code:'G/W',ecm:null,rail:'12v',circ:'backup_lamp',note:'Feed luz marcha atrás (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fusible 83.',note_en:'Back-up lamp feed (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fuse 83.',note_ja:'バックランプ給電 (G/W) → E10/F1 cav2 → F36 · LT-183。'},
+      {id:'27',code:'BR',ecm:null,rail:'12v',note:'Luz alta faro RH (BR) · LT-16/47.',note_en:'Headlamp high RH (BR) · LT-16/47.',note_ja:'ヘッドランプHi RH (BR) · LT-16/47。'},
+      {id:'28',code:'R/Y',ecm:null,rail:'12v',note:'Luz alta faro LH (R/Y) · LT-16/47.',note_en:'Headlamp high LH (R/Y) · LT-16/47.',note_ja:'ヘッドランプHi LH (R/Y) · LT-16/47。'},
+      {id:'29',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'30',code:'R/B',ecm:null,rail:'12v',note:'Luz baja faro LH (R/B) · LT-16/47.',note_en:'Headlamp low LH (R/B) · LT-16/47.',note_ja:'ヘッドランプLo LH (R/B) · LT-16/47。'},
+      {id:'31',code:'L/B',ecm:null,rail:'12v',note:'Limpia parabrisas HI (L/B) · WW-15.',note_en:'Front wiper high (L/B) · WW-15.',note_ja:'ワイパーHi (L/B) · WW-15。'},
+      {id:'32',code:'L/Y',ecm:null,rail:'12v',note:'Señal auto-stop limpia (L/Y) · WW-15.',note_en:'Wiper auto-stop signal (L/Y) · WW-15.',note_ja:'ワイパーオートストップ (L/Y) · WW-15。'}
     ],
-    note:'IPDM E7 · colores FSM 2005 (EC/LT/WW/SC). Cavidades 19/23/24/26/29 sin color verificado.'},
-  ipdm_e8:{group:'motor', sub:'power', name:'IPDM E8', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8',
+    note:'IPDM E7 · colores FSM 2005 (EC/LT/WW/SC). Cav 26 = back-up (G/W · LT-183). Sin destino FSM etiquetado: 19, 23, 24, 29. Slots ∅ del layout = cavEmpty.'},
+  ipdm_e8:{group:'motor', sub:'ipdm', name:'IPDM E8 · Bomba / mariposa / A/C', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8',
     pins:[
-      {id:'33',code:'L/Y',ecm:null,rail:'12v',note:'A/C magnet clutch'},
-      {id:'38',code:'B',ecm:null,rail:'gnd',lab:'GND'},
-      {id:'39',code:'B/Y',ecm:null,rail:'12v',note:'Fuel pump power out'},
-      {id:'40',code:'L/W',ecm:113,rail:'12v',note:'FP relay ctrl → ECM 113'},
-      {id:'42',code:'G',ecm:3,rail:'12v',note:'VMOT → ECM 3 (vía E12/F3)'},
-      {id:'43',code:'G/R',ecm:null,rail:'12v',note:'Ign ON (Canada DTRL) · medium'},
-      {id:'44',code:'OR',ecm:null,rail:'12v',note:'Washer motor'}
+      {id:'33',code:'L/Y',ecm:null,rail:'12v',note:'Embrague magnético compresor A/C (L/Y) → compressor pin1 · ATC-81.',note_en:'A/C compressor magnet clutch (L/Y) → compressor pin1 · ATC-81.',note_ja:'A/Cマグネットクラッチ (L/Y) · ATC-81。'},
+      {id:'34',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'35',code:'LG',ecm:null,rail:'12v',note:'Relé bocina (E21 fusible/relé) LG · WW-56.',note_en:'Horn relay (E21 fuse/relay block) LG · WW-56.',note_ja:'ホーンリレー（E21）LG · WW-56。'},
+      {id:'36',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'37',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'38',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra de potencia IPDM → body E17 (B) · PG-27 / LT-16.',note_en:'IPDM power ground → body E17 (B) · PG-27 / LT-16.',note_ja:'IPDMパワーアース → ボディ E17 (B) · PG-27。'},
+      {id:'39',code:'B/Y',ecm:null,rail:'12v',note:'Salida relé bomba combustible (B/Y) → bomba pin1 / condensador · EC-710.',note_en:'Fuel pump relay output (B/Y) → pump pin1 / condenser · EC-710.',note_ja:'フューエルポンプリレー出力 (B/Y) · EC-710。'},
+      {id:'40',code:'L/W',ecm:113,rail:'12v',note:'Control bobina relé bomba (L/W) → ECM 113 vía E108/M15 · M72/F102 · EC-710.',note_en:'Fuel pump relay coil control (L/W) → ECM 113 via E108/M15 · M72/F102 · EC-710.',note_ja:'フューエルポンプリレー制御 (L/W) → ECM 113 · EC-710。'},
+      {id:'41',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'42',code:'G',ecm:3,rail:'12v',note:'VMOT control relé motor mariposa (G) → ECM 3 vía E12/F3 · EC-472.',note_en:'Throttle motor relay control VMOT (G) → ECM 3 via E12/F3 · EC-472.',note_ja:'スロットルモータリレー制御 VMOT (G) → ECM 3 · EC-472。'},
+      {id:'43',code:'G/R',ecm:null,rail:'12v',note:'IGN ON (ruta Canada DTRL) (G/R) · LT-80 · confianza media.',note_en:'Ign ON (Canada DTRL path) (G/R) · LT-80 · medium confidence.',note_ja:'IGN ON（カナダDTRL）(G/R) · LT-80 · 中確度。'},
+      {id:'44',code:'OR',ecm:null,rail:'12v',note:'Alimentación motor lava-parabrisas (OR) · WW-15.',note_en:'Washer motor power (OR) · WW-15.',note_ja:'ウォッシャーモータ電源 (OR) · WW-15。'}
     ],
-    note:'IPDM E8 · 38 GND · 42 VMOT · 39/40 fuel pump · 33 A/C · 44 washer. 34–37/41 sin color verificado.'},
-  ipdm_e9:{group:'motor', sub:'power', name:'IPDM E9', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9',
+    note:'IPDM E8 · 38 GND · 42 VMOT · 39/40 bomba · 33 A/C · 35 bocina · 44 washer. Sin destino FSM etiquetado: 34, 36, 37, 41. Slots ∅ del layout = cavEmpty.'},
+  ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9',
     pins:[
-      {id:'46',code:'W/B',ecm:111,rail:'12v',note:'SSOFF path → ECM 111'},
-      {id:'47',code:'OR',ecm:104,rail:'12v',note:'MOTRLY → ECM 104 (12V, no 5V)'},
-      {id:'48',code:'L',ecm:94,note:'CAN-H → ECM 94'},
-      {id:'49',code:'P',ecm:86,note:'CAN-L → ECM 86'},
-      {id:'50',code:'B',ecm:null,rail:'gnd',lab:'GND'},
-      {id:'52',code:'G/R',ecm:null,rail:'12v',note:'Rear defogger'},
-      {id:'53',code:'GY/R',ecm:null,rail:'12v',note:'Starter enable (clutch/TCM)'},
-      {id:'60',code:'B',ecm:null,rail:'gnd',lab:'GND'}
+      {id:'45',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'46',code:'W/B',ecm:111,rail:'12v',note:'SSOFF auto-apagado relé ECM (W/B) → ECM 111 vía E108/M15 · M72/F102 · EC-167.',note_en:'ECM relay self shut-off SSOFF (W/B) → ECM 111 via E108/M15 · M72/F102 · EC-167.',note_ja:'ECMリレー自己遮断 SSOFF (W/B) → ECM 111 · EC-167。'},
+      {id:'47',code:'OR',ecm:104,rail:'12v',note:'MOTRLY alimentación relé mariposa (OR) → ECM 104 vía E108/M15 · M72/F102 · EC-472.',note_en:'Throttle motor relay power MOTRLY (OR) → ECM 104 via E108/M15 · M72/F102 · EC-472.',note_ja:'スロットルモータリレー電源 MOTRLY (OR) → ECM 104 · EC-472。'},
+      {id:'48',code:'L',ecm:94,note:'CAN-H (L) → ECM 94 / bus CAN vía E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_en:'CAN-H (L) → ECM 94 / CAN bus via E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_ja:'CAN-H (L) → ECM 94 · LAN-49 / EC-509。'},
+      {id:'49',code:'P',ecm:86,note:'CAN-L (P) → ECM 86 / bus CAN vía E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_en:'CAN-L (P) → ECM 86 / CAN bus via E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_ja:'CAN-L (P) → ECM 86 · LAN-49 / EC-509。'},
+      {id:'50',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra IPDM → body E17 (B) · PG-27.',note_en:'IPDM ground → body E17 (B) · PG-27.',note_ja:'IPDMアース → ボディ E17 (B) · PG-27。'},
+      {id:'51',code:'G/B',ecm:null,note:'Control relé bocina (HORN RLY) G/B → E21 · WW-56.',note_en:'Horn relay control (HORN RLY) G/B → E21 · WW-56.',note_ja:'ホーンリレー制御 (HORN RLY) G/B → E21 · WW-56。'},
+      {id:'52',code:'G/R',ecm:null,rail:'12v',note:'Desempañador luneta trasera (G/R) · GW-68/76.',note_en:'Rear window defogger (G/R) · GW-68/76.',note_ja:'リヤデフォッガ (G/R) · GW-68/76。'},
+      {id:'53',code:'GY/R',ecm:null,rail:'12v',note:'Enable relé arranque (GY/R) · interlock embrague M/T pin2 / TCM A/T · SC-13/14.',note_en:'Starter relay enable (GY/R) · clutch interlock M/T pin2 / TCM A/T · SC-13/14.',note_ja:'スタータリレー許可 (GY/R) · SC-13/14。'},
+      {id:'54',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'55',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'56',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'57',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'58',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'59',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'60',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra señal IPDM → body E17 (B) · PG-27 / LT-16.',note_en:'IPDM signal ground → body E17 (B) · PG-27 / LT-16.',note_ja:'IPDM信号アース → ボディ E17 (B) · PG-27。'}
     ],
-    note:'IPDM E9 · 46→111 · 47→104 · 48/49 CAN · 50/60 GND · 52 defog · 53 start. Layout FSM PG-26.'},
-  ipdm_e4:{group:'motor', sub:'power', name:'IPDM E4', meta:'starter · PG-26 · SC-13/14 · cara Inv', accent:'#ef5350', shape:'ipdm_e4',
+    note:'IPDM E9 · 46→111 · 47→104 · 48/49 CAN · 50/60 GND · 51 bocina · 52 defog · 53 start. Sin destino FSM etiquetado: 45, 54–59. Layout FSM PG-26.'},
+  ipdm_e4:{group:'motor', sub:'ipdm', name:'IPDM E4 · Arranque', meta:'starter · PG-26 · SC-13/14 · cara Inv', accent:'#ef5350', shape:'ipdm_e4',
     pins:[
-      {id:'3',code:'B/Y',ecm:null,rail:'12v',circ:'starter',note:'Starter relay → E10/F1 cav1 → F9 · SC-13'},
-      {id:'4',code:'W/R',ecm:null,rail:'12v',note:'Ignition switch START'}
-    ], note:'IPDM E4 · starter (SC). Cara PG-26 H.S.: top 3-5 / bot 4-6 · Invertida = espejo L/R de cada fila. Pins 5–6 sin color verificado.'},
-  ipdm_e5:{group:'motor', sub:'power', name:'IPDM E5', meta:'cooling fan · PG-26 · EC-510 · cara Inv', accent:'#ef5350', shape:'ipdm_e5',
+      {id:'3',code:'B/Y',ecm:null,rail:'12v',circ:'starter',note:'Salida relé arranque → motor de arranque pin1 vía E10/F1 cav1 (B/Y) · SC-13/14.',note_en:'Starter relay out → starter motor pin1 via E10/F1 cav1 (B/Y) · SC-13/14.',note_ja:'スタータリレー出力 → スタータ pin1（E10/F1経由）(B/Y) · SC-13/14。'},
+      {id:'4',code:'W/R',ecm:null,rail:'12v',note:'Entrada START desde interruptor de encendido pin5 (W/R) · SC-13/14.',note_en:'START input from ignition switch pin5 (W/R) · SC-13/14.',note_ja:'イグニッションSW pin5 からの START 入力 (W/R) · SC-13/14。'},
+      {id:'5',code:'P',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 80) → B34 vía E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 80) → B34 via E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ80）→ B34（E107/B3経由）· CP:P / RS:R · PG-13 / GW-63。'},
+      {id:'6',code:'W',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 75) W → B34 pin3 vía E107/B3 · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 75) W → B34 pin3 via E107/B3 · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ75）W → B34 pin3（E107/B3経由）· PG-13 / GW-63。'}
+    ], note:'IPDM E4 · starter (SC) + defogger power 5/6 (PG-13/GW-63). Cara PG-26 H.S.: top 3-5 / bot 4-6 · Invertida = espejo L/R.'},
+  ipdm_e5:{group:'motor', sub:'ipdm', name:'IPDM E5 · Ventiladores', meta:'cooling fan · PG-26 · EC-510 · cara Inv', accent:'#ef5350', shape:'ipdm_e5',
     pins:[
-      {id:'8',code:'B/Y',ecm:null,rail:'12v',note:'Fan relay-3 → motor-1 pin1'},
-      {id:'9',code:'Y',ecm:null,rail:'12v',note:'Fan relay-2 → motors pin4'},
-      {id:'10',code:'R/W',ecm:null,rail:'12v',note:'Fan relay-1 → motor-2 pin2'}
-    ], note:'IPDM E5 · cooling fan (EC-510). Cara PG-26 H.S.: top 7-9 / bot 8-10 · Invertida = espejo L/R. Pin 7 sin color verificado.'},
-  ipdm_e6:{group:'motor', sub:'power', name:'IPDM E6', meta:'cooling fan / 40A in · EC-510 · cara Inv', accent:'#ef5350', shape:'ipdm_e6',
+      {id:'7',code:'B/R',ecm:null,rail:'12v',note:'Salida relé ignición IPDM (+IG) B/R → PG-POWER-07 · PG-14.',note_en:'IPDM ignition relay output (+IG) B/R → PG-POWER-07 · PG-14.',note_ja:'IPDMイグニッションリレー出力 (+IG) B/R → PG-POWER-07 · PG-14。'},
+      {id:'8',code:'B/Y',ecm:null,rail:'12v',note:'Relé ventilador-3 → motor ventilador-1 pin1 (B/Y) · EC-510.',note_en:'Cooling fan relay-3 → fan motor-1 pin1 (B/Y) · EC-510.',note_ja:'冷却ファンリレー3 → ファンモータ1 pin1 (B/Y) · EC-510。'},
+      {id:'9',code:'Y',ecm:null,rail:'12v',note:'Relé ventilador-2 → motores pin4 (Y) · EC-510.',note_en:'Cooling fan relay-2 → motors pin4 (Y) · EC-510.',note_ja:'冷却ファンリレー2 → モータ pin4 (Y) · EC-510。'},
+      {id:'10',code:'R/W',ecm:null,rail:'12v',note:'Relé ventilador-1 → motor ventilador-2 pin2 (R/W) · EC-510.',note_en:'Cooling fan relay-1 → fan motor-2 pin2 (R/W) · EC-510.',note_ja:'冷却ファンリレー1 → ファンモータ2 pin2 (R/W) · EC-510。'}
+    ], note:'IPDM E5 · cooling fan (EC-510). Cara PG-26 H.S.: top 7-9 / bot 8-10 · Invertida = espejo L/R. Cavidad ? : 7.'},
+  ipdm_e6:{group:'motor', sub:'ipdm', name:'IPDM E6 · Ventiladores + 40A', meta:'cooling fan / 40A in · EC-510 · cara Inv', accent:'#ef5350', shape:'ipdm_e6',
     pins:[
-      {id:'11',code:'L',ecm:null,rail:'12v',note:'Fan relay-3 → motor-1 pin2'},
-      {id:'12',code:'Y/R',ecm:null,rail:'12v',note:'Fan R2/R3 → motors pin4'},
-      {id:'13',code:'W',ecm:null,rail:'12v',note:'Fan relay-1 → motor-2 pin1'},
-      {id:'14',code:'B',ecm:null,rail:'gnd',lab:'GND'},
-      {id:'15',code:'B/R',ecm:null,rail:'12v',note:'40A fusible link I'},
-      {id:'16',code:'B/W',ecm:null,rail:'12v',note:'40A fusible link H'}
-    ], note:'IPDM E6 · cooling fan + 40A battery feeds (EC-510). Cara PG-26 H.S.: top 14-15-16 / bot 11-12-13 · Invertida = espejo L/R.'},
-  ipdm_legend:{group:'motor', sub:'power', name:'IPDM · relés / fusibles', meta:'PG-26 · Layout FSM', accent:'#ef5350', shape:'ixnote',
+      {id:'11',code:'L',ecm:null,rail:'12v',note:'Relé ventilador-3 → motor ventilador-1 pin2 (L) · EC-510.',note_en:'Cooling fan relay-3 → fan motor-1 pin2 (L) · EC-510.',note_ja:'冷却ファンリレー3 → ファンモータ1 pin2 (L) · EC-510。'},
+      {id:'12',code:'Y/R',ecm:null,rail:'12v',note:'Empalme relés ventilador 2/3 → motores pin4 (Y/R) · EC-510.',note_en:'Fan relay-2/3 junction → motors pin4 (Y/R) · EC-510.',note_ja:'ファンリレー2/3合流 → モータ pin4 (Y/R) · EC-510。'},
+      {id:'13',code:'W',ecm:null,rail:'12v',note:'Relé ventilador-1 → motor ventilador-2 pin1 (W) · EC-510.',note_en:'Cooling fan relay-1 → fan motor-2 pin1 (W) · EC-510.',note_ja:'冷却ファンリレー1 → ファンモータ2 pin1 (W) · EC-510。'},
+      {id:'14',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra circuito ventiladores → body E43 (B) · EC-510.',note_en:'Cooling fan circuit ground → body E43 (B) · EC-510.',note_ja:'冷却ファン回路アース → ボディ E43 (B) · EC-510。'},
+      {id:'15',code:'B/R',ecm:null,rail:'12v',note:'Entrada batería 40A fusible link I (B/R) · EC-510.',note_en:'Battery in 40A fusible link I (B/R) · EC-510.',note_ja:'バッテリ入力 40A ヒュージブルリンク I (B/R) · EC-510。'},
+      {id:'16',code:'B/W',ecm:null,rail:'12v',note:'Entrada batería 40A fusible link H (B/W) · EC-510.',note_en:'Battery in 40A fusible link H (B/W) · EC-510.',note_ja:'バッテリ入力 40A ヒュージブルリンク H (B/W) · EC-510。'}
+    ], note:'IPDM E6 · ventiladores + feeds 40A batería (EC-510). Cara PG-26 H.S.: top 14-15-16 / bot 11-12-13 · Invertida = espejo L/R.'},
+  ipdm_legend:{group:'motor', sub:'ipdm', name:'IPDM · Relés y fusibles', meta:'PG-26 · Layout FSM', accent:'#ef5350', shape:'ixnote',
     pins:[],
     note:'Relés (integrados): ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog (vacío). Fusibles: 71=10A 72=10A 73=20A 74=10A 75=20A 76=15A · 77=15A 78=15A 79=10A 80=20A · 81=15A 82=10A 83=10A 84=10A 85=15A 86=15A 87=15A 88=— 89=10A. 77→ECM relay · 87→throttle motor relay. Credit: FSM PG-26.'},
-  ign_sw:{group:'motor', sub:'power', name:'IGN SW', meta:'señal llave → ECM 109', accent:'#ef5350', shape:'tab2',
+  ign_sw:{group:'motor', sub:'power', name:'IGN SW · Señal llave', meta:'señal llave → ECM 109', accent:'#ef5350', shape:'tab2',
     pins:[{id:'IGN',code:'W/B',ecm:109},{id:'PWR',code:'12V',ecm:null,rail:'12v'}]},
-  ecm_relay:{group:'motor', sub:'power', name:'ECM relay control', meta:'ECM 111 · coil drive', accent:'#ef5350', shape:'tab2',
+  ecm_relay:{group:'motor', sub:'power', name:'Relé ECM · control bobina', meta:'ECM 111 · coil drive', accent:'#ef5350', shape:'tab2',
     pins:[{id:'CTRL',code:'GY/L',ecm:111},{id:'coil+',code:'12V',ecm:null,rail:'12v'}]},
-  vmot:{group:'motor', sub:'power', name:'VMOT alim', meta:'alimentación motor TB · ECM 3', accent:'#029eb7', shape:'tab2',
+  vmot:{group:'motor', sub:'power', name:'VMOT · Alim. motor mariposa', meta:'alimentación motor TB · ECM 3', accent:'#029eb7', shape:'tab2',
     pins:[{id:'VMOT',code:'G',ecm:3,rail:'12v'},{id:'relay',code:'12V',ecm:null,rail:'12v'}]},
-  gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · ECM ground', meta:'ECM 1 / 115 / 116 → body ground · EC POWER SUPPLY AND GROUND', accent:'#66bb6a', shape:'rect4',
+  gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'ECM 1 / 115 / 116 → body ground · EC POWER SUPPLY AND GROUND', accent:'#66bb6a', shape:'rect4',
     pins:[{id:'A',code:'B',ecm:1,rail:'gnd'},{id:'B',code:'B/W',ecm:115,rail:'gnd'},{id:'C',code:'B/R',ecm:116,rail:'gnd'},{id:'D',code:'B',ecm:null,rail:'gnd'}],
     note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: terminales ECM 1 (B), 115 (B/W), 116 (B/R) = ECM ground → body ground. Path vía harness connectors F103, F151 (también F3/E12 en el diag.). Procedimiento: CHECK ECM GROUND CIRCUIT FOR OPEN AND SHORT.'},
-  e17:{group:'motor', sub:'power', name:'Body ground (E17)', meta:'FSM: Body ground · ground point E17', accent:'#66bb6a', shape:'ring',
+  e17:{group:'motor', sub:'power', name:'Body ground · E17', meta:'FSM: Body ground · ground point E17', accent:'#66bb6a', shape:'ring',
     pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
   ecm_f101_can:{group:'motor', sub:'power', name:'ECM F101 · CAN', meta:'conector arnés ECM · CAN-H/L · FSM LAN', accent:'#7e57c2', shape:'tab2',
     pins:[{id:'94',code:'L',ecm:94,lab:'CAN-H'},{id:'86',code:'P',ecm:86,lab:'CAN-L'}],
     note:'F101 = conector del arnés a la ECM (lado loom). Solo cavidades CAN verificadas: 94 L = CAN-H · 86 P = CAN-L. Path: F101 → … → F102 26H/27H → M72 → DLC M8 6/14; también IPDM E9 48/49. Bancada: entre 86↔94 en loom solo = OL (terminadores en módulos).'},
 
   /* —— Alimentación en el arnés motor que NO pasa por cavidad ECM (FSM) —— */
-  feed_af_12v:{group:'motor', sub:'feeds', name:'12V A/F heaters (fusible)', meta:'pin 3 A/F B1/B2 · no ECM', accent:'#ff7043', shape:'note',
+  feed_af_12v:{group:'motor', sub:'feeds', name:'12V calentadores A/F (fusible)', meta:'pin 3 A/F B1/B2 · no ECM', accent:'#ff7043', shape:'note',
     pins:[{id:'AF1-3',code:'12V',ecm:null,rail:'12v'},{id:'AF2-3',code:'12V',ecm:null,rail:'12v'}],
     note:'En el arnés motor: alimentación 12V fusionada al pin 3 de cada A/F Sensor 1 (B1/B2). No entra a la ECM — solo el drive de calentador (ECM 2 / 24) y señales. Ver FSM EC A/F.'},
-  feed_ho2s_12v:{group:'motor', sub:'feeds', name:'12V HO2S2 heaters (fusible)', meta:'post-cat · no ECM', accent:'#ce93d8', shape:'note',
+  feed_ho2s_12v:{group:'motor', sub:'feeds', name:'12V calentadores HO2S2 (fusible)', meta:'post-cat · no ECM', accent:'#ce93d8', shape:'note',
     pins:[{id:'B1-12V',code:'12V',ecm:null,rail:'12v'},{id:'B2-12V',code:'12V',ecm:null,rail:'12v'}],
     note:'12V fusionado a calentadores HO2S2 B1/B2 en el arnés; la ECM solo conmuta el lado de control (ECM 25 / 6). Nº de fusible: ver FSM EC HO2S.'},
   feed_inj_coil_12v:{group:'motor', sub:'feeds', name:'12V rail iny / bobinas', meta:'común relé/IPDM · no ECM', accent:'#ffca28', shape:'note',
@@ -1151,39 +1353,39 @@ const CONN_BASE = {
     note:'Alimentación 12V en conectores CKP y MAF del arnés motor (no son pines ECM). Señales: CKP→13, MAF→51. Tierras locales / SNS según FSM.'},
 
   /* —— Sensores motor —— */
-  af_b1:{group:'motor', sub:'sensors', name:'A/F Sensor 1 B1', meta:'6-pin · Bank 1 · FSM face A/F', accent:'#ef6c00', shape:'af6',
+  af_b1:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 1', meta:'6-pin · Bank 1 · FSM face A/F', accent:'#ef6c00', shape:'af6',
     pins:[{id:'1',code:'LG/B',ecm:16},{id:'2',code:'P/B',ecm:75},{id:'3',code:'12V',ecm:null,rail:'12v'},{id:'4',code:'GY/R',ecm:2},{id:'5',code:'L/W',ecm:35},{id:'6',code:'W/L',ecm:56}]},
-  af_b2:{group:'motor', sub:'sensors', name:'A/F Sensor 1 B2', meta:'6-pin · Bank 2 · FSM face A/F', accent:'#2e7d32', shape:'af6',
+  af_b2:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 2', meta:'6-pin · Bank 2 · FSM face A/F', accent:'#2e7d32', shape:'af6',
     pins:[{id:'1',code:'LG',ecm:76},{id:'2',code:'P',ecm:77},{id:'3',code:'12V',ecm:null,rail:'12v'},{id:'4',code:'G/Y',ecm:24},{id:'5',code:'L',ecm:57},{id:'6',code:'W',ecm:58}]},
-  ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 B1', meta:'post-cat R · señal ECM 74', accent:'#8e24aa', shape:'tab3',
+  ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 1 (post-cat R)', meta:'post-cat R · señal ECM 74', accent:'#8e24aa', shape:'tab3',
     pins:[{id:'SIG',code:'OR',ecm:74},{id:'htr',code:'P/B',ecm:25},{id:'GND',code:'B/Y',ecm:78,rail:'gnd',lab:'SNS'}],
     note:'Señal HO2S2 B1 → ECM 74 (OR) · heater → ECM 25 · tierra → ECM 78 (B/Y). 12V fusible en feed HO2S.'},
-  ho2s_b2:{group:'motor', sub:'sensors', name:'HO2S2 B2', meta:'post-cat L · señal ECM 55', accent:'#8e24aa', shape:'tab3',
+  ho2s_b2:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 2 (post-cat L)', meta:'post-cat L · señal ECM 55', accent:'#8e24aa', shape:'tab3',
     pins:[{id:'SIG',code:'L/B',ecm:55},{id:'htr',code:'P/L',ecm:6},{id:'GND',code:'B/Y',ecm:78,rail:'gnd',lab:'SNS'}],
     note:'Señal HO2S2 B2 → ECM 55 (L/B) · heater → ECM 6 · tierra → ECM 78 (B/Y). 12V fusible en feed HO2S.'},
-  maf:{group:'motor', sub:'sensors', name:'MAF', meta:'intake', accent:'#fb8c00', shape:'tab3',
+  maf:{group:'motor', sub:'sensors', name:'MAF · Caudal de aire', meta:'intake', accent:'#fb8c00', shape:'tab3',
     pins:[{id:'12V',code:'R',ecm:null,rail:'12v'},{id:'GND',code:'B',ecm:null,rail:'gnd'},{id:'SIG',code:'OR',ecm:51}]},
-  knock:{group:'motor', sub:'sensors', name:'Knock sensor', meta:'2-pin · vía intermedia F14/F229', accent:'#42a5f5', shape:'tab2',
+  knock:{group:'motor', sub:'sensors', name:'Knock · Sensor detonación', meta:'2-pin · vía intermedia F14/F229', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'1',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd',lab:'SH'}],
     note:'Path knock (FSM): señal W → ECM 15 vía F14/F229; shield → SNS GND.'},
-  ckp:{group:'motor', sub:'sensors', name:'CKP POS', meta:'3-pin', accent:'#ab47bc', shape:'tab3',
+  ckp:{group:'motor', sub:'sensors', name:'CKP · Posición cigüeñal', meta:'3-pin', accent:'#ab47bc', shape:'tab3',
     pins:[{id:'PWR',code:'R/W',ecm:null,rail:'12v'},{id:'SIG',code:'W/L',ecm:13},{id:'GND',code:'B',ecm:null,rail:'gnd'}]},
-  cmp_b1:{group:'motor', sub:'sensors', name:'CMP PHASE B1', meta:'leva R', accent:'#ec407a', shape:'tab2',
+  cmp_b1:{group:'motor', sub:'sensors', name:'CMP · Fase leva B1', meta:'leva R', accent:'#ec407a', shape:'tab2',
     pins:[{id:'SIG',code:'R',ecm:33},{id:'GND',code:'B',ecm:null,rail:'gnd'}]},
-  cmp_b2:{group:'motor', sub:'sensors', name:'CMP PHASE B2', meta:'leva L', accent:'#ec407a', shape:'tab2',
+  cmp_b2:{group:'motor', sub:'sensors', name:'CMP · Fase leva B2', meta:'leva L', accent:'#ec407a', shape:'tab2',
     pins:[{id:'SIG',code:'R/L',ecm:14},{id:'GND',code:'B',ecm:null,rail:'gnd'}]},
-  ect:{group:'motor', sub:'sensors', name:'ECT', meta:'refrigerante · 2-pin', accent:'#5c6bc0', shape:'tab2',
+  ect:{group:'motor', sub:'sensors', name:'ECT · Temp. refrigerante', meta:'refrigerante · 2-pin', accent:'#5c6bc0', shape:'tab2',
     pins:[{id:'SIG',code:'BR/Y',ecm:73},{id:'GND',code:'B',ecm:null,rail:'gnd'}]},
-  iat:{group:'motor', sub:'sensors', name:'IAT', meta:'admisión · en MAF o 2-pin', accent:'#8d6e63', shape:'tab2',
+  iat:{group:'motor', sub:'sensors', name:'IAT · Temp. admisión', meta:'admisión · en MAF o 2-pin', accent:'#8d6e63', shape:'tab2',
     pins:[{id:'SIG',code:'Y/G',ecm:34},{id:'GND',code:'B',ecm:null,rail:'gnd'}]},
-  etc:{group:'motor', sub:'sensors', name:'ETC throttle body', meta:'6-pin DBW · motor+TPS', accent:'#029eb7', shape:'rect6',
+  etc:{group:'motor', sub:'sensors', name:'ETC · Cuerpo mariposa DBW', meta:'6-pin DBW · motor+TPS', accent:'#029eb7', shape:'rect6',
     pins:[{id:'M+',code:'L/Y',ecm:5},{id:'M-',code:'L/B',ecm:4},{id:'5V',code:'W/R',ecm:47,rail:'5v'},{id:'T1',code:'G',ecm:50},{id:'T2',code:'Y',ecm:69},{id:'GND',code:'L',ecm:66,rail:'gnd',lab:'SNS'}],
     note:'TPS GND (actuator term. 5) → ECM 66 (L) · SNS GND throttle position sensor.'},
-  ac_press:{group:'motor', sub:'sensors', name:'A/C refrigerant press', meta:'3-pin · 5V=49 · SIG=70 · GND=67 · vía E10/F1', accent:'#ef6c00', shape:'tab3',
+  ac_press:{group:'motor', sub:'sensors', name:'A/C · Presión refrigerante', meta:'3-pin · 5V=49 · SIG=70 · GND=67 · vía E10/F1', accent:'#ef6c00', shape:'tab3',
     pins:[{id:'1',code:'B/Y',ecm:49,rail:'5v',lab:'5V'},{id:'2',code:'G/R',ecm:70,lab:'SIG'},{id:'3',code:'B/W',ecm:67,rail:'gnd',lab:'GND'}]},
-  evap_press:{group:'motor', sub:'sensors', name:'EVAP pressure', meta:'canister', accent:'#7b1fa2', shape:'tab3',
+  evap_press:{group:'motor', sub:'sensors', name:'EVAP · Sensor presión', meta:'canister', accent:'#7b1fa2', shape:'tab3',
     pins:[{id:'5V',code:'PU',ecm:48,rail:'5v'},{id:'sig',code:'BR/W',ecm:32},{id:'GND',code:'B/W',ecm:67,rail:'gnd',lab:'SNS'}]},
-  psp:{group:'motor', sub:'sensors', name:'PSP · Power steering pressure', meta:'3-pin · 5V=68 · SIG=12 · GND=67', accent:'#00897b', shape:'tab3',
+  psp:{group:'motor', sub:'sensors', name:'PSP · Presión dirección', meta:'3-pin · 5V=68 · SIG=12 · GND=67', accent:'#00897b', shape:'tab3',
     pins:[{id:'1',code:'R/W',ecm:68,rail:'5v',lab:'5V'},{id:'2',code:'L/W',ecm:12,lab:'SIG'},{id:'3',code:'B/W',ecm:67,rail:'gnd',lab:'GND'}],
     note:'FSM EC-401: 5V ECM 68 (R/W) · señal ECM 12 (L/W) · GND ECM 67 B/W (SNS compartida MAF/IAT/PSP/EVAP).'},
 
@@ -1200,7 +1402,7 @@ const CONN_BASE = {
     pins:[{id:'1',lab:'SIG',code:'PU/W',ecm:60},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
   coil6:{group:'motor', sub:'actuators', name:'Bobina 6', meta:'ECM79 GY/R · F29', accent:'#00838f', shape:'tab3',
     pins:[{id:'1',lab:'SIG',code:'GY/R',ecm:79},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
-  backup_sw:{group:'motor', sub:'actuators', name:'Back-up lamp switch', meta:'F36 · M/T reversa · LT-183 · 2-pin', accent:'#ffb300', shape:'tab2',
+  backup_sw:{group:'motor', sub:'actuators', name:'Back-up · Switch marcha atrás', meta:'F36 · M/T reversa · LT-183 · 2-pin', accent:'#ffb300', shape:'tab2',
     pins:[
       {id:'1',lab:'IN',code:'Y/R',ecm:null,rail:'12v',circ:'backup_lamp',note:'Desde E10/F1 cav2 · feed IPDM E7-26'},
       {id:'2',lab:'OUT',code:'OR',ecm:null,rail:'12v',circ:'backup_lamp',note:'→ F102 22H → luces reversa T10/T18'}
@@ -1212,25 +1414,25 @@ const CONN_BASE = {
   inj4:{group:'motor', sub:'actuators', name:'Inyector 4', meta:'ECM41 W/B', accent:'#9e9e9e', shape:'tab2', pins:[{id:'ECM',code:'W/B',ecm:41},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   inj5:{group:'motor', sub:'actuators', name:'Inyector 5', meta:'ECM21 SB', accent:'#0277bd', shape:'tab2', pins:[{id:'ECM',code:'SB',ecm:21},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   inj6:{group:'motor', sub:'actuators', name:'Inyector 6', meta:'ECM40 LG', accent:'#558b2f', shape:'tab2', pins:[{id:'ECM',code:'LG',ecm:40},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  vtc_b1:{group:'motor', sub:'actuators', name:'VTC intake B1', meta:'F204 · vía F18/F201 · ECM11', accent:'#d81b60', shape:'tab2',
+  vtc_b1:{group:'motor', sub:'actuators', name:'VTC admisión B1', meta:'F204 · vía F18/F201 · ECM11', accent:'#d81b60', shape:'tab2',
     pins:[{id:'1',lab:'SIG',code:'P',ecm:11},{id:'2',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
-  vtc_b2:{group:'motor', sub:'actuators', name:'VTC intake B2', meta:'Bank2 solo · ECM10 · sin F18', accent:'#d81b60', shape:'tab2',
+  vtc_b2:{group:'motor', sub:'actuators', name:'VTC admisión B2', meta:'Bank2 solo · ECM10 · sin F18', accent:'#d81b60', shape:'tab2',
     pins:[{id:'1',lab:'SIG',code:'W/G',ecm:10},{id:'2',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
-  vtc_ex_b1:{group:'motor', sub:'actuators', name:'VTC exhaust B1', meta:'Rev-Up · escape R', accent:'#ad1457', shape:'tab2',
+  vtc_ex_b1:{group:'motor', sub:'actuators', name:'VTC escape B1', meta:'Rev-Up · escape R', accent:'#ad1457', shape:'tab2',
     pins:[{id:'ECM',code:'?',ecm:null},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  vtc_ex_b2:{group:'motor', sub:'actuators', name:'VTC exhaust B2', meta:'Rev-Up · escape L', accent:'#ad1457', shape:'tab2',
+  vtc_ex_b2:{group:'motor', sub:'actuators', name:'VTC escape B2', meta:'Rev-Up · escape L', accent:'#ad1457', shape:'tab2',
     pins:[{id:'ECM',code:'?',ecm:null},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  evap_purge:{group:'motor', sub:'actuators', name:'EVAP purge', meta:'solenoide', accent:'#7b1fa2', shape:'tab2',
+  evap_purge:{group:'motor', sub:'actuators', name:'EVAP · Purga', meta:'solenoide', accent:'#7b1fa2', shape:'tab2',
     pins:[{id:'ECM',code:'G/W',ecm:45},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  evap_vent:{group:'motor', sub:'actuators', name:'EVAP vent', meta:'canister vent control · ECM 117 · P0447/P1446', accent:'#6a1b9a', shape:'tab2',
+  evap_vent:{group:'motor', sub:'actuators', name:'EVAP · Venteo', meta:'canister vent control · ECM 117 · P0447/P1446', accent:'#6a1b9a', shape:'tab2',
     pins:[{id:'2',code:'G/W',ecm:117,lab:'CTRL'},{id:'1',code:'12V',ecm:null,rail:'12v'}],
     note:'EVAP canister vent control valve term. 2 → ECM 117 (G/W). Path FSM: M72/F102 · B1/M12 · IPDM feed en term. 1.'},
-  fp_relay:{group:'motor', sub:'actuators', name:'FP relay', meta:'control bomba · ECM 113', accent:'#ef5350', shape:'tab2',
+  fp_relay:{group:'motor', sub:'actuators', name:'Relé bomba combustible', meta:'control bomba · ECM 113', accent:'#ef5350', shape:'tab2',
     pins:[{id:'CTRL',code:'LG/B',ecm:113},{id:'coil+',code:'12V',ecm:null,rail:'12v'}]},
 
 
   /* —— ix_* paths: single-purpose in their sub; multi stay in intermedias —— */
-  ix_e11_f2:{group:'body', sub:'pedals', name:'E11 ↔ F2 · Path APP (pedal)', meta:'10-pin GY · E113→E11/F2→ECM · EC-523', accent:'#f9a825', shape:'rect10', face:'f2',
+  ix_e11_f2:{group:'body', sub:'pedals', name:'E11 ↔ F2 · APP pedal', meta:'10-pin GY · E113→E11/F2→ECM · EC-523', accent:'#f9a825', shape:'rect10', face:'f2',
     pins:[
       {id:'1',code:'—',ecm:null},
       {id:'2',lab:'GND',code:'G/R',ecm:83,rail:'gnd'},
@@ -1242,7 +1444,7 @@ const CONN_BASE = {
       {id:'10',lab:'5V',code:'LG',ecm:90,rail:'5v'}
     ],
     note:'PATH APP: pedal E113 → E11/F2 → ECM. APP usa 6 circuitos (cavidades 2,3,4,5,9,10). Unused en APP: 1,6,7,8. Cara F2 H.S. FSM: top 1–5 / bot 6–10. Colores = F2→ECM. Labs 5V/GND en rails APP.'},
-  ix_e10_f1:{group:'motor', sub:'intermedias', name:'E10 ↔ F1 · Empalme sala máquinas ↔ arnés control', meta:'9-pin GY · START · REV Y/R · A/C · SC-13/LT-183/EC-717', accent:'#ef6c00', shape:'f1', face:'f1',
+  ix_e10_f1:{group:'motor', sub:'intermedias', name:'E10 ↔ F1 · Arranque / marcha atrás / A/C', meta:'9-pin GY · START · REV Y/R · A/C · SC-13/LT-183/EC-717', accent:'#ef6c00', shape:'f1', face:'f1',
     pins:[
       {id:'1',lab:'START',code:'B/Y',ecm:null,rail:'12v',circ:'starter',
         note:'IPDM E4-3 → E10/F1 cav1 → starter F9 · SC-13'},
@@ -1257,7 +1459,7 @@ const CONN_BASE = {
       {id:'9',lab:'SIG',code:'G/R',ecm:70}
     ],
     note:'Cav1 B/Y START (SC-13). Cav2 Y/R REV: IPDM E7-26 → F36 back-up switch (LT-183) — no ECM. Cav5/9/8 A/C → ECM 49/70/67 (EC-717). Cav 3–4/6–7 vacíos en bancada típica.'},
-  ix_e12_f3:{group:'motor', sub:'intermedias', name:'E12 ↔ F3 · Path A/F + VB', meta:'8-pin GY · VB 119/120 · IGN · GND E17 · EC-167/169 · no F102', accent:'#42a5f5', shape:'f3', face:'f3',
+  ix_e12_f3:{group:'motor', sub:'intermedias', name:'E12 ↔ F3 · Alimentación ECM + A/F', meta:'8-pin GY · VB 119/120 · IGN · GND E17 · EC-167/169 · no F102', accent:'#42a5f5', shape:'f3', face:'f3',
     pins:[
       {id:'1',code:'—',ecm:null},
       {id:'2',code:'—',ecm:null},
@@ -1269,12 +1471,12 @@ const CONN_BASE = {
       {id:'8',code:'—',ecm:null}
     ],
     note:'FSM EC-167/169 H.S. F3 (GY): cav 7 R/W → ECM 119 (VB) · cav 4 P → ECM 120 (VB) · cav 5 W/L → feed ign (IPDM E7-17, no pin ECM) · cav 6 B → E17/E43 body GND. Path A/F heater 12V también lista E12/F3 (cav exacta TBD). No pasa por F102. Cav 1–3/8: sin circuito verificado aún.'},
-  ix_f14_f229:{group:'motor', sub:'sensors', name:'F14 ↔ F229 · Path Knock', meta:'intermedia sub-arnés knock · señal→15 · shield→tierra', accent:'#42a5f5', shape:'tab2',
+  ix_f14_f229:{group:'motor', sub:'sensors', name:'F14 ↔ F229 · Knock', meta:'intermedia sub-arnés knock · señal→15 · shield→tierra', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd'}],
     note:'Intermedia F14/F229 del path knock (FSM): señal W→ECM 15 · shield→SNS GND. Referencia de circuito FSM; cara pin-number: ver manual.'},
-  ix_f103_f151:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM → body', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171', accent:'#78909c', shape:'ixnote',
+  ix_f103_f151:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: continuidad ECM ground 1/115/116 ↔ body ground. Malfunction check lista harness connectors F103, F151 (y F3/E12).'},
-  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Bobinas B1 + VTC', meta:'6-pin · Bank 1 only · EC-691/455 · no E10/F1', accent:'#ef6c00', shape:'f18',
+  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Bobinas bank 1 + VTC', meta:'6-pin · Bank 1 only · EC-691/455 · no E10/F1', accent:'#ef6c00', shape:'f18',
     pins:[
       {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd'},
       {id:'2',lab:'C3',code:'L/R',ecm:61},
@@ -1296,39 +1498,39 @@ const CONN_BASE = {
       {id:'8',code:'—',ecm:null}
     ],
     note:'FSM EC-705: F33 cav1→I5/ECM21 · 2→I3/22 · 3→I4/41 · 4→I2/42 · 5=12V · 6→I1/23 · 7→I6/40 · 8 nc. Mate F221. No es F18 (6-pin bobinas).'},
-  ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · CAN (rama ABS/DLC)', meta:'2G/7G CAN · engine room↔body · FSM LAN', accent:'#90a4ae', shape:'tab2',
+  ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · Rama CAN', meta:'2G/7G CAN · engine room↔body · FSM LAN', accent:'#90a4ae', shape:'tab2',
     pins:[{id:'2G',code:'L',ecm:94,lab:'CAN-H'},{id:'7G',code:'P',ecm:86,lab:'CAN-L'}],
     note:'Empalme sala de máquinas (E108) ↔ body (M15). Cavidades CAN verificadas: 2G L = CAN-H (cont. DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. DLC 14 / ABS E51-23). Rama hacia ABS/DLC vía body. Otras cavidades (freno/ASCD/A/F) existen; solo se listan pines CAN verificados. Cara: FSM H.S. (intermedias sin Invertida).'},
-  ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
+  ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔body', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
     pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'—',ecm:null},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'—',ecm:null},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'—',ecm:null},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'—',ecm:null},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
   note:'Puente SMJ motor↔carrocería · 13 cavidades con cable.'},
 
   /* —— Habitáculo / pedales / ASCD —— */
-  pnp:{group:'body', sub:'pedals', name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
+  pnp:{group:'body', sub:'pedals', name:'PNP / Inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
     pins:[{id:'SIG',code:'BR/Y',ecm:102},{id:'GND',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
-  app:{group:'body', sub:'pedals', name:'APP pedal E113', meta:'6-pin GY · pedal · PATH E113→E11/F2→ECM', accent:'#f9a825', shape:'rect6', face:'e113',
+  app:{group:'body', sub:'pedals', name:'APP · Pedal E113', meta:'6-pin GY · pedal · PATH E113→E11/F2→ECM', accent:'#f9a825', shape:'rect6', face:'e113',
     pins:[{id:'1',code:'G/R',ecm:83,rail:'gnd'},{id:'2',code:'R/Y',ecm:98},{id:'3',code:'B/W',ecm:82,rail:'gnd'},{id:'4',code:'B/OR',ecm:91,rail:'5v'},{id:'5',code:'Y',ecm:106},{id:'6',code:'L',ecm:90,rail:'5v'}],
     note:'PATH APP: pedal E113 → E11/F2 (10-pin GY) → ECM 90/91/82/83/98/106. Colores aquí = lado pedal (EC-523); en F2→ECM cambian (LG, G/OR, G/Y, B/OR, G/B, G/R). Cara FSM: top 3-2-1 / bot 6-5-4.'},
-  stop_lamp:{group:'body', sub:'pedals', name:'Stop lamp switch', meta:'freno · ECM 101 L/OR', accent:'#e53935', shape:'tab2',
+  stop_lamp:{group:'body', sub:'pedals', name:'Stop lamp · Interruptor freno', meta:'freno · ECM 101 L/OR', accent:'#e53935', shape:'tab2',
     pins:[{id:'SIG',code:'L/OR',ecm:101},{id:'PWR',code:'12V',ecm:null,rail:'12v'}]},
-  ascd_brake:{group:'body', sub:'pedals', name:'ASCD brake switch', meta:'2-pin · term2 → ECM 108', accent:'#fb8c00', shape:'tab2',
+  ascd_brake:{group:'body', sub:'pedals', name:'ASCD · Interruptor freno', meta:'2-pin · term2 → ECM 108', accent:'#fb8c00', shape:'tab2',
     pins:[{id:'1',code:'12V',ecm:null},{id:'2',code:'B/R',ecm:108}]},
-  ascd_clutch:{group:'body', sub:'pedals', name:'ASCD clutch switch', meta:'solo M/T · en serie con ASCD brake → señal ECM 108', accent:'#fb8c00', shape:'tab2',
+  ascd_clutch:{group:'body', sub:'pedals', name:'ASCD · Interruptor embrague', meta:'solo M/T · en serie con ASCD brake → señal ECM 108', accent:'#fb8c00', shape:'tab2',
     pins:[{id:'1',code:'B/R',ecm:null},{id:'2',code:'B/R',ecm:108}]},
-  clock_spring:{group:'body', sub:'ascd', name:'Clock spring / ASCD steer', meta:'comb. sw · SIG→99 · GND→67', accent:'#26c6da', shape:'clock',
+  clock_spring:{group:'body', sub:'ascd_dlc', name:'Clock spring · ASCD volante', meta:'comb. sw · SIG→99 · GND→67', accent:'#26c6da', shape:'clock',
     pins:[{id:'14',code:'G/Y',ecm:99},{id:'15',code:'B/W',ecm:67}]},
-  dlc:{group:'body', sub:'dlc', name:'DLC OBD-II', meta:'bajo dash · 16-pin', accent:'#7e57c2', shape:'dlc',
+  dlc:{group:'body', sub:'ascd_dlc', name:'DLC · OBD-II', meta:'bajo dash · 16-pin', accent:'#7e57c2', shape:'dlc',
     pins:[{id:'16',code:'R',ecm:null},{id:'7',code:'LG',ecm:85,lab:'K'},{id:'6',code:'L',ecm:94},{id:'14',code:'P',ecm:86},{id:'4/5',code:'B',ecm:null}],
     note:'ECM 85 (LG) = Data link / CONSULT-II · tip. DLC pin 7 (K-line). CAN en 6/14.'},
 
   /* —— Red / otros —— */
-  fuel_tank_temp:{group:'body', sub:'dlc', name:'Fuel tank temp (FTT)', meta:'fuel level sensor unit · ECM 107 GY/R · P0181/182/183', accent:'#7e57c2', shape:'tab2',
+  fuel_tank_temp:{group:'body', sub:'ascd_dlc', name:'FTT · Temp. tanque combustible', meta:'fuel level sensor unit · ECM 107 GY/R · P0181/182/183', accent:'#7e57c2', shape:'tab2',
     pins:[{id:'4',code:'GY/R',ecm:107,lab:'FTT'},{id:'5',code:'B',ecm:null,rail:'gnd',lab:'GND'}],
     note:'Fuel tank temperature sensor en fuel level sensor unit / fuel pump. Señal → ECM 107 (GY/R). Path FSM lista M72/F102 y B1/M12. Tierra (term. 5) vía unified meter M49.'},
-  fuel_level:{group:'body', sub:'dlc', name:'Fuel level', meta:'vía combination meter / CAN', accent:'#7e57c2', shape:'note',
+  fuel_level:{group:'body', sub:'ascd_dlc', name:'Nivel combustible · vía meter/CAN', meta:'vía combination meter / CAN', accent:'#7e57c2', shape:'note',
     pins:[{id:'CAN-L',code:'P',ecm:86},{id:'CAN-H',code:'L',ecm:94}],
     note:'Nivel de combustible no llega por cavidad directa al ECM: va al combination meter y se comparte por CAN (ECM 86/94).'},
-  ascd_ind:{group:'body', sub:'ascd', name:'ASCD indicator', meta:'vía combination meter / CAN', accent:'#26c6da', shape:'note',
+  ascd_ind:{group:'body', sub:'ascd_dlc', name:'ASCD · Indicador CRUISE', meta:'vía combination meter / CAN', accent:'#26c6da', shape:'note',
     pins:[{id:'CAN-L',code:'P',ecm:86},{id:'CAN-H',code:'L',ecm:94}],
     note:'Indicador ASCD (CRUISE) en el combination meter · comunicación vía bus CAN con ECM 86/94. Sin cavidad directa al ECM; ver FSM CAN/meter.'},
 };
@@ -1395,22 +1597,95 @@ function cavTopLabel(pin){
   if(lab && !/^nc$/i.test(lab) && lab !== String(pin.id)) return lab;
   return '—';
 }
+/* Uniform cavity cell size for all connector face SVGs (not ECM #blocks). */
+const CAV_STD_W = 40;
+const CAV_STD_H = 36;
+const CAV_GAP = 4;
+/* On-screen cavity size for ficha connector SVGs (not ECM #blocks). Locked fixed. */
+const CAV_CSS_PX = 67;
+const CAV_CSS_SCALE = CAV_CSS_PX / CAV_STD_W;
+/* ECM #blocks pin visual size (independent of fichas / F102). Locked default 45. */
+const ECM_PIN_PX = 45;
+function applyEcmPinPx(){
+  const n = ECM_PIN_PX;
+  const ecm = document.getElementById('ecm');
+  if(ecm){
+    const h = Math.round(n * 1.2);
+    const fs = Math.max(7, Math.round(n * 11 / 40));
+    const sm = Math.max(6, Math.round(n * 9 / 40));
+    ecm.style.setProperty('--pin-w', n + 'px');
+    ecm.style.setProperty('--ecm-pin-w', n + 'px');
+    ecm.style.setProperty('--pin-h', h + 'px');
+    ecm.style.setProperty('--ecm-pin-h', h + 'px');
+    ecm.style.setProperty('--pin-fs', fs + 'px');
+    ecm.style.setProperty('--pin-sm', sm + 'px');
+  }
+  return n;
+}
+/* F102 panel pin visual size (independent of ECM / fichas). Locked default 45. */
+const F102_PIN_PX = 45;
+function applyF102PinPx(){
+  const n = F102_PIN_PX;
+  const host = document.getElementById('f102Blocks') || document.getElementById('ecm');
+  if(host){
+    const scale = n / 34;
+    const h = Math.round(48 * scale);
+    const fs = Math.max(6, Math.round(9 * scale * 10) / 10);
+    const sm = Math.max(5, Math.round(7 * scale * 10) / 10);
+    const lgW = Math.round(44 * scale);
+    const lgH = Math.round(54 * scale);
+    const lgFs = Math.max(6, Math.round(10 * scale * 10) / 10);
+    const smW = Math.round(30 * scale);
+    const smH = Math.round(46 * scale);
+    const smFs = Math.max(5.5, Math.round(8.5 * scale * 10) / 10);
+    host.style.setProperty('--f102-pin-w', n + 'px');
+    host.style.setProperty('--f102-pin-h', h + 'px');
+    host.style.setProperty('--f102-pin-fs', fs + 'px');
+    host.style.setProperty('--f102-pin-sm', sm + 'px');
+    host.style.setProperty('--f102-pin-lg-w', lgW + 'px');
+    host.style.setProperty('--f102-pin-lg-h', lgH + 'px');
+    host.style.setProperty('--f102-pin-lg-fs', lgFs + 'px');
+    host.style.setProperty('--f102-pin-sm-w', smW + 'px');
+    host.style.setProperty('--f102-pin-sm-h', smH + 'px');
+    host.style.setProperty('--f102-pin-sm-fs', smFs + 'px');
+  }
+  return n;
+}
+
+/** Inject explicit CSS width/height from viewBox so faces don't stretch to card width. */
+function wrapConnSvg(svgStr){
+  const m = /^<svg\b([^>]*)>/.exec(svgStr);
+  if(!m) return svgStr;
+  let attrs = m[1];
+  const vb = /viewBox=["']0\s+0\s+([0-9.]+)\s+([0-9.]+)["']/.exec(attrs);
+  if(!vb) return svgStr;
+  const W = parseFloat(vb[1]), H = parseFloat(vb[2]);
+  if(!(W > 0 && H > 0)) return svgStr;
+  const wPx = Math.round(W * CAV_CSS_SCALE * 100) / 100;
+  const hPx = Math.round(H * CAV_CSS_SCALE * 100) / 100;
+  attrs = attrs.replace(/\s(width|height)=["'][^"']*["']/g, '');
+  if(!/preserveAspectRatio=/.test(attrs)) attrs += ' preserveAspectRatio="xMidYMid meet"';
+  attrs += ` width="${wPx}" height="${hPx}"`;
+  return '<svg' + attrs + '>' + svgStr.slice(m[0].length);
+}
+
 function cavGroup(cid, pin, x, y, w, h, rx){
-  const code = pin.code || '';
+  const isUnk = !!(pin && pin.unknown);
+  const code = isUnk ? '?' : (pin.code || '');
   const wcol = parseWire(code);
-  const sc = wcol.c1;
+  const sc = isUnk ? '#78909c' : wcol.c1;
   const rx0 = rx||3;
   const safeId = String(cid).replace(/[^A-Za-z0-9_-]/g,'_') + '-' + String(pin.id).replace(/[^A-Za-z0-9_-]/g,'_');
   const gid = 'grad-' + safeId;
   let defs = '';
-  let fillVal = fillFor(code);
-  if(wcol.tracer){
+  let fillVal = isUnk ? '#263238' : fillFor(code);
+  if(!isUnk && wcol.tracer){
     defs = `<defs><linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="50%" stop-color="${wcol.c1}"/><stop offset="50%" stop-color="${wcol.c2}"/>
     </linearGradient></defs>`;
     fillVal = `url(#${gid})`;
   }
-  const inset = wcol.tracer
+  const inset = (!isUnk && wcol.tracer)
     ? `<rect class="cav-tracer" x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="${Math.max(1,rx0-1)}"
         fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
@@ -1418,11 +1693,12 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   /* Face order (fichas, not ECM grid): ECM top · wire code mid · cavity name/id bottom */
   const disp = String(pin.id); /* real cavity id on face; lab stays in title */
   const lc = mode === 'solid' ? '' : labClass(cavDisplayLab(pin));
-  const rail = cavRailOf(pin);
+  const rail = isUnk ? null : cavRailOf(pin);
   let txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
   if(mode !== 'solid' && lc === 'lab-5v') txtFill = '#F9A825';
   if(mode !== 'solid' && lc === 'lab-12v') txtFill = '#C62828';
   if(mode !== 'solid' && lc === 'lab-gnd') txtFill = '#81C784';
+  if(isUnk) txtFill = '#b0bec5';
   const ink = (c) => svgInk(c, true);
   /* Scale 3 lines to cavity height so short IPDM faces don't stack/halo-overlap */
   const topPad = Math.max(7, Math.min(10, h * 0.28));
@@ -1432,22 +1708,27 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const codeY = (ecmY + idY) / 2 + 1;
   const codeSw = h < 28 ? 1.05 : (h < 34 ? 1.25 : 1.45);
   const railAttr = rail ? ` data-rail="${rail}"` : '';
-  const ecmFace = cavTopLabel(pin);
+  const ecmFace = isUnk ? '—' : cavTopLabel(pin);
   let topFill = (mode === 'solid') ? txtFill : '#90caf9';
-  if(pin.ecm == null){
+  if(isUnk){
+    topFill = '#90a4ae';
+  } else if(pin.ecm == null){
     if(rail === 'gnd') topFill = mode === 'solid' ? txtFill : '#81C784';
     else if(rail === '12v') topFill = mode === 'solid' ? txtFill : '#ef9a9a';
     else if(rail === '5v') topFill = mode === 'solid' ? txtFill : '#F9A825';
     else topFill = mode === 'solid' ? txtFill : '#90a4ae';
   }
-  const cavCls = h < 30 ? ' cav-compact' : '';
+  const midFace = isUnk
+    ? `<text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" ${ink('#b0bec5')} font-size="${h<30?11:13}" font-weight="800">?</text>`
+    : wireCodeSvg(code, x+w/2, codeY, 'cav-sub cav-code', true, codeSw);
+  const cavCls = (h < 30 ? ' cav-compact' : '') + (isUnk ? ' cav-unknown' : '');
   return `<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr} role="button">
     ${defs}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
     ${inset}
     <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(topFill)}>${esc(ecmFace)}</text>
-    ${wireCodeSvg(code, x+w/2, codeY, 'cav-sub cav-code', true, codeSw)}
+    ${midFace}
     <text class="cav-label ${lc}" x="${x+w/2}" y="${idY}" text-anchor="middle" ${ink(txtFill)}>${esc(disp)}</text>
   </g>`;
 }
@@ -1467,13 +1748,17 @@ function svgF33(cid, f){
   /* F33 H.S. 8-pin: top 1–4 / bot 5–8 (EC-705) */
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   const orderTop = flipRow(['1','2','3','4']), orderBot = flipRow(['5','6','7','8']);
-  const W=200, H=108;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=14, topY=20;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 4*cw + 3*gap;
+  const H = botY + ch + 12;
   let cavities='';
-  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 14+i*46, 24, 40, 34, 4); });
-  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 14+i*46, 62, 40, 34, 4); });
+  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
+  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M84 2 h32 l6 10 H78 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="192" height="92" rx="8" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="8" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -1482,14 +1767,18 @@ function svgF18(cid, f){
   /* F18 H.S. black 6-pin: top 1–2–3 / bot 4–5–6 (EC-691) */
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   const orderTop = flipRow(['1','2','3']), orderBot = flipRow(['4','5','6']);
-  const W=168, H=108;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=22, topY=20;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 3*cw + 2*gap;
+  const H = botY + ch + 12;
   let cavities='';
-  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 22+i*46, 24, 40, 34, 4); });
-  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 22+i*46, 62, 40, 34, 4); });
+  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
+  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M68 2 h32 l6 10 H62 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="160" height="92" rx="8" style="stroke:#424242;fill:#212121"/>
-    <rect x="12" y="20" width="144" height="80" rx="4" fill="#ef6c00" stroke="#e65100" stroke-width="1"/>
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="8" style="stroke:#424242;fill:#212121"/>
+    <rect x="12" y="20" width="${W-24}" height="${H-32}" rx="4" fill="#ef6c00" stroke="#e65100" stroke-width="1"/>
     ${cavities}
   </svg>`;
 }
@@ -1497,18 +1786,26 @@ function svgF18(cid, f){
 function svgAf6(cid, f){
   const byId = Object.fromEntries(f.pins.map(p=>[p.id,p]));
   const orderTop = flipRow(['5','3','1']), orderBot = flipRow(['6','4','2']);
-  const W=148, H=100;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=14, topY=20;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 3*cw + 2*gap;
+  const H = botY + ch + 12;
   let cavities='';
-  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 18+i*42, 20, 36, 34, 4); });
-  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 18+i*42, 58, 36, 34, 4); });
+  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
+  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M58 2 h32 l6 10 H52 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="140" height="84" rx="6" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 function svgRect6(cid, f){
-  const W=148, H=100;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=14, topY=20;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 3*cw + 2*gap;
+  const H = botY + ch + 12;
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   let top, bot;
   if(f.face === 'e113'){
@@ -1519,38 +1816,43 @@ function svgRect6(cid, f){
     bot = flipRow((f.pins||[]).slice(3,6));
   }
   let cavities='';
-  top.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*42, 20, 36, 34, 4); });
-  bot.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*42, 58, 36, 34, 4); });
+  top.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
+  bot.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M58 2 h32 l6 10 H52 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="140" height="84" rx="6" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgTabN(cid, f, n){
   const cols = Math.min(n, f.pins.length);
-  const W = 28 + cols*40;
-  const H = 72;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=14, topY=20;
+  const W = padX*2 + cols*cw + Math.max(0,cols-1)*gap;
+  const H = topY + ch + 12;
   let cavities='';
   // Intermediate connectors (ix_*): always FSM H.S. pin order (no Invertida L/R)
   const row = String(cid).startsWith('ix_') ? f.pins.slice(0,cols) : flipRow(f.pins.slice(0,cols));
-  row.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*40, 24, 34, 38, 4); });
+  row.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
   const tabX = W/2 - 16;
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${tabX} 2 h32 l5 10 H${tabX-5} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="${W-8}" height="56" rx="5" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgRect4(cid, f){
-  const W=134, H=72;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=12, topY=20;
+  const W = padX*2 + 4*cw + 3*gap;
+  const H = topY + ch + 12;
   let cavities='';
-  flipRow(f.pins.slice(0,4)).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 12+i*30, 22, 26, 38, 3); });
+  flipRow(f.pins.slice(0,4)).forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M51 2 h32 l5 10 H46 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="126" height="56" rx="5" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -1603,18 +1905,20 @@ function cavOrEmpty(cid, byId, id, x, y, w, h){
   return cavEmpty(x, y, w, h, id);
 }
 
-/** IPDM E3 · PG-26 H.S.: vertical 2-pin, top=2 bottom=1 · 1-col → Invertida L/R = same */
+/** IPDM E3 · PG-26: 2-pin horizontal (90° CCW from old vertical top=2/bot=1).
+ *  FSM L→R: cav 2 then 1 · Invertida = flipRow → 1 then 2. */
 function svgIpdmE3(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  /* Compact 2-pin — keep ~original footprint; labels still readable at ch=34 */
-  const W=56, H=100, cw=36, ch=34;
-  // single column: L↔R mirror has no effect (keep FSM H.S. top=2 bot=1)
+  const row = flipRow(['2','1']);
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=10, topY=18;
+  const W = padX*2 + 2*cw + gap;
+  const H = topY + ch + 12;
   let cavities = '';
-  cavities += cavOrEmpty(cid, byId, '2', 10, 18, cw, ch);
-  cavities += cavOrEmpty(cid, byId, '1', 10, 56, cw, ch);
+  row.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M12 2 h32 l5 10 H7 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="48" height="84" rx="5" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -1624,15 +1928,17 @@ function svgIpdmE4(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   const top = flipRow(['3','5']);
   const bot = flipRow(['4','6']);
-  const cw=38, ch=38, gap=4;
-  const W = 12 + 2*(cw+gap);
-  const H = 112;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=8, topY=18;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 2*cw + gap;
+  const H = botY + ch + 12;
   let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+i*(cw+gap), 18, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+i*(cw+gap), 62, cw, ch); });
+  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
+  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="12" width="${W-6}" height="96" rx="5" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -1642,15 +1948,17 @@ function svgIpdmE5(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   const top = flipRow(['7','9']);
   const bot = flipRow(['8','10']);
-  const cw=38, ch=38, gap=4;
-  const W = 12 + 2*(cw+gap);
-  const H = 112;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=8, topY=18;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 2*cw + gap;
+  const H = botY + ch + 12;
   let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+i*(cw+gap), 18, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+i*(cw+gap), 62, cw, ch); });
+  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
+  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="12" width="${W-6}" height="96" rx="5" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -1660,15 +1968,17 @@ function svgIpdmE6(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   const top = flipRow(['14','15','16']);
   const bot = flipRow(['11','12','13']);
-  const cw=36, ch=38, gap=3;
-  const W = 12 + 3*(cw+gap);
-  const H = 112;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=8, topY=18;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 3*cw + 2*gap;
+  const H = botY + ch + 12;
   let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+i*(cw+gap), 18, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+i*(cw+gap), 62, cw, ch); });
+  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
+  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="12" width="${W-6}" height="96" rx="5" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -1676,15 +1986,18 @@ function svgIpdmE6(cid, f){
 /** IPDM E7 · PG-26 H.S.: 2×9 — L:17,18,19,∅,∅,20–23 · R:24–32 · Invertida = swap L↔R cols */
 function svgIpdmE7(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  let left = [17,18,19,null,null,20,21,22,23];
-  let right = [24,25,26,27,28,29,30,31,32];
-  if(isFaceInv()){ const t=left; left=right; right=t; }
-  const cw=36, ch=32, gapX=5, gapY=3;
-  const W = 14 + 2*(cw+gapX);
-  const H = 16 + 9*(ch+gapY) + 6;
+  /* Acostada: 2 rows × 9 — top=ex-left col, bot=ex-right; Invertida swaps rows */
+  let top = [17,18,19,null,null,20,21,22,23];
+  let bot = [24,25,26,27,28,29,30,31,32];
+  if(isFaceInv()){ const tmp=top; top=bot; bot=tmp; }
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=8, topY=14;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 9*cw + 8*gap;
+  const H = botY + ch + 12;
   let cavities='';
-  left.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8, 14+i*(ch+gapY), cw, ch); });
-  right.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+cw+gapX, 14+i*(ch+gapY), cw, ch); });
+  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
+  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 9 H${W/2-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="11" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
@@ -1695,15 +2008,18 @@ function svgIpdmE7(cid, f){
 /** IPDM E8 · PG-26 H.S.: 2×7 — L:44,43,∅,∅,40,39,38 · R:37,36,42,41,35,34,33 · Invertida = swap L↔R */
 function svgIpdmE8(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  let left = [44,43,null,null,40,39,38];
-  let right = [37,36,42,41,35,34,33];
-  if(isFaceInv()){ const t=left; left=right; right=t; }
-  const cw=36, ch=34, gapX=5, gapY=3;
-  const W = 14 + 2*(cw+gapX);
-  const H = 16 + 7*(ch+gapY) + 6;
+  /* Acostada: 2 rows × 7 — top=ex-left, bot=ex-right; Invertida swaps rows */
+  let top = [44,43,null,null,40,39,38];
+  let bot = [37,36,42,41,35,34,33];
+  if(isFaceInv()){ const tmp=top; top=bot; bot=tmp; }
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=8, topY=14;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 7*cw + 6*gap;
+  const H = botY + ch + 12;
   let cavities='';
-  left.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8, 14+i*(ch+gapY), cw, ch); });
-  right.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+cw+gapX, 14+i*(ch+gapY), cw, ch); });
+  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
+  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 9 H${W/2-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="11" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
@@ -1716,69 +2032,84 @@ function svgIpdmE9(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   const top = flipRow(['53','54','55','56','57','58','59','60']);
   const bot = flipRow(['45','46','47','48','49','50','51','52']);
-  const cw=32, ch=38, gap=3;
-  const W = 12 + 8*(cw+gap);
-  const H = 112;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=8, topY=18;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 8*cw + 7*gap;
+  const H = botY + ch + 12;
   let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+i*(cw+gap), 18, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, 8+i*(cw+gap), 62, cw, ch); });
+  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
+  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="12" width="${W-6}" height="96" rx="5" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgDlc(cid, f){
   // Simplified OBD trapezoid · key pins · Invertida = flipRow L↔R of the pin row
-  const W=160, H=84;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=16, topY=18;
+  const W = padX*2 + 4*cw + 3*gap;
+  const H = topY + ch + 20;
   let cavities='';
   const ids = flipRow(['16','6','14','4/5']);
-  const xs = [16,50,84,118];
   const byId = Object.fromEntries(f.pins.map(p=>[p.id,p]));
   ids.forEach((id,i)=>{
     const p = byId[id];
-    if(p) cavities+=cavGroup(cid,p, xs[i], 18, 32, 42, 3);
+    if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3);
   });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="shell" d="M10 10 L150 10 L142 74 L18 74 Z" style="stroke:${f.accent};fill:#0f1319"/>
+    <path class="shell" d="M10 10 L${W-10} 10 L${W-18} ${H-10} L18 ${H-10} Z" style="stroke:${f.accent};fill:#0f1319"/>
     ${cavities}
   </svg>`;
 }
 
 function svgBox(cid, f){
-  const W=120, H=66;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const n = Math.max(1, (f.pins||[]).length);
+  const padX=14, topY=12;
+  const W = padX*2 + n*cw + Math.max(0,n-1)*gap;
+  const H = topY + ch + 12;
   let cavities='';
-  flipRow(f.pins).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*50, 12, 44, 42, 3); });
+  flipRow(f.pins).forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <rect class="shell" x="4" y="4" width="112" height="58" rx="3" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="4" width="${W-8}" height="${H-8}" rx="3" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgClock(cid, f){
-  const W=130, H=94;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=18, cavY=42;
+  const W = padX*2 + 2*cw + gap;
+  const H = cavY + ch + 12;
   let cavities='';
-  flipRow(f.pins.slice(0,2)).forEach((p,i)=>{ cavities+=cavGroup(cid,p, 18+i*52, 42, 44, 38, 4); });
+  flipRow(f.pins.slice(0,2)).forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), cavY, cw, ch, 4); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <circle class="shell" cx="65" cy="28" r="20" style="stroke:${f.accent};fill:#0f1319"/>
-    <path d="M65 16 a12 12 0 0 1 0 24 a8 8 0 0 0 0 -16" fill="none" stroke="${f.accent}" stroke-width="1.6" opacity=".85"/>
-    <text x="65" y="32" text-anchor="middle" font-size="8" fill="#90caf9" font-weight="700">clock</text>
-    <rect class="shell" x="8" y="34" width="114" height="54" rx="6" style="stroke:${f.accent}"/>
+    <circle class="shell" cx="${W/2}" cy="28" r="20" style="stroke:${f.accent};fill:#0f1319"/>
+    <path d="M${W/2} 16 a12 12 0 0 1 0 24 a8 8 0 0 0 0 -16" fill="none" stroke="${f.accent}" stroke-width="1.6" opacity=".85"/>
+    <text x="${W/2}" y="32" text-anchor="middle" font-size="8" fill="#90caf9" font-weight="700">clock</text>
+    <rect class="shell" x="8" y="34" width="${W-16}" height="${H-40}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
 
 function svgNote(cid, f){
-  const W=148, H=78;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const pins = flipRow((f.pins||[]).slice(0,2));
+  const n = Math.max(1, pins.length);
+  const padX=14, topY=28;
+  const W = Math.max(148, padX*2 + n*cw + Math.max(0,n-1)*gap);
+  const H = topY + ch + 14;
   let cavities='';
-  pins.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*66, 28, 58, 38, 4); });
+  pins.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
   // Feed SVG badge: always English (JA strings are too wide; EN is universal here)
   const enName = (CONN_I18N[cid] && CONN_I18N[cid].en && CONN_I18N[cid].en.name) || f.name || 'feed';
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <rect class="shell" x="4" y="4" width="140" height="70" rx="6" style="stroke:${f.accent}"/>
-    <text x="74" y="18" text-anchor="middle" font-size="8" fill="#90caf9" font-weight="700">${esc(String(enName).slice(0, 28))}</text>
+    <rect class="shell" x="4" y="4" width="${W-8}" height="${H-8}" rx="6" style="stroke:${f.accent}"/>
+    <text x="${W/2}" y="18" text-anchor="middle" font-size="8" fill="#90caf9" font-weight="700">${esc(String(enName).slice(0, 28))}</text>
     ${cavities}
   </svg>`;
 }
@@ -1790,13 +2121,17 @@ function svgRect10(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   const top = ['1','2','3','4','5'].map(id=>byId[id]).filter(Boolean);
   const bot = ['6','7','8','9','10'].map(id=>byId[id]).filter(Boolean);
-  const W=210, H=100;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=10, topY=20;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 5*cw + 4*gap;
+  const H = botY + ch + 12;
   let cavities='';
-  top.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 10+i*38, 20, 34, 34, 3); });
-  bot.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 10+i*38, 58, 34, 34, 3); });
+  top.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3); });
+  bot.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 3); });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M89 2 h32 l6 10 H83 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="202" height="84" rx="6" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -1804,21 +2139,27 @@ function svgRect10(cid, f){
 /** F1 · 9-pin GY H.S. (EC-717): pin 1 alone left; top 2–5; bot 6–9 */
 function svgF1(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const W=220, H=100;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=8, topY=18;
+  const botY = topY + ch + gap;
+  const leftX = padX;
+  const gridX = padX + cw + gap;
+  const W = gridX + 4*cw + 3*gap + padX;
+  const H = botY + ch + 12;
   let cavities = '';
   const p1 = byId['1'] || {id:'1',code:'—',ecm:null};
-  cavities += cavGroup(cid, p1, 8, 38, 28, 36, 3);
+  cavities += cavGroup(cid, p1, leftX, topY + (ch+gap)/2, cw, ch, 3);
   ['2','3','4','5'].forEach((id,i)=>{
     const p = byId[id] || {id,code:'—',ecm:null};
-    cavities += cavGroup(cid, p, 44+i*40, 18, 36, 34, 3);
+    cavities += cavGroup(cid, p, gridX+i*(cw+gap), topY, cw, ch, 3);
   });
   ['6','7','8','9'].forEach((id,i)=>{
     const p = byId[id] || {id,code:'—',ecm:null};
-    cavities += cavGroup(cid, p, 44+i*40, 56, 36, 34, 3);
+    cavities += cavGroup(cid, p, gridX+i*(cw+gap), botY, cw, ch, 3);
   });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M94 2 h32 l6 10 H88 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="212" height="84" rx="6" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -1826,19 +2167,23 @@ function svgF1(cid, f){
 /** F3 · 8-pin GY H.S. (EC-167): top 1–4 / bot 5–8 */
 function svgF3(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const W=190, H=100;
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=12, topY=18;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 4*cw + 3*gap;
+  const H = botY + ch + 12;
   let cavities='';
   ['1','2','3','4'].forEach((id,i)=>{
     const p = byId[id] || {id,code:'—',ecm:null};
-    cavities += cavGroup(cid, p, 12+i*42, 18, 38, 34, 3);
+    cavities += cavGroup(cid, p, padX+i*(cw+gap), topY, cw, ch, 3);
   });
   ['5','6','7','8'].forEach((id,i)=>{
     const p = byId[id] || {id,code:'—',ecm:null};
-    cavities += cavGroup(cid, p, 12+i*42, 56, 38, 34, 3);
+    cavities += cavGroup(cid, p, padX+i*(cw+gap), botY, cw, ch, 3);
   });
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M79 2 h32 l6 10 H73 Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="182" height="84" rx="6" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
   </svg>`;
 }
@@ -1873,12 +2218,11 @@ function svgF102(cid, f){
     { top:['1H','2H','3H','4H','5H'], bot:['6H','7H','8H','9H','10H'] },
     { top:['11H','12H','13H','14H','15H','16H','17H','18H','19H','20H'], bot:['21H','22H','23H','24H','25H','26H','27H','28H','29H'] },
   ];
-  /* PG-85: left larger; mid smaller. R 30H–46H = compact stub (no empty cavities). */
-  const sizes = [{cw:28,ch:34},{cw:18,ch:28}];
-  const gap=2, blockGap=8, padX=8, padTop=16;
+  /* Uniform CAV_STD for both L/M blocks (same cell size as other faces). */
+  const cw=CAV_STD_W, ch=CAV_STD_H;
+  const gap=CAV_GAP, blockGap=8, padX=8, padTop=16;
   let cavities='', x=padX;
   blocks.forEach((blk, bi)=>{
-    const cw = sizes[bi].cw, ch = sizes[bi].ch;
     const cols = Math.max(blk.top.length, blk.bot.length);
     blk.top.forEach((id,i)=>{
       const p = byId[id] || {id, code:'—', ecm:null};
@@ -1890,14 +2234,13 @@ function svgF102(cid, f){
     });
     if(bi < blocks.length-1){
       const dx = x + cols*(cw+gap) + blockGap/2 - 1;
-      const h = Math.max(sizes[0].ch, sizes[1].ch);
-      cavities += `<line x1="${dx}" y1="${padTop-2}" x2="${dx}" y2="${padTop+2*h+gap+2}" stroke="${f.accent}" stroke-width="1" opacity="0.45"/>`;
+      cavities += `<line x1="${dx}" y1="${padTop-2}" x2="${dx}" y2="${padTop+2*ch+gap+2}" stroke="${f.accent}" stroke-width="1" opacity="0.45"/>`;
     }
     x += cols*(cw+gap) + blockGap;
   });
   /* Compact R stub instead of 30H–46H empty cavities */
   const stubW = 18;
-  const hMax = 2*Math.max(...sizes.map(s=>s.ch)) + gap;
+  const hMax = 2*ch + gap;
   cavities += `<rect x="${x}" y="${padTop}" width="${stubW}" height="${hMax}" rx="2" fill="#1a1f28" stroke="#455a64" stroke-width="1" stroke-dasharray="3 2" opacity="0.9"/>`;
   cavities += `<text x="${x+stubW/2}" y="${padTop+12}" text-anchor="middle" font-size="7" fill="#78909c" font-weight="800">30H</text>`;
   cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2+3}" text-anchor="middle" font-size="10" fill="#78909c" font-weight="700">—</text>`;
@@ -1914,36 +2257,39 @@ function svgF102(cid, f){
   </svg>`;
 }
 
+
 function renderConnSvg(cid, f){
   f = Object.assign({}, f, { accent: accentForConn(f) });
+  let svg;
   switch(f.shape){
-    case 'f33': return svgF33(cid,f);
-    case 'f18': return svgF18(cid,f);
-    case 'af6': return svgAf6(cid,f);
-    case 'rect6': return svgRect6(cid,f);
-    case 'rect10': return svgRect10(cid,f);
-    case 'f1': return svgF1(cid,f);
-    case 'f3': return svgF3(cid,f);
-    case 'tab2': return svgTabN(cid,f,2);
-    case 'tab3': return svgTabN(cid,f,3);
-    case 'rect4': return svgRect4(cid,f);
-    case 'ring': return svgRing(cid,f);
-    case 'ipdm_e3': return svgIpdmE3(cid,f);
-    case 'ipdm_e4': return svgIpdmE4(cid,f);
-    case 'ipdm_e5': return svgIpdmE5(cid,f);
-    case 'ipdm_e6': return svgIpdmE6(cid,f);
-    case 'ipdm_e7': return svgIpdmE7(cid,f);
-    case 'ipdm_e8': return svgIpdmE8(cid,f);
-    case 'ipdm_e9': return svgIpdmE9(cid,f);
-    case 'dlc': return svgDlc(cid,f);
-    case 'box': return svgBox(cid,f);
-    case 'clock': return svgClock(cid,f);
-    case 'note': return svgNote(cid,f);
-    case 'ixnote': return svgIxNote(cid,f);
+    case 'f33': svg = svgF33(cid,f); break;
+    case 'f18': svg = svgF18(cid,f); break;
+    case 'af6': svg = svgAf6(cid,f); break;
+    case 'rect6': svg = svgRect6(cid,f); break;
+    case 'rect10': svg = svgRect10(cid,f); break;
+    case 'f1': svg = svgF1(cid,f); break;
+    case 'f3': svg = svgF3(cid,f); break;
+    case 'tab2': svg = svgTabN(cid,f,2); break;
+    case 'tab3': svg = svgTabN(cid,f,3); break;
+    case 'rect4': svg = svgRect4(cid,f); break;
+    case 'ring': svg = svgRing(cid,f); break;
+    case 'ipdm_e3': svg = svgIpdmE3(cid,f); break;
+    case 'ipdm_e4': svg = svgIpdmE4(cid,f); break;
+    case 'ipdm_e5': svg = svgIpdmE5(cid,f); break;
+    case 'ipdm_e6': svg = svgIpdmE6(cid,f); break;
+    case 'ipdm_e7': svg = svgIpdmE7(cid,f); break;
+    case 'ipdm_e8': svg = svgIpdmE8(cid,f); break;
+    case 'ipdm_e9': svg = svgIpdmE9(cid,f); break;
+    case 'dlc': svg = svgDlc(cid,f); break;
+    case 'box': svg = svgBox(cid,f); break;
+    case 'clock': svg = svgClock(cid,f); break;
+    case 'note': svg = svgNote(cid,f); break; /* feed notes have cavities → scale */
+    case 'ixnote': return svgIxNote(cid,f); /* no cavities; leave flexible */
     case 'f102':
-    case 'smj_h': return svgF102(cid,f);
-    default: return svgTabN(cid,f,f.pins.length||2);
+    case 'smj_h': svg = svgF102(cid,f); break;
+    default: svg = svgTabN(cid,f,f.pins.length||2); break;
   }
+  return wrapConnSvg(svg);
 }
 
 
@@ -1958,7 +2304,8 @@ const I18N = {
     lblOrient: 'Orientación ECM',
     lblLang: 'Idioma',
     collapseIdle: 'Colapsar subcats sin selección',
-    colorCodes: 'Códigos de color en texto',
+    nestBobinas: 'Bobinas',
+    nestInyectores: 'Inyectores',
     optsSummary: 'Opciones / Options',
     railActive: 'Rails activos',
     pinEcm: 'Pin ECM',
@@ -1972,7 +2319,7 @@ const I18N = {
     optFsm: 'FSM normal',
     searchPh: 'Buscar: 101, ASCD, APP, stop, CAN…',
     clear: 'Limpiar',
-    fichasTitle: 'Fichas · Arnés motor + Habitáculo / Body',
+    fichasTitle: 'Fichas',
     selTopTitle: '選択グループ',
     selTopGroups: 'グループ',
     selTopSub: '選択を上に · 下に通常グループ',
@@ -1985,6 +2332,7 @@ const I18N = {
     footer: 'Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio. Colores y pinouts según FSM EC/PG 2005 VQ35DE salvo donde se indique variante.',
     legendNote: 'R/W = base/tracer (base / trazador)',
     infoEmpty: 'Click cualquier pin o ficha para ver la conexión completa.',
+    unkPin: '—',
     ecmTitle: 'EC-123 · ECM pin grid (VQ35DE)',
     ecmTitleHr: 'ECM HR · pinout distinto (3 conectores)',
     hrBanner: '<b>VQ35HR (2007–2008):</b> ECM de 3 conectores / arquitectura distinta. El grid EC-123 de un conector (DE) no aplica. Pinout distinto — ver FSM 2007 EC. Debajo se muestran fichas motor + habitáculo donde aplican (pinout ECM distinto).',
@@ -2006,7 +2354,8 @@ const I18N = {
     lblOrient: 'ECM orientation',
     lblLang: 'Language',
     collapseIdle: 'Collapse unused subcategories',
-    colorCodes: 'Colored wire codes in text',
+    nestBobinas: 'Coils',
+    nestInyectores: 'Injectors',
     optsSummary: 'Options',
     railActive: 'Rails active',
     railGnd: 'Ground / GND',
@@ -2020,10 +2369,11 @@ const I18N = {
     optFsm: 'FSM normal',
     searchPh: 'Search: 101, ASCD, APP, stop, CAN…',
     clear: 'Clear',
-    fichasTitle: 'Connectors · Engine harness + Cabin / Body',
+    fichasTitle: 'Connectors',
     footer: 'OEM FSM reference · NicoClub / jdmfsm · not a substitute for the service manual. Colors & pinouts per 2005 VQ35DE FSM EC/PG unless noted.',
     legendNote: 'R/W = base/tracer',
     infoEmpty: 'Click any pin or connector card to see the full connection.',
+    unkPin: '—',
     ecmTitle: 'EC-123 · ECM pin grid (VQ35DE)',
     ecmTitleHr: 'HR ECM · different pinout (3 connectors)',
     hrBanner: '<b>VQ35HR (2007–2008):</b> 3-connector ECM / different architecture. The single-connector EC-123 (DE) grid does not apply. Different pinout — see 2007 FSM EC. Engine + cabin cards below still apply where relevant.',
@@ -2045,7 +2395,8 @@ const I18N = {
     lblOrient: 'ECM向き',
     lblLang: '言語',
     collapseIdle: '未選択のサブを折りたたむ',
-    colorCodes: '文字のワイヤー色コード',
+    nestBobinas: 'コイル',
+    nestInyectores: 'インジェクタ',
     railActive: 'レール ON',
     railGnd: 'アース / GND',
     railTitle: '電源/アースレールを強調',
@@ -2059,10 +2410,11 @@ const I18N = {
     optFsm: 'FSM通常',
     searchPh: '検索: 101, ASCD, APP, stop, CAN…',
     clear: 'クリア',
-    fichasTitle: 'コネクタ · エンジンハーネス + 車室内 / ボディ',
+    fichasTitle: 'コネクタ',
     footer: 'OEM FSM参照 · NicoClub / jdmfsm · サービスマニュアルの代用ではありません。色とピン配列は2005 VQ35DE FSM EC/PG準拠（注記がある場合を除く）。',
     legendNote: 'R/W = ベース/トレーサー',
     infoEmpty: 'ピンまたはコネクタカードをクリックすると接続全体を表示します。',
+    unkPin: '—',
     ecmTitle: 'EC-123 · ECMピン配列（VQ35DE）',
     ecmTitleHr: 'HR ECM · ピン配列が異なる（3コネクタ）',
     hrBanner: '<b>VQ35HR（2007–2008）:</b> 3コネクタECM / 構成が異なります。DEの単一コネクタEC-123グリッドは適用されません。ピン配列は別 — FSM 2007 ECを参照。下のエンジン＋車室内カードは該当箇所で利用できます。',
@@ -2227,8 +2579,6 @@ function applyLang(){
   setLabel('lblLang', 'lblLang');
   const cit = document.getElementById('lblCollapseIdleTxt');
   if(cit) cit.textContent = t('collapseIdle');
-  const cct = document.getElementById('lblColorCodesTxt');
-  if(cct) cct.textContent = t('colorCodes');
   const rg = document.getElementById('railGnd'); if(rg) rg.textContent = t('railGnd');
   const rt = document.getElementById('railToggles'); if(rt) rt.title = t('railTitle');
   const oo = document.getElementById('optOutlines'); if(oo) oo.textContent = t('optOutlines');
@@ -2265,7 +2615,7 @@ function renderLegend(){
 function isPinActive(p){
   if(p==null) return false;
   if(PIN_COL[p]) return true;
-  const name = PIN_NAME[p];
+  const name = pinName(p);
   if(name && name !== '—') return true;
   if((pinToCirc[p]||[]).length) return true;
   return false;
@@ -2314,7 +2664,7 @@ function makePinEl(p){
   d.style.setProperty('--pin-fg', fgForWire(wcol));
   if(LIGHT_FILLS.has(wcol.c1) && !wcol.tracer) d.classList.add('light-wire');
   d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>`;
-  d.title = `Pin ${p} ${PIN_NAME[p]||''} ${code}`;
+  d.title = `Pin ${p} ${pinName(p)||''} ${code}`;
   d.onclick = () => selectPin(p);
   return d;
 }
@@ -2445,10 +2795,21 @@ function setF102PanelOpen(wantOpen){
   if(!panel) return;
   panel.open = !!wantOpen;
 }
-/** Call while a selection is active: open only if F102 is in the conn set. */
-function syncF102PanelForSelection(connIds){
+/** Back-up / marcha atrás: never open F102 panel (notes may still mention F102 22H). */
+function shouldCollapseF102ForBackup(circIds, focusConn){
+  if(focusConn === 'backup_sw') return true;
+  if((circIds||[]).includes('backup_lamp')) return true;
+  return false;
+}
+/** Call while a selection is active: open only if F102 is in the conn set (unless forced collapse). */
+function syncF102PanelForSelection(connIds, opts){
   const panel = document.getElementById('f102Panel');
   if(!panel) return;
+  if(opts && opts.collapseF102){
+    panel.open = false;
+    panel.classList.remove('hl');
+    return;
+  }
   const hit = [...new Set((connIds||[]).filter(Boolean))].includes('ix_f102_m72');
   panel.open = hit;
   if(hit) panel.classList.add('hl');
@@ -2641,17 +3002,17 @@ const CONN_I18N = {
   },
 
   /* —— remaining connectors —— */
-  ipdm_e3: { en:{name:'IPDM E3', meta:'2-pin · batt in · PG-26'}, ja:{name:'IPDM E3（バッテリ入力）', meta:'2ピン · バッテリ入力 · PG-26'} },
-  ipdm_e7: { en:{name:'IPDM E7', meta:'VB / lamps / wiper · PG-26 · EC/LT/WW/SC'}, ja:{name:'IPDM E7（VB / ランプ / ワイパー）', meta:'VB / ランプ / ワイパー · PG-26'} },
-  ipdm_e8: { en:{name:'IPDM E8', meta:'GND / VMOT / FP / A/C · PG-26'}, ja:{name:'IPDM E8（アース / VMOT / FP / A/C）', meta:'GND / VMOT / FP / A/C · PG-26'} },
-  ipdm_e9: { en:{name:'IPDM E9', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'}, ja:{name:'IPDM E9（SSOFF / MOTRLY / CANバス）', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'} },
-  ipdm_e4: { en:{name:'IPDM E4', meta:'starter · PG-26 · SC-13/14 · Inv face'}, ja:{name:'IPDM E4（スタータ）', meta:'スタータ · PG-26 · 反転面'} },
-  ipdm_e5: { en:{name:'IPDM E5', meta:'cooling fan · PG-26 · EC-510 · Inv face'}, ja:{name:'IPDM E5（冷却ファン）', meta:'冷却ファン · PG-26 · 反転面'} },
-  ipdm_e6: { en:{name:'IPDM E6', meta:'cooling fan / 40A in · EC-510 · Inv face'}, ja:{name:'IPDM E6（冷却ファン / 40A）', meta:'冷却ファン / 40A入力 · 反転面'} },
+  ipdm_e3: { en:{name:'IPDM E3 · Battery', meta:'2-pin · 12V in · PG-26'}, ja:{name:'IPDM E3 · バッテリ', meta:'2ピン · 12V入力 · PG-26'} },
+  ipdm_e7: { en:{name:'IPDM E7 · Lamps / wiper / ECM', meta:'VB / back-up / lamps / wiper · PG-26 · EC/LT/WW/SC'}, ja:{name:'IPDM E7 · ランプ / ワイパー / ECM', meta:'VB / ランプ / ワイパー · PG-26'} },
+  ipdm_e8: { en:{name:'IPDM E8 · Pump / throttle / A/C', meta:'GND / VMOT / FP / A/C · PG-26'}, ja:{name:'IPDM E8 · ポンプ / スロットル / A/C', meta:'GND / VMOT / FP / A/C · PG-26'} },
+  ipdm_e9: { en:{name:'IPDM E9 · ECM relays + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'}, ja:{name:'IPDM E9 · ECMリレー + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'} },
+  ipdm_e4: { en:{name:'IPDM E4 · Starter', meta:'starter · PG-26 · SC-13/14 · Inv face'}, ja:{name:'IPDM E4 · スタータ', meta:'スタータ · PG-26 · 反転面'} },
+  ipdm_e5: { en:{name:'IPDM E5 · Cooling fans', meta:'cooling fan · PG-26 · EC-510 · Inv face'}, ja:{name:'IPDM E5 · 冷却ファン', meta:'冷却ファン · PG-26 · 反転面'} },
+  ipdm_e6: { en:{name:'IPDM E6 · Fans + 40A', meta:'cooling fan / 40A in · EC-510 · Inv face'}, ja:{name:'IPDM E6 · ファン + 40A', meta:'冷却ファン / 40A入力 · 反転面'} },
   ipdm_legend: {
-    en: { name:'IPDM · relays / fuses', meta:'PG-26 · FSM layout',
+    en: { name:'IPDM · Relays & fuses', meta:'PG-26 · FSM layout',
       note:'Integrated relays: ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog (empty). Fuse map: see PG-26.' },
-    ja: { name:'IPDM · リレー / ヒューズ', meta:'PG-26 · FSMレイアウト',
+    ja: { name:'IPDM · リレーとヒューズ', meta:'PG-26 · FSMレイアウト',
       note:'内蔵リレー: ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog（空）。ヒューズ: PG-26参照。' },
   },
   feed_ckp_maf_12v: {
@@ -2662,21 +3023,21 @@ const CONN_I18N = {
   },
   af_b1: { en:{name:'A/F Sensor 1 B1', meta:'6-pin · Bank 1 · FSM A/F face'}, ja:{name:'A/Fセンサ1 バンク1', meta:'6ピン · バンク1 · FSM面'} },
   af_b2: { en:{name:'A/F Sensor 1 B2', meta:'6-pin · Bank 2 · FSM A/F face'}, ja:{name:'A/Fセンサ1 バンク2', meta:'6ピン · バンク2 · FSM面'} },
-  maf: { en:{name:'MAF', meta:'intake'}, ja:{name:'MAF（エアフロ）', meta:'吸気'} },
+  maf: { en:{name:'MAF · Mass air flow', meta:'intake'}, ja:{name:'MAF · エアフロ', meta:'吸気'} },
   knock: {
     en: { name:'Knock sensor', meta:'2-pin · via intermediate F14/F229',
       note:'Knock path (FSM): signal W → ECM 15 via F14/F229; shield → SNS GND.' },
     ja: { name:'ノックセンサ', meta:'2ピン · 中間 F14/F229 経由',
       note:'ノック経路 (FSM): 信号 W → ECM 15（F14/F229経由）; シールド → SNS GND。' },
   },
-  ckp: { en:{name:'CKP POS', meta:'3-pin'}, ja:{name:'CKP（クランク角）', meta:'3ピン'} },
-  cmp_b1: { en:{name:'CMP PHASE B1', meta:'cam RH'}, ja:{name:'CMP（カム角）B1', meta:'カム 右'} },
-  cmp_b2: { en:{name:'CMP PHASE B2', meta:'cam LH'}, ja:{name:'CMP（カム角）B2', meta:'カム 左'} },
-  ect: { en:{name:'ECT', meta:'coolant · 2-pin'}, ja:{name:'ECT（冷却水温）', meta:'冷却水 · 2ピン'} },
-  iat: { en:{name:'IAT', meta:'intake · on MAF or 2-pin'}, ja:{name:'IAT（吸気温）', meta:'吸気 · MAF上または2ピン'} },
-  etc: { en:{name:'ETC throttle body', meta:'6-pin DBW · motor+TPS · GND ECM 66'}, ja:{name:'ETCスロットルボディ', meta:'6ピン DBW · GND ECM 66'} },
+  ckp: { en:{name:'CKP · Crank position', meta:'3-pin'}, ja:{name:'CKP · クランク角', meta:'3ピン'} },
+  cmp_b1: { en:{name:'CMP · Cam phase B1', meta:'cam RH'}, ja:{name:'CMP · カム角 B1', meta:'カム 右'} },
+  cmp_b2: { en:{name:'CMP · Cam phase B2', meta:'cam LH'}, ja:{name:'CMP · カム角 B2', meta:'カム 左'} },
+  ect: { en:{name:'ECT · Coolant temp', meta:'coolant · 2-pin'}, ja:{name:'ECT · 冷却水温', meta:'冷却水 · 2ピン'} },
+  iat: { en:{name:'IAT · Intake air temp', meta:'intake · on MAF or 2-pin'}, ja:{name:'IAT · 吸気温', meta:'吸気 · MAF上または2ピン'} },
+  etc: { en:{name:'ETC · Throttle body DBW', meta:'6-pin DBW · motor+TPS · GND ECM 66'}, ja:{name:'ETC · スロットルボディ DBW', meta:'6ピン DBW · GND ECM 66'} },
   ac_press: { en:{name:'A/C refrigerant press', meta:'3-pin · 5V=49 · SIG=70 · GND=67 · via E10/F1'}, ja:{name:'A/C冷媒圧力センサ', meta:'3ピン · 5V=49 · SIG=70 · GND=67 · E10/F1'} },
-  evap_press: { en:{name:'EVAP pressure', meta:'canister'}, ja:{name:'EVAP圧力センサ', meta:'キャニスタ'} },
+  evap_press: { en:{name:'EVAP · Pressure sensor', meta:'canister'}, ja:{name:'EVAP · 圧力センサ', meta:'キャニスタ'} },
   psp: {
     en: { name:'PSP · Power steering pressure', meta:'3-pin · 5V=68 · SIG=12 · GND=67',
       note:'FSM EC-401: 5V ECM 68 (R/W) · signal ECM 12 (L/W) · GND ECM 67 B/W (shared SNS MAF/IAT/PSP/EVAP).' },
@@ -2687,9 +3048,9 @@ const CONN_I18N = {
   vtc_b2: { en:{name:'VTC intake B2', meta:'intake solenoid LH'}, ja:{name:'VTC吸気ソレノイド B2', meta:'吸気ソレノイド 左'} },
   vtc_ex_b1: { en:{name:'VTC exhaust B1', meta:'Rev-Up · exhaust RH'}, ja:{name:'VTC排気ソレノイド B1', meta:'Rev-Up · 排気 右'} },
   vtc_ex_b2: { en:{name:'VTC exhaust B2', meta:'Rev-Up · exhaust LH'}, ja:{name:'VTC排気ソレノイド B2', meta:'Rev-Up · 排気 左'} },
-  evap_purge: { en:{name:'EVAP purge', meta:'solenoid'}, ja:{name:'EVAPパージソレノイド', meta:'ソレノイド'} },
+  evap_purge: { en:{name:'EVAP · Purge solenoid', meta:'solenoid'}, ja:{name:'EVAP · パージソレノイド', meta:'ソレノイド'} },
   evap_vent: { en:{name:'EVAP vent', meta:'canister vent · ECM 117'}, ja:{name:'EVAPベント', meta:'キャニスタベント · ECM 117'} },
-  fp_relay: { en:{name:'FP relay', meta:'pump control · ECM 113'}, ja:{name:'フューエルポンプリレー', meta:'ポンプ制御 · ECM 113'} },
+  fp_relay: { en:{name:'Fuel pump relay', meta:'pump control · ECM 113'}, ja:{name:'フューエルポンプリレー', meta:'ポンプ制御 · ECM 113'} },
   pnp: { en:{name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y'}, ja:{name:'PNP / インヒビタSW', meta:'A/T · ECM 102 BR/Y'} },
   app: {
     en: { name:'APP pedal E113', meta:'6-pin GY · pedal · PATH E113→E11/F2→ECM',
@@ -2697,11 +3058,11 @@ const CONN_I18N = {
     ja: { name:'APPペダル E113', meta:'6ピン GY · ペダル · E113→E11/F2→ECM',
       note:'APP経路: ペダル E113 → E11/F2 → ECM 90/91/82/83/98/106。色はペダル側 (EC-523); F2→ECMでは変化。FSM面: 上3-2-1 / 下6-5-4。' },
   },
-  stop_lamp: { en:{name:'Stop lamp switch', meta:'brake · ECM 101 L/OR'}, ja:{name:'ストップランプSW', meta:'ブレーキ · ECM 101 L/OR'} },
+  stop_lamp: { en:{name:'Stop lamp · Brake switch', meta:'brake · ECM 101 L/OR'}, ja:{name:'ストップランプSW', meta:'ブレーキ · ECM 101 L/OR'} },
   ascd_brake: { en:{name:'ASCD brake switch', meta:'2-pin · term2 → ECM 108'}, ja:{name:'ASCDブレーキSW', meta:'2ピン · term2 → ECM 108'} },
   ascd_clutch: { en:{name:'ASCD clutch switch', meta:'M/T only · in series with ASCD brake → ECM 108'}, ja:{name:'ASCDクラッチSW', meta:'M/Tのみ · ASCDブレーキと直列 → ECM 108'} },
   clock_spring: { en:{name:'Clock spring / ASCD steer', meta:'comb. sw · SIG→99 · GND→67'}, ja:{name:'クロックスプリング / ASCDステア', meta:'コンビSW · SIG→99 · GND→67'} },
-  dlc: { en:{name:'DLC OBD-II', meta:'under dash · 16-pin · K-line ECM 85'}, ja:{name:'DLC診断コネクタ（OBD-II）', meta:'ダッシュ下 · K線 ECM 85'} },
+  dlc: { en:{name:'DLC · OBD-II', meta:'under dash · 16-pin · K-line ECM 85'}, ja:{name:'DLC · OBD-II診断', meta:'ダッシュ下 · K線 ECM 85'} },
   fuel_tank_temp: {
     en: { name:'Fuel tank temp (FTT)', meta:'fuel level sensor unit · ECM 107 GY/R' },
     ja: { name:'燃料タンク温度 (FTT)', meta:'燃料センダ · ECM 107 GY/R' },
@@ -2760,6 +3121,23 @@ function makeFichaEl(id, f){
 }
 
 let _fichaOrd = 0;
+/* IPDM: small E3–E6 first; large E7–E9 horizontal last; legend */
+const IPDM_DISPLAY_ORDER = ['ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9','ipdm_legend'];
+function sortIpdmIds(ids){
+  const rank = new Map(IPDM_DISPLAY_ORDER.map((id,i)=>[id,i]));
+  return ids.slice().sort((a,b)=>{
+    const ra = rank.has(a) ? rank.get(a) : 900 + IPDM_DISPLAY_ORDER.length;
+    const rb = rank.has(b) ? rank.get(b) : 900 + IPDM_DISPLAY_ORDER.length;
+    if(ra !== rb) return ra - rb;
+    return String(a).localeCompare(String(b));
+  });
+}
+
+
+function appendIpdmFichas(grid, ids){
+  ids.forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
+}
+
 function renderFichas(){
   _fichaOrd = 0;
   const root=document.getElementById('fichas');
@@ -2771,59 +3149,85 @@ function renderFichas(){
   /* F102 lives in #f102Panel (hidden from side fichas) but must stay in CONN for click/HL */
   if(CONN_BASE['ix_f102_m72']) CONN['ix_f102_m72'] = CONN_BASE['ix_f102_m72'];
 
-  GROUPS.forEach(g=>{
-    const gIds = ids.filter(id => (CONN[id].group||'motor') === g.id);
-    if(!gIds.length) return;
-    const gi = (GROUP_I18N[g.id] && GROUP_I18N[g.id][lang]) || (GROUP_I18N[g.id] && GROUP_I18N[g.id].es) || {title:g.id, sub:''};
+  /* Flat list by subcategory only (no outer motor/body split). */
+  const bySub = {};
+  ids.forEach(id=>{
+    const sk = (CONN[id] && CONN[id].sub) || 'other';
+    (bySub[sk]=bySub[sk]||[]).push(id);
+  });
+  if(bySub.ipdm) bySub.ipdm = sortIpdmIds(bySub.ipdm);
+  const keys = SUB_ORDER.filter(k => bySub[k]);
+  Object.keys(bySub).forEach(k => { if(!keys.includes(k)) keys.push(k); });
+
+  const ACT_BOBINAS = new Set(['coil1','coil2','coil3','coil4','coil5','coil6','ix_f18_f201']);
+  const ACT_INYECTORES = new Set(['inj1','inj2','inj3','inj4','inj5','inj6','ix_f221_f33']);
+
+  function makeNestDetails(nestKey, labelKey, ids, accent){
+    const nest = document.createElement('details');
+    nest.className = 'ficha-nest';
+    nest.dataset.nest = nestKey;
+    const lsNest = 'z33_nest_' + nestKey;
+    const savedNest = localStorage.getItem(lsNest);
+    nest.open = savedNest === null ? true : savedNest === '1';
+    const nsum = document.createElement('summary');
+    nsum.innerHTML = `<span class="sub-label">${esc(t(labelKey))}</span>`;
+    if(accent) nsum.style.borderLeft = '3px solid ' + accent;
+    nest.appendChild(nsum);
+    const ngrid = document.createElement('div');
+    ngrid.className = 'fichas-grid';
+    ids.forEach(id => ngrid.appendChild(makeFichaEl(id, CONN[id])));
+    nest.appendChild(ngrid);
+    nest.addEventListener('toggle', ()=>{
+      localStorage.setItem(lsNest, nest.open ? '1' : '0');
+    });
+    return nest;
+  }
+
+  keys.forEach(sk=>{
     const sec=document.createElement('details');
     sec.className='ficha-sec';
-    sec.dataset.grp = g.id;
+    sec.dataset.sub = sk;
     sec.dataset.ord = String(++_fichaOrd);
-    const saved = localStorage.getItem(g.ls);
+    const lsKey = 'z33_sub_' + sk;
+    const saved = localStorage.getItem(lsKey);
     sec.open = saved === null ? true : saved === '1';
     const sum=document.createElement('summary');
-    sum.innerHTML = `${esc(gi.title)}<span>${esc(gi.sub||'')}</span>`;
+    const subLabel = (SUB_I18N[sk] && SUB_I18N[sk][lang]) || (SUB_I18N[sk] && SUB_I18N[sk].es) || sk;
+    sum.innerHTML = `<span class="sub-label">${esc(subLabel)}</span>`;
+    const subCol = SUB_ACCENT[sk] || '#546e7a';
+    sec.style.borderColor = subCol;
+    sum.style.borderLeft = '3px solid ' + subCol;
     sec.appendChild(sum);
 
-    const body=document.createElement('div');
-    body.className='fichas-body';
-
-    const bySub = {};
-    gIds.forEach(id=>{
-      const sk = CONN[id].sub || 'other';
-      (bySub[sk]=bySub[sk]||[]).push(id);
-    });
-    const keys = SUB_ORDER.filter(k => bySub[k]);
-    Object.keys(bySub).forEach(k => { if(!keys.includes(k)) keys.push(k); });
-
-    keys.forEach(sk=>{
-      const sub=document.createElement('details');
-      sub.className='ficha-sub';
-      sub.dataset.sub = sk;
-      sub.dataset.ord = String(++_fichaOrd);
-      const lsKey = 'z33_sub_' + g.id + '_' + sk;
-      const subSaved = localStorage.getItem(lsKey);
-      sub.open = subSaved === null ? true : subSaved === '1';
-      const ssum=document.createElement('summary');
-      const subLabel = (SUB_I18N[sk] && SUB_I18N[sk][lang]) || (SUB_I18N[sk] && SUB_I18N[sk].es) || sk;
-      ssum.innerHTML = `<span class="sub-label">${esc(subLabel)}</span>`;
-      const subCol = SUB_ACCENT[sk] || '#546e7a';
-      sub.style.borderColor = subCol;
-      ssum.style.borderLeft = '3px solid ' + subCol;
-      sub.appendChild(ssum);
+    if(sk === 'actuators'){
+      const body = document.createElement('div');
+      body.className = 'fichas-body';
+      const loose = [];
+      const bobinas = [];
+      const inyectores = [];
+      bySub[sk].forEach(id => {
+        if(ACT_BOBINAS.has(id)) bobinas.push(id);
+        else if(ACT_INYECTORES.has(id)) inyectores.push(id);
+        else loose.push(id);
+      });
+      if(loose.length){
+        const grid = document.createElement('div');
+        grid.className = 'fichas-grid';
+        loose.forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
+        body.appendChild(grid);
+      }
+      if(bobinas.length) body.appendChild(makeNestDetails('bobinas', 'nestBobinas', bobinas, '#f57f17'));
+      if(inyectores.length) body.appendChild(makeNestDetails('inyectores', 'nestInyectores', inyectores, '#c62828'));
+      sec.appendChild(body);
+    } else {
       const grid=document.createElement('div');
       grid.className='fichas-grid';
-      bySub[sk].forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
-      sub.appendChild(grid);
-      sub.addEventListener('toggle', ()=>{
-        localStorage.setItem(lsKey, sub.open ? '1' : '0');
-      });
-      body.appendChild(sub);
-    });
-
-    sec.appendChild(body);
+      if(sk === 'ipdm') appendIpdmFichas(grid, bySub[sk]);
+      else bySub[sk].forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
+      sec.appendChild(grid);
+    }
     sec.addEventListener('toggle', ()=>{
-      localStorage.setItem(g.ls, sec.open ? '1' : '0');
+      localStorage.setItem(lsKey, sec.open ? '1' : '0');
     });
     root.appendChild(sec);
   });
@@ -2848,23 +3252,27 @@ function applyCollapseIdleSubs(connIds){
   if(!collapseIdleEnabled()) return;
   const set = new Set((connIds||[]).filter(Boolean));
   if(!set.size) return;
-  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) details.ficha-sub').forEach(sub=>{
-    const hit = [...sub.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
+  document.querySelectorAll('#fichas details.ficha-sec:not(.sel-top)').forEach(sec=>{
+    const hit = [...sec.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
     if(hit){
-      if(!sub.open) sub.open = true;
+      if(!sec.open) sec.open = true;
+      sec.querySelectorAll('details.ficha-nest').forEach(nest=>{
+        const nestHit = [...nest.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
+        if(nestHit && !nest.open) nest.open = true;
+      });
       return;
     }
-    if(sub.open){
-      sub.dataset.wasOpen = '1';
-      sub.open = false;
+    if(sec.open){
+      sec.dataset.wasOpen = '1';
+      sec.open = false;
     }
   });
 }
 
 function restoreCollapsedSubs(){
-  document.querySelectorAll('#fichas details.ficha-sub[data-was-open="1"]').forEach(sub=>{
-    sub.open = true;
-    delete sub.dataset.wasOpen;
+  document.querySelectorAll('#fichas details.ficha-sec[data-was-open="1"]').forEach(sec=>{
+    sec.open = true;
+    delete sec.dataset.wasOpen;
   });
 }
 
@@ -2900,18 +3308,6 @@ function promoteSelectedInGroups(connIds){
     [...sel, ...rest].forEach(el => grid.appendChild(el));
   });
 
-  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) > .fichas-body').forEach(body=>{
-    const subs = [...body.querySelectorAll(':scope > details.ficha-sub')];
-    if(subs.length < 2) return;
-    const active = [], idle = [];
-    subs.forEach(sub=>{
-      const hit = [...sub.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
-      (hit ? active : idle).push(sub);
-    });
-    if(!active.length) return;
-    [...active, ...idle].forEach(sub => body.appendChild(sub));
-  });
-
   const root = document.getElementById('fichas');
   if(root){
     const top = document.getElementById('selTop');
@@ -2921,7 +3317,7 @@ function promoteSelectedInGroups(connIds){
       const hit = [...sec.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
       (hit ? active : idle).push(sec);
     });
-    // Rebuild order: selTop (if any), active groups, idle groups
+    // Rebuild order: selTop (if any), active subs, idle subs
     const frag = document.createDocumentFragment();
     if(top) frag.appendChild(top);
     active.forEach(sec => frag.appendChild(sec));
@@ -2939,14 +3335,6 @@ function restoreFichaOrder(){
       return oa-ob;
     });
     kids.forEach(el => grid.appendChild(el));
-  });
-  document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) > .fichas-body').forEach(body=>{
-    const subs = [...body.querySelectorAll(':scope > details.ficha-sub')];
-    subs.sort((a,b)=>{
-      const oa = parseInt(a.dataset.ord||'0',10), ob = parseInt(b.dataset.ord||'0',10);
-      return oa-ob;
-    });
-    subs.forEach(sub => body.appendChild(sub));
   });
   const root = document.getElementById('fichas');
   if(root){
@@ -2966,12 +3354,8 @@ function removeSelectedTop(){
 }
 
 /** Selected fichas first (top), then normal groups stay below. */
-function selectedBucketLabel(groupId, subKey){
-  const gShort = (GROUP_SHORT[groupId] && (GROUP_SHORT[groupId][lang] || GROUP_SHORT[groupId].es)) || groupId;
-  const subLabel = (SUB_I18N[subKey] && (SUB_I18N[subKey][lang] || SUB_I18N[subKey].es)) || subKey;
-  // intermedias already says "Fichas…"; others get "Arnés · Sensores" style
-  if(subKey === 'intermedias') return subLabel;
-  return gShort + ' · ' + subLabel;
+function selectedBucketLabel(subKey){
+  return (SUB_I18N[subKey] && (SUB_I18N[subKey][lang] || SUB_I18N[subKey].es)) || subKey;
 }
 
 function updateSelectedTop(connIds){
@@ -2981,26 +3365,21 @@ function updateSelectedTop(connIds){
   const ids = [...new Set((connIds||[]).filter(id => id && CONN[id] && id !== 'ix_f102_m72'))];
   if(ids.length < 1) return;
 
-  // Distinct (group, sub) buckets in stable order
+  // Distinct subcategory buckets in SUB_ORDER
   const bucketKeys = [];
   const seen = new Set();
   const orderedIds = ids.slice().sort((a,b)=>{
-    const ga = CONN[a].group||'motor', gb = CONN[b].group||'motor';
-    const gi = GROUPS.findIndex(g=>g.id===ga), gj = GROUPS.findIndex(g=>g.id===gb);
-    if(gi!==gj) return gi-gj;
     const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
     const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
     return (sa<0?999:sa) - (sb<0?999:sb);
   });
   orderedIds.forEach(id=>{
-    const g = CONN[id].group || 'motor';
     const s = CONN[id].sub || 'other';
-    const key = g + '|' + s;
-    if(seen.has(key)) return;
-    seen.add(key);
-    bucketKeys.push({g, s});
+    if(seen.has(s)) return;
+    seen.add(s);
+    bucketKeys.push(s);
   });
-  const names = bucketKeys.map(b => selectedBucketLabel(b.g, b.s));
+  const names = bucketKeys.map(s => selectedBucketLabel(s));
   const n = bucketKeys.length;
   // Single bucket (e.g. pin 115 → only Poder/tierras): skip sel-top; category already promoted
   if(n < 2) return;
@@ -3016,11 +3395,8 @@ function updateSelectedTop(connIds){
   body.className = 'fichas-body';
   const grid = document.createElement('div');
   grid.className = 'fichas-grid';
-  // Keep stable order: by group then SUB_ORDER then name
+  // Keep stable order: SUB_ORDER then name
   const ordered = ids.slice().sort((a,b)=>{
-    const ga = CONN[a].group||'motor', gb = CONN[b].group||'motor';
-    const gi = GROUPS.findIndex(g=>g.id===ga), gj = GROUPS.findIndex(g=>g.id===gb);
-    if(gi!==gj) return gi-gj;
     const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
     const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
     const ia = sa<0?999:sa, ib = sb<0?999:sb;
@@ -3039,7 +3415,8 @@ function updateSelectedTop(connIds){
 }
 
 
-function revealConns(connIds){
+function revealConns(connIds, opts){
+  const collapseF102 = !!(opts && opts.collapseF102);
   const ids = [...new Set((connIds||[]).filter(Boolean))];
   if(!ids.length){
     // Selection active but no conns (or empty) → F102 not involved → collapse
@@ -3049,6 +3426,12 @@ function revealConns(connIds){
   let first = null;
   ids.forEach(cid=>{
     if(cid === 'ix_f102_m72'){
+      if(collapseF102){
+        setF102PanelOpen(false);
+        const panel = document.getElementById('f102Panel');
+        if(panel) panel.classList.remove('hl');
+        return;
+      }
       const panel = document.getElementById('f102Panel');
       if(panel){
         panel.classList.add('hl');
@@ -3059,28 +3442,28 @@ function revealConns(connIds){
     const f = document.querySelector(`.ficha-wrap[data-conn="${CSS.escape(cid)}"]`) || document.querySelector(`.ficha[data-conn="${CSS.escape(cid)}"]`);
     if(!f) return;
     if(!first) first = f;
-    const sub = f.closest('details.ficha-sub');
-    const sec = f.closest('details.ficha-sec');
-    if(sub && !sub.open){
-      sub.open = true;
-      const sk = sub.dataset.sub;
-      const grp = sec && sec.dataset.grp;
-      if(grp && sk) localStorage.setItem('z33_sub_' + grp + '_' + sk, '1');
+    const nest = f.closest('details.ficha-nest');
+    if(nest && !nest.open){
+      nest.open = true;
+      const nk = nest.dataset.nest;
+      if(nk) localStorage.setItem('z33_nest_' + nk, '1');
     }
+    const sec = f.closest('details.ficha-sec');
     if(sec && !sec.open){
       sec.open = true;
-      const g = GROUPS.find(x => x.id === sec.dataset.grp);
-      if(g) localStorage.setItem(g.ls, '1');
+      const sk = sec.dataset.sub;
+      if(sk) localStorage.setItem('z33_sub_' + sk, '1');
     }
   });
   updateSelectedTop(ids);
   promoteSelectedInGroups(ids);
-  syncF102PanelForSelection(ids);
+  syncF102PanelForSelection(ids, { collapseF102 });
+  if(collapseF102) setF102PanelOpen(false);
   /* collapse-idle can race; re-open any parent that still holds a highlighted ficha */
   document.querySelectorAll('#fichas .ficha.hl').forEach(f=>{
-    const sub = f.closest('details.ficha-sub');
+    const nest = f.closest('details.ficha-nest');
+    if(nest) nest.open = true;
     const sec = f.closest('details.ficha-sec');
-    if(sub) sub.open = true;
     if(sec) sec.open = true;
   });
   const top = document.getElementById('selTop');
@@ -3222,6 +3605,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   dimAll();
   const ecmSet=new Set(); const connSet=new Set();
   const lines=[];
+  const collapseF102 = shouldCollapseF102ForBackup(circIds, focusConn);
   circIds.forEach(id=>{
     const cir=CIRCUITS.find(x=>x.id===id);
     if(!cir) return;
@@ -3251,7 +3635,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   });
   connSet.forEach(cid=>{
     markFichaHL(cid, true);
-    if(cid === 'ix_f102_m72'){
+    if(cid === 'ix_f102_m72' && !collapseF102){
       const panel = document.getElementById('f102Panel');
       if(panel) panel.classList.add('hl');
     }
@@ -3296,10 +3680,11 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     });
   }
   const pinInfo = focusPin!=null
-    ? `<div style="margin-bottom:6px"><b>${esc(t('pinEcm'))} ${focusPin}</b> · ${PIN_NAME[focusPin]||''} · <code>${PIN_COL[focusPin]||'—'}</code></div>`
+    ? `<div style="margin-bottom:6px"><b>${esc(t('pinEcm'))} ${focusPin}</b> · ${pinName(focusPin)||''} · <code>${PIN_COL[focusPin]||'—'}</code></div>`
     : '';
   const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = pinInfo + lines.join('');
-  revealConns([...connSet]);
+  revealConns([...connSet], { collapseF102 });
+  if(collapseF102) setF102PanelOpen(false);
   /* #selTop clones are created inside revealConns — paint cav HL again so selection fichas get yellow too */
   paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav);
 }
@@ -3366,7 +3751,7 @@ function selectPin(p){
         }
       });
     });
-    const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = `<b>${esc(t('pinEcm'))} ${p}</b> · ${PIN_NAME[p]||''} · <code>${PIN_COL[p]||'—'}</code><div style="color:var(--muted)">${t('noWide')}</div>`;
+    const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = `<b>${esc(t('pinEcm'))} ${p}</b> · ${pinName(p)||''} · <code>${PIN_COL[p]||'—'}</code><div style="color:var(--muted)">${t('noWide')}</div>`;
     revealConns(found);
     selKey = key;
     selFocusPin = n;
@@ -3405,7 +3790,9 @@ function selectConn(cid){
     const noteTxt = conf ? connField(cid, conf, 'note') : '';
     const note = noteTxt ? `<div style="color:var(--muted);margin-top:4px">${esc(noteTxt)}</div>` : '';
     infoEl.innerHTML = `<b>${esc(conf ? connField(cid, conf, 'name') : cid)}</b> — ${esc(conf ? connField(cid, conf, 'meta') : '')}${note}`;
-    revealConns([cid]);
+    const collapseF102 = shouldCollapseF102ForBackup([], cid);
+    revealConns([cid], { collapseF102 });
+    if(collapseF102) setF102PanelOpen(false);
   }
 }
 
@@ -3415,6 +3802,23 @@ function selectConnPin(cid, cavId){
   const conf=CONN[cid] || CONN_BASE[cid];
   if(!conf) return;
   const pin=(conf.pins||[]).find(x=>String(x.id)===String(cavId));
+  if(pin && pin.unknown){
+    activeRails.clear(); updateRailButtons();
+    clearHL(); dimAll();
+    markFichaHL(cid, true);
+    document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(cavId))}"]`).forEach(cav=>{
+      cav.classList.remove('dim'); cav.classList.add('hl');
+    });
+    const infoEl=document.getElementById('info'); infoEl.dataset.locked='1';
+    delete infoEl.dataset.railMode;
+    const ntxt = pinNote(pin);
+    infoEl.innerHTML = `<b>${esc(conf ? connField(cid, conf, 'name') : cid)}</b> · cav <code>${esc(String(cavId))}</code> · <b>?</b>`
+      + (ntxt && ntxt !== '—' ? `<div style="color:var(--muted);margin-top:6px">${esc(ntxt)}</div>` : '');
+    revealConns([cid]);
+    selKey = key;
+    selFocusPin = null;
+    return;
+  }
   if(pin && pin.ecm!=null){
     const ecmN = Number(pin.ecm);
     /* Same cavity again already handled above; shared ECM (e.g. 67) must not clear other fichas */
@@ -3444,12 +3848,13 @@ function selectConnPin(cid, cavId){
         if(fp){ fp.classList.remove('dim'); fp.classList.add('hl'); }
       }
       const infoEl=document.getElementById('info'); infoEl.dataset.locked='1';
-      infoEl.innerHTML = `<b>${esc(t('pinEcm'))} ${pin.ecm}</b> · ${PIN_NAME[pin.ecm]||''} · <code>${PIN_COL[pin.ecm]||'—'}</code>`;
+      infoEl.innerHTML = `<b>${esc(t('pinEcm'))} ${pin.ecm}</b> · ${pinName(pin.ecm)||''} · <code>${PIN_COL[pin.ecm]||'—'}</code>`;
       revealConns([cid]);
     }
-    if(pin.note || pin.lab){
+    const pnote = pinNote(pin);
+    if(pnote || pin.lab){
       const infoEl=document.getElementById('info');
-      const extra = pin.note ? ` — ${esc(pin.note)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
+      const extra = pnote ? ` — ${esc(pnote)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
       infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(String(cid))}·${esc(cavId)}</code> · ${esc(pin.code||'')}${extra} → ECM ${esc(String(pin.ecm))}</div>`;
     }
     selKey = key;
@@ -3466,9 +3871,10 @@ function selectConnPin(cid, cavId){
       if(fp){ fp.classList.remove('dim'); fp.classList.add('hl-end'); }
     }
     }
-    if(pin && (pin.note || pin.code || pin.lab)){
+    const pnote = pin ? pinNote(pin) : '';
+    if(pin && (pnote || pin.code || pin.lab)){
       const infoEl=document.getElementById('info');
-      const extra = pin.note ? ` — ${esc(pin.note)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
+      const extra = pnote ? ` — ${esc(pnote)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
       infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(String(cid))}·${esc(cavId)}</code> · ${esc(pin.code||'')}${extra}</div>`;
     }
     selKey = key;
@@ -3486,15 +3892,6 @@ function applyModel(){
   clearSelection();
 }
 
-const LS_COLOR_CODES = 'z33_colorCodes';
-function onColorCodesToggle(){
-  const el = document.getElementById('colorCodes');
-  localStorage.setItem(LS_COLOR_CODES, el && el.checked ? '1' : '0');
-  document.body.dataset.colorCodes = (el && el.checked) ? '1' : '0';
-  renderECM();
-  renderFichas();
-  renderF102();
-}
 function applyColorMode(){
   const mode = document.getElementById('colorMode').value;
   localStorage.setItem('z33_color', mode);
@@ -3511,12 +3908,67 @@ function applyOrient(){
   clearSelection();
 }
 
+const LS_MAIN_SPLIT = 'z33_mainSplit';
+let mainSplitPct = 59;
+
+function applyMainSplit(pct, save){
+  let v = (pct == null || pct === true || pct === false) ? mainSplitPct : Number(pct);
+  if(!Number.isFinite(v)) v = 59;
+  v = Math.max(30, Math.min(70, v));
+  mainSplitPct = v;
+  document.documentElement.style.setProperty('--main-left', v + 'fr');
+  document.documentElement.style.setProperty('--main-right', (100 - v) + 'fr');
+  if(save !== false) localStorage.setItem(LS_MAIN_SPLIT, String(Math.round(v)));
+}
+
+function initMainSplitter(){
+  const handle = document.getElementById('mainSplitter');
+  const mainEl = document.querySelector('main');
+  if(!handle || !mainEl) return;
+  let dragging = false;
+
+  function posToPct(clientX){
+    const rect = mainEl.getBoundingClientRect();
+    if(rect.width < 1) return mainSplitPct;
+    return ((clientX - rect.left) / rect.width) * 100;
+  }
+  function onMove(clientX){ applyMainSplit(posToPct(clientX), false); }
+  function onMouseMove(e){ if(dragging) onMove(e.clientX); }
+  function onTouchMove(e){
+    if(!dragging || !e.touches || !e.touches[0]) return;
+    onMove(e.touches[0].clientX);
+  }
+  function endDrag(){
+    if(!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    applyMainSplit(mainSplitPct, true);
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', endDrag);
+    window.removeEventListener('touchmove', onTouchMove);
+    window.removeEventListener('touchend', endDrag);
+  }
+  handle.addEventListener('mousedown', e => {
+    e.preventDefault();
+    dragging = true;
+    handle.classList.add('dragging');
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', endDrag);
+  });
+  handle.addEventListener('touchstart', e => {
+    if(!e.touches || !e.touches[0]) return;
+    dragging = true;
+    handle.classList.add('dragging');
+    window.addEventListener('touchmove', onTouchMove, {passive:true});
+    window.addEventListener('touchend', endDrag);
+  }, {passive:true});
+}
+
 document.getElementById('model').addEventListener('change', applyModel);
 document.getElementById('colorMode').addEventListener('change', applyColorMode);
 document.getElementById('ecmOrient').addEventListener('change', applyOrient);
 document.getElementById('lang').addEventListener('change', applyLang);
 document.getElementById('collapseIdleSubs').addEventListener('change', onCollapseIdleToggle);
-document.getElementById('colorCodes').addEventListener('change', onColorCodesToggle);
 
 document.getElementById('clear').onclick=()=>{
   clearSelection();
@@ -3547,7 +3999,8 @@ document.getElementById('q').addEventListener('input', e=>{
     }
   });
   Object.entries(PIN_NAME).forEach(([p,name])=>{
-    if(name.toLowerCase().includes(q)) (pinToCirc[+p]||[]).forEach(x=>hits.push(x));
+    const names = [name, PIN_NAME_EN[+p]||'', PIN_NAME_JA[+p]||''].join(' ').toLowerCase();
+    if(names.includes(q)) (pinToCirc[+p]||[]).forEach(x=>hits.push(x));
   });
   const uniq=[...new Set(hits)];
   if(uniq.length) selectCircuits(uniq);
@@ -3565,16 +4018,18 @@ document.getElementById('q').addEventListener('input', e=>{
   if(o && ['invertida','fsm'].includes(o)) document.getElementById('ecmOrient').value = o;
   else document.getElementById('ecmOrient').value = 'invertida';
   if(L && ['es','en','ja'].includes(L)) document.getElementById('lang').value = L;
+  const splitSaved = localStorage.getItem(LS_MAIN_SPLIT);
+  if(splitSaved != null && /^\d+$/.test(splitSaved)) applyMainSplit(parseInt(splitSaved, 10), false);
+  else applyMainSplit(59, false);
+  initMainSplitter();
   const collapseEl = document.getElementById('collapseIdleSubs');
   if(collapseEl){
     const saved = localStorage.getItem(LS_COLLAPSE_IDLE);
     collapseEl.checked = saved === null ? true : saved === '1';
   }
-  const ccEl = document.getElementById('colorCodes');
-  if(ccEl){
-    ccEl.checked = localStorage.getItem(LS_COLOR_CODES) === '1';
-    document.body.dataset.colorCodes = ccEl.checked ? '1' : '0';
-  }
+  document.body.dataset.colorCodes = '0';
+  applyEcmPinPx();
+  applyF102PinPx();
   const optsBox = document.getElementById('optsBox');
   const warnBox = document.getElementById('warnBox');
   if(optsBox){
