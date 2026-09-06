@@ -1016,7 +1016,7 @@ const SUB_I18N = {
   feeds:       {es:'Alimentación / sin ECM', en:'Feeds (non-ECM)', ja:'電源フィード（ECM外）'},
   sensors:     {es:'Sensores', en:'Sensors', ja:'センサ'},
   actuators:   {es:'Actuadores', en:'Actuators', ja:'アクチュエータ'},
-  intermedias: {es:'Fichas intermedias E/F', en:'Intermediate E/F connectors', ja:'中間コネクタ E/F'},
+  intermedias: {es:'Paths multi E/F', en:'Multi E/F paths', ja:'複数経路 E/F'},
   pedals:      {es:'Pedales / frenos', en:'Pedals / brakes', ja:'ペダル / ブレーキ'},
   ascd:        {es:'ASCD / volante', en:'ASCD / steering', ja:'ASCD / ステアリング'},
   dlc:         {es:'DLC / red', en:'DLC / network', ja:'DLC / ネットワーク'},
@@ -1206,8 +1206,8 @@ const CONN_BASE = {
     pins:[{id:'CTRL',code:'LG/B',ecm:113},{id:'coil+',code:'12V',ecm:null}]},
 
 
-  /* —— Fichas intermedias E/F (engine room / body joins) —— */
-  ix_e11_f2:{group:'motor', sub:'intermedias', name:'E11 ↔ F2 · Path APP (pedal)', meta:'10-pin GY · E113→E11/F2→ECM · EC-523', accent:'#f9a825', shape:'rect10', face:'f2',
+  /* —— ix_* paths: single-purpose in their sub; multi stay in intermedias —— */
+  ix_e11_f2:{group:'body', sub:'pedals', name:'E11 ↔ F2 · Path APP (pedal)', meta:'10-pin GY · E113→E11/F2→ECM · EC-523', accent:'#f9a825', shape:'rect10', face:'f2',
     pins:[
       {id:'1',code:'—',ecm:null},
       {id:'2',lab:'GND',code:'G/R',ecm:83,rail:'gnd'},
@@ -1219,19 +1219,19 @@ const CONN_BASE = {
       {id:'10',lab:'5V',code:'LG',ecm:90,rail:'5v'}
     ],
     note:'PATH APP: pedal E113 → E11/F2 → ECM. APP usa 6 circuitos (cavidades 2,3,4,5,9,10). Unused en APP: 1,6,7,8. Cara F2 H.S. FSM: top 1–5 / bot 6–10. Colores = F2→ECM. Labs 5V/GND en rails APP.'},
-  ix_e10_f1:{group:'motor', sub:'intermedias', name:'E10 ↔ F1 · Empalme sala máquinas ↔ arnés control', meta:'arnés engine room ↔ EC control · p.ej. A/C press (EC-720)', accent:'#78909c', shape:'ixnote',
+  ix_e10_f1:{group:'motor', sub:'sensors', name:'E10 ↔ F1 · Empalme sala máquinas ↔ arnés control', meta:'arnés engine room ↔ EC control · p.ej. A/C press (EC-720)', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Empalme intermedio entre arnés de sala de máquinas (E10) y arnés de control EC (F1). Aparece en diag. de sensor de presión A/C (EC-720) entre ECM y sensor. Pinout de cara: ver diagrama FSM correspondiente.'},
   ix_e12_f3:{group:'motor', sub:'intermedias', name:'E12 ↔ F3 · Path A/F + VB/VMOT', meta:'bahía motor · A/F · poder VB (119/120) · VMOT (ECM 3)', accent:'#ef6c00', shape:'ixnote',
     pins:[{id:'VB',code:'R/W',ecm:119,rail:'12v',lab:'119'},{id:'VB2',code:'P',ecm:120,rail:'12v',lab:'120'}],
     note:'Empalme en bahía motor: path A/F y también VB (IPDM E7-18→ECM 119/120) / VMOT (E8-42→ECM 3). También listado en path de tierras ECM (con F103/F151). Solo par/función conocidos aquí; pinout de cara: ver FSM.'},
-  ix_f14_f229:{group:'motor', sub:'intermedias', name:'F14 ↔ F229 · Path Knock', meta:'intermedia sub-arnés knock · señal→15 · shield→tierra', accent:'#42a5f5', shape:'tab2',
+  ix_f14_f229:{group:'motor', sub:'sensors', name:'F14 ↔ F229 · Path Knock', meta:'intermedia sub-arnés knock · señal→15 · shield→tierra', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd'}],
     note:'Intermedia F14/F229 del path knock (FSM): señal W→ECM 15 · shield→SNS GND. Referencia de circuito FSM; cara pin-number: ver manual.'},
-  ix_f103_f151:{group:'motor', sub:'intermedias', name:'F103 ↔ F151 · Tierras ECM → body', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171', accent:'#78909c', shape:'ixnote',
+  ix_f103_f151:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM → body', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: continuidad ECM ground 1/115/116 ↔ body ground. Malfunction check lista harness connectors F103, F151 (y F3/E12).'},
-  ix_f18_f201:{group:'motor', sub:'intermedias', name:'F18 ↔ F201 · Path bobinas + VTC B1', meta:'Bank 1 · ignition coils · IVT solenoid B1 · EC-458/697', accent:'#78909c', shape:'ixnote',
+  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Path bobinas + VTC B1', meta:'Bank 1 · ignition coils · IVT solenoid B1 · EC-458/697', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Empalme intermedio Bank 1: path bobinas de encendido (12V/señal/tierra) y VTC/IVT solenoid B1 (ECM 11) hacia IPDM/ECM. Ver EC-458 (IVT) y EC-697 (IGNITION SIGNAL). Mapa de cavidades: ver FSM.'},
-  ix_f221_f33:{group:'motor', sub:'intermedias', name:'F221 ↔ F33 · Path inyectores → ECM', meta:'inyectores 1–6 · continuidad a ECM 21–42 · EC-278', accent:'#78909c', shape:'ixnote',
+  ix_f221_f33:{group:'motor', sub:'actuators', name:'F221 ↔ F33 · Path inyectores → ECM', meta:'inyectores 1–6 · continuidad a ECM 21–42 · EC-278', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Empalme intermedio del path de inyectores: F33↔F221 entre arnés de inyectores y ECM (cyl1→23 … cyl6→40). Usado en checks de función de inyector (EC-278). Mapa de cavidades: ver FSM.'},
   ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · CAN (rama ABS/DLC)', meta:'2G/7G CAN · engine room↔body · FSM LAN', accent:'#90a4ae', shape:'tab2',
     pins:[{id:'2G',code:'L',ecm:94,lab:'CAN-H'},{id:'7G',code:'P',ecm:86,lab:'CAN-L'}],
@@ -1414,8 +1414,8 @@ function svgTabN(cid, f, n){
   const W = 28 + cols*40;
   const H = 72;
   let cavities='';
-  // Intermedias keep FSM H.S. pin order (no Invertida L/R)
-  const row = (f.sub === 'intermedias') ? f.pins.slice(0,cols) : flipRow(f.pins.slice(0,cols));
+  // Intermediate connectors (ix_*): always FSM H.S. pin order (no Invertida L/R)
+  const row = String(cid).startsWith('ix_') ? f.pins.slice(0,cols) : flipRow(f.pins.slice(0,cols));
   row.forEach((p,i)=>{ cavities+=cavGroup(cid,p, 14+i*40, 24, 34, 38, 4); });
   const tabX = W/2 - 16;
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
