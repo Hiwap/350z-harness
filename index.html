@@ -646,7 +646,7 @@ const PIN_NAME = {
   66:"SNS GND",67:"SNS GND / ASCD",68:"5V PSP",69:"TPS2",70:"A/C press",73:"ECT",75:"A/F B1",76:"A/F B2",
   77:"A/F B2",78:"SNS GND",79:"IGN6",80:"IGN4",81:"IGN2",82:"APP GND",83:"APP GND",
   86:"CAN-L",90:"5V APP1",91:"5V APP2",94:"CAN-H",98:"APS2",99:"ASCD steering",
-  101:"Stop lamp",102:"PNP switch",104:"MOTRLY",106:"APS1",108:"ASCD brake",
+  101:"Stop lamp",102:"PNP switch",104:"MOTRLY",106:"APS1",107:"Fuel tank temp",108:"ASCD brake",
   109:"IGN SW",111:"ECM relay",113:"FP relay",114:"—",115:"GND ECM",116:"GND ECM",
   118:"—",119:"IGN 12V",120:"IGN 12V",121:"BATT 12V"
 };
@@ -739,7 +739,9 @@ function buildCircuits(model){
       ecm:[3], conn:['vmot'], notes:'VMOT supply → ECM 3.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
       ecm:[113], conn:['fp_relay'], notes:'Control relé bomba → ECM 113 (LG/B).'},
-    {id:'can', title:'CAN / DLC / combination meter', color:'#7e57c2',
+        {id:'ftt', title:'Fuel tank temperature', color:'#7e57c2',
+      ecm:[107], conn:['fuel_tank_temp','ix_f102_m72'], notes:'FTT señal → ECM 107 (GY/R) · path vía M72/F102 · sensor en fuel level sensor unit (term. 4). DTC P0181/0182/0183.'},
+{id:'can', title:'CAN / DLC / combination meter', color:'#7e57c2',
       ecm:[86,94], conn:['ecm_f101_can','ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','fuel_level','ascd_ind'], notes:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · también IPDM E9 48/49 · rama E108 2G/7G → ABS/DLC · datos vía combination meter / CAN. Bancada: loom solo 86↔94 = OL (sin terminadores 120Ω). Continuidad ECM↔F102 / ECM↔E9 válida en bancada.'},
     {id:'maf', title:'MAF', color:'#fb8c00',
       ecm:[51], conn:['maf','feed_ckp_maf_12v'], notes:'Señal MAF → ECM 51 (OR).'},
@@ -1039,6 +1041,9 @@ const CONN_BASE = {
     pins:[{id:'16',code:'R',ecm:null},{id:'6',code:'L',ecm:94},{id:'14',code:'P',ecm:86},{id:'4/5',code:'B',ecm:null}]},
 
   /* —— Red / otros —— */
+  fuel_tank_temp:{group:'body', sub:'dlc', name:'Fuel tank temp (FTT)', meta:'fuel level sensor unit · ECM 107 GY/R · P0181/182/183', accent:'#7e57c2', shape:'tab2',
+    pins:[{id:'4',code:'GY/R',ecm:107,lab:'FTT'},{id:'5',code:'B',ecm:null,rail:'gnd',lab:'GND'}],
+    note:'Fuel tank temperature sensor en fuel level sensor unit / fuel pump. Señal → ECM 107 (GY/R). Path FSM lista M72/F102 y B1/M12. Tierra (term. 5) vía unified meter M49.'},
   fuel_level:{group:'body', sub:'dlc', name:'Fuel level', meta:'vía combination meter / CAN', accent:'#7e57c2', shape:'note',
     pins:[{id:'CAN-L',code:'P',ecm:86},{id:'CAN-H',code:'L',ecm:94}],
     note:'Nivel de combustible no llega por cavidad directa al ECM: va al combination meter y se comparte por CAN (ECM 86/94).'},
@@ -1700,7 +1705,8 @@ const TITLES_I18N = {
   vmot: {en:'VMOT supply', ja:'VMOT供給'},
 
   fp_relay: {en:'Fuel pump relay', ja:'フューエルポンプリレー'},
-  can: {en:'CAN / DLC / combination meter', ja:'CAN / DLC / コンビネーションメータ'},
+  ftt: {en:'Fuel tank temperature', ja:'燃料タンク温度'},
+    can: {en:'CAN / DLC / combination meter', ja:'CAN / DLC / コンビネーションメータ'},
   maf: {en:'MAF', ja:'MAF'},
   tb: {en:'ETC throttle body', ja:'ETCスロットルボディ'},
   ho2s: {en:'HO2S2 downstream ×2', ja:'HO2S2 下流 ×2'},
@@ -1732,7 +1738,8 @@ const NOTES_I18N = {
   injectors: {en:'ECM drive + common 12V.', ja:'ECM駆動 + 共通12V。'},
 
   fp_relay: {en:'Fuel pump relay control → ECM 113 (LG/B).', ja:'フューエルポンプリレー制御 → ECM 113 (LG/B)。'},
-  can: {en:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · also IPDM E9 48/49 · branch E108 2G/7G → ABS/DLC · data via combination meter / CAN. Bench: loom alone 86↔94 = OL (no 120Ω terminators). Continuity ECM↔F102 / ECM↔E9 valid on bench.', ja:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · 経路 ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · IPDM E9 48/49 · 分岐 E108 2G/7G → ABS/DLC · コンビネーションメータ/CAN。ベンチ: ハーネスのみ 86↔94 = OL（120Ω終端なし）。ECM↔F102 / ECM↔E9 連続は有効。'},
+  ftt: {en:'FTT → ECM 107 (GY/R) via M72/F102 · fuel level sensor unit term. 4.', ja:'FTT → ECM 107 (GY/R) · M72/F102経由。'},
+    can: {en:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · also IPDM E9 48/49 · branch E108 2G/7G → ABS/DLC · data via combination meter / CAN. Bench: loom alone 86↔94 = OL (no 120Ω terminators). Continuity ECM↔F102 / ECM↔E9 valid on bench.', ja:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · 経路 ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · IPDM E9 48/49 · 分岐 E108 2G/7G → ABS/DLC · コンビネーションメータ/CAN。ベンチ: ハーネスのみ 86↔94 = OL（120Ω終端なし）。ECM↔F102 / ECM↔E9 連続は有効。'},
   maf: {en:'MAF signal → ECM 51 (OR).', ja:'MAF信号 → ECM 51 (OR)。'},
   tb: {en:'TB motor ± · TPS1/TPS2 · 5V rail 47.', ja:'TBモータ± · TPS1/TPS2 · 5Vレール47。'},
   ho2s: {en:'Heaters ECM 25 (B1) / 6 (B2) + fused 12V.', ja:'ヒータ ECM 25 (B1) / 6 (B2) + ヒューズ12V。'},
@@ -1850,7 +1857,7 @@ const CONN_SHORT = {
   coil1:'C1', coil2:'C2', coil3:'C3', coil4:'C4', coil5:'C5', coil6:'C6',
   inj1:'I1', inj2:'I2', inj3:'I3', inj4:'I4', inj5:'I5', inj6:'I6',
   app:'APP', pnp:'PNP', stop_lamp:'STP', ascd_brake:'AB', ascd_clutch:'ACL',
-  clock_spring:'AS', ascd_ind:'AI', fuel_level:'FL', dlc:'DLC',
+  clock_spring:'AS', ascd_ind:'AI', fuel_level:'FL', fuel_tank_temp:'FT', dlc:'DLC',
   fp_relay:'FP', vtc_b1:'V1', vtc_b2:'V2', vtc_ex_b1:'X1', vtc_ex_b2:'X2',
   ix_f102_m72:'F2', ix_e11_f2:'E11', ix_e12_f3:'E12', ix_e108_m15:'E8',
   ix_f103_f151:'F3', ix_f14_f229:'F14', ix_e10_f1:'E10', ix_f18_f201:'F18',
@@ -2324,6 +2331,10 @@ const CONN_I18N = {
   ascd_clutch: { en:{name:'ASCD clutch switch', meta:'M/T only · in series with ASCD brake → ECM 108'}, ja:{name:'ASCDクラッチSW', meta:'M/Tのみ · ASCDブレーキと直列 → ECM 108'} },
   clock_spring: { en:{name:'Clock spring / ASCD steer', meta:'comb. sw · SIG→99 · GND→67'}, ja:{name:'クロックスプリング / ASCDステア', meta:'コンビSW · SIG→99 · GND→67'} },
   dlc: { en:{name:'DLC OBD-II', meta:'under dash · 16-pin'}, ja:{name:'DLC診断コネクタ（OBD-II）', meta:'ダッシュ下 · 16ピン'} },
+  fuel_tank_temp: {
+    en: { name:'Fuel tank temp (FTT)', meta:'fuel level sensor unit · ECM 107 GY/R' },
+    ja: { name:'燃料タンク温度 (FTT)', meta:'燃料センダ · ECM 107 GY/R' },
+  },
   fuel_level: {
     en: { name:'Fuel level', meta:'via combination meter / CAN',
       note:'Fuel level does not reach the ECM on a direct cavity: it goes to the combination meter and is shared over CAN (ECM 86/94).' },
