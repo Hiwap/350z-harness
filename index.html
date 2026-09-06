@@ -921,17 +921,17 @@ function buildCircuits(model){
     {id:'coil_6', title:'Bobina 6', color:'#26a69a',
       ecm:[79], conn:['coil6','ix_e12_f3'], notes:'Drive ECM 79 GY/R · Bank2 (sin F18) · 12V W/L · EC-693.'},
     {id:'inj_1', title:'Inyector 1', color:'#9ccc65',
-      ecm:[23], conn:['inj1','feed_inj_coil_12v'], notes:'Drive ECM 23 + 12V común.'},
+      ecm:[23], conn:['inj1','ix_f221_f33','feed_inj_coil_12v'], notes:'Drive ECM 23 R/B · vía F33/F221 · +12V · EC-705.'},
     {id:'inj_2', title:'Inyector 2', color:'#9ccc65',
-      ecm:[42], conn:['inj2','feed_inj_coil_12v'], notes:'Drive ECM 42 + 12V común.'},
+      ecm:[42], conn:['inj2','ix_f221_f33','feed_inj_coil_12v'], notes:'Drive ECM 42 B/R · vía F33/F221 · +12V · EC-705.'},
     {id:'inj_3', title:'Inyector 3', color:'#9ccc65',
-      ecm:[22], conn:['inj3','feed_inj_coil_12v'], notes:'Drive ECM 22 + 12V común.'},
+      ecm:[22], conn:['inj3','ix_f221_f33','feed_inj_coil_12v'], notes:'Drive ECM 22 R/Y · vía F33/F221 · +12V · EC-705.'},
     {id:'inj_4', title:'Inyector 4', color:'#9ccc65',
-      ecm:[41], conn:['inj4','feed_inj_coil_12v'], notes:'Drive ECM 41 + 12V común.'},
+      ecm:[41], conn:['inj4','ix_f221_f33','feed_inj_coil_12v'], notes:'Drive ECM 41 W/B · vía F33/F221 · +12V · EC-705.'},
     {id:'inj_5', title:'Inyector 5', color:'#9ccc65',
-      ecm:[21], conn:['inj5','feed_inj_coil_12v'], notes:'Drive ECM 21 + 12V común.'},
+      ecm:[21], conn:['inj5','ix_f221_f33','feed_inj_coil_12v'], notes:'Drive ECM 21 SB · vía F33/F221 · +12V · EC-705.'},
     {id:'inj_6', title:'Inyector 6', color:'#9ccc65',
-      ecm:[40], conn:['inj6','feed_inj_coil_12v'], notes:'Drive ECM 40 + 12V común.'},
+      ecm:[40], conn:['inj6','ix_f221_f33','feed_inj_coil_12v'], notes:'Drive ECM 40 LG · vía F33/F221 · +12V · EC-705.'},
     {id:'batt_ecm', title:'BATT feed ECM', color:'#ef5350',
       ecm:[121], conn:['batt_feed'], notes:'ECM 121 always-hot BATT.'},
     {id:'ign_feeds', title:'IGN feeds ECM 119/120', color:'#ef5350',
@@ -1266,8 +1266,18 @@ const CONN_BASE = {
       {id:'6',lab:'12V',code:'W/L',ecm:null,rail:'12v'}
     ],
     note:'FSM EC-691/455: cav1 B GND→F23 · cav2 L/R→bobina3/ECM61 · cav3 Y/R→bobina1/ECM62 · cav4 W/R→P→VTC B1/ECM11 · cav5–6 W/L 12V (bobinas+VTC). Solo Bank1; bobina5 (60) va aparte. Bank2 sin este empalme.'},
-  ix_f221_f33:{group:'motor', sub:'actuators', name:'F221 ↔ F33 · Path inyectores → ECM', meta:'inyectores 1–6 · continuidad a ECM 21–42 · EC-278', accent:'#78909c', shape:'ixnote',
-    pins:[], note:'Empalme intermedio del path de inyectores: F33↔F221 entre arnés de inyectores y ECM (cyl1→23 … cyl6→40). Usado en checks de función de inyector (EC-278). Mapa de cavidades: ver FSM.'},
+  ix_f221_f33:{group:'motor', sub:'actuators', name:'F33 ↔ F221 · Inyectores', meta:'8-pin · EC-705 · frente collector', accent:'#9ccc65', shape:'f33',
+    pins:[
+      {id:'1',lab:'I5',code:'SB',ecm:21},
+      {id:'2',lab:'I3',code:'R/Y',ecm:22},
+      {id:'3',lab:'I4',code:'W/B',ecm:41},
+      {id:'4',lab:'I2',code:'B/R',ecm:42},
+      {id:'5',lab:'12V',code:'12V',ecm:null,rail:'12v'},
+      {id:'6',lab:'I1',code:'R/B',ecm:23},
+      {id:'7',lab:'I6',code:'LG',ecm:40},
+      {id:'8',code:'—',ecm:null}
+    ],
+    note:'FSM EC-705: F33 cav1→I5/ECM21 · 2→I3/22 · 3→I4/41 · 4→I2/42 · 5=12V · 6→I1/23 · 7→I6/40 · 8 nc. Mate F221. No es F18 (6-pin bobinas).'},
   ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · CAN (rama ABS/DLC)', meta:'2G/7G CAN · engine room↔body · FSM LAN', accent:'#90a4ae', shape:'tab2',
     pins:[{id:'2G',code:'L',ecm:94,lab:'CAN-H'},{id:'7G',code:'P',ecm:86,lab:'CAN-L'}],
     note:'Empalme sala de máquinas (E108) ↔ body (M15). Cavidades CAN verificadas: 2G L = CAN-H (cont. DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. DLC 14 / ABS E51-23). Rama hacia ABS/DLC vía body. Otras cavidades (freno/ASCD/A/F) existen; solo se listan pines CAN verificados. Cara: FSM H.S. (intermedias sin Invertida).'},
@@ -1430,6 +1440,21 @@ function flipRow(arr){
 }
 
 /** A/F FSM face: top 5-3-1, bottom 6-4-2 (looking into connector) */
+function svgF33(cid, f){
+  /* F33 H.S. 8-pin: top 1–4 / bot 5–8 (EC-705) */
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const orderTop = flipRow(['1','2','3','4']), orderBot = flipRow(['5','6','7','8']);
+  const W=200, H=108;
+  let cavities='';
+  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 14+i*46, 24, 40, 34, 4); });
+  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 14+i*46, 62, 40, 34, 4); });
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <path class="lock-tab" d="M84 2 h32 l6 10 H78 Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="192" height="92" rx="8" style="stroke:${f.accent}"/>
+    ${cavities}
+  </svg>`;
+}
+
 function svgF18(cid, f){
   /* F18 H.S. black 6-pin: top 1–2–3 / bot 4–5–6 (EC-691) */
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
@@ -1868,6 +1893,7 @@ function svgF102(cid, f){
 function renderConnSvg(cid, f){
   f = Object.assign({}, f, { accent: accentForConn(f) });
   switch(f.shape){
+    case 'f33': return svgF33(cid,f);
     case 'f18': return svgF18(cid,f);
     case 'af6': return svgAf6(cid,f);
     case 'rect6': return svgRect6(cid,f);
@@ -2493,10 +2519,10 @@ const CONN_I18N = {
       note:'F18: 1 B GND · 2→61 · 3→62 · 4→11 VTC · 5–6 W/L。Coil5は別。Bank2にこの中間なし。' },
   },
   ix_f221_f33: {
-    en: { name:'F221 ↔ F33 · Injectors → ECM path', meta:'injectors 1–6 · continuity to ECM 21–42 · EC-278',
-      note:'Injector-path intermediate: F33↔F221 between injector harness and ECM (cyl1→23 … cyl6→40). Used in injector function checks (EC-278). Cavity map: see FSM.' },
-    ja: { name:'F221 ↔ F33 · インジェクタ → ECM経路', meta:'インジェクタ 1–6 · ECM 21–42 連続 · EC-278',
-      note:'インジェクタ経路中間: F33↔F221（インジェクタハーネス〜ECM、cyl1→23 … cyl6→40）。インジェクタ機能点検 (EC-278)。キャビティ: FSM参照。' },
+    en: { name:'F33 ↔ F221 · Injectors', meta:'8-pin · EC-705 · front collector',
+      note:'F33: 1 I5/21 · 2 I3/22 · 3 I4/41 · 4 I2/42 · 5 12V · 6 I1/23 · 7 I6/40 · 8 nc. Mate F221.' },
+    ja: { name:'F33 ↔ F221 · インジェクタ', meta:'8ピン · EC-705',
+      note:'F33: 1→21 · 2→22 · 3→41 · 4→42 · 5=12V · 6→23 · 7→40 · 8 nc。' },
   },
   ix_e108_m15: {
     en: { name:'E108 ↔ M15 · CAN (ABS/DLC branch)', meta:'2G/7G CAN · engine room↔body · FSM LAN',
