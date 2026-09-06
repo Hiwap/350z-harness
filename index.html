@@ -41,7 +41,7 @@
 
   #ecm {
     overflow-x: visible; overflow-y: visible; min-width: 0;
-    --pin-w: 34px; --pin-h: 40px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 10px; --pin-sm: 8px;
+    --pin-w: 40px; --pin-h: 48px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 11px; --pin-sm: 9px;
   }
   .blocks {
     display: flex; gap: var(--block-gap, 10px); align-items: center;
@@ -97,7 +97,11 @@
   }
   .pin small { font-size: var(--pin-sm, 8px); font-weight: 700; opacity: 1; }
   #blocks .pin {
-    overflow: hidden;
+    overflow: visible;
+  }
+  #blocks .pin .pw {
+    letter-spacing: -0.04em;
+    font-size: var(--pin-sm, 9px);
   }
   /* Outlines: light pin nº; wire code (.pw) uses per-segment wire colors */
   #blocks .pin .pn {
@@ -238,9 +242,9 @@
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.hl-end .cav-face { stroke: var(--hl2) !important; stroke-width: 2.5; }
   .cav-hit.hl-group .cav-face { stroke: #ab47bc !important; stroke-width: 2; }
-  .cav-label { font-size: 7px; font-weight: 800; fill: #111; pointer-events: none; opacity: 0.9; }
-  .cav-sub, .cav-code { font-size: 7.5px; font-weight: 800; fill: #222; pointer-events: none; }
-  .cav-ecm { font-size: 7px; font-weight: 700; fill: #222; pointer-events: none; opacity: 0.95; }
+  .cav-label { font-size: 7.5px; font-weight: 800; fill: #e8eaed; pointer-events: none; opacity: 0.95; }
+  .cav-sub, .cav-code { font-size: 8px; font-weight: 800; fill: #e8eaed; pointer-events: none; }
+  .cav-ecm { font-size: 7.5px; font-weight: 700; fill: #90caf9; pointer-events: none; opacity: 0.95; }
   /* Solid mode: colored lab-5v/12v/gnd !important must not override wire ink */
   body[data-mode="solid"] .cav-label.lab-5v,
   body[data-mode="solid"] .cav-label.lab-12v,
@@ -250,10 +254,12 @@
   .lock-tab { fill: #263238; stroke: #78909c; stroke-width: 1.2; }
   .shell { fill: #0f1319; stroke-width: 1.8; }
   .cavity { stroke-width: 2; }
-  body[data-mode="outlines"] .cavity { fill: #fafafa; }
+  /* Outlines: dark face + colored stroke (white fill covered wire colors) */
+  body[data-mode="outlines"] .cavity { fill: #151a22; }
   body[data-mode="solid"] .cavity { fill: var(--cav-fill, #263238); }
-  body[data-mode="outlines"] .shell { fill: #f5f5f5; }
+  body[data-mode="outlines"] .shell { fill: #0f1319; }
   body[data-mode="solid"] .shell { fill: #0f1319; }
+  body[data-mode="outlines"] .lock-tab { fill: #1a222d; }
 
   .info { margin-top: 10px; font-size: 12px; line-height: 1.45; color: #cfd8dc; min-height: 70px;
     border-top: 1px solid var(--border); padding-top: 8px; }
@@ -314,20 +320,20 @@
     justify-content: flex-start;
   }
   #ecm #f102Blocks .pin {
-    width: 30px; height: auto; min-height: 42px; padding: 2px 1px;
-    font-size: 8.5px; line-height: 1.05;
+    width: 34px; height: auto; min-height: 48px; padding: 2px 1px;
+    font-size: 9px; line-height: 1.05;
     flex: 0 0 auto;
   }
   #ecm #f102Blocks .f102-face-block.pin-lg .pin {
-    width: 40px; min-height: 48px; font-size: 9.5px;
+    width: 44px; min-height: 54px; font-size: 10px;
   }
-  #ecm #f102Blocks .f102-face-block.pin-lg .pin small { font-size: 7.5px; }
-  #ecm #f102Blocks .f102-face-block.pin-lg .pin .dest { font-size: 7.5px; }
+  #ecm #f102Blocks .f102-face-block.pin-lg .pin small { font-size: 8px; }
+  #ecm #f102Blocks .f102-face-block.pin-lg .pin .dest { font-size: 8px; }
   #ecm #f102Blocks .f102-face-block.pin-sm .pin {
-    width: 26px; min-height: 40px; font-size: 7.5px;
+    width: 30px; min-height: 46px; font-size: 8.5px;
   }
-  #ecm #f102Blocks .f102-face-block.pin-sm .pin small { font-size: 6px; }
-  #ecm #f102Blocks .f102-face-block.pin-sm .pin .dest { font-size: 6px; }
+  #ecm #f102Blocks .f102-face-block.pin-sm .pin small { font-size: 7px; }
+  #ecm #f102Blocks .f102-face-block.pin-sm .pin .dest { font-size: 7px; }
   #ecm #f102Blocks .pin small { font-size: 7px; font-weight: 700; opacity: 0.95; }
   #ecm #f102Blocks .pin .dest {
     display: block; font-size: 7px; font-weight: 800; color: #90caf9; margin-top: 1px;
@@ -418,7 +424,7 @@
 
   /* Mild mobile shrink only — keep recognizable EC-123 proportions (≥24px); scroll if needed */
   @media (max-width: 900px) {
-    #ecm { --pin-w: 28px; --pin-h: 34px; --pin-gap: 2px; --block-gap: 8px; --pin-fs: 9px; --pin-sm: 7px; }
+    #ecm { --pin-w: 34px; --pin-h: 42px; --pin-gap: 2px; --block-gap: 8px; --pin-fs: 10px; --pin-sm: 8px; }
     #ecm #blocks { gap: 10px; }
     #ecm #blocks .block { padding: 4px 3px 2px; }
     #ecm #f102Blocks {
@@ -430,36 +436,36 @@
       padding: 6px 4px 4px;
     }
     #ecm #f102Blocks .pin {
-      width: 24px; min-height: 36px; font-size: 7px;
+      width: 28px; min-height: 42px; font-size: 8px;
     }
     #ecm #f102Blocks .f102-face-block.pin-lg .pin {
-      width: 32px; min-height: 42px; font-size: 8px;
+      width: 36px; min-height: 48px; font-size: 9px;
     }
     #ecm #f102Blocks .f102-face-block.pin-sm .pin {
-      width: 22px; min-height: 34px; font-size: 6.5px;
+      width: 26px; min-height: 40px; font-size: 7.5px;
     }
-    #ecm #f102Blocks .pin small { font-size: 6px; }
-    #ecm #f102Blocks .pin .dest { font-size: 6px; }
+    #ecm #f102Blocks .pin small { font-size: 7px; }
+    #ecm #f102Blocks .pin .dest { font-size: 7px; }
   }
   @media (max-width: 600px) {
-    #ecm { --pin-w: 24px; --pin-h: 30px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
+    #ecm { --pin-w: 32px; --pin-h: 42px; --pin-gap: 2px; --block-gap: 7px; --pin-fs: 9.5px; --pin-sm: 8px; }
     #ecm #blocks { gap: 8px; }
     #ecm details.f102-panel { margin-top: 10px; }
     #ecm #f102Blocks { padding: 4px 6px 8px; gap: 6px; }
     #ecm #f102Blocks .f102-face-block { padding: 4px 2px 2px; }
     #ecm #f102Blocks .f102-face-block .tag { font-size: 9px; }
     #ecm #f102Blocks .pin {
-      width: 20px; min-height: 32px; font-size: 6.5px; padding: 1px 0;
+      width: 26px; min-height: 40px; font-size: 7.5px; padding: 1px 0;
       border-width: 2px;
     }
     #ecm #f102Blocks .f102-face-block.pin-lg .pin {
-      width: 28px; min-height: 38px; font-size: 7.5px;
+      width: 34px; min-height: 46px; font-size: 8.5px;
     }
     #ecm #f102Blocks .f102-face-block.pin-sm .pin {
-      width: 18px; min-height: 30px; font-size: 6px;
+      width: 24px; min-height: 38px; font-size: 7px;
     }
-    #ecm #f102Blocks .pin small { font-size: 5px; }
-    #ecm #f102Blocks .pin .dest { font-size: 5px; margin-top: 0; }
+    #ecm #f102Blocks .pin small { font-size: 6.5px; }
+    #ecm #f102Blocks .pin .dest { font-size: 6.5px; margin-top: 0; }
     .pin { border-width: 2px; border-radius: 4px; }
     .pin.has-tracer::after { inset: 1px; border-width: 1.5px; }
     .block .tag { font-size: 9px; }
@@ -473,21 +479,21 @@
   }
   @media (orientation: landscape) and (max-height: 500px) {
     main { grid-template-columns: 1fr; }
-    #ecm { order: -1; --pin-w: 24px; --pin-h: 30px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 8px; --pin-sm: 6.5px; }
+    #ecm { order: -1; --pin-w: 30px; --pin-h: 38px; --pin-gap: 2px; --block-gap: 6px; --pin-fs: 9px; --pin-sm: 7.5px; }
     .pin { border-radius: 4px; border-width: 2px; }
     .block .tag { font-size: 9px; margin-top: 2px; }
   }
 
   /* mobile / portrait: taller fichas + two-line cavity labels */
   @media (max-width: 700px) {
-    .cav-sub, .cav-code { font-size: 7.5px; }
-    .cav-ecm { font-size: 7px; }
-    .cav-label { font-size: 7px; }
+    .cav-sub, .cav-code { font-size: 8.5px; }
+    .cav-ecm { font-size: 8px; }
+    .cav-label { font-size: 8px; }
     .ficha { padding: 6px; border-radius: 8px; }
     .ficha h3 { font-size: 11px; }
     .ficha .meta { font-size: 10px; color: #dde1e8; margin-bottom: 4px; }
     .fichas-grid {
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
       gap: 8px; padding: 8px;
     }
     .conn-svg { max-height: none; width: 100%; }
@@ -643,7 +649,7 @@ function svgInk(fill, withHalo){
   if(!withHalo) return `style="fill:${f} !important"`;
   const lightInk = hexLum(f) >= 0.5;
   const stroke = lightInk ? '#000' : '#fff';
-  return `style="fill:${f} !important;stroke:${stroke};stroke-width:1.6px;paint-order:stroke fill;stroke-linejoin:round"`;
+  return `style="fill:${f} !important;stroke:${stroke};stroke-width:0.9px;paint-order:stroke fill;stroke-linejoin:round"`;
 }
 /** Split wire code into colored segments (base / tracer). */
 function wireCodeParts(code){
@@ -1177,11 +1183,11 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const disp = cavDisplayLab(pin);
   const lc = mode === 'solid' ? '' : labClass(disp);
   const rail = cavRailOf(pin);
-  let txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#111';
+  let txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
   if(mode !== 'solid' && lc === 'lab-5v') txtFill = '#F9A825';
   if(mode !== 'solid' && lc === 'lab-12v') txtFill = '#C62828';
-  if(mode !== 'solid' && lc === 'lab-gnd') txtFill = '#2E7D32';
-  const ink = (c) => svgInk(c, mode === 'solid');
+  if(mode !== 'solid' && lc === 'lab-gnd') txtFill = '#81C784';
+  const ink = (c) => svgInk(c, true);
   const idY = y + 9;
   const codeY = y + h/2 + 2;
   const ecmY = y + h - 5;
@@ -1193,7 +1199,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
     ${inset}
     <text class="cav-label ${lc}" x="${x+w/2}" y="${idY}" text-anchor="middle" ${ink(txtFill)}>${esc(disp)}</text>
     ${wireCodeSvg(code, x+w/2, codeY, 'cav-sub cav-code', true)}
-    <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(mode==='solid'?txtFill:'#1565c0')}>${esc(ecmTxt)}</text>
+    <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(mode==='solid'?txtFill:'#90caf9')}>${esc(ecmTxt)}</text>
   </g>`;
 }
 
@@ -1289,8 +1295,8 @@ function svgRing(cid, f){
     ? `<circle class="cav-tracer" cx="45" cy="34" r="7" fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
   const mode = document.body.dataset.mode || 'outlines';
-  const txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#111';
-  const ink = (c) => svgInk(c, mode === 'solid');
+  const txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
+  const ink = (c) => svgInk(c, true);
   return `<svg class="conn-svg" viewBox="0 0 90 84" xmlns="http://www.w3.org/2000/svg">
     <g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(p.id)}">
       ${defs}
