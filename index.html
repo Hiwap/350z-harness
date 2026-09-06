@@ -226,7 +226,21 @@
     cursor: pointer; list-style: none; user-select: none;
     font-size: 12px; font-weight: 700; color: #e3e8ef;
     padding: 8px 10px;
+    display: flex; align-items: center; gap: 8px;
   }
+  .ficha-sub > summary .sub-label { flex: 1; min-width: 0; }
+  .ficha-sub > summary .sub-codes {
+    display: none;
+    margin-left: auto;
+    max-width: 58%;
+    text-align: right;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 10px; font-weight: 800; color: #ffe082;
+    letter-spacing: 0.01em; line-height: 1.25;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* Codes on the right only while the subgroup is collapsed */
+  .ficha-sub:not([open]) > summary .sub-codes { display: inline; }
   .ficha-sub > summary::-webkit-details-marker { display: none; }
   .ficha-sub > summary::before {
     content: '▾'; color: #78909c; font-size: 10px; display: inline-block;
@@ -2585,7 +2599,11 @@ function renderFichas(){
       sub.open = subSaved === null ? true : subSaved === '1';
       const ssum=document.createElement('summary');
       const subLabel = (SUB_I18N[sk] && SUB_I18N[sk][lang]) || (SUB_I18N[sk] && SUB_I18N[sk].es) || sk;
-      ssum.textContent = subLabel;
+      const subCodes = bySub[sk].map(id => CONN_SHORT[id]).filter(Boolean);
+      const codesHtml = subCodes.length
+        ? `<span class="sub-codes" title="${esc(subCodes.join(' · '))}">${esc(subCodes.join(' · '))}</span>`
+        : '';
+      ssum.innerHTML = `<span class="sub-label">${esc(subLabel)}</span>${codesHtml}`;
       const subCol = SUB_ACCENT[sk] || '#546e7a';
       sub.style.borderColor = subCol;
       ssum.style.borderLeft = '3px solid ' + subCol;
