@@ -1112,9 +1112,9 @@ const CONN_BASE = {
     pins:[],
     note:'Relés (integrados): ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog (vacío). Fusibles: 71=10A 72=10A 73=20A 74=10A 75=20A 76=15A · 77=15A 78=15A 79=10A 80=20A · 81=15A 82=10A 83=10A 84=10A 85=15A 86=15A 87=15A 88=— 89=10A. 77→ECM relay · 87→throttle motor relay. Credit: FSM PG-26.'},
   ign_sw:{group:'motor', sub:'power', name:'IGN SW', meta:'señal llave → ECM 109', accent:'#ef5350', shape:'tab2',
-    pins:[{id:'IGN',code:'W/B',ecm:109},{id:'PWR',code:'12V',ecm:null}]},
+    pins:[{id:'IGN',code:'W/B',ecm:109},{id:'PWR',code:'12V',ecm:null,rail:'12v'}]},
   ecm_relay:{group:'motor', sub:'power', name:'ECM relay control', meta:'ECM 111 · coil drive', accent:'#ef5350', shape:'tab2',
-    pins:[{id:'CTRL',code:'GY/L',ecm:111},{id:'coil+',code:'12V',ecm:null}]},
+    pins:[{id:'CTRL',code:'GY/L',ecm:111},{id:'coil+',code:'12V',ecm:null,rail:'12v'}]},
   vmot:{group:'motor', sub:'power', name:'VMOT alim', meta:'alimentación motor TB · ECM 3', accent:'#029eb7', shape:'tab2',
     pins:[{id:'VMOT',code:'G',ecm:3,rail:'12v'},{id:'relay',code:'12V',ecm:null,rail:'12v'}]},
   gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · ECM ground', meta:'ECM 1 / 115 / 116 → body ground · EC POWER SUPPLY AND GROUND', accent:'#66bb6a', shape:'rect4',
@@ -1204,7 +1204,7 @@ const CONN_BASE = {
     pins:[{id:'2',code:'G/W',ecm:117,lab:'CTRL'},{id:'1',code:'12V',ecm:null,rail:'12v'}],
     note:'EVAP canister vent control valve term. 2 → ECM 117 (G/W). Path FSM: M72/F102 · B1/M12 · IPDM feed en term. 1.'},
   fp_relay:{group:'motor', sub:'actuators', name:'FP relay', meta:'control bomba · ECM 113', accent:'#ef5350', shape:'tab2',
-    pins:[{id:'CTRL',code:'LG/B',ecm:113},{id:'coil+',code:'12V',ecm:null}]},
+    pins:[{id:'CTRL',code:'LG/B',ecm:113},{id:'coil+',code:'12V',ecm:null,rail:'12v'}]},
 
 
   /* —— ix_* paths: single-purpose in their sub; multi stay in intermedias —— */
@@ -1243,12 +1243,12 @@ const CONN_BASE = {
 
   /* —— Habitáculo / pedales / ASCD —— */
   pnp:{group:'body', sub:'pedals', name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
-    pins:[{id:'SIG',code:'BR/Y',ecm:102},{id:'GND',code:'B',ecm:null}]},
+    pins:[{id:'SIG',code:'BR/Y',ecm:102},{id:'GND',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
   app:{group:'body', sub:'pedals', name:'APP pedal E113', meta:'6-pin GY · pedal · PATH E113→E11/F2→ECM', accent:'#f9a825', shape:'rect6', face:'e113',
     pins:[{id:'1',code:'G/R',ecm:83,rail:'gnd'},{id:'2',code:'R/Y',ecm:98},{id:'3',code:'B/W',ecm:82,rail:'gnd'},{id:'4',code:'B/OR',ecm:91,rail:'5v'},{id:'5',code:'Y',ecm:106},{id:'6',code:'L',ecm:90,rail:'5v'}],
     note:'PATH APP: pedal E113 → E11/F2 (10-pin GY) → ECM 90/91/82/83/98/106. Colores aquí = lado pedal (EC-523); en F2→ECM cambian (LG, G/OR, G/Y, B/OR, G/B, G/R). Cara FSM: top 3-2-1 / bot 6-5-4.'},
   stop_lamp:{group:'body', sub:'pedals', name:'Stop lamp switch', meta:'freno · ECM 101 L/OR', accent:'#e53935', shape:'tab2',
-    pins:[{id:'SIG',code:'L/OR',ecm:101},{id:'PWR',code:'12V',ecm:null}]},
+    pins:[{id:'SIG',code:'L/OR',ecm:101},{id:'PWR',code:'12V',ecm:null,rail:'12v'}]},
   ascd_brake:{group:'body', sub:'pedals', name:'ASCD brake switch', meta:'2-pin · term2 → ECM 108', accent:'#fb8c00', shape:'tab2',
     pins:[{id:'1',code:'12V',ecm:null},{id:'2',code:'B/R',ecm:108}]},
   ascd_clutch:{group:'body', sub:'pedals', name:'ASCD clutch switch', meta:'solo M/T · en serie con ASCD brake → señal ECM 108', accent:'#fb8c00', shape:'tab2',
@@ -1313,11 +1313,25 @@ function cavDisplayLab(pin){
 function cavRailOf(pin){
   if(pin && pin.rail) return pin.rail;
   const lab = cavDisplayLab(pin||{}).toUpperCase();
-  if(lab === '5V') return '5v';
-  if(lab === '12V' || (pin && pin.code === '12V')) return '12v';
-  if(lab === 'GND' || lab === 'SNS' || lab === 'SH' || lab === 'TIERRA' || lab.startsWith('GND')) return 'gnd';
+  const code = String(pin && pin.code || '').toUpperCase();
+  const id = String(pin && pin.id || '').toUpperCase();
+  if(lab === '5V' || code === '5V' || id === '5V') return '5v';
+  if(lab === '12V' || code === '12V' || code === 'BATT' || id === '12V' || id === 'PWR') return '12v';
+  if(lab === 'GND' || lab === 'SNS' || lab === 'SH' || lab === 'TIERRA' || lab === 'BODY'
+     || lab.startsWith('GND') || id === 'GND' || code === 'B') return 'gnd';
   if(pin && pin.ecm != null && PIN_RAIL[pin.ecm]) return PIN_RAIL[pin.ecm];
   return null;
+}
+/** Top line on ficha cavities: ECM #, else rail (GND/12V/5V), else short lab, else — */
+function cavTopLabel(pin){
+  if(pin && pin.ecm != null) return String(pin.ecm);
+  const rail = cavRailOf(pin);
+  if(rail === 'gnd') return 'GND';
+  if(rail === '12v') return '12V';
+  if(rail === '5v') return '5V';
+  const lab = String(pin && pin.lab || '').trim();
+  if(lab && !/^nc$/i.test(lab) && lab !== String(pin.id)) return lab;
+  return '—';
 }
 function cavGroup(cid, pin, x, y, w, h, rx){
   const code = pin.code || '';
@@ -1352,13 +1366,20 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const codeY = y + h/2 + 2;
   const idY = y + h - 5;
   const railAttr = rail ? ` data-rail="${rail}"` : '';
-  const ecmFace = pin.ecm != null ? String(pin.ecm) : '—';
+  const ecmFace = cavTopLabel(pin);
+  let topFill = (mode === 'solid') ? txtFill : '#90caf9';
+  if(pin.ecm == null){
+    if(rail === 'gnd') topFill = mode === 'solid' ? txtFill : '#81C784';
+    else if(rail === '12v') topFill = mode === 'solid' ? txtFill : '#ef9a9a';
+    else if(rail === '5v') topFill = mode === 'solid' ? txtFill : '#F9A825';
+    else topFill = mode === 'solid' ? txtFill : '#90a4ae';
+  }
   return `<g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr} role="button">
     ${defs}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
     ${inset}
-    <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(mode==='solid'?txtFill:'#90caf9')}>${esc(ecmFace)}</text>
+    <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(topFill)}>${esc(ecmFace)}</text>
     ${wireCodeSvg(code, x+w/2, codeY, 'cav-sub cav-code', true)}
     <text class="cav-label ${lc}" x="${x+w/2}" y="${idY}" text-anchor="middle" ${ink(txtFill)}>${esc(disp)}</text>
   </g>`;
@@ -1464,7 +1485,7 @@ function svgRing(cid, f){
       <circle class="cav-face" cx="45" cy="34" r="22" fill="none" stroke="${f.accent}" stroke-width="3"/>
       <circle class="cavity cav-face" cx="45" cy="34" r="10" style="stroke:${sc};--cav-fill:${fillVal}"/>
       ${inset}
-      <text class="cav-ecm" x="45" y="30" text-anchor="middle" ${ink(txtFill)}>${esc(p.ecm != null ? String(p.ecm) : '—')}</text>
+      <text class="cav-ecm" x="45" y="30" text-anchor="middle" ${ink(txtFill)}>${esc(cavTopLabel(p))}</text>
       ${wireCodeSvg(p.code||'', 45, 64, 'cav-sub cav-code', true)}
       <text class="cav-label" x="45" y="76" text-anchor="middle" ${ink(txtFill)}>${esc(p.id)}</text>
     </g>
@@ -2180,9 +2201,9 @@ function makeF102PinEl(pin){
   }
   d.style.setProperty('--pin-fg', hasWire ? fgForWire(wcol) : '#555');
   const midHtml = hasWire ? wireCodeHtml(code) : esc('—');
-  const ecmTop = pin.ecm != null ? String(pin.ecm) : (hasWire ? '—' : '');
-  /* Same order as fichas: ECM · wire code · cavity id (not ECM grid) */
-  d.innerHTML = `<span class="dest">${esc(ecmTop || '—')}</span><small class="pw">${midHtml}</small><span class="pn">${esc(String(pin.id))}</span>`;
+  const ecmTop = hasWire || pin.ecm != null ? cavTopLabel(pin) : '—';
+  /* Same order as fichas: ECM/rail · wire code · cavity id */
+  d.innerHTML = `<span class="dest">${esc(ecmTop)}</span><small class="pw">${midHtml}</small><span class="pn">${esc(String(pin.id))}</span>`;
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
   d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}`;
   if(hasWire){
