@@ -3336,29 +3336,29 @@ function withFichasScrollPinned(fn){
   const root = document.getElementById('fichas');
   const y = root ? root.scrollTop : 0;
   const wy = window.scrollY || window.pageYOffset || 0;
-  /* Prefer anchoring to the first highlighted ficha in the panel (not selTop clone) */
-  let anchor = null, anchorTop = 0;
-  if(root){
-    anchor = root.querySelector('.ficha-sec:not(.sel-top) .ficha.hl, .ficha-sec:not(.sel-top) .ficha-wrap.hl');
-    if(anchor){
-      const ar = anchor.getBoundingClientRect();
-      const rr = root.getBoundingClientRect();
-      anchorTop = ar.top - rr.top + y;
-    }
-  }
   try { fn(); }
   finally {
-    if(root){
-      if(anchor && anchor.isConnected){
-        const ar = anchor.getBoundingClientRect();
-        const rr = root.getBoundingClientRect();
-        const now = ar.top - rr.top + root.scrollTop;
-        root.scrollTop = Math.max(0, now - (anchorTop - y));
-      } else {
-        root.scrollTop = y;
-      }
-    }
+    if(root) root.scrollTop = y;
     try { window.scrollTo(0, wy); } catch(e) {}
+  }
+}
+
+/** After selTop/promote, bring the selection into the fichas panel view. */
+function scrollFichasToSelection(fallbackEl){
+  const root = document.getElementById('fichas');
+  if(!root) return;
+  const el = document.getElementById('selTop')
+    || root.querySelector('.ficha-sec.sel-top')
+    || root.querySelector('.ficha-sec:not(.sel-top) .ficha.hl, .ficha-sec:not(.sel-top) .ficha-wrap.hl')
+    || fallbackEl;
+  if(!el || !el.isConnected) return;
+  try {
+    const er = el.getBoundingClientRect();
+    const rr = root.getBoundingClientRect();
+    const pad = 8;
+    root.scrollTop = Math.max(0, root.scrollTop + (er.top - rr.top) - pad);
+  } catch(e) {
+    try { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch(e2) {}
   }
 }
 
@@ -3366,15 +3366,8 @@ function promoteSelectedInGroups(connIds){
   /* Selected fichas first inside each grid; active sections under #selTop.
      Scroll is pinned by withFichasScrollPinned in revealConns.
      Single-ficha picks: no DOM reorder (avoids dragging the view up with the card). */
-  const raw = (connIds||[]).filter(Boolean);
-  const set = new Set(raw);
+  const set = new Set((connIds||[]).filter(Boolean));
   if(!set.size) return;
-
-  const sideIds = raw.filter(id => id !== 'ix_f102_m72');
-  if(sideIds.length <= 1){
-    applyCollapseIdleSubs(connIds);
-    return;
-  }
 
   const cidOf = el => el.dataset.conn
     || (el.querySelector && el.querySelector('.ficha') && el.querySelector('.ficha').dataset.conn);
@@ -3550,21 +3543,20 @@ function revealConns(connIds, opts){
       if(sk) localStorage.setItem('z33_sub_' + sk, '1');
     }
   });
-  /* selTop + promote selected to front of group; pin scroll to limit jump */
-  withFichasScrollPinned(()=>{
-    updateSelectedTop(ids);
-    promoteSelectedInGroups(ids);
-    syncF102PanelForSelection(ids, { collapseF102 });
-    if(collapseF102) setF102PanelOpen(false);
-    document.querySelectorAll('#fichas .ficha.hl').forEach(f=>{
-      const nest = f.closest('details.ficha-nest');
-      if(nest) nest.open = true;
-      const sec = f.closest('details.ficha-sec');
-      if(sec) sec.open = true;
-    });
-    const top = document.getElementById('selTop');
-    if(top) top.open = true;
+  /* selTop + promote; then scroll the fichas panel to the selection */
+  updateSelectedTop(ids);
+  promoteSelectedInGroups(ids);
+  syncF102PanelForSelection(ids, { collapseF102 });
+  if(collapseF102) setF102PanelOpen(false);
+  document.querySelectorAll('#fichas .ficha.hl').forEach(f=>{
+    const nest = f.closest('details.ficha-nest');
+    if(nest) nest.open = true;
+    const sec = f.closest('details.ficha-sec');
+    if(sec) sec.open = true;
   });
+  const top = document.getElementById('selTop');
+  if(top) top.open = true;
+  scrollFichasToSelection(first);
 }
 
 let selKey = null; /* 'pin:N' | 'cav:cid:id' — second click clears */
