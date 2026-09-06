@@ -890,6 +890,11 @@ function buildCircuits(model){
       ecm:[106,98], conn:['app','ix_e11_f2'], notes:'APS1 → ECM 106 · APS2 → ECM 98 vía intermedia E11/F2 (pedal E113→E11/F2→ECM · F2 cav 5/3).'},
     {id:'ac_press', title:'A/C refrigerant pressure', color:'#ef6c00',
       ecm:[49,70,67], conn:['ac_press','ix_e10_f1'], notes:'5V ECM 49 (B/Y) · señal ECM 70 (G/R) · GND ECM 67 B/W (SNS compartida · vía E10/F1). FSM EC-608.'},
+    {id:'starter', title:'Starter motor (B/Y)', color:'#ef5350',
+      ecm:[], conn:['ix_e10_f1'], notes:'IPDM E4-3 B/Y → E10/F1 cav1 → starter F9 · SC-13. IPDM no mostrado en fichas.'},
+    {id:'backup_lamp', title:'Back-up / reverse lamp (M/T)', color:'#ffb300',
+      ecm:[], conn:['ix_e10_f1','backup_sw','ix_f102_m72'], notes:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → F36 pin1; F36 pin2 OR → F102 22H → rear lamps. LT-183. No ECM. IPDM oculto en UI.'},
+
     {id:'gnd_ecm', title:'ECM ground → body ground', color:'#66bb6a',
       ecm:[1,115,116], conn:['gnd4','e17','ix_f103_f151'], notes:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground vía harness connectors F103, F151.'},
 
@@ -1190,6 +1195,12 @@ const CONN_BASE = {
     pins:[{id:'1',lab:'SIG',code:'PU/W',ecm:60},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
   coil6:{group:'motor', sub:'actuators', name:'Bobina 6', meta:'ECM79 GY/R · F29', accent:'#00838f', shape:'tab3',
     pins:[{id:'1',lab:'SIG',code:'GY/R',ecm:79},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
+  backup_sw:{group:'motor', sub:'actuators', name:'Back-up lamp switch', meta:'F36 · M/T reversa · LT-183 · 2-pin', accent:'#ffb300', shape:'tab2',
+    pins:[
+      {id:'1',lab:'IN',code:'Y/R',ecm:null,rail:'12v',circ:'backup_lamp',note:'Desde E10/F1 cav2 · feed IPDM E7-26'},
+      {id:'2',lab:'OUT',code:'OR',ecm:null,rail:'12v',circ:'backup_lamp',note:'→ F102 22H → luces reversa T10/T18'}
+    ],
+    note:'LT-183 Coupe M/T: switch en transmisión. Pin1 Y/R desde F1 cav2; pin2 OR a rear lamps vía F102 22H. No ECM.'},
   inj1:{group:'motor', sub:'actuators', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/B',ecm:23},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   inj2:{group:'motor', sub:'actuators', name:'Inyector 2', meta:'ECM42 B/R', accent:'#37474f', shape:'tab2', pins:[{id:'ECM',code:'B/R',ecm:42},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   inj3:{group:'motor', sub:'actuators', name:'Inyector 3', meta:'ECM22 R/Y', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/Y',ecm:22},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
@@ -1226,10 +1237,12 @@ const CONN_BASE = {
       {id:'10',lab:'5V',code:'LG',ecm:90,rail:'5v'}
     ],
     note:'PATH APP: pedal E113 → E11/F2 → ECM. APP usa 6 circuitos (cavidades 2,3,4,5,9,10). Unused en APP: 1,6,7,8. Cara F2 H.S. FSM: top 1–5 / bot 6–10. Colores = F2→ECM. Labs 5V/GND en rails APP.'},
-  ix_e10_f1:{group:'motor', sub:'intermedias', name:'E10 ↔ F1 · Empalme sala máquinas ↔ arnés control', meta:'9-pin GY · A/C press → ECM 49/70/67 · EC-717 · no F102', accent:'#ef6c00', shape:'f1', face:'f1',
+  ix_e10_f1:{group:'motor', sub:'intermedias', name:'E10 ↔ F1 · Empalme sala máquinas ↔ arnés control', meta:'9-pin GY · START · REV Y/R · A/C · SC-13/LT-183/EC-717', accent:'#ef6c00', shape:'f1', face:'f1',
     pins:[
-      {id:'1',code:'—',ecm:null},
-      {id:'2',code:'—',ecm:null},
+      {id:'1',lab:'START',code:'B/Y',ecm:null,rail:'12v',circ:'starter',
+        note:'IPDM E4-3 → E10/F1 cav1 → starter F9 · SC-13'},
+      {id:'2',lab:'REV',code:'Y/R',ecm:null,rail:'12v',circ:'backup_lamp',
+        note:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → back-up switch F36 pin1 · LT-183 (M/T)'},
       {id:'3',code:'—',ecm:null},
       {id:'4',code:'—',ecm:null},
       {id:'5',lab:'5V',code:'B',ecm:49,rail:'5v'},
@@ -1238,7 +1251,7 @@ const CONN_BASE = {
       {id:'8',lab:'GND',code:'B/W',ecm:67,rail:'gnd'},
       {id:'9',lab:'SIG',code:'G/R',ecm:70}
     ],
-    note:'FSM EC-717 H.S. F1 (GY): cav 5 B → ECM 49 (5V A/C) · cav 9 G/R → ECM 70 (SIG) · cav 8 B/W → ECM 67 (SNS GND). Path sensor E252→E251/E31→E10/F1→ECM F101. No pasa por F102. Cav 1–4/6–7: sin circuito verificado aún.'},
+    note:'Cav1 B/Y START (SC-13). Cav2 Y/R REV: IPDM E7-26 → F36 back-up switch (LT-183) — no ECM. Cav5/9/8 A/C → ECM 49/70/67 (EC-717). Cav 3–4/6–7 vacíos en bancada típica.'},
   ix_e12_f3:{group:'motor', sub:'intermedias', name:'E12 ↔ F3 · Path A/F + VB', meta:'8-pin GY · VB 119/120 · IGN · GND E17 · EC-167/169 · no F102', accent:'#42a5f5', shape:'f3', face:'f3',
     pins:[
       {id:'1',code:'—',ecm:null},
@@ -2057,11 +2070,17 @@ const I18N = {
 
 
 const TITLES_I18N = {
+  backup_sw: {
+    en: { name:'Back-up lamp switch', meta:'F36 · M/T reverse · LT-183' },
+    ja: { name:'バックランプスイッチ', meta:'F36 · M/Tリバース · LT-183' },
+  },
   af_b1: {en:'A/F Sensor 1 Bank 1', ja:'A/Fセンサ1 バンク1'},
   af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM). Path may pass intermediate E12/F3 (see FSM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
   app_5v: {en:'APP 5V + A/C · EVAP · PSP rails', ja:'APP 5V + A/C · EVAP · PSPレール'},
   app_gnd: {en:'APP grounds', ja:'APPアース'},
   app_sig: {en:'APP signals APS1/APS2', ja:'APP信号 APS1/APS2'},
+  starter: {en:'Starter motor (B/Y)', ja:'スタータ (B/Y)'},
+  backup_lamp: {en:'Back-up / reverse lamp (M/T)', ja:'バックランプ / リバース (M/T)'},
   ac_press: {en:'A/C refrigerant pressure', ja:'A/C冷媒圧力'},
   gnd_ecm: {en:'ECM ground → body ground', ja:'ECM ground → body ground'},
 
@@ -2488,10 +2507,10 @@ const CONN_I18N = {
       note:'APP経路: ペダル E113 → E11/F2 → ECM。APPは6回路（キャビティ 2,3,4,5,9,10）。APP未使用: 1,6,7,8。F2面 H.S. FSM: 上1–5 / 下6–10。色 = F2→ECM。' },
   },
   ix_e10_f1: {
-    en: { name:'E10 ↔ F1 · Engine room ↔ control harness', meta:'9-pin GY · A/C → ECM 49/70/67 · EC-717 · not via F102',
-      note:'FSM EC-717: F1 cav5 B→ECM 49 · cav9 G/R→ECM 70 · cav8 B/W→ECM 67. Path E252→E251/E31→E10/F1→ECM F101. Cav 1–4/6–7 TBD.' },
-    ja: { name:'E10 ↔ F1 · エンジンルーム ↔ 制御ハーネス', meta:'9ピン GY · A/C → ECM 49/70/67 · EC-717 · F102経由なし',
-      note:'FSM EC-717: F1 cav5 B→ECM 49 · cav9 G/R→ECM 70 · cav8 B/W→ECM 67。E252→E251/E31→E10/F1→ECM。他キャビティ未確認。' },
+    en: { name:'E10 ↔ F1 · Engine room ↔ control', meta:'9-pin · START · REV · A/C · SC-13/LT-183/EC-717',
+      note:'Cav1 B/Y starter · cav2 Y/R reverse switch F36 (IPDM E7-26) · cav5/9/8 A/C → ECM 49/70/67.' },
+    ja: { name:'E10 ↔ F1 · エンジンルーム↔制御', meta:'9ピン · START · REV · A/C',
+      note:'Cav1 B/Yスタータ · cav2 Y/RバックランプSW · cav5/9/8 A/C→ECM。' },
   },
   ix_e12_f3: {
     en: { name:'E12 ↔ F3 · A/F + VB path', meta:'8-pin GY · VB 119/120 · IGN · GND E17 · EC-167 · not via F102',
@@ -3425,12 +3444,16 @@ function selectConnPin(cid, cavId){
     selKey = key;
     selFocusPin = ecmN;
   } else {
+    if(pin && pin.circ){
+      selectCircuits([pin.circ], null, cid, String(cavId));
+    } else {
     const circs = connToCirc[cid] || [];
     if(circs.length) selectCircuits(circs, null, cid, String(cavId));
     else {
       selectConn(cid);
       const fp = f102PinEl(cavId);
       if(fp){ fp.classList.remove('dim'); fp.classList.add('hl-end'); }
+    }
     }
     if(pin && (pin.note || pin.code || pin.lab)){
       const infoEl=document.getElementById('info');
