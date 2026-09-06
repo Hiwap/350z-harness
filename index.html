@@ -3027,6 +3027,20 @@ function revealConns(connIds){
   }
 }
 
+let selKey = null; /* 'pin:N' | 'cav:cid:id' — second click clears */
+
+function clearSelection(){
+  selKey = null;
+  activeRails.clear(); updateRailButtons();
+  clearHL();
+  const info = document.getElementById('info');
+  if(info){
+    delete info.dataset.locked;
+    delete info.dataset.railMode;
+    info.textContent = t('infoEmpty');
+  }
+}
+
 function clearHL(){
   removeSelectedTop();
   restoreCollapsedSubs();
@@ -3245,6 +3259,8 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav){
 }
 
 function selectPin(p){
+  const key = 'pin:' + String(p);
+  if(selKey === key){ clearSelection(); return; }
   const circs = pinToCirc[p] || [];
   if(!circs.length){
     const found=[];
@@ -3272,9 +3288,11 @@ function selectPin(p){
     });
     const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = `<b>${esc(t('pinEcm'))} ${p}</b> · ${PIN_NAME[p]||''} · <code>${PIN_COL[p]||'—'}</code><div style="color:var(--muted)">${t('noWide')}</div>`;
     revealConns(found);
+    selKey = key;
     return;
   }
   selectCircuits(circs, p);
+  selKey = key;
 }
 
 function selectConn(cid){
@@ -3310,6 +3328,8 @@ function selectConn(cid){
 }
 
 function selectConnPin(cid, cavId){
+  const key = 'cav:' + String(cid) + ':' + String(cavId);
+  if(selKey === key){ clearSelection(); return; }
   const conf=CONN[cid] || CONN_BASE[cid];
   if(!conf) return;
   const pin=(conf.pins||[]).find(x=>String(x.id)===String(cavId));
@@ -3345,6 +3365,7 @@ function selectConnPin(cid, cavId){
       infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>F102·${esc(cavId)}</code> · ${esc(pin.code||'')}${extra}</div>`;
     }
   }
+  selKey = key;
 }
 
 function applyModel(){
@@ -3354,6 +3375,7 @@ function applyModel(){
   rebuildIndexes();
   renderECM();
   renderFichas();
+  selKey = null;
   clearHL();
   const info=document.getElementById('info');
   delete info.dataset.locked;
@@ -3382,6 +3404,7 @@ function applyOrient(){
   localStorage.setItem('z33_ecm_orient', document.getElementById('ecmOrient').value);
   renderECM();
   renderFichas();
+  selKey = null;
   clearHL();
 }
 
@@ -3393,12 +3416,7 @@ document.getElementById('collapseIdleSubs').addEventListener('change', onCollaps
 document.getElementById('colorCodes').addEventListener('change', onColorCodesToggle);
 
 document.getElementById('clear').onclick=()=>{
-  activeRails.clear(); updateRailButtons();
-  clearHL();
-  const info=document.getElementById('info');
-  delete info.dataset.locked;
-  delete info.dataset.railMode;
-  info.textContent=t('infoEmpty');
+  clearSelection();
   document.getElementById('q').value='';
 };
 
