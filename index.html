@@ -821,7 +821,7 @@ function wireCodeSvg(code, x, y, cls, withHalo){
 }
 
 /* ========== OEM pin data (2005 VQ35DE FSM) ========== */
-const PIN_COL = {"1":"B","2":"GY/R","3":"G","4":"L/B","5":"L/Y","6":"P/L","10":"W/G","11":"P","12":"L/W","13":"W/L","14":"R/L","15":"W","16":"LG/B","21":"SB","22":"R/Y","23":"R/B","24":"G/Y","25":"P/B","32":"BR/W","33":"R","34":"Y/G","35":"L/W","40":"LG","41":"W/B","42":"B/R","45":"G/W","47":"W/R","48":"PU","49":"B","50":"G","51":"OR","55":"L/B","56":"W/L","57":"L","58":"W","60":"PU/W","61":"L/R","62":"Y/R","66":"L","67":"B/W","68":"R/W","69":"Y","70":"G/R","73":"BR/Y","74":"OR","75":"P/B","76":"LG","77":"P","78":"B/Y","79":"GY/R","80":"GY","81":"G/B","82":"G/Y","83":"G/R","85":"LG","86":"P","90":"LG","91":"B/OR","94":"L","98":"G/B","99":"G/Y","101":"L/OR","102":"BR/Y","104":"SB","106":"G/OR","107":"GY/R","108":"B/R","109":"W/B","111":"GY/L","113":"LG/B","115":"B/W","116":"B/R","117":"G/W","119":"R/W","120":"P","121":"R/W"};
+const PIN_COL = {"1":"B","2":"GY/R","3":"G","4":"L/B","5":"L/Y","6":"P/L","10":"W/G","11":"P","12":"L/W","13":"W/L","14":"R/L","15":"W","16":"LG/B","21":"SB","22":"R/Y","23":"R/B","24":"G/Y","25":"P/B","32":"BR/W","33":"R","34":"Y/G","35":"L/W","40":"LG","41":"W/B","42":"B/R","45":"G/W","47":"W/R","48":"PU","49":"B/Y","50":"G","51":"OR","55":"L/B","56":"W/L","57":"L","58":"W","60":"PU/W","61":"L/R","62":"Y/R","66":"L","67":"B/W","68":"R/W","69":"Y","70":"G/R","73":"BR/Y","74":"OR","75":"P/B","76":"LG","77":"P","78":"B/Y","79":"GY/R","80":"GY","81":"G/B","82":"G/Y","83":"G/R","85":"LG","86":"P","90":"LG","91":"B/OR","94":"L","98":"G/B","99":"G/Y","101":"L/OR","102":"BR/Y","104":"SB","106":"G/OR","107":"GY/R","108":"B/R","109":"W/B","111":"GY/L","113":"LG/B","115":"B/W","116":"B/R","117":"G/W","119":"R/W","120":"P","121":"R/W"};
 
 const PIN_NAME = {
   1:"GND ECM",2:"A/F heater B1",3:"VMOT supply",4:"TB motor −",5:"TB motor +",
@@ -889,7 +889,7 @@ function buildCircuits(model){
     {id:'app_sig', title:'APP señales APS1/APS2', color:'#f9a825',
       ecm:[106,98], conn:['app','ix_e11_f2'], notes:'APS1 → ECM 106 · APS2 → ECM 98 vía intermedia E11/F2 (pedal E113→E11/F2→ECM · F2 cav 5/3).'},
     {id:'ac_press', title:'A/C refrigerant pressure', color:'#ef6c00',
-      ecm:[49,70], conn:['ac_press'], notes:'5V ECM 49 (B) · señal ECM 70 (G/R). Sensor en bahía motor / arnés body según ruteo.'},
+      ecm:[49,70,67], conn:['ac_press','ix_e10_f1'], notes:'5V ECM 49 (B/Y) · señal ECM 70 (G/R) · GND ECM 67 B/W (SNS compartida · vía E10/F1). FSM EC-608.'},
     {id:'gnd_ecm', title:'ECM ground → body ground', color:'#66bb6a',
       ecm:[1,115,116], conn:['gnd4','e17','ix_f103_f151'], notes:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground vía harness connectors F103, F151.'},
 
@@ -899,7 +899,7 @@ function buildCircuits(model){
     {id:'knock', title:'Knock sensor', color:'#42a5f5',
       ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Señal ECM 15 (W) vía intermedia F14/F229 · shield a SNS GND (FSM EC).'},
     {id:'psp', title:'PSP · Power steering pressure', color:'#00897b',
-      ecm:[12,68], conn:['psp'], notes:'Señal PSP → ECM 12 (L/W) · 5V rail ECM 68 (R/W) · tierra vía SNS GND. FSM 2005 EC.'},
+      ecm:[12,68,67], conn:['psp'], notes:'Señal ECM 12 (L/W) · 5V ECM 68 (R/W) · GND ECM 67 B/W (SNS compartida MAF/IAT/PSP/EVAP). FSM EC-401.'},
     {id:'ckp', title:'CKP / POS', color:'#ab47bc',
       ecm:[13], conn:['ckp','feed_ckp_maf_12v'], notes:'Señal CKP → ECM 13 (W/L). Alimentación 12V en conector.'},
     {id:'cmp', title:'Cam PHASE', color:'#ec407a',
@@ -1169,13 +1169,13 @@ const CONN_BASE = {
   etc:{group:'motor', sub:'sensors', name:'ETC throttle body', meta:'6-pin DBW · motor+TPS', accent:'#029eb7', shape:'rect6',
     pins:[{id:'M+',code:'L/Y',ecm:5},{id:'M-',code:'L/B',ecm:4},{id:'5V',code:'W/R',ecm:47,rail:'5v'},{id:'T1',code:'G',ecm:50},{id:'T2',code:'Y',ecm:69},{id:'GND',code:'L',ecm:66,rail:'gnd',lab:'SNS'}],
     note:'TPS GND (actuator term. 5) → ECM 66 (L) · SNS GND throttle position sensor.'},
-  ac_press:{group:'motor', sub:'sensors', name:'A/C refrigerant press', meta:'3-pin · 5V=49 · body/chassis ruteo', accent:'#ef6c00', shape:'tab3',
-    pins:[{id:'5V',code:'B',ecm:49,rail:'5v'},{id:'2',code:'G/R',ecm:70},{id:'3',code:'?',ecm:null}]},
+  ac_press:{group:'motor', sub:'sensors', name:'A/C refrigerant press', meta:'3-pin · 5V=49 · SIG=70 · GND=67 · vía E10/F1', accent:'#ef6c00', shape:'tab3',
+    pins:[{id:'1',code:'B/Y',ecm:49,rail:'5v',lab:'5V'},{id:'2',code:'G/R',ecm:70,lab:'SIG'},{id:'3',code:'B/W',ecm:67,rail:'gnd',lab:'GND'}]},
   evap_press:{group:'motor', sub:'sensors', name:'EVAP pressure', meta:'canister', accent:'#7b1fa2', shape:'tab3',
     pins:[{id:'5V',code:'PU',ecm:48,rail:'5v'},{id:'sig',code:'BR/W',ecm:32},{id:'GND',code:'B/W',ecm:67,rail:'gnd',lab:'SNS'}]},
-  psp:{group:'motor', sub:'sensors', name:'PSP · Power steering pressure', meta:'sensor dirección · señal ECM 12', accent:'#00897b', shape:'tab3',
-    pins:[{id:'SIG',code:'L/W',ecm:12},{id:'5V',code:'R/W',ecm:68,rail:'5v'},{id:'GND',code:'SNS',ecm:null,rail:'gnd'}],
-    note:'FSM 2005 EC: señal PSP → ECM 12 (L/W azul/blanco) · 5V → ECM 68 (R/W) · tierra vía SNS GND (cavidad exacta: ver FSM).'},
+  psp:{group:'motor', sub:'sensors', name:'PSP · Power steering pressure', meta:'3-pin · 5V=68 · SIG=12 · GND=67', accent:'#00897b', shape:'tab3',
+    pins:[{id:'1',code:'R/W',ecm:68,rail:'5v',lab:'5V'},{id:'2',code:'L/W',ecm:12,lab:'SIG'},{id:'3',code:'B/W',ecm:67,rail:'gnd',lab:'GND'}],
+    note:'FSM EC-401: 5V ECM 68 (R/W) · señal ECM 12 (L/W) · GND ECM 67 B/W (SNS compartida MAF/IAT/PSP/EVAP).'},
 
   /* —— Actuadores motor —— */
   coil1:{group:'motor', sub:'actuators', name:'Bobina 1', meta:'ECM62 Y/R', accent:'#f57f17', shape:'tab2', pins:[{id:'ECM',code:'Y/R',ecm:62},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
@@ -1986,11 +1986,11 @@ const NOTES_I18N = {
   app_5v: {en:'5V APP1/APP2 (90/91) via E11/F2. Shared rails 47/48/49/68 → use 5V toggle.', ja:'APP1/APP2 5V (90/91) E11/F2経由。共有レール 47/48/49/68 は 5V トグル。'},
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
   app_sig: {en:'APS1→106 · APS2→98 via intermediate E11/F2 (pedal E113→E11/F2→ECM).', ja:'APS1→106 · APS2→98（中間E11/F2経由）。'},
-  ac_press: {en:'5V ECM 49 (B) · signal ECM 70 (G/R). Sensor in engine bay / body harness per routing.', ja:'5V ECM 49 (B) · 信号 ECM 70 (G/R)。センサはエンジンルーム/ボディ側配線。'},
+  ac_press: {en:'5V ECM 49 (B/Y) · signal ECM 70 (G/R) · GND ECM 67 B/W (shared SNS · via E10/F1). FSM EC-608.', ja:'5V ECM 49 (B/Y) · 信号 ECM 70 (G/R) · GND ECM 67 B/W（SNS共用 · E10/F1）。FSM EC-608。'},
   gnd_ecm: {en:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground via harness connectors F103, F151.', ja:'FSM EC POWER SUPPLY AND GROUND CIRCUIT：ECM ground（1 / 115 / 116）→ body ground（ハーネスコネクタ F103, F151）。'},
 
   knock: {en:'Signal ECM 15 (W) via intermediate F14/F229 · shield to SNS GND (FSM EC).', ja:'信号 ECM 15 (W) は中間F14/F229経由 · シールドはSNS GNDへ（FSM EC）。'},
-  psp: {en:'PSP signal → ECM 12 (L/W) · 5V rail ECM 68 (R/W) · ground via SNS GND. FSM 2005 EC.', ja:'PSP信号 → ECM 12 (L/W) · 5Vレール ECM 68 (R/W) · アースはSNS GND。FSM 2005 EC。'},
+  psp: {en:'5V ECM 68 (R/W) · signal ECM 12 (L/W) · GND ECM 67 B/W (shared SNS MAF/IAT/PSP/EVAP). FSM EC-401.', ja:'5V ECM 68 (R/W) · 信号 ECM 12 (L/W) · GND ECM 67 B/W（SNS共用）。FSM EC-401。'},
   ckp: {en:'CKP signal → ECM 13 (W/L). 12V feed on connector.', ja:'CKP信号 → ECM 13 (W/L)。コネクタに12V供給。'},
   cmp: {en:'CMP B1 → ECM 33 (R) · CMP B2 → ECM 14 (R/L).', ja:'CMP B1 → ECM 33 (R) · CMP B2 → ECM 14 (R/L)。'},
   iat: {en:'IAT signal → ECM 34 (Y/G).', ja:'IAT信号 → ECM 34 (Y/G)。'},
@@ -2524,13 +2524,13 @@ const CONN_I18N = {
   ect: { en:{name:'ECT', meta:'coolant · 2-pin'}, ja:{name:'ECT（冷却水温）', meta:'冷却水 · 2ピン'} },
   iat: { en:{name:'IAT', meta:'intake · on MAF or 2-pin'}, ja:{name:'IAT（吸気温）', meta:'吸気 · MAF上または2ピン'} },
   etc: { en:{name:'ETC throttle body', meta:'6-pin DBW · motor+TPS · GND ECM 66'}, ja:{name:'ETCスロットルボディ', meta:'6ピン DBW · GND ECM 66'} },
-  ac_press: { en:{name:'A/C refrigerant press', meta:'3-pin · 5V=49 · body/chassis routing'}, ja:{name:'A/C冷媒圧力センサ', meta:'3ピン · 5V=49 · ボディ配線'} },
+  ac_press: { en:{name:'A/C refrigerant press', meta:'3-pin · 5V=49 · SIG=70 · GND=67 · via E10/F1'}, ja:{name:'A/C冷媒圧力センサ', meta:'3ピン · 5V=49 · SIG=70 · GND=67 · E10/F1'} },
   evap_press: { en:{name:'EVAP pressure', meta:'canister'}, ja:{name:'EVAP圧力センサ', meta:'キャニスタ'} },
   psp: {
-    en: { name:'PSP · Power steering pressure', meta:'steering sensor · signal ECM 12',
-      note:'FSM 2005 EC: PSP signal → ECM 12 (L/W blue/white) · 5V → ECM 68 (R/W) · ground via SNS GND (exact cavity: see FSM).' },
-    ja: { name:'PSP（パワステ圧力）', meta:'ステアリングセンサ · 信号 ECM 12',
-      note:'FSM 2005 EC: PSP信号 → ECM 12 (L/W) · 5V → ECM 68 (R/W) · アースはSNS GND（キャビティ: FSM参照）。' },
+    en: { name:'PSP · Power steering pressure', meta:'3-pin · 5V=68 · SIG=12 · GND=67',
+      note:'FSM EC-401: 5V ECM 68 (R/W) · signal ECM 12 (L/W) · GND ECM 67 B/W (shared SNS MAF/IAT/PSP/EVAP).' },
+    ja: { name:'PSP（パワステ圧力）', meta:'3ピン · 5V=68 · SIG=12 · GND=67',
+      note:'FSM EC-401: 5V ECM 68 (R/W) · 信号 ECM 12 (L/W) · GND ECM 67 B/W（SNS共用）。' },
   },
   vtc_b1: { en:{name:'VTC intake B1', meta:'intake solenoid RH'}, ja:{name:'VTC吸気ソレノイド B1', meta:'吸気ソレノイド 右'} },
   vtc_b2: { en:{name:'VTC intake B2', meta:'intake solenoid LH'}, ja:{name:'VTC吸気ソレノイド B2', meta:'吸気ソレノイド 左'} },
