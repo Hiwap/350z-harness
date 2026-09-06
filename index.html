@@ -2071,6 +2071,25 @@ function shortConnLabel(cid, f){
   const raw = String(cid||'?').replace(/^ix_/,'').replace(/_/g,'');
   return raw.slice(0,3).toUpperCase();
 }
+/** ECM 3rd-line dest codes (I5, EV, FT…) for fichas in a set — same labels as the pin grid. */
+function ecmDestCodesForConns(connIds){
+  const set = new Set((connIds||[]).filter(Boolean));
+  if(!set.size) return [];
+  const seen = new Set();
+  const out = [];
+  Object.keys(PIN_COL).map(Number).filter(n=>!isNaN(n)).sort((a,b)=>a-b).forEach(p=>{
+    const dest = primaryConnForEcm(p);
+    if(!dest || !set.has(dest.cid)) return;
+    // skip feeds / pure notes — not what you hunt from the ECM face
+    if(String(dest.cid).startsWith('feed_')) return;
+    const lab = shortConnLabel(dest.cid, dest.f);
+    if(!lab || seen.has(lab)) return;
+    seen.add(lab);
+    out.push(lab);
+  });
+  return out;
+}
+
 
 function makePinEl(p){
   const d = document.createElement('div');
@@ -2599,7 +2618,8 @@ function renderFichas(){
       sub.open = subSaved === null ? true : subSaved === '1';
       const ssum=document.createElement('summary');
       const subLabel = (SUB_I18N[sk] && SUB_I18N[sk][lang]) || (SUB_I18N[sk] && SUB_I18N[sk].es) || sk;
-      const subCodes = bySub[sk].map(id => CONN_SHORT[id]).filter(Boolean);
+      /* Same short codes as ECM pin 3rd line (where to look), not every card id */
+      const subCodes = ecmDestCodesForConns(bySub[sk]);
       const codesHtml = subCodes.length
         ? `<span class="sub-codes" title="${esc(subCodes.join(' · '))}">${esc(subCodes.join(' · '))}</span>`
         : '';
