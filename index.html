@@ -243,7 +243,9 @@
   .cav-hit.hl-end .cav-face { stroke: var(--hl2) !important; stroke-width: 2.5; }
   .cav-hit.hl-group .cav-face { stroke: #ab47bc !important; stroke-width: 2; }
   .cav-label { font-size: 7.5px; font-weight: 800; fill: #e8eaed; pointer-events: none; opacity: 0.95; }
-  .cav-sub, .cav-code { font-size: 8px; font-weight: 800; fill: #e8eaed; pointer-events: none; }
+  .cav-sub { font-size: 8px; font-weight: 800; fill: #e8eaed; pointer-events: none; }
+  .cav-code { font-size: 8px; font-weight: 800; fill: none; pointer-events: none; }
+  .cav-code tspan { paint-order: stroke fill; }
   .cav-ecm { font-size: 7.5px; font-weight: 700; fill: #90caf9; pointer-events: none; opacity: 0.95; }
   /* Solid mode: colored lab-5v/12v/gnd !important must not override wire ink */
   body[data-mode="solid"] .cav-label.lab-5v,
@@ -652,17 +654,26 @@ function svgInk(fill, withHalo){
   return `style="fill:${f} !important;stroke:${stroke};stroke-width:0.9px;paint-order:stroke fill;stroke-linejoin:round"`;
 }
 /** Split wire code into colored segments (base / tracer). */
+/** Brighter inks for wire-code text on dark faces (fills stay OC). */
+const OC_TEXT = {
+  B:'#eee', W:'#f5f5f5', R:'#ff5252', G:'#69f0ae', L:'#64b5f6', Y:'#ffee58',
+  OR:'#ffab40', P:'#f48fb1', PU:'#ce93d8', GY:'#bdbdbd', BR:'#bcaaa4', SB:'#4fc3f7', LG:'#aed581',
+  '12V':'#ef5350', '?':'#90a4ae'
+};
+function wireInk(token, hex){
+  return OC_TEXT[token] || hex || '#90a4ae';
+}
 function wireCodeParts(code){
   if(!code || code==='·' || code==='-' || code==='—' || code==='nc') return [{t: code||'·', c:'#90a4ae', sep:false}];
   const w = parseWire(code);
-  if(code==='12V') return [{t:'12V', c: OC['12V'], sep:false}];
+  if(code==='12V') return [{t:'12V', c: wireInk('12V', OC['12V']), sep:false}];
   if(code==='?' ) return [{t:'?', c:'#78909c', sep:false}];
   if(!w.base) return [{t:String(code), c:'#90a4ae', sep:false}];
-  if(!w.tracer) return [{t:String(w.base), c:w.c1, sep:false}];
+  if(!w.tracer) return [{t:String(w.base), c:wireInk(w.base, w.c1), sep:false}];
   return [
-    {t:String(w.base), c:w.c1, sep:false},
+    {t:String(w.base), c:wireInk(w.base, w.c1), sep:false},
     {t:'/', c:'#90a4ae', sep:true},
-    {t:String(w.tracer), c:w.c2, sep:false}
+    {t:String(w.tracer), c:wireInk(w.tracer, w.c2), sep:false}
   ];
 }
 function wireCodeHtml(code){
@@ -2055,13 +2066,11 @@ function makeF102PinEl(pin){
     d.style.setProperty('--pin-fill', wcol.c1);
   }
   d.style.setProperty('--pin-fg', hasWire ? fgForWire(wcol) : '#555');
-  const useLab = hasWire && pin.lab != null && pin.lab !== '';
-  const midHtml = !hasWire
-    ? esc('—')
-    : (useLab ? esc(String(pin.lab)) : wireCodeHtml(code));
+  const midHtml = hasWire ? wireCodeHtml(code) : esc('—');
   let dest = '—';
   if(pin.ecm != null) dest = '→' + pin.ecm;
   else if(hasWire && pin.lab === 'START') dest = '→SC';
+  else if(hasWire && pin.lab) dest = String(pin.lab);
   else if(hasWire) dest = '→—';
   d.innerHTML = `${esc(String(pin.id))}<small class="pw">${midHtml}</small><span class="dest">${esc(dest)}</span>`;
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
