@@ -342,19 +342,19 @@
   }
   #ecm #f102Blocks .f102-face-block.stub {
     justify-content: center;
-    min-width: 4.5rem;
-    max-width: 5.5rem;
-    padding: 8px 6px;
+    min-width: 1.75rem;
+    max-width: 2.25rem;
+    padding: 6px 4px;
     border-style: dashed;
     border-color: #3a4558;
     background: #0c1016;
   }
   #ecm #f102Blocks .f102-r-stub {
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 700;
     color: #78909c;
     text-align: center;
-    line-height: 1.25;
+    line-height: 1.1;
     white-space: pre-line;
   }
   #ecm #f102Blocks .f102-face-block .tag {
@@ -1725,12 +1725,10 @@ function svgF102(cid, f){
     x += cols*(cw+gap) + blockGap;
   });
   /* Compact R stub instead of 30H–46H empty cavities */
-  const stubW = 36;
+  const stubW = 18;
   const hMax = 2*Math.max(...sizes.map(s=>s.ch)) + gap;
-  cavities += `<rect x="${x}" y="${padTop}" width="${stubW}" height="${hMax}" rx="4" fill="none" stroke="#455a64" stroke-dasharray="3 2" opacity="0.85"/>`;
-  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2-8}" text-anchor="middle" font-size="7" fill="#78909c" font-weight="700">R</text>`;
-  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2+2}" text-anchor="middle" font-size="6" fill="#607d8b">30–46H</text>`;
-  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2+12}" text-anchor="middle" font-size="6" fill="#546e7a">vacías</text>`;
+  cavities += `<rect x="${x}" y="${padTop}" width="${stubW}" height="${hMax}" rx="3" fill="none" stroke="#455a64" stroke-dasharray="3 2" opacity="0.85"/>`;
+  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2+3}" text-anchor="middle" font-size="12" fill="#78909c" font-weight="700">—</text>`;
   x += stubW + blockGap;
   const W = x - blockGap + padX;
   const H = padTop + hMax + 10;
@@ -1820,8 +1818,8 @@ const I18N = {
     noWide: 'Sin grupo de circuito amplio; mostrando fichas directas.',
     f102Title: 'F102 · SMJ · PG-85',
     f102Legend: '',
-    f102RStub: 'R\n30H–46H\nvacías',
-    f102RTip: 'Cara PG-85; sin cable en este arnés',
+    f102RStub: '—',
+    f102RTip: 'R · 30H–46H · cara PG-85; sin cable',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
   en: {
@@ -1859,8 +1857,8 @@ const I18N = {
     noWide: 'No wide circuit group; showing direct connector cards.',
     f102Title: 'F102 · SMJ · PG-85',
     f102Legend: '',
-    f102RStub: 'R\n30H–46H\nempty',
-    f102RTip: 'PG-85 face; no wire on this loom',
+    f102RStub: '—',
+    f102RTip: 'R · 30H–46H · PG-85 face; no wire',
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
   },
   ja: {
@@ -1898,8 +1896,8 @@ const I18N = {
     noWide: '広い回路グループなし。直接コネクタカードを表示。',
     f102Title: 'F102 · SMJ · PG-85',
     f102Legend: '',
-    f102RStub: 'R\n30H–46H\n空き',
-    f102RTip: 'PG-85の顔面上; このハーネスでは未配線',
+    f102RStub: '—',
+    f102RTip: 'R · 30H–46H · PG-85; 未配線',
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
   },
 };
