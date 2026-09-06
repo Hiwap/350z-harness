@@ -891,9 +891,9 @@ function buildCircuits(model){
     {id:'ac_press', title:'A/C refrigerant pressure', color:'#ef6c00',
       ecm:[49,70,67], conn:['ac_press','ix_e10_f1'], notes:'5V ECM 49 (B/Y) · señal ECM 70 (G/R) · GND ECM 67 B/W (SNS compartida · vía E10/F1). FSM EC-608.'},
     {id:'starter', title:'Starter motor (B/Y)', color:'#ef5350',
-      ecm:[], conn:['ix_e10_f1'], notes:'IPDM E4-3 B/Y → E10/F1 cav1 → starter F9 · SC-13. IPDM no mostrado en fichas.'},
+      ecm:[], conn:['ix_e10_f1','ipdm_e4'], notes:'IPDM E4-3 B/Y → E10/F1 cav1 → starter F9 · SC-13.'},
     {id:'backup_lamp', title:'Back-up / reverse lamp (M/T)', color:'#ffb300',
-      ecm:[], conn:['ix_e10_f1','backup_sw','ix_f102_m72'], notes:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → F36 pin1; F36 pin2 OR → F102 22H → rear lamps. LT-183. No ECM. IPDM oculto en UI.'},
+      ecm:[], conn:['ix_e10_f1','backup_sw','ix_f102_m72','ipdm_e7'], notes:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → F36; F36 pin2 OR → F102 22H → rear lamps · LT-183.'},
 
     {id:'gnd_ecm', title:'ECM ground → body ground', color:'#66bb6a',
       ecm:[1,115,116], conn:['gnd4','e17','ix_f103_f151'], notes:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground vía harness connectors F103, F151.'},
@@ -940,17 +940,17 @@ function buildCircuits(model){
     {id:'batt_ecm', title:'BATT feed ECM', color:'#ef5350',
       ecm:[121], conn:['batt_feed'], notes:'ECM 121 always-hot BATT.'},
     {id:'ign_feeds', title:'IGN feeds ECM 119/120', color:'#ef5350',
-      ecm:[119,120], conn:['ix_e12_f3'], notes:'119/120 vía IPDM E7-18 · E12/F3 cav 7 (R/W→119) · cav 4 (P→120). No F102.'},
+      ecm:[119,120], conn:['ix_e12_f3','ipdm_e7'], notes:'119/120: IPDM E7-18 R/W → E12/F3 cav7→119 · cav4 P→120.'},
     {id:'ign_sw', title:'IGN SW → ECM', color:'#ef5350',
       ecm:[109], conn:['ign_sw','ix_f102_m72'], notes:'IGN SW → ECM 109 (W/B) · F102 17H.'},
     {id:'ecm_relay_ss', title:'ECM relay / SSOFF', color:'#ef5350',
-      ecm:[111], conn:['ecm_relay','ix_f102_m72'], notes:'SSOFF / relay → ECM 111 (GY/L) · F102 11H · IPDM E9-46.'},
+      ecm:[111], conn:['ecm_relay','ipdm_e9','ix_f102_m72'], notes:'SSOFF ECM 111 ↔ IPDM E9-46 (W/B) vía E108/M15 · F102 11H.'},
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
-      ecm:[104], conn:['ecm_relay'], notes:'MOTRLY → ECM 104 · IPDM E9-47.'},
+      ecm:[104], conn:['ecm_relay','ipdm_e9'], notes:'MOTRLY ECM 104 ↔ IPDM E9-47 (OR).'},
     {id:'vmot', title:'VMOT supply', color:'#ef5350',
-      ecm:[3], conn:['vmot'], notes:'VMOT supply → ECM 3.'},
+      ecm:[3], conn:['vmot','ipdm_e8','ix_e12_f3'], notes:'VMOT ECM 3 ↔ IPDM E8-42 (G) vía E12/F3.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
-      ecm:[113], conn:['fp_relay'], notes:'Control relé bomba → ECM 113 (LG/B).'},
+      ecm:[113], conn:['fp_relay','ipdm_e8'], notes:'FP relay ctrl ECM 113 ↔ IPDM E8-40 (L/W).'},
         {id:'ftt', title:'Fuel tank temperature', color:'#7e57c2',
       ecm:[107], conn:['fuel_tank_temp','ix_f102_m72'], notes:'FTT señal → ECM 107 (GY/R) · path vía M72/F102 · sensor en fuel level sensor unit (term. 4). DTC P0181/0182/0183.'},
 {id:'dlc_k', title:'DLC K-line (CONSULT)', color:'#7e57c2',
@@ -1055,7 +1055,7 @@ const CONN_BASE = {
       {id:'2',code:'W/L',ecm:null,rail:'12v',note:'Battery in'}
     ],
     note:'IPDM E3 · entrada batería. Cara PG-26 H.S.: arriba 2, abajo 1 (1 col · Invertida L/R sin cambio).'},
-  ipdm_e7:{group:'motor', sub:'power', name:'IPDM E7', meta:'VB / lamps / wiper · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7',
+  ipdm_e7:{group:'motor', sub:'power', name:'IPDM E7', meta:'VB / back-up / lamps / wiper · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7',
     pins:[
       {id:'17',code:'W/L',ecm:null,rail:'12v',note:'Ignition system (ECM relay out)'},
       {id:'18',code:'R/W',ecm:119,rail:'12v',note:'VB→ECM 119; también 120 vía E12/F3 (P)'},
@@ -1063,6 +1063,7 @@ const CONN_BASE = {
       {id:'21',code:'PU',ecm:null,rail:'12v',note:'Wiper LO'},
       {id:'22',code:'R/L',ecm:null,rail:'12v',note:'Park/tail lamps'},
       {id:'25',code:'G/Y',ecm:null,rail:'12v',note:'Clutch interlock pwr (M/T) fuse 89'},
+      {id:'26',code:'G/W',ecm:null,rail:'12v',circ:'backup_lamp',note:'Back-up lamp feed → E10/F1 cav2 Y/R → F36 · LT-183 fuse 83'},
       {id:'27',code:'BR',ecm:null,rail:'12v',note:'Headlamp high RH'},
       {id:'28',code:'R/Y',ecm:null,rail:'12v',note:'Headlamp high LH'},
       {id:'30',code:'R/B',ecm:null,rail:'12v',note:'Headlamp low LH'},
@@ -1095,7 +1096,7 @@ const CONN_BASE = {
     note:'IPDM E9 · 46→111 · 47→104 · 48/49 CAN · 50/60 GND · 52 defog · 53 start. Layout FSM PG-26.'},
   ipdm_e4:{group:'motor', sub:'power', name:'IPDM E4', meta:'starter · PG-26 · SC-13/14 · cara Inv', accent:'#ef5350', shape:'ipdm_e4',
     pins:[
-      {id:'3',code:'B/Y',ecm:null,rail:'12v',note:'Starter relay → starter motor'},
+      {id:'3',code:'B/Y',ecm:null,rail:'12v',circ:'starter',note:'Starter relay → E10/F1 cav1 → F9 · SC-13'},
       {id:'4',code:'W/R',ecm:null,rail:'12v',note:'Ignition switch START'}
     ], note:'IPDM E4 · starter (SC). Cara PG-26 H.S.: top 3-5 / bot 4-6 · Invertida = espejo L/R de cada fila. Pins 5–6 sin color verificado.'},
   ipdm_e5:{group:'motor', sub:'power', name:'IPDM E5', meta:'cooling fan · PG-26 · EC-510 · cara Inv', accent:'#ef5350', shape:'ipdm_e5',
@@ -1341,9 +1342,9 @@ function rebuildIndexes(){
 }
 
 function activeConnIds(model){
-  // IPDM left out of web UI (still in print pack); exclude legacy non-FSM ids if present
-  const hide = new Set(['orange_box','blue_box','ix_f102_m72']); /* F102 UI = #f102Panel */
-  let ids = Object.keys(CONN_BASE).filter(id => !id.startsWith('ipdm_') && !hide.has(id));
+  // Show IPDM fichas (ECM/harness paths). F102 stays in #f102Panel only.
+  const hide = new Set(['orange_box','blue_box','ix_f102_m72','ipdm_legend']);
+  let ids = Object.keys(CONN_BASE).filter(id => !hide.has(id));
   if(model === 'de_early'){
     ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2');
   }
