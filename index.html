@@ -258,11 +258,13 @@
   .ficha.dim { opacity: 0.25; }
   .ficha.hl { border-color: var(--hl); box-shadow: 0 0 0 2px rgba(255,213,79,.35); opacity: 1 !important; }
   .ficha h3 { margin: 0 0 2px; font-size: 12px; color: #f1f3f5; }
+  /* Same short codes as ECM pin 3rd line (I5, EV, FT…) */
   .ficha h3 .ficha-code {
     display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 11px; font-weight: 800; color: #ffe082; background: #2a2410;
-    border: 1px solid #5d4e1a; border-radius: 4px; padding: 0 5px; margin-right: 4px;
-    letter-spacing: 0.02em; vertical-align: 1px;
+    font-size: 12px; font-weight: 800; color: #90caf9;
+    text-shadow: 0 0 2px #000, 0 1px 2px rgba(0,0,0,.9);
+    background: #0d1520; border: 1px solid #1565c0; border-radius: 4px;
+    padding: 1px 6px; margin-right: 6px; letter-spacing: 0.03em; vertical-align: 1px;
   }
   .ficha .meta, .ficha .note-body, .ficha .note-pins { display: none; font-size: 11px; color: #d0d5dd; margin-bottom: 6px; }
   .ficha.hl .meta, .ficha.hl .note-body, .ficha.hl .note-pins { display: block; }
@@ -2558,8 +2560,14 @@ function makeFichaEl(id, f){
   if(noteTxt){
     extra = `<div class="note-body">${esc(noteTxt)}</div>`;
   }
-  const code = CONN_SHORT[id] || '';
-  const codeHtml = code ? `<span class="ficha-code">${esc(code)}</span> ` : '';
+  /* ECM hunt code (same 3rd-line label as pin grid) — skip feeds / empty */
+  let code = '';
+  if(!String(id).startsWith('feed_') && (f.pins||[]).some(p => p.ecm != null)){
+    code = shortConnLabel(id, f) || '';
+  }
+  const codeHtml = code
+    ? `<span class="ficha-code" title="Código ECM (misma etiqueta que en la grilla)">${esc(code)}</span> `
+    : '';
   el.innerHTML = `<h3>${codeHtml}${esc(connField(id, f, 'name'))}</h3><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   el.querySelectorAll('.cav-hit').forEach(cav=>{
     cav.addEventListener('click', e=>{
