@@ -3185,8 +3185,8 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav){
 function selectPin(p){
   const key = 'pin:' + String(p);
   const n = Number(p);
-  /* Same ECM pin again (from pin click or cavity focus) → clear, including undim */
-  if(selKey === key || (selFocusPin != null && Number(selFocusPin) === n && selKey)){
+  /* Re-click same ECM pin, or ECM pin that is focus of a cavity selection → clear + undim */
+  if(selKey === key || (selFocusPin != null && Number(selFocusPin) === n && String(selKey||'').startsWith('cav:'))){
     clearSelection();
     return;
   }
@@ -3266,11 +3266,7 @@ function selectConnPin(cid, cavId){
   const pin=(conf.pins||[]).find(x=>String(x.id)===String(cavId));
   if(pin && pin.ecm!=null){
     const ecmN = Number(pin.ecm);
-    /* Same focus ECM already selected via pin click → treat as deselect */
-    if(selKey === ('pin:' + String(pin.ecm)) || (selFocusPin != null && Number(selFocusPin) === ecmN && selKey)){
-      clearSelection();
-      return;
-    }
+    /* Same cavity again already handled above; shared ECM (e.g. 67) must not clear other fichas */
     let circs = pinToCirc[pin.ecm] || pinToCirc[ecmN] || [];
     /* Prefer circuits that actually list this connector (e.g. F102 18H → evap_press, not app_5v) */
     const viaConn = circs.filter(id=>{
