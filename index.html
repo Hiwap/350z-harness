@@ -120,12 +120,15 @@
     white-space: nowrap;
     font-weight: 800;
   }
-  #blocks .pin .pw .pw-part {
+  #blocks .pin .pw .pw-part:not(.pw-plain) {
     /* hard outline so R-on-R / W-on-Y / B-on-dark stay readable */
     text-shadow:
       -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
       -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
       0 0 3px #000;
+  }
+  #blocks .pin .pw .pw-plain {
+    text-shadow: 0 0 2px #000, 0 1px 2px rgba(0,0,0,.8);
   }
   #blocks .pin .pw .pw-sep {
     color: #cfd8dc !important;
@@ -149,11 +152,14 @@
     text-shadow: none;
   }
   /* F102 mid line when showing wire code */
-  #f102Blocks .pin .pw .pw-part {
+  #f102Blocks .pin .pw .pw-part:not(.pw-plain) {
     text-shadow:
       -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
       -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
       0 0 3px #000;
+  }
+  #f102Blocks .pin .pw .pw-plain {
+    text-shadow: 0 0 2px #000, 0 1px 2px rgba(0,0,0,.8);
   }
   .pin.empty, .pin.unused {
     border-style: dashed; border-color: #333; color: #555;
@@ -557,6 +563,10 @@
         <input type="checkbox" id="collapseIdleSubs" checked />
         <span id="lblCollapseIdleTxt">Colapsar subcats sin selección</span>
       </label>
+      <label class="chk" id="lblColorCodes">
+        <input type="checkbox" id="colorCodes" />
+        <span id="lblColorCodesTxt">Códigos de color en texto</span>
+      </label>
     </div>
   </details>
   <div class="search">
@@ -678,8 +688,16 @@ function wireCodeSvgInk(c){
   const f = c || '#eee';
   return `fill:${f} !important;stroke:#000;stroke-width:2.2px;paint-order:stroke fill;stroke-linejoin:round;stroke-linecap:round`;
 }
+function colorCodesEnabled(){
+  const el = document.getElementById('colorCodes');
+  return !!(el && el.checked);
+}
 function wireCodeParts(code){
   if(!code || code==='·' || code==='-' || code==='—' || code==='nc') return [{t: code||'·', c:'#90a4ae', sep:false}];
+  /* Off by default: plain readable text (no carnival) */
+  if(!colorCodesEnabled()){
+    return [{t:String(code), c:'#cfd8dc', sep:false}];
+  }
   const w = parseWire(code);
   if(code==='12V') return [{t:'12V', c: wireInk('12V', OC['12V']), sep:false}];
   if(code==='?' ) return [{t:'?', c:'#78909c', sep:false}];
@@ -692,17 +710,22 @@ function wireCodeParts(code){
   ];
 }
 function wireCodeHtml(code){
+  const fancy = colorCodesEnabled();
   return wireCodeParts(code).map(p =>
-    `<span class="pw-part${p.sep?' pw-sep':''}" style="color:${p.c}">${esc(p.t)}</span>`
+    `<span class="pw-part${p.sep?' pw-sep':''}${fancy?'':' pw-plain'}" style="color:${p.c}">${esc(p.t)}</span>`
   ).join('');
 }
 /** SVG wire-code text; dual colors as tspans. Halo in solid (and always for dark faces). */
 function wireCodeSvg(code, x, y, cls, withHalo){
   const parts = wireCodeParts(code);
+  const fancy = colorCodesEnabled();
   const tspans = parts.map(p => {
-    const st = withHalo === false
-      ? `fill:${p.c} !important`
-      : wireCodeSvgInk(p.c);
+    let st;
+    if(withHalo === false || !fancy){
+      st = `fill:${p.c} !important`;
+    } else {
+      st = wireCodeSvgInk(p.c);
+    }
     return `<tspan style="${st}">${esc(p.t)}</tspan>`;
   }).join('');
   return `<text class="${cls}" x="${x}" y="${y}" text-anchor="middle">${tspans}</text>`;
@@ -1653,6 +1676,7 @@ const I18N = {
     lblOrient: 'Orientación ECM',
     lblLang: 'Idioma',
     collapseIdle: 'Colapsar subcats sin selección',
+    colorCodes: 'Códigos de color en texto',
     optsSummary: 'Opciones / Options',
     railActive: 'Rails activos',
     pinEcm: 'Pin ECM',
@@ -1698,6 +1722,7 @@ const I18N = {
     lblOrient: 'ECM orientation',
     lblLang: 'Language',
     collapseIdle: 'Collapse unused subcategories',
+    colorCodes: 'Colored wire codes in text',
     optsSummary: 'Options',
     railActive: 'Rails active',
     railGnd: 'Ground / GND',
@@ -1734,6 +1759,7 @@ const I18N = {
     lblOrient: 'ECM向き',
     lblLang: '言語',
     collapseIdle: '未選択のサブを折りたたむ',
+    colorCodes: '文字のワイヤー色コード',
     railActive: 'レール ON',
     railGnd: 'アース / GND',
     railTitle: '電源/アースレールを強調',
@@ -1895,6 +1921,8 @@ function applyLang(){
   setLabel('lblLang', 'lblLang');
   const cit = document.getElementById('lblCollapseIdleTxt');
   if(cit) cit.textContent = t('collapseIdle');
+  const cct = document.getElementById('lblColorCodesTxt');
+  if(cct) cct.textContent = t('colorCodes');
   const rg = document.getElementById('railGnd'); if(rg) rg.textContent = t('railGnd');
   const rt = document.getElementById('railToggles'); if(rt) rt.title = t('railTitle');
   const oo = document.getElementById('optOutlines'); if(oo) oo.textContent = t('optOutlines');
@@ -3140,6 +3168,15 @@ function applyModel(){
   info.textContent=t('infoEmpty');
 }
 
+const LS_COLOR_CODES = 'z33_colorCodes';
+function onColorCodesToggle(){
+  const el = document.getElementById('colorCodes');
+  localStorage.setItem(LS_COLOR_CODES, el && el.checked ? '1' : '0');
+  document.body.dataset.colorCodes = (el && el.checked) ? '1' : '0';
+  renderECM();
+  renderFichas();
+  renderF102();
+}
 function applyColorMode(){
   const mode = document.getElementById('colorMode').value;
   localStorage.setItem('z33_color', mode);
@@ -3161,6 +3198,7 @@ document.getElementById('colorMode').addEventListener('change', applyColorMode);
 document.getElementById('ecmOrient').addEventListener('change', applyOrient);
 document.getElementById('lang').addEventListener('change', applyLang);
 document.getElementById('collapseIdleSubs').addEventListener('change', onCollapseIdleToggle);
+document.getElementById('colorCodes').addEventListener('change', onColorCodesToggle);
 
 document.getElementById('clear').onclick=()=>{
   activeRails.clear(); updateRailButtons();
@@ -3218,6 +3256,11 @@ document.getElementById('q').addEventListener('input', e=>{
   if(collapseEl){
     const saved = localStorage.getItem(LS_COLLAPSE_IDLE);
     collapseEl.checked = saved === null ? true : saved === '1';
+  }
+  const ccEl = document.getElementById('colorCodes');
+  if(ccEl){
+    ccEl.checked = localStorage.getItem(LS_COLOR_CODES) === '1';
+    document.body.dataset.colorCodes = ccEl.checked ? '1' : '0';
   }
   const optsBox = document.getElementById('optsBox');
   const warnBox = document.getElementById('warnBox');
