@@ -121,9 +121,16 @@
     font-weight: 800;
   }
   #blocks .pin .pw .pw-part {
-    text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95), 0 0 1px #000;
+    /* hard outline so R-on-R / W-on-Y / B-on-dark stay readable */
+    text-shadow:
+      -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+      -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+      0 0 3px #000;
   }
-  #blocks .pin .pw .pw-sep { color: #90a4ae !important; text-shadow: 0 0 2px #000; }
+  #blocks .pin .pw .pw-sep {
+    color: #cfd8dc !important;
+    text-shadow: -1px -1px 0 #000, 1px 1px 0 #000, 0 0 2px #000;
+  }
   #blocks .pin .dest {
     display: block; font-size: var(--pin-sm, 8px); font-weight: 800;
     margin-top: 1px; max-width: 100%; overflow: hidden; text-overflow: clip;
@@ -143,7 +150,10 @@
   }
   /* F102 mid line when showing wire code */
   #f102Blocks .pin .pw .pw-part {
-    text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95);
+    text-shadow:
+      -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+      -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+      0 0 3px #000;
   }
   .pin.empty, .pin.unused {
     border-style: dashed; border-color: #333; color: #555;
@@ -656,12 +666,17 @@ function svgInk(fill, withHalo){
 /** Split wire code into colored segments (base / tracer). */
 /** Brighter inks for wire-code text on dark faces (fills stay OC). */
 const OC_TEXT = {
-  B:'#eee', W:'#f5f5f5', R:'#ff5252', G:'#69f0ae', L:'#64b5f6', Y:'#ffee58',
-  OR:'#ffab40', P:'#f48fb1', PU:'#ce93d8', GY:'#bdbdbd', BR:'#bcaaa4', SB:'#4fc3f7', LG:'#aed581',
-  '12V':'#ef5350', '?':'#90a4ae'
+  B:'#fafafa', W:'#ffffff', R:'#ff6e6e', G:'#69f0ae', L:'#82b1ff', Y:'#ffee58',
+  OR:'#ffb74d', P:'#f8bbd0', PU:'#e1bee7', GY:'#e0e0e0', BR:'#d7ccc8', SB:'#80d8ff', LG:'#c5e1a5',
+  '12V':'#ff8a80', '?':'#b0bec5'
 };
 function wireInk(token, hex){
-  return OC_TEXT[token] || hex || '#90a4ae';
+  return OC_TEXT[token] || hex || '#b0bec5';
+}
+/** Wire-code SVG: color fill + thick black outline (readable on dark or solid wire fill). */
+function wireCodeSvgInk(c){
+  const f = c || '#eee';
+  return `fill:${f} !important;stroke:#000;stroke-width:2.2px;paint-order:stroke fill;stroke-linejoin:round;stroke-linecap:round`;
 }
 function wireCodeParts(code){
   if(!code || code==='·' || code==='-' || code==='—' || code==='nc') return [{t: code||'·', c:'#90a4ae', sep:false}];
@@ -685,7 +700,9 @@ function wireCodeHtml(code){
 function wireCodeSvg(code, x, y, cls, withHalo){
   const parts = wireCodeParts(code);
   const tspans = parts.map(p => {
-    const st = svgInk(p.c, withHalo).replace(/^style="/,'').replace(/"$/,'');
+    const st = withHalo === false
+      ? `fill:${p.c} !important`
+      : wireCodeSvgInk(p.c);
     return `<tspan style="${st}">${esc(p.t)}</tspan>`;
   }).join('');
   return `<text class="${cls}" x="${x}" y="${y}" text-anchor="middle">${tspans}</text>`;
