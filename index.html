@@ -909,17 +909,17 @@ function buildCircuits(model){
     {id:'ect', title:'ECT', color:'#5c6bc0',
       ecm:[73], conn:['ect'], notes:'Señal ECT → ECM 73 (BR/Y).'},
     {id:'coil_1', title:'Bobina 1', color:'#26a69a',
-      ecm:[62], conn:['coil1','feed_inj_coil_12v'], notes:'Drive ECM 62 + 12V común.'},
+      ecm:[62], conn:['coil1','ix_f18_f201','ix_e12_f3'], notes:'Drive ECM 62 Y/R · vía F18 cav3 · 12V W/L · EC-691.'},
     {id:'coil_2', title:'Bobina 2', color:'#26a69a',
-      ecm:[81], conn:['coil2','feed_inj_coil_12v'], notes:'Drive ECM 81 + 12V común.'},
+      ecm:[81], conn:['coil2','ix_e12_f3'], notes:'Drive ECM 81 G/B · Bank2 (sin F18) · 12V W/L · EC-693.'},
     {id:'coil_3', title:'Bobina 3', color:'#26a69a',
-      ecm:[61], conn:['coil3','feed_inj_coil_12v'], notes:'Drive ECM 61 + 12V común.'},
+      ecm:[61], conn:['coil3','ix_f18_f201','ix_e12_f3'], notes:'Drive ECM 61 L/R · vía F18 cav2 · 12V W/L · EC-691.'},
     {id:'coil_4', title:'Bobina 4', color:'#26a69a',
-      ecm:[80], conn:['coil4','feed_inj_coil_12v'], notes:'Drive ECM 80 + 12V común.'},
+      ecm:[80], conn:['coil4','ix_e12_f3'], notes:'Drive ECM 80 GY · Bank2 (sin F18) · 12V W/L · EC-693.'},
     {id:'coil_5', title:'Bobina 5', color:'#26a69a',
-      ecm:[60], conn:['coil5','feed_inj_coil_12v'], notes:'Drive ECM 60 + 12V común.'},
+      ecm:[60], conn:['coil5','ix_e12_f3'], notes:'Drive ECM 60 PU/W · F15 aparte (no F18) · 12V W/L · EC-691.'},
     {id:'coil_6', title:'Bobina 6', color:'#26a69a',
-      ecm:[79], conn:['coil6','feed_inj_coil_12v'], notes:'Drive ECM 79 + 12V común.'},
+      ecm:[79], conn:['coil6','ix_e12_f3'], notes:'Drive ECM 79 GY/R · Bank2 (sin F18) · 12V W/L · EC-693.'},
     {id:'inj_1', title:'Inyector 1', color:'#9ccc65',
       ecm:[23], conn:['inj1','feed_inj_coil_12v'], notes:'Drive ECM 23 + 12V común.'},
     {id:'inj_2', title:'Inyector 2', color:'#9ccc65',
@@ -976,11 +976,11 @@ function buildCircuits(model){
   ];
   if(model === 'de_early'){
     base.push({id:'vtc', title:'VTC intake ×2 (DE early)', color:'#d81b60',
-      ecm:[11,10], conn:['vtc_b1','vtc_b2'], notes:'VQ35DE 03–04: solo VTC admisión (2 solenoides). ECM 11 B1 · ECM 10 B2.'});
+      ecm:[11,10], conn:['vtc_b1','vtc_b2','ix_f18_f201','ix_e12_f3'], notes:'VTC admisión: ECM11 B1 vía F18 cav4 · ECM10 B2 solo (sin F18).'});
   } else if(model === 'de_revup'){
     base.push({id:'vtc', title:'VTC intake + exhaust ×4 (Rev-Up)', color:'#d81b60',
-      ecm:[11,10], conn:['vtc_b1','vtc_b2','vtc_ex_b1','vtc_ex_b2'],
-      notes:'VQ35DE Rev-Up 05–06: VTC admisión + escape (4 solenoides). Intake ECM 11/10; escape en arnés motor (ver FSM EC VTC).'});
+      ecm:[11,10], conn:['vtc_b1','vtc_b2','vtc_ex_b1','vtc_ex_b2','ix_f18_f201','ix_e12_f3'],
+      notes:'VTC: ECM11 B1 vía F18 · ECM10 B2 solo. Rev-Up también escape (ver FSM).'});
   } else {
     base.push({id:'vtc', title:'VTC (HR — ver FSM)', color:'#d81b60',
       ecm:[], conn:['vtc_b1','vtc_b2'], notes:'VQ35HR: control VTC distinto / ECM 3-conector. Ver FSM 2007 EC.'});
@@ -1178,22 +1178,28 @@ const CONN_BASE = {
     note:'FSM EC-401: 5V ECM 68 (R/W) · señal ECM 12 (L/W) · GND ECM 67 B/W (SNS compartida MAF/IAT/PSP/EVAP).'},
 
   /* —— Actuadores motor —— */
-  coil1:{group:'motor', sub:'actuators', name:'Bobina 1', meta:'ECM62 Y/R', accent:'#f57f17', shape:'tab2', pins:[{id:'ECM',code:'Y/R',ecm:62},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  coil2:{group:'motor', sub:'actuators', name:'Bobina 2', meta:'ECM81 G/B', accent:'#1b5e20', shape:'tab2', pins:[{id:'ECM',code:'G/B',ecm:81},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  coil3:{group:'motor', sub:'actuators', name:'Bobina 3', meta:'ECM61 L/R', accent:'#0d47a1', shape:'tab2', pins:[{id:'ECM',code:'L/R',ecm:61},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  coil4:{group:'motor', sub:'actuators', name:'Bobina 4', meta:'ECM80 GY', accent:'#616161', shape:'tab2', pins:[{id:'ECM',code:'GY',ecm:80},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  coil5:{group:'motor', sub:'actuators', name:'Bobina 5', meta:'ECM60 PU/W', accent:'#6a1b9a', shape:'tab2', pins:[{id:'ECM',code:'PU/W',ecm:60},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  coil6:{group:'motor', sub:'actuators', name:'Bobina 6', meta:'ECM79 GY/R', accent:'#616161', shape:'tab2', pins:[{id:'ECM',code:'GY/R',ecm:79},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
+  coil1:{group:'motor', sub:'actuators', name:'Bobina 1', meta:'ECM62 Y/R · F203', accent:'#f57f17', shape:'tab3',
+    pins:[{id:'1',lab:'SIG',code:'Y/R',ecm:62},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
+  coil2:{group:'motor', sub:'actuators', name:'Bobina 2', meta:'ECM81 G/B · F27', accent:'#1b5e20', shape:'tab3',
+    pins:[{id:'1',lab:'SIG',code:'G/B',ecm:81},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
+  coil3:{group:'motor', sub:'actuators', name:'Bobina 3', meta:'ECM61 L/R · F202', accent:'#0d47a1', shape:'tab3',
+    pins:[{id:'1',lab:'SIG',code:'L/R',ecm:61},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
+  coil4:{group:'motor', sub:'actuators', name:'Bobina 4', meta:'ECM80 GY · F28', accent:'#455a64', shape:'tab3',
+    pins:[{id:'1',lab:'SIG',code:'GY',ecm:80},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
+  coil5:{group:'motor', sub:'actuators', name:'Bobina 5', meta:'ECM60 PU/W · F15 · aparte', accent:'#6a1b9a', shape:'tab3',
+    pins:[{id:'1',lab:'SIG',code:'PU/W',ecm:60},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
+  coil6:{group:'motor', sub:'actuators', name:'Bobina 6', meta:'ECM79 GY/R · F29', accent:'#00838f', shape:'tab3',
+    pins:[{id:'1',lab:'SIG',code:'GY/R',ecm:79},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
   inj1:{group:'motor', sub:'actuators', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/B',ecm:23},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   inj2:{group:'motor', sub:'actuators', name:'Inyector 2', meta:'ECM42 B/R', accent:'#37474f', shape:'tab2', pins:[{id:'ECM',code:'B/R',ecm:42},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   inj3:{group:'motor', sub:'actuators', name:'Inyector 3', meta:'ECM22 R/Y', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/Y',ecm:22},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   inj4:{group:'motor', sub:'actuators', name:'Inyector 4', meta:'ECM41 W/B', accent:'#9e9e9e', shape:'tab2', pins:[{id:'ECM',code:'W/B',ecm:41},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   inj5:{group:'motor', sub:'actuators', name:'Inyector 5', meta:'ECM21 SB', accent:'#0277bd', shape:'tab2', pins:[{id:'ECM',code:'SB',ecm:21},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   inj6:{group:'motor', sub:'actuators', name:'Inyector 6', meta:'ECM40 LG', accent:'#558b2f', shape:'tab2', pins:[{id:'ECM',code:'LG',ecm:40},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  vtc_b1:{group:'motor', sub:'actuators', name:'VTC intake B1', meta:'solenoide admisión R', accent:'#d81b60', shape:'tab2',
-    pins:[{id:'ECM',code:'P',ecm:11},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
-  vtc_b2:{group:'motor', sub:'actuators', name:'VTC intake B2', meta:'solenoide admisión L', accent:'#d81b60', shape:'tab2',
-    pins:[{id:'ECM',code:'W/G',ecm:10},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
+  vtc_b1:{group:'motor', sub:'actuators', name:'VTC intake B1', meta:'F204 · vía F18/F201 · ECM11', accent:'#d81b60', shape:'tab2',
+    pins:[{id:'1',lab:'SIG',code:'P',ecm:11},{id:'2',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
+  vtc_b2:{group:'motor', sub:'actuators', name:'VTC intake B2', meta:'Bank2 solo · ECM10 · sin F18', accent:'#d81b60', shape:'tab2',
+    pins:[{id:'1',lab:'SIG',code:'W/G',ecm:10},{id:'2',lab:'12V',code:'W/L',ecm:null,rail:'12v'}]},
   vtc_ex_b1:{group:'motor', sub:'actuators', name:'VTC exhaust B1', meta:'Rev-Up · escape R', accent:'#ad1457', shape:'tab2',
     pins:[{id:'ECM',code:'?',ecm:null},{id:'12V',code:'R',ecm:null,rail:'12v'}]},
   vtc_ex_b2:{group:'motor', sub:'actuators', name:'VTC exhaust B2', meta:'Rev-Up · escape L', accent:'#ad1457', shape:'tab2',
@@ -1250,8 +1256,16 @@ const CONN_BASE = {
     note:'Intermedia F14/F229 del path knock (FSM): señal W→ECM 15 · shield→SNS GND. Referencia de circuito FSM; cara pin-number: ver manual.'},
   ix_f103_f151:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM → body', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: continuidad ECM ground 1/115/116 ↔ body ground. Malfunction check lista harness connectors F103, F151 (y F3/E12).'},
-  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Path bobinas + VTC B1', meta:'Bank 1 · ignition coils · IVT solenoid B1 · EC-458/697', accent:'#78909c', shape:'ixnote',
-    pins:[], note:'Empalme intermedio Bank 1: path bobinas de encendido (12V/señal/tierra) y VTC/IVT solenoid B1 (ECM 11) hacia IPDM/ECM. Ver EC-458 (IVT) y EC-697 (IGNITION SIGNAL). Mapa de cavidades: ver FSM.'},
+  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Bobinas B1 + VTC', meta:'6-pin · Bank 1 only · EC-691/455 · no E10/F1', accent:'#ef6c00', shape:'f18',
+    pins:[
+      {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd'},
+      {id:'2',lab:'C3',code:'L/R',ecm:61},
+      {id:'3',lab:'C1',code:'Y/R',ecm:62},
+      {id:'4',lab:'VTC',code:'W/R',ecm:11},
+      {id:'5',lab:'12V',code:'W/L',ecm:null,rail:'12v'},
+      {id:'6',lab:'12V',code:'W/L',ecm:null,rail:'12v'}
+    ],
+    note:'FSM EC-691/455: cav1 B GND→F23 · cav2 L/R→bobina3/ECM61 · cav3 Y/R→bobina1/ECM62 · cav4 W/R→P→VTC B1/ECM11 · cav5–6 W/L 12V (bobinas+VTC). Solo Bank1; bobina5 (60) va aparte. Bank2 sin este empalme.'},
   ix_f221_f33:{group:'motor', sub:'actuators', name:'F221 ↔ F33 · Path inyectores → ECM', meta:'inyectores 1–6 · continuidad a ECM 21–42 · EC-278', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Empalme intermedio del path de inyectores: F33↔F221 entre arnés de inyectores y ECM (cyl1→23 … cyl6→40). Usado en checks de función de inyector (EC-278). Mapa de cavidades: ver FSM.'},
   ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · CAN (rama ABS/DLC)', meta:'2G/7G CAN · engine room↔body · FSM LAN', accent:'#90a4ae', shape:'tab2',
@@ -1416,6 +1430,22 @@ function flipRow(arr){
 }
 
 /** A/F FSM face: top 5-3-1, bottom 6-4-2 (looking into connector) */
+function svgF18(cid, f){
+  /* F18 H.S. black 6-pin: top 1–2–3 / bot 4–5–6 (EC-691) */
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const orderTop = flipRow(['1','2','3']), orderBot = flipRow(['4','5','6']);
+  const W=168, H=108;
+  let cavities='';
+  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 22+i*46, 24, 40, 34, 4); });
+  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, 22+i*46, 62, 40, 34, 4); });
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <path class="lock-tab" d="M68 2 h32 l6 10 H62 Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="160" height="92" rx="8" style="stroke:#424242;fill:#212121"/>
+    <rect x="12" y="20" width="144" height="80" rx="4" fill="#ef6c00" stroke="#e65100" stroke-width="1"/>
+    ${cavities}
+  </svg>`;
+}
+
 function svgAf6(cid, f){
   const byId = Object.fromEntries(f.pins.map(p=>[p.id,p]));
   const orderTop = flipRow(['5','3','1']), orderBot = flipRow(['6','4','2']);
@@ -1429,7 +1459,6 @@ function svgAf6(cid, f){
     ${cavities}
   </svg>`;
 }
-
 function svgRect6(cid, f){
   const W=148, H=100;
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
@@ -1839,6 +1868,7 @@ function svgF102(cid, f){
 function renderConnSvg(cid, f){
   f = Object.assign({}, f, { accent: accentForConn(f) });
   switch(f.shape){
+    case 'f18': return svgF18(cid,f);
     case 'af6': return svgAf6(cid,f);
     case 'rect6': return svgRect6(cid,f);
     case 'rect10': return svgRect10(cid,f);
@@ -2457,10 +2487,10 @@ const CONN_I18N = {
       note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: ECM ground 1/115/116 ↔ body ground 連続性。点検リストはハーネスコネクタ F103, F151（および F3/E12）。' },
   },
   ix_f18_f201: {
-    en: { name:'F18 ↔ F201 · Coils + VTC B1 path', meta:'Bank 1 · ignition coils · IVT solenoid B1 · EC-458/697',
-      note:'Bank 1 intermediate: ignition coil path (12V/signal/ground) and VTC/IVT solenoid B1 (ECM 11) toward IPDM/ECM. See EC-458 (IVT) and EC-697 (IGNITION SIGNAL). Cavity map: see FSM.' },
-    ja: { name:'F18 ↔ F201 · コイル + VTC B1経路', meta:'バンク1 · イグニッションコイル · IVTソレノイド B1 · EC-458/697',
-      note:'バンク1中間: イグニッションコイル経路 (12V/信号/アース) と VTC/IVTソレノイド B1 (ECM 11)。EC-458 (IVT)・EC-697 (IGNITION SIGNAL) 参照。キャビティ: FSM参照。' },
+    en: { name:'F18 ↔ F201 · Coils B1 + VTC', meta:'6-pin · Bank 1 only · EC-691/455',
+      note:'F18: 1 B GND · 2 L/R→61 C3 · 3 Y/R→62 C1 · 4 W/R→P→11 VTC · 5–6 W/L 12V. Coil5 separate. No mate on Bank2.' },
+    ja: { name:'F18 ↔ F201 · B1コイル + VTC', meta:'6ピン · Bank1のみ · EC-691/455',
+      note:'F18: 1 B GND · 2→61 · 3→62 · 4→11 VTC · 5–6 W/L。Coil5は別。Bank2にこの中間なし。' },
   },
   ix_f221_f33: {
     en: { name:'F221 ↔ F33 · Injectors → ECM path', meta:'injectors 1–6 · continuity to ECM 21–42 · EC-278',
