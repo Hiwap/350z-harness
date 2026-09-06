@@ -264,7 +264,8 @@
   }
   .ficha-sec.sel-top { border-color: #5d4e1a; }
   .conn-svg { width: 100%; height: auto; display: block; margin: 0 auto 2px; }
-  .cav-hit { cursor: pointer; }
+  .cav-hit { cursor: pointer; pointer-events: all; }
+  .cav-hit .cav-face { pointer-events: all; }
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.hl-end .cav-face { stroke: var(--hl2) !important; stroke-width: 2.5; }
   .cav-hit.hl-group .cav-face { stroke: #ab47bc !important; stroke-width: 2; }
@@ -893,7 +894,7 @@ function buildCircuits(model){
       ecm:[1,115,116], conn:['gnd4','e17','ix_f103_f151'], notes:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground vía harness connectors F103, F151.'},
 
     {id:'sns_gnd', title:'SNS GND', color:'#ef6c00',
-      ecm:[66,67,78], conn:['maf','ckp','cmp_b1','cmp_b2','ect','iat','knock','etc','ac_press','psp','af_b1','af_b2','ho2s_b1','ho2s_b2'],
+      ecm:[66,67,78], conn:['maf','ckp','cmp_b1','cmp_b2','ect','iat','knock','etc','ac_press','evap_press','psp','af_b1','af_b2','ho2s_b1','ho2s_b2'],
       notes:'SNS GND ECM 66 / 67 / 78 · tierras de sensores (no bobinas · no APP 82/83).'},
     {id:'knock', title:'Knock sensor', color:'#42a5f5',
       ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Señal ECM 15 (W) vía intermedia F14/F229 · shield a SNS GND (FSM EC).'},
@@ -958,7 +959,7 @@ function buildCircuits(model){
     {id:'ho2s', title:'HO2S2 downstream ×2', color:'#8e24aa',
       ecm:[74,55,25,6,78], conn:['ho2s_b1','ho2s_b2','feed_ho2s_12v'], notes:'Señal B1→74 (OR) · B2→55 (L/B) · heaters 25/6 + 12V fusible · SNS GND 78.'},
     {id:'evap_press', title:'EVAP pressure', color:'#7b1fa2',
-      ecm:[32,48], conn:['evap_press','ix_f102_m72'], notes:'Señal ECM 32 (F102 19H BR/W) · 5V ECM 48 (F102 18H PU) · GND sensor = B (no ECM 67; distinto del B/W SNS/ASCD).'},
+      ecm:[32,48,67], conn:['evap_press','ix_f102_m72'], notes:'Señal ECM 32 (F102 19H BR/W) · 5V ECM 48 (F102 18H PU) · GND ECM 67 B/W (SNS compartida MAF/IAT/PSP/EVAP · F102 20H).'},
     {id:'evap_purge', title:'EVAP purge', color:'#8e24aa',
       ecm:[45], conn:['evap_purge'], notes:'Purge solenoid → ECM 45 (no pasa por F102 en path verificado).'},
     {id:'evap_vent', title:'EVAP canister vent', color:'#6a1b9a',
@@ -1171,7 +1172,7 @@ const CONN_BASE = {
   ac_press:{group:'motor', sub:'sensors', name:'A/C refrigerant press', meta:'3-pin · 5V=49 · body/chassis ruteo', accent:'#ef6c00', shape:'tab3',
     pins:[{id:'5V',code:'B',ecm:49,rail:'5v'},{id:'2',code:'G/R',ecm:70},{id:'3',code:'?',ecm:null}]},
   evap_press:{group:'motor', sub:'sensors', name:'EVAP pressure', meta:'canister', accent:'#7b1fa2', shape:'tab3',
-    pins:[{id:'5V',code:'PU',ecm:48,rail:'5v'},{id:'sig',code:'BR/W',ecm:32},{id:'GND',code:'B',ecm:null,rail:'gnd',lab:'BODY'}]},
+    pins:[{id:'5V',code:'PU',ecm:48,rail:'5v'},{id:'sig',code:'BR/W',ecm:32},{id:'GND',code:'B/W',ecm:67,rail:'gnd',lab:'SNS'}]},
   psp:{group:'motor', sub:'sensors', name:'PSP · Power steering pressure', meta:'sensor dirección · señal ECM 12', accent:'#00897b', shape:'tab3',
     pins:[{id:'SIG',code:'L/W',ecm:12},{id:'5V',code:'R/W',ecm:68,rail:'5v'},{id:'GND',code:'SNS',ecm:null,rail:'gnd'}],
     note:'FSM 2005 EC: señal PSP → ECM 12 (L/W azul/blanco) · 5V → ECM 68 (R/W) · tierra vía SNS GND (cavidad exacta: ver FSM).'},
@@ -1991,7 +1992,7 @@ const NOTES_I18N = {
     can: {en:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · also IPDM E9 48/49 · branch E108 2G/7G → ABS/DLC · data via combination meter / CAN. Bench: loom alone 86↔94 = OL (no 120Ω terminators). Continuity ECM↔F102 / ECM↔E9 valid on bench.', ja:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · 経路 ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · IPDM E9 48/49 · 分岐 E108 2G/7G → ABS/DLC · コンビネーションメータ/CAN。ベンチ: ハーネスのみ 86↔94 = OL（120Ω終端なし）。ECM↔F102 / ECM↔E9 連続は有効。'},
   maf: {en:'MAF signal → ECM 51 (OR).', ja:'MAF信号 → ECM 51 (OR)。'},
   tb: {en:'TB motor ± · TPS1/TPS2 · 5V rail 47.', ja:'TBモータ± · TPS1/TPS2 · 5Vレール47。'},
-  evap_press: {en:'Signal ECM 32 (F102 19H) · 5V ECM 48 (F102 18H) · sensor GND = B (not ECM 67 / not F102 20H B/W).', ja:'信号 ECM 32 (F102 19H) · 5V ECM 48 (F102 18H) · GNDセンサ = B（ECM 67 / F102 20H B/W とは別）。'},
+  evap_press: {en:'Signal ECM 32 (F102 19H) · 5V ECM 48 (F102 18H) · GND ECM 67 B/W (shared SNS: MAF/IAT/PSP/EVAP · F102 20H).', ja:'信号 ECM 32 (F102 19H) · 5V ECM 48 (F102 18H) · GND ECM 67 B/W（SNS共用 MAF/IAT/PSP/EVAP · F102 20H）。'},
   evap_purge: {en:'Purge solenoid → ECM 45.', ja:'パージソレノイド → ECM 45。'},
   evap_vent: {en:'Vent control → ECM 117 (G/W) via M72/F102 · B1/M12.', ja:'ベント制御 → ECM 117 (G/W) · M72/F102経由。'},
   dlc_k: {en:'ECM 85 (LG) → DLC pin 7 · CONSULT-II / GST.', ja:'ECM 85 (LG) → DLCピン7 · CONSULT-II / GST。'},
@@ -2571,15 +2572,17 @@ function makeFichaEl(id, f){
     extra = `<div class="note-body">${esc(noteTxt)}</div>`;
   }
   el.innerHTML = `<h3>${esc(connField(id, f, 'name'))}</h3><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
-  el.querySelectorAll('.cav-hit').forEach(cav=>{
-    cav.addEventListener('click', e=>{
+  /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
+  wrap.addEventListener('click', e=>{
+    const cav = e.target.closest && e.target.closest('.cav-hit');
+    if(cav && wrap.contains(cav)){
+      e.preventDefault();
       e.stopPropagation();
-      selectConnPin(cav.dataset.conn, cav.dataset.cav);
-    });
+      selectConnPin(cav.dataset.conn || id, cav.dataset.cav);
+      return;
+    }
+    selectConn(id);
   });
-  const go = ()=>selectConn(id);
-  el.onclick=go;
-  wrap.onclick=go;
   wrap.appendChild(el);
   return wrap;
 }
