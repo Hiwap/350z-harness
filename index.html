@@ -341,21 +341,30 @@
     flex: 0 0 auto;
   }
   #ecm #f102Blocks .f102-face-block.stub {
-    justify-content: center;
-    min-width: 1.75rem;
-    max-width: 2.25rem;
-    padding: 6px 4px;
-    border-style: dashed;
-    border-color: #3a4558;
-    background: #0c1016;
+    justify-content: flex-start;
+    align-items: center;
   }
-  #ecm #f102Blocks .f102-r-stub {
-    font-size: 14px;
-    font-weight: 700;
-    color: #78909c;
-    text-align: center;
-    line-height: 1.1;
-    white-space: pre-line;
+  /* One empty cavity spanning both rows: 30H / — / 46H */
+  #ecm #f102Blocks .pin.f102-r-range {
+    width: 30px;
+    min-height: calc(46px * 2 + 3px);
+    height: calc(46px * 2 + 3px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 4px 1px;
+    box-sizing: border-box;
+  }
+  #ecm #f102Blocks .pin.f102-r-range .dest,
+  #ecm #f102Blocks .pin.f102-r-range .pn {
+    color: #555;
+    font-size: 8px;
+    font-weight: 800;
+  }
+  #ecm #f102Blocks .pin.f102-r-range .pw {
+    font-size: 11px;
+    opacity: 0.85;
   }
   #ecm #f102Blocks .f102-face-block .tag {
     font-size: 10px; color: #90a4ae; font-weight: 700; text-align: center;
@@ -1727,8 +1736,10 @@ function svgF102(cid, f){
   /* Compact R stub instead of 30H–46H empty cavities */
   const stubW = 18;
   const hMax = 2*Math.max(...sizes.map(s=>s.ch)) + gap;
-  cavities += `<rect x="${x}" y="${padTop}" width="${stubW}" height="${hMax}" rx="3" fill="none" stroke="#455a64" stroke-dasharray="3 2" opacity="0.85"/>`;
-  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2+3}" text-anchor="middle" font-size="12" fill="#78909c" font-weight="700">—</text>`;
+  cavities += `<rect x="${x}" y="${padTop}" width="${stubW}" height="${hMax}" rx="2" fill="#1a1f28" stroke="#455a64" stroke-width="1" stroke-dasharray="3 2" opacity="0.9"/>`;
+  cavities += `<text x="${x+stubW/2}" y="${padTop+12}" text-anchor="middle" font-size="7" fill="#78909c" font-weight="800">30H</text>`;
+  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2+3}" text-anchor="middle" font-size="10" fill="#78909c" font-weight="700">—</text>`;
+  cavities += `<text x="${x+stubW/2}" y="${padTop+hMax-6}" text-anchor="middle" font-size="7" fill="#78909c" font-weight="800">46H</text>`;
   x += stubW + blockGap;
   const W = x - blockGap + padX;
   const H = padTop + hMax + 10;
@@ -2200,12 +2211,17 @@ function renderF102(){
   F102_FACE_BLOCKS.forEach(g => {
     const blk = document.createElement('div');
     if(g.stub){
-      blk.className = 'f102-face-block stub';
-      const note = document.createElement('div');
-      note.className = 'f102-r-stub';
-      note.textContent = (t('f102RStub') || 'R 30H–46H').replace(/\\n/g, '\n');
-      note.title = t('f102RTip') || t('f102Legend') || '';
-      blk.appendChild(note);
+      blk.className = 'f102-face-block stub pin-sm';
+      const pin = document.createElement('div');
+      pin.className = 'pin empty f102-r-range';
+      pin.setAttribute('aria-hidden', 'true');
+      pin.title = t('f102RTip') || t('f102Legend') || 'R · 30H–46H';
+      pin.innerHTML = '<span class="dest">30H</span><small class="pw">—</small><span class="pn">46H</span>';
+      blk.appendChild(pin);
+      const tagEl = document.createElement('div');
+      tagEl.className = 'tag';
+      tagEl.textContent = g.tag || 'R';
+      blk.appendChild(tagEl);
       blocksEl.appendChild(blk);
       return;
     }
