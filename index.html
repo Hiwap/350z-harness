@@ -412,45 +412,14 @@
   footer { padding: 10px 16px 18px; color: #b0b7c3; font-size: 11px; border-top: 1px solid var(--border); }
   code { background: #232a36; padding: 1px 5px; border-radius: 4px; font-size: 11px; }
 
-  /* opts / warn collapse */
+  /* opts / warn collapse — full-width bar, compact controls (no stretch) */
+  header > .hdr-title { flex: 1 1 100%; min-width: 0; }
   details.opts {
     border: 1px solid var(--border); border-radius: 8px; background: #12161d;
     padding: 0;
     flex: 1 1 100%;
     width: 100%;
     max-width: 100%;
-    align-self: stretch;
-  }
-  details.opts .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: flex-end;
-    width: 100%;
-  }
-  details.opts .controls label {
-    max-width: none;
-  }
-  details.opts .controls label.chk {
-    max-width: none;
-  }
-  details.opts .controls select {
-    min-width: 0;
-    flex: 1 1 140px;
-  }
-  details.opts .search {
-    margin-left: 0;
-    flex: 1 1 200px;
-    min-width: 0;
-  }
-  details.opts .search input[type=search] {
-    flex: 1;
-    min-width: 0;
-    width: 100%;
-  }
-  details.opts .rail-toggles {
-    flex: 1 1 100%;
-    width: 100%;
   }
   details.opts > summary {
     cursor: pointer; list-style: none; user-select: none;
@@ -464,7 +433,52 @@
   }
   details.opts:not([open]) > summary::before { opacity: 0.5; }
   details.opts[open] > summary { border-bottom: 1px solid var(--border); }
-  details.opts .controls { padding: 8px 10px 10px; }
+  details.opts .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    align-items: flex-end;
+    width: 100%;
+    padding: 8px 10px 10px;
+  }
+  details.opts .controls label {
+    flex: 0 0 auto;
+    max-width: none;
+  }
+  details.opts .controls label.chk {
+    flex: 0 0 auto;
+    max-width: none;
+    align-self: center;
+    padding-bottom: 2px;
+  }
+  details.opts .controls select {
+    flex: none;
+    width: auto;
+    min-width: 9.5rem;
+    max-width: 16rem;
+  }
+  .hdr-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  .hdr-tools .search {
+    margin-left: 0;
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+  .hdr-tools .search input[type=search] {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+  }
+  .hdr-tools .rail-toggles {
+    flex: 0 1 auto;
+    margin-left: 0;
+  }
 
   details.warn-box {
     margin: 0 0 10px; border-radius: 8px; border: 1px solid #5d4037;
@@ -564,82 +578,16 @@
     .info { color: #e8eaed; }
     .orient { font-size: 12px; padding: 7px 8px; }
 
-    /* Options: full width in portrait / narrow */
-    header { align-items: stretch; }
-    details.opts {
-      flex: 1 1 100%;
-      width: 100%;
-      max-width: 100%;
-    }
-    details.opts .controls {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 10px;
-      width: 100%;
-    }
-    details.opts .controls label {
-      width: 100%;
-      max-width: none;
-    }
-    details.opts .controls label.chk {
-      max-width: none;
-      width: 100%;
-    }
-    details.opts .controls select,
-    details.opts .controls button {
-      width: 100%;
-      min-width: 0;
-      box-sizing: border-box;
-    }
-    .search {
-      margin-left: 0;
-      flex: 1 1 100%;
-      width: 100%;
-    }
-    .search input[type=search] {
-      flex: 1;
-      min-width: 0;
-      width: 100%;
-    }
-    .rail-toggles {
-      flex: 1 1 100%;
-      width: 100%;
-      justify-content: stretch;
-    }
-    .rail-toggles .rail-btn { flex: 1; }
   }
   @media (orientation: portrait) and (max-width: 900px) {
     .conn-svg { max-height: none; }
     .fichas { max-height: 80vh; }
-    header { align-items: stretch; }
-    details.opts {
-      flex: 1 1 100%;
-      width: 100%;
-      max-width: 100%;
-    }
-    details.opts .controls {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 10px;
-      width: 100%;
-    }
-    details.opts .controls label,
-    details.opts .controls label.chk {
-      width: 100%;
-      max-width: none;
-    }
-    details.opts .controls select {
-      width: 100%;
-      min-width: 0;
-    }
   }
 </style>
 </head>
 <body data-mode="outlines">
 <header>
-  <div>
+  <div class="hdr-title">
     <h1>Nissan 350Z · Harness / Fichas OEM</h1>
     <div class="sub" id="pageSub">Referencia FSM · click pin ECM o cavidad → punta a punta</div>
   </div>
@@ -681,15 +629,17 @@
       </label>
     </div>
   </details>
-  <div class="search">
-    <input id="q" type="search" placeholder="Buscar: 101, ASCD, APP, stop, CAN…"/>
-    <button type="button" id="clear">Limpiar</button>
-  </div>
-  <div class="rail-toggles" id="railToggles" title="Resaltar rails de poder / tierra">
-    <span class="rail-label" id="railLabel">Rails</span>
-    <button type="button" class="rail-btn" data-rail="gnd" id="railGnd">Tierra / GND</button>
-    <button type="button" class="rail-btn" data-rail="12v" id="rail12v">12V</button>
-    <button type="button" class="rail-btn" data-rail="5v" id="rail5v">5V</button>
+  <div class="hdr-tools">
+    <div class="search">
+      <input id="q" type="search" placeholder="Buscar: 101, ASCD, APP, stop, CAN…"/>
+      <button type="button" id="clear">Limpiar</button>
+    </div>
+    <div class="rail-toggles" id="railToggles" title="Resaltar rails de poder / tierra">
+      <span class="rail-label" id="railLabel">Rails</span>
+      <button type="button" class="rail-btn" data-rail="gnd" id="railGnd">Tierra / GND</button>
+      <button type="button" class="rail-btn" data-rail="12v" id="rail12v">12V</button>
+      <button type="button" class="rail-btn" data-rail="5v" id="rail5v">5V</button>
+    </div>
   </div>
 </header>
 <main>
