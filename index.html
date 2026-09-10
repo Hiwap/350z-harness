@@ -618,6 +618,7 @@
   .ficha.hl .cav-hit.dim .cav-face, .ficha-wrap.hl .cav-hit.dim .cav-face {
     opacity: 0.22 !important;
   }
+  .ficha.hl .cav-empty, .ficha-wrap.hl .cav-empty { opacity: 0.18 !important; }
   details.opts .opts-rail-rel {
     flex: 1 1 100%;
     display: flex; flex-wrap: nowrap; gap: 8px 12px;
@@ -4332,36 +4333,48 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = pinInfo + lines.join('');
   revealConns([...connSet], { collapseF102 });
   if(collapseF102) setF102PanelOpen(false);
-  /* #selTop clones are created inside revealConns — paint cav HL again so selection fichas get yellow too */
+  /* Clones in #selTop are fresh — re-mark fichas + dim off-path cavities, then light path. */
+  connSet.forEach(cid => markFichaHL(cid, true));
   paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav);
 }
 
 /** Yellow hl = exact ECM/cavity; purple hl-group = other pins on the same path. Runs after selTop exists. */
 function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav){
+  /* selTop clones are fresh DOM without .dim — opacar todas las cavidades primero. */
+  document.querySelectorAll('.cav-hit').forEach(cav=>{
+    cav.classList.remove('hl','hl-end','hl-group','hl-rail','hl-rail-rel-gnd','hl-rail-rel-data');
+    cav.classList.add('dim');
+  });
+  document.querySelectorAll('#fichas .ficha.hl .cav-empty, #fichas .ficha-wrap.hl .cav-empty').forEach(g=>{
+    g.style.opacity = '0.2';
+  });
+  const pathOk = (p, cid, pid)=>{
+    if(!p) return false;
+    const isFocusCav = focusConn===cid && String(focusCav)===String(pid);
+    if(isFocusCav) return {cls:'hl'};
+    if(p.ecm==null || p.ecm==='') return false;
+    const e = Number(p.ecm);
+    const onFocusEcm = focusPin!=null && e===Number(focusPin);
+    const onPath = ecmSet && (ecmSet.has(e) || ecmSet.has(String(e)) || ecmSet.has(Number(e)));
+    if(!(onFocusEcm || onPath)) return false;
+    return {cls: onFocusEcm ? 'hl' : 'hl-group'};
+  };
   document.querySelectorAll('.cav-hit').forEach(cav=>{
     const cid = cav.dataset.conn;
     const pid = cav.dataset.cav;
     const conf = CONN[cid] || CONN_BASE[cid];
     const p = (conf && conf.pins || []).find(x => String(x.id) === String(pid));
-    if(!p || p.ecm==null) return;
-    const e = Number(p.ecm);
-    const isFocusCav = focusConn===cid && String(focusCav)===String(pid);
-    const onFocusEcm = focusPin!=null && e===Number(focusPin);
-    const onPath = ecmSet && ecmSet.has(e);
-    if(!(isFocusCav || onFocusEcm || onPath)) return;
+    const hit = pathOk(p, cid, pid);
+    if(!hit) return;
     cav.classList.remove('dim','hl','hl-end','hl-group');
-    cav.classList.add((isFocusCav || onFocusEcm) ? 'hl' : 'hl-group');
+    cav.classList.add(hit.cls);
   });
   document.querySelectorAll('#f102Blocks .pin[data-cav]').forEach(fp=>{
     const p = (CONN['ix_f102_m72']&&CONN['ix_f102_m72'].pins||[]).find(x=>String(x.id)===String(fp.dataset.cav));
-    if(!p || p.ecm==null) return;
-    const e = Number(p.ecm);
-    const isFocusCav = focusConn==='ix_f102_m72' && String(focusCav)===String(fp.dataset.cav);
-    const onFocusEcm = focusPin!=null && e===Number(focusPin);
-    const onPath = ecmSet && ecmSet.has(e);
-    if(!(isFocusCav || onFocusEcm || onPath)) return;
+    const hit = pathOk(p, 'ix_f102_m72', fp.dataset.cav);
+    if(!hit) return;
     fp.classList.remove('dim','hl','hl-end','hl-group');
-    fp.classList.add((isFocusCav || onFocusEcm) ? 'hl' : 'hl-group');
+    fp.classList.add(hit.cls);
   });
   updateF102SelPins();
 }
@@ -4403,6 +4416,7 @@ function selectPin(p){
     });
     const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = `<b>${esc(t('pinEcm'))} ${p}</b> · ${pinName(p)||''} · <code>${PIN_COL[p]||'—'}</code><div style="color:var(--muted)">${t('noWide')}</div>`;
     revealConns(found);
+    paintFichaCavHL(new Set([n]), n, null, null);
     updateEcmSelCount(1);
     updateF102SelPins();
     selKey = key;
