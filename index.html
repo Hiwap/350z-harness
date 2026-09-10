@@ -1245,7 +1245,7 @@ function buildCircuits(model){
     {id:'vmot', title:'VMOT supply', color:'#ef5350',
       ecm:[3], conn:['vmot','ipdm_e8','ix_e12_f3'], notes:'VMOT ECM 3 ↔ IPDM E8-42 (G) vía E12/F3.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
-      ecm:[113], conn:['fp_relay','ipdm_e8','ix_e108_m15','ix_f102_m72'], notes:'FP relay ctrl ECM 113 ↔ IPDM E8-40 (L/W) · vía E108 28G · F102 6H (LG/B).'},
+      ecm:[113], conn:['fp_relay','fuel_pump','ipdm_e8','ix_e108_m15','ix_f102_m72'], path:{fp_relay:['coil+','CTRL'],fuel_pump:['1','3'],ipdm_e8:['40','39'],ix_e108_m15:['28G'],ix_f102_m72:['6H']}, notes:'F81 15A (IPDM) alimenta bobina. Ctrl E8-40→E108·28G→F102·6H→ECM 113. Out E8-39 B/Y → bomba. EC-710.'},
         {id:'ftt', title:'Fuel tank temperature', color:'#7e57c2',
       ecm:[107], conn:['fuel_tank_temp','ix_f102_m72'], notes:'FTT señal → ECM 107 (GY/R) · path vía M72/F102 · sensor en fuel level sensor unit (term. 4). DTC P0181/0182/0183.'},
 {id:'dlc_k', title:'DLC K-line (CONSULT)', color:'#7e57c2',
@@ -1380,7 +1380,7 @@ const CONN_BASE = {
       {id:'36',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
       {id:'37',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
       {id:'38',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra de potencia IPDM → body E17 (B) · PG-27 / LT-16.',note_en:'IPDM power ground → body E17 (B) · PG-27 / LT-16.',note_ja:'IPDMパワーアース → ボディ E17 (B) · PG-27。'},
-      {id:'39',src:'FP·RLY',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',note:'Salida relé bomba combustible (B/Y) → bomba pin1 / condensador · EC-710.',note_en:'Fuel pump relay output (B/Y) → pump pin1 / condenser · EC-710.',note_ja:'フューエルポンプリレー出力 (B/Y) · EC-710。'},
+      {id:'39',src:'F81',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',note:'Salida relé bomba combustible (B/Y) → bomba pin1 / condensador · EC-710.',note_en:'Fuel pump relay output (B/Y) → pump pin1 / condenser · EC-710.',note_ja:'フューエルポンプリレー出力 (B/Y) · EC-710。'},
       {id:'40',code:'L/W',ecm:113,rail:'12v',note:'Control bobina relé bomba (L/W) → ECM 113 vía E108/M15 · M72/F102 · EC-710.',note_en:'Fuel pump relay coil control (L/W) → ECM 113 via E108/M15 · M72/F102 · EC-710.',note_ja:'フューエルポンプリレー制御 (L/W) → ECM 113 · EC-710。'},
       {id:'41',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
       {id:'42',code:'G',ecm:3,rail:'12v',note:'VMOT control relé motor mariposa (G) → ECM 3 vía E12/F3 · EC-472.',note_en:'Throttle motor relay control VMOT (G) → ECM 3 via E12/F3 · EC-472.',note_ja:'スロットルモータリレー制御 VMOT (G) → ECM 3 · EC-472。'},
@@ -1560,8 +1560,15 @@ const CONN_BASE = {
   evap_vent:{group:'motor', sub:'actuators', name:'EVAP · Venteo', meta:'T20 · vent · ECM 117 · P0447/P1446', accent:'#6a1b9a', shape:'tab2',
     pins:[{id:'1',code:'W/R',ecm:null,rail:'12v',lab:'12V',src:'IPDM',srcSub:'ipdm'},{id:'2',code:'G',ecm:117,lab:'CTRL'}],
     note:'T20: pin1 W/R (12V vía IPDM/B43) · pin2 G → T2/B44 → B1/M12 → F102 29H G/W → ECM 117.'},
-  fp_relay:{group:'motor', sub:'actuators', name:'Relé bomba combustible', meta:'control bomba · ECM 113', accent:'#ef5350', shape:'tab2',
-    pins:[{id:'CTRL',code:'LG/B',ecm:113},{id:'coil+',code:'12V',ecm:null,rail:'12v'}]},
+  fuel_pump:{group:'motor', sub:'actuators', name:'Bomba combustible', meta:'B27 · level sensor unit · EC-710', accent:'#ef5350', shape:'tab2',
+    pins:[{id:'1',lab:'12V',code:'B/Y',ecm:null,rail:'12v',src:'E8·39',srcSub:'ipdm'},{id:'3',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'D105',srcSub:'power'}],
+    note:'B27 pin1 B/Y desde IPDM E8-39 (relé/F81). Pin3 B → masa D105. Unidad nivel+bomba.'},
+  fp_relay:{group:'motor', sub:'actuators', name:'Relé bomba combustible', meta:'IPDM E8 · F81 15A · ECM 113 · EC-710', accent:'#ef5350', shape:'tab2',
+    pins:[
+      {id:'CTRL',code:'LG/B',ecm:113,lab:'FPR'},
+      {id:'coil+',code:'—',ecm:null,rail:'12v',src:'F81',srcSub:'ipdm',lab:'12V'}
+    ],
+    note:'Relé dentro IPDM E8: bobina alimentada por fusible 81 (15A IGN). Control E8-40 L/W → E108·28G → F102·6H LG/B → ECM 113. Salida bomba E8-39 B/Y.'},
 
 
   /* —— ix_* paths: single-purpose in their sub; multi stay in intermedias —— */
@@ -3321,6 +3328,7 @@ function accentForConn(f){
 
 /** Connector card name / meta / note — ES lives in CONN_BASE; EN/JA here. */
 const CONN_I18N = {
+  fuel_pump: { en:{name:'Fuel pump', meta:'B27 · EC-710'}, ja:{name:'フューエルポンプ', meta:'B27 · EC-710'} },
   jb_10a_inj: { en:{name:'JB · 10A injector fuse', meta:'Fuse Block M4 · IGN · EC-702'}, ja:{name:'JB · 10A インジェクタヒューズ', meta:'ヒューズブロック M4'} },
   jb_15a_ht: { en:{name:'JB · 15A A/F+HO2S fuse', meta:'Fuse Block M4 · IGN · EC-191'}, ja:{name:'JB · 15A A/F+HO2Sヒューズ', meta:'ヒューズブロック M4'} },
   ix_e11_f2: {
