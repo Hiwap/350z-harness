@@ -2081,10 +2081,11 @@ function cornerIdOf(p){
   return String(p);
 }
 function cornersFromRow(row){
+  /* One row → only left/right of that row (no fake bottom corners). */
   const ids = (row || []).map(cornerIdOf).filter(Boolean);
   if(!ids.length) return {tl:'',tr:'',bl:'',br:''};
   const a = ids[0], b = ids[ids.length - 1];
-  return {tl:a, tr:b, bl:a, br:b};
+  return {tl:a, tr:b, bl:'', br:''};
 }
 function cornersFromRows(top, bot){
   const ids = (arr) => (arr || []).map(cornerIdOf).filter(x => x !== '' && x !== 'null');
