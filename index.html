@@ -602,15 +602,23 @@
   .cav-hit.hl-rail-rel-data .cav-face { stroke: #4fc3f7 !important; stroke-width: 2; }
   details.opts .opts-rail-rel {
     flex: 1 1 100%;
-    display: flex; flex-wrap: wrap; gap: 8px 14px;
+    display: flex; flex-wrap: nowrap; gap: 8px 12px;
     align-items: center;
     padding: 6px 2px 2px;
     border-top: 1px dashed #2a3340;
     margin-top: 2px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   details.opts .opts-rail-rel-title {
     font-size: 11px; font-weight: 700; color: #90a4ae;
-    margin-right: 4px;
+    margin-right: 2px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  details.opts .opts-rail-rel label.chk {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 
   .pin.rail-5v { outline: 2.5px solid #F9A825; outline-offset: 1px; }
@@ -826,11 +834,11 @@
         <span class="opts-rail-rel-title" id="railRelTitle">Rail · relacionados</span>
         <label class="chk" id="lblRailRelGnd">
           <input type="checkbox" id="railRelGnd" checked />
-          <span id="lblRailRelGndTxt">Tierras (verde)</span>
+          <span id="lblRailRelGndTxt">Tierras</span>
         </label>
         <label class="chk" id="lblRailRelData">
           <input type="checkbox" id="railRelData" checked />
-          <span id="lblRailRelDataTxt">Data (celeste)</span>
+          <span id="lblRailRelDataTxt">Data</span>
         </label>
       </div>
     </div>
@@ -2375,8 +2383,8 @@ const I18N = {
     lblLang: 'Idioma',
     collapseIdle: 'Colapsar grupos sin selección',
     railRelTitle: 'Rail · relacionados',
-    railRelGnd: 'Tierras (verde)',
-    railRelData: 'Data (celeste)',
+    railRelGnd: 'Tierras',
+    railRelData: 'Data',
     nestBobinas: 'Bobinas',
     nestInyectores: 'Inyectores',
     optsSummary: 'Opciones / Options',
@@ -2430,8 +2438,8 @@ const I18N = {
     lblLang: 'Language',
     collapseIdle: 'Collapse groups with no selection',
     railRelTitle: 'Rail · related',
-    railRelGnd: 'Grounds (green)',
-    railRelData: 'Data (sky)',
+    railRelGnd: 'Grounds',
+    railRelData: 'Data',
     nestBobinas: 'Coils',
     nestInyectores: 'Injectors',
     optsSummary: 'Options',
@@ -2476,8 +2484,8 @@ const I18N = {
     lblLang: '言語',
     collapseIdle: '未選択グループを折りたたむ',
     railRelTitle: 'レール · 関連',
-    railRelGnd: 'アース (緑)',
-    railRelData: 'データ (水色)',
+    railRelGnd: 'アース',
+    railRelData: 'データ',
     nestBobinas: 'コイル',
     nestInyectores: 'インジェクタ',
     railActive: 'レール ON',
