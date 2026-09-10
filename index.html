@@ -1681,16 +1681,22 @@ function cavRailOf(pin){
   if(pin && pin.ecm != null && PIN_RAIL[pin.ecm]) return PIN_RAIL[pin.ecm];
   return null;
 }
-/** Top line on ficha cavities: ECM #, else rail (GND/12V/5V), else short lab, else — */
+/** Top line: rail (5V/12V/GND) first, else ECM #, else short lab, else — */
 function cavTopLabel(pin){
-  if(pin && pin.ecm != null) return String(pin.ecm);
   const rail = cavRailOf(pin);
   if(rail === 'gnd') return 'GND';
   if(rail === '12v') return '12V';
   if(rail === '5v') return '5V';
+  if(pin && pin.ecm != null) return String(pin.ecm);
   const lab = String(pin && pin.lab || '').trim();
   if(lab && !/^nc$/i.test(lab) && lab !== String(pin.id)) return lab;
   return '—';
+}
+/** Bottom line on ficha face: ECM # when top is a rail, else cavity id. */
+function cavBottomLabel(pin){
+  const rail = cavRailOf(pin);
+  if(rail && pin && pin.ecm != null) return String(pin.ecm);
+  return String(pin && pin.id != null ? pin.id : '');
 }
 /* Uniform cavity cell size for all connector face SVGs (not ECM #blocks). */
 const CAV_STD_W = 40;
@@ -1785,14 +1791,12 @@ function cavGroup(cid, pin, x, y, w, h, rx){
         fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
   const mode = document.body.dataset.mode || 'outlines';
-  /* Face order (fichas, not ECM grid): ECM top · wire code mid · cavity name/id bottom */
-  const disp = String(pin.id); /* real cavity id on face; lab stays in title */
-  const lc = mode === 'solid' ? '' : labClass(cavDisplayLab(pin));
+  /* Face order: rail/ECM top · wire mid · ECM# (if rail) or cavity id bottom */
+  const disp = isUnk ? String(pin.id) : cavBottomLabel(pin);
+  const lc = mode === 'solid' ? '' : labClass(cavTopLabel(pin));
   const rail = isUnk ? null : cavRailOf(pin);
   let txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
-  if(mode !== 'solid' && lc === 'lab-5v') txtFill = '#F9A825';
-  if(mode !== 'solid' && lc === 'lab-12v') txtFill = '#C62828';
-  if(mode !== 'solid' && lc === 'lab-gnd') txtFill = '#81C784';
+  if(mode !== 'solid' && rail) txtFill = '#90caf9'; /* ECM # under rail */
   if(isUnk) txtFill = '#b0bec5';
   const ink = (c) => svgInk(c, true);
   /* Scale 3 lines to cavity height so short IPDM faces don't stack/halo-overlap */
@@ -1807,11 +1811,14 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   let topFill = (mode === 'solid') ? txtFill : '#90caf9';
   if(isUnk){
     topFill = '#90a4ae';
+  } else if(rail === 'gnd'){
+    topFill = mode === 'solid' ? txtFill : '#81C784';
+  } else if(rail === '12v'){
+    topFill = mode === 'solid' ? txtFill : '#ef9a9a';
+  } else if(rail === '5v'){
+    topFill = mode === 'solid' ? txtFill : '#F9A825';
   } else if(pin.ecm == null){
-    if(rail === 'gnd') topFill = mode === 'solid' ? txtFill : '#81C784';
-    else if(rail === '12v') topFill = mode === 'solid' ? txtFill : '#ef9a9a';
-    else if(rail === '5v') topFill = mode === 'solid' ? txtFill : '#F9A825';
-    else topFill = mode === 'solid' ? txtFill : '#90a4ae';
+    topFill = mode === 'solid' ? txtFill : '#90a4ae';
   }
   const midFace = isUnk
     ? `<text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" ${ink('#b0bec5')} font-size="${h<30?11:13}" font-weight="800">?</text>`
@@ -1971,7 +1978,15 @@ function svgRing(cid, f){
     ? `<circle class="cav-tracer" cx="45" cy="34" r="7" fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
   const mode = document.body.dataset.mode || 'outlines';
-  const txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
+  const rail = cavRailOf(p);
+  let topFill = mode === 'solid' ? fgForWireCav(wcol) : '#90caf9';
+  let botFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
+  if(mode !== 'solid'){
+    if(rail === '5v') topFill = '#F9A825';
+    else if(rail === '12v') topFill = '#ef9a9a';
+    else if(rail === 'gnd') topFill = '#81C784';
+    if(rail) botFill = '#90caf9';
+  }
   const ink = (c) => svgInk(c, true);
   return `<svg class="conn-svg" viewBox="0 0 90 84" xmlns="http://www.w3.org/2000/svg">
     <g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(p.id)}">
@@ -1979,9 +1994,9 @@ function svgRing(cid, f){
       <circle class="cav-face" cx="45" cy="34" r="22" fill="none" stroke="${f.accent}" stroke-width="3"/>
       <circle class="cavity cav-face" cx="45" cy="34" r="10" style="stroke:${sc};--cav-fill:${fillVal}"/>
       ${inset}
-      <text class="cav-ecm" x="45" y="30" text-anchor="middle" ${ink(txtFill)}>${esc(cavTopLabel(p))}</text>
+      <text class="cav-ecm" x="45" y="30" text-anchor="middle" ${ink(topFill)}>${esc(cavTopLabel(p))}</text>
       ${wireCodeSvg(p.code||'', 45, 64, 'cav-sub cav-code', true)}
-      <text class="cav-label" x="45" y="76" text-anchor="middle" ${ink(txtFill)}>${esc(p.id)}</text>
+      <text class="cav-label" x="45" y="76" text-anchor="middle" ${ink(botFill)}>${esc(cavBottomLabel(p))}</text>
     </g>
   </svg>`;
 }
