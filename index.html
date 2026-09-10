@@ -178,6 +178,13 @@
     /* readable on any wire fill: dark halo + keep accent color inline */
     text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95), 0 0 1px #000;
   }
+  #blocks .pin.rail-lab {
+    min-height: calc(var(--pin-h, 32px) + 10px);
+  }
+  #blocks .pin.rail-lab .dest.lab-5v { color: #F9A825; }
+  #blocks .pin.rail-lab .dest.lab-12v { color: #ef9a9a; }
+  #blocks .pin.rail-lab .dest.lab-gnd { color: #81c784; }
+
   body[data-mode="solid"] #blocks .pin .pn {
     color: var(--pin-fg, #111);
     text-shadow:
@@ -2698,7 +2705,16 @@ function makePinEl(p){
   }
   d.style.setProperty('--pin-fg', fgForWire(wcol));
   if(LIGHT_FILLS.has(wcol.c1) && !wcol.tracer) d.classList.add('light-wire');
-  d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>`;
+  const rail = PIN_RAIL[p] || null;
+  if(rail){
+    /* 3-row like F102: rail · wire · pin # */
+    const railLab = rail === '5v' ? '5V' : (rail === '12v' ? '12V' : 'GND');
+    const lc = labClass(railLab);
+    d.classList.add('rail-lab');
+    d.innerHTML = `<span class="dest${lc?' '+lc:''}">${esc(railLab)}</span><small class="pw">${wireCodeHtml(code||'·')}</small><span class="pn">${p}</span>`;
+  } else {
+    d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>`;
+  }
   d.title = `Pin ${p} ${pinName(p)||''} ${code}`;
   d.onclick = () => selectPin(p);
   return d;
