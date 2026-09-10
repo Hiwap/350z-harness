@@ -194,6 +194,7 @@
   #blocks .pin.rail-lab .dest.lab-5v { color: #F9A825; }
   #blocks .pin.rail-lab .dest.lab-12v { color: #ef9a9a; }
   #blocks .pin.rail-lab .dest.lab-gnd { color: #81c784; }
+  #blocks .pin.can-lab .dest.lab-can { color: #ce93d8; }
 
   body[data-mode="solid"] #blocks .pin .pn {
     color: var(--pin-fg, #111);
@@ -653,6 +654,7 @@
   .cav-label.lab-5v { fill: #F9A825 !important; }
   .cav-label.lab-12v { fill: #C62828 !important; }
   .cav-label.lab-gnd { fill: #2E7D32 !important; }
+  .cav-label.lab-can { fill: #ce93d8 !important; }
 
 
   /* IPDM uses standard fichas (no static PG-26 image panel) */
@@ -1120,6 +1122,9 @@ const PIN_RAIL = {
   1:'gnd', 115:'gnd', 116:'gnd',
   66:'gnd', 67:'gnd', 78:'gnd', 82:'gnd', 83:'gnd'
 };
+
+/* CAN bus — bottom row C/H · C/L */
+const PIN_CAN = { 94:'C/H', 86:'C/L' };
 
 /* Feeds that ride on full sensor/actuator circuits: when the feed card
    (or its cavity) is the focus, only list the ECM control pins — not
@@ -1665,6 +1670,7 @@ function labClass(lab){
   if(u === '5V') return 'lab-5v';
   if(u === '12V') return 'lab-12v';
   if(u === 'GND' || u === 'SNS' || u === 'SH' || u === 'TIERRA' || u.startsWith('GND')) return 'lab-gnd';
+  if(u === 'C/H' || u === 'C/L' || u === 'CAN-H' || u === 'CAN-L') return 'lab-can';
   return '';
 }
 function isRailLab(lab){
@@ -1686,17 +1692,27 @@ function cavRailOf(pin){
   if(pin && pin.ecm != null && PIN_RAIL[pin.ecm]) return PIN_RAIL[pin.ecm];
   return null;
 }
-/** Top line: always ECM # when present; never rail (rail goes on bottom). */
+function cavCanOf(pin){
+  if(pin && pin.ecm != null && PIN_CAN[Number(pin.ecm)]) return PIN_CAN[Number(pin.ecm)];
+  const lab = String(pin && pin.lab || '').toUpperCase().replace(/\s+/g,'');
+  const id = String(pin && pin.id || '').toUpperCase().replace(/\s+/g,'');
+  if(lab === 'CAN-H' || lab === 'CANH' || id === 'CAN-H' || id === 'CANH') return 'C/H';
+  if(lab === 'CAN-L' || lab === 'CANL' || id === 'CAN-L' || id === 'CANL') return 'C/L';
+  return null;
+}
+/** Top line: always ECM # when present; rail/CAN on bottom. */
 function cavTopLabel(pin){
   if(pin && pin.ecm != null) return String(pin.ecm);
   return '—';
 }
-/** Bottom line: 5V/12V/GND when rail, else cavity id. */
+/** Bottom line: rail / CAN tag when known, else cavity id. */
 function cavBottomLabel(pin){
   const rail = cavRailOf(pin);
   if(rail === 'gnd') return 'GND';
   if(rail === '12v') return '12V';
   if(rail === '5v') return '5V';
+  const can = cavCanOf(pin);
+  if(can) return can;
   return String(pin && pin.id != null ? pin.id : '');
 }
 function cavRailBottomClass(pin){
@@ -1704,6 +1720,7 @@ function cavRailBottomClass(pin){
   if(rail === '5v') return 'lab-5v';
   if(rail === '12v') return 'lab-12v';
   if(rail === 'gnd') return 'lab-gnd';
+  if(cavCanOf(pin)) return 'lab-can';
   return '';
 }
 /* Uniform cavity cell size for all connector face SVGs (not ECM #blocks). */
@@ -1807,6 +1824,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   if(mode !== 'solid' && rail === '5v') txtFill = '#F9A825';
   if(mode !== 'solid' && rail === '12v') txtFill = '#ef9a9a';
   if(mode !== 'solid' && rail === 'gnd') txtFill = '#81C784';
+  if(mode !== 'solid' && !rail && cavCanOf(pin)) txtFill = '#ce93d8';
   if(isUnk) txtFill = '#b0bec5';
   const ink = (c) => svgInk(c, true);
   /* Scale 3 lines to cavity height so short IPDM faces don't stack/halo-overlap */
@@ -2881,12 +2899,16 @@ function makePinEl(p){
   d.style.setProperty('--pin-fg', fgForWire(wcol));
   if(LIGHT_FILLS.has(wcol.c1) && !wcol.tracer) d.classList.add('light-wire');
   const rail = PIN_RAIL[p] || null;
+  const can = PIN_CAN[p] || null;
   if(rail){
     /* 3-row: pin # top · wire · rail bottom (match fichas) */
     const railLab = rail === '5v' ? '5V' : (rail === '12v' ? '12V' : 'GND');
     const lc = labClass(railLab);
     d.classList.add('rail-lab');
     d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small><span class="dest${lc?' '+lc:''}">${esc(railLab)}</span>`;
+  } else if(can){
+    d.classList.add('can-lab');
+    d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small><span class="dest lab-can">${esc(can)}</span>`;
   } else {
     d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>`;
   }
@@ -2928,8 +2950,10 @@ function makeF102PinEl(pin){
   d.style.setProperty('--pin-fg', hasWire ? fgForWire(wcol) : '#555');
   const midHtml = hasWire ? wireCodeHtml(code) : esc('—');
   const ecmTop = hasWire || pin.ecm != null ? cavTopLabel(pin) : '—';
-  /* Same order as fichas: ECM/rail · wire code · cavity id */
-  d.innerHTML = `<span class="dest">${esc(ecmTop)}</span><small class="pw">${midHtml}</small><span class="pn">${esc(String(pin.id))}</span>`;
+  const bot = hasWire || pin.ecm != null ? cavBottomLabel(pin) : String(pin.id);
+  const blc = labClass(bot);
+  /* ECM # · wire · rail/CAN/id (same as fichas) */
+  d.innerHTML = `<span class="pn">${esc(ecmTop)}</span><small class="pw">${midHtml}</small><span class="dest${blc?' '+blc:''}">${esc(bot)}</span>`;
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
   d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}`;
   if(hasWire){
