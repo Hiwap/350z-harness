@@ -3845,7 +3845,7 @@ function applyRailFilter(){
   });
   revealConns([...matchedConns]);
 
-  updateEcmSelCount(railEcm);
+  updateEcmSelCount(); /* DOM: rail + related gnd/data */
   updateF102SelPins();
 
   const labels = {gnd:'Tierra / GND', '12v':'12V', '5v':'5V'};
@@ -3914,7 +3914,7 @@ function updateF102SelPins(cavsOrNull){
     cavs = [];
   } else {
     cavs = [...document.querySelectorAll(
-      '#f102Blocks .pin.hl, #f102Blocks .pin.hl-group, #f102Blocks .pin.hl-end, #f102Blocks .pin.hl-rail'
+      '#f102Blocks .pin.hl, #f102Blocks .pin.hl-group, #f102Blocks .pin.hl-end, #f102Blocks .pin.hl-rail, #f102Blocks .pin.hl-rail-rel-gnd, #f102Blocks .pin.hl-rail-rel-data'
     )].map(p => p.dataset.cav).filter(Boolean);
   }
   cavs = sortF102CavIds(cavs);
@@ -3931,7 +3931,7 @@ function updateF102SelPins(cavsOrNull){
 function updateEcmSelCount(nOrPins){
   const el = document.getElementById('ecmSelCount');
   if(!el) return;
-  const domSel = '#blocks .pin.hl, #blocks .pin.hl-group, #blocks .pin.hl-end, #blocks .pin.hl-rail';
+  const domSel = '#blocks .pin.hl, #blocks .pin.hl-group, #blocks .pin.hl-end, #blocks .pin.hl-rail, #blocks .pin.hl-rail-rel-gnd, #blocks .pin.hl-rail-rel-data';
   let pins;
   if(Array.isArray(nOrPins) || nOrPins instanceof Set){
     pins = [...nOrPins].map(Number).filter(x=>!isNaN(x));
