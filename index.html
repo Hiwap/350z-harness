@@ -3720,7 +3720,14 @@ function onRailRelKindToggle(){
   if(d) localStorage.setItem(LS_RAIL_REL_DATA, d.checked ? '1' : '0');
   if(activeRails.size) applyRailFilter();
 }
-/** Related pin kind: 'gnd' | 'data' | null (skip other power rails). */
+/** True if cavity has a real wire (not empty / nc / unknown hole). */
+function cavHasWire(pin){
+  if(!pin || pin.unknown) return false;
+  const code = String(pin.code == null ? '' : pin.code).trim();
+  if(!code || code === '—' || code === '-' || code === 'nc' || code === '·' || code === '?') return false;
+  return true;
+}
+/** Related pin kind: 'gnd' | 'data' | null (skip empty + other power rails). */
 function railRelKindForEcm(p){
   const r = PIN_RAIL[p] || PIN_RAIL[Number(p)] || null;
   if(r === 'gnd') return 'gnd';
@@ -3728,6 +3735,7 @@ function railRelKindForEcm(p){
   return 'data';
 }
 function railRelKindForCav(pin){
+  if(!cavHasWire(pin)) return null; /* empty cavities stay dim */
   const r = cavRailOf(pin);
   if(r === 'gnd') return 'gnd';
   if(r === '5v' || r === '12v') return null;
@@ -3849,6 +3857,7 @@ function applyRailFilter(){
     matchedConns.forEach(cid=>{
       const conf = CONN[cid] || CONN_BASE[cid];
       (conf && conf.pins || []).forEach(pin=>{
+        if(!cavHasWire(pin)) return; /* empty / nc / ? stay dim */
         if(railOfEcm(pin.ecm)) return; /* primary already */
         if(cid === 'ix_f102_m72'){
           const e = pin.ecm != null ? Number(pin.ecm) : null;
