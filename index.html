@@ -590,11 +590,28 @@
   .rail-btn.on[data-rail="gnd"] { background: #123018; color: #a5d6a7; }
 
   .pin.hl-rail, .cav-hit.hl-rail .cav-face { opacity: 1 !important; }
-  .pin.hl-rail-rel, .cav-hit.hl-rail-rel .cav-face { opacity: 1 !important; }
-  .pin.hl-rail-rel {
-    outline: 2px solid #ab47bc; outline-offset: 1px;
+  .pin.hl-rail-rel-gnd, .cav-hit.hl-rail-rel-gnd .cav-face,
+  .pin.hl-rail-rel-data, .cav-hit.hl-rail-rel-data .cav-face { opacity: 1 !important; }
+  .pin.hl-rail-rel-gnd {
+    outline: 2px solid #66bb6a; outline-offset: 1px;
   }
-  .cav-hit.hl-rail-rel .cav-face { stroke: #ab47bc !important; stroke-width: 2; }
+  .pin.hl-rail-rel-data {
+    outline: 2px solid #4fc3f7; outline-offset: 1px;
+  }
+  .cav-hit.hl-rail-rel-gnd .cav-face { stroke: #66bb6a !important; stroke-width: 2; }
+  .cav-hit.hl-rail-rel-data .cav-face { stroke: #4fc3f7 !important; stroke-width: 2; }
+  details.opts .opts-rail-rel {
+    flex: 1 1 100%;
+    display: flex; flex-wrap: wrap; gap: 8px 14px;
+    align-items: center;
+    padding: 6px 2px 2px;
+    border-top: 1px dashed #2a3340;
+    margin-top: 2px;
+  }
+  details.opts .opts-rail-rel-title {
+    font-size: 11px; font-weight: 700; color: #90a4ae;
+    margin-right: 4px;
+  }
 
   .pin.rail-5v { outline: 2.5px solid #F9A825; outline-offset: 1px; }
   .pin.rail-12v { outline: 2.5px solid #C62828; outline-offset: 1px; }
@@ -805,10 +822,17 @@
         <input type="checkbox" id="collapseIdleSubs" checked />
         <span id="lblCollapseIdleTxt">Colapsar grupos sin selección</span>
       </label>
-      <label class="chk" id="lblRailRelated">
-        <input type="checkbox" id="railRelatedPins" checked />
-        <span id="lblRailRelatedTxt">Rail: marcar pines relacionados</span>
-      </label>
+      <div class="opts-rail-rel" id="optsRailRel">
+        <span class="opts-rail-rel-title" id="railRelTitle">Rail · relacionados</span>
+        <label class="chk" id="lblRailRelGnd">
+          <input type="checkbox" id="railRelGnd" checked />
+          <span id="lblRailRelGndTxt">Tierras (verde)</span>
+        </label>
+        <label class="chk" id="lblRailRelData">
+          <input type="checkbox" id="railRelData" checked />
+          <span id="lblRailRelDataTxt">Data (celeste)</span>
+        </label>
+      </div>
     </div>
   </details>
   <div class="hdr-tools">
@@ -2350,7 +2374,9 @@ const I18N = {
     lblOrient: 'Orientación ECM',
     lblLang: 'Idioma',
     collapseIdle: 'Colapsar grupos sin selección',
-    railRelated: 'Rail: marcar pines relacionados',
+    railRelTitle: 'Rail · relacionados',
+    railRelGnd: 'Tierras (verde)',
+    railRelData: 'Data (celeste)',
     nestBobinas: 'Bobinas',
     nestInyectores: 'Inyectores',
     optsSummary: 'Opciones / Options',
@@ -2403,7 +2429,9 @@ const I18N = {
     lblOrient: 'ECM orientation',
     lblLang: 'Language',
     collapseIdle: 'Collapse groups with no selection',
-    railRelated: 'Rail: highlight related pins',
+    railRelTitle: 'Rail · related',
+    railRelGnd: 'Grounds (green)',
+    railRelData: 'Data (sky)',
     nestBobinas: 'Coils',
     nestInyectores: 'Injectors',
     optsSummary: 'Options',
@@ -2447,7 +2475,9 @@ const I18N = {
     lblOrient: 'ECM向き',
     lblLang: '言語',
     collapseIdle: '未選択グループを折りたたむ',
-    railRelated: 'レール: 関連ピンも表示',
+    railRelTitle: 'レール · 関連',
+    railRelGnd: 'アース (緑)',
+    railRelData: 'データ (水色)',
     nestBobinas: 'コイル',
     nestInyectores: 'インジェクタ',
     railActive: 'レール ON',
@@ -2634,8 +2664,12 @@ function applyLang(){
   setLabel('lblLang', 'lblLang');
   const cit = document.getElementById('lblCollapseIdleTxt');
   if(cit) cit.textContent = t('collapseIdle');
-  const rrt = document.getElementById('lblRailRelatedTxt');
-  if(rrt) rrt.textContent = t('railRelated');
+  const rrt = document.getElementById('railRelTitle');
+  if(rrt) rrt.textContent = t('railRelTitle');
+  const rrg = document.getElementById('lblRailRelGndTxt');
+  if(rrg) rrg.textContent = t('railRelGnd');
+  const rrd = document.getElementById('lblRailRelDataTxt');
+  if(rrd) rrd.textContent = t('railRelData');
   const rg = document.getElementById('railGnd'); if(rg) rg.textContent = t('railGnd');
   const rt = document.getElementById('railToggles'); if(rt) rt.title = t('railTitle');
   const oo = document.getElementById('optOutlines'); if(oo) oo.textContent = t('optOutlines');
@@ -3599,11 +3633,11 @@ let selFocusPin = null; /* ECM pin in focus for current selection (cav or pin) *
 
 function clearSelectionClasses(){
   document.querySelectorAll('.pin,.ficha,.ficha-wrap,.cav-hit,.f102-panel').forEach(el=>{
-    el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','rail-5v','rail-12v','rail-gnd');
+    el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','rail-5v','rail-12v','rail-gnd');
   });
   /* Explicit ECM/F102 pass — dim must never stick after deselect */
   document.querySelectorAll('#blocks .pin, #f102Blocks .pin').forEach(el=>{
-    el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','rail-5v','rail-12v','rail-gnd');
+    el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','rail-5v','rail-12v','rail-gnd');
   });
 }
 
@@ -3642,16 +3676,40 @@ function updateRailButtons(){
   });
 }
 
-const LS_RAIL_RELATED = 'z33_railRelated';
-function railRelatedEnabled(){
-  const el = document.getElementById('railRelatedPins');
+const LS_RAIL_REL_GND = 'z33_railRelGnd';
+const LS_RAIL_REL_DATA = 'z33_railRelData';
+function railRelGndEnabled(){
+  const el = document.getElementById('railRelGnd');
   if(el) return !!el.checked;
-  return localStorage.getItem(LS_RAIL_RELATED) !== '0';
+  return localStorage.getItem(LS_RAIL_REL_GND) !== '0';
 }
-function onRailRelatedToggle(){
-  const el = document.getElementById('railRelatedPins');
-  if(el) localStorage.setItem(LS_RAIL_RELATED, el.checked ? '1' : '0');
+function railRelDataEnabled(){
+  const el = document.getElementById('railRelData');
+  if(el) return !!el.checked;
+  return localStorage.getItem(LS_RAIL_REL_DATA) !== '0';
+}
+function onRailRelKindToggle(){
+  const g = document.getElementById('railRelGnd');
+  const d = document.getElementById('railRelData');
+  if(g) localStorage.setItem(LS_RAIL_REL_GND, g.checked ? '1' : '0');
+  if(d) localStorage.setItem(LS_RAIL_REL_DATA, d.checked ? '1' : '0');
   if(activeRails.size) applyRailFilter();
+}
+/** Related pin kind: 'gnd' | 'data' (signals / other rails). */
+function railRelKindForEcm(p){
+  const r = PIN_RAIL[p] || PIN_RAIL[Number(p)] || null;
+  return r === 'gnd' ? 'gnd' : 'data';
+}
+function railRelKindForCav(pin){
+  return cavRailOf(pin) === 'gnd' ? 'gnd' : 'data';
+}
+function markRailRelEl(el, kind){
+  if(!el) return;
+  if(kind === 'gnd' && !railRelGndEnabled()) return;
+  if(kind === 'data' && !railRelDataEnabled()) return;
+  if(el.classList.contains('hl-rail')) return;
+  el.classList.remove('dim', 'hl-rail-rel', 'hl-rail-rel-gnd', 'hl-rail-rel-data');
+  el.classList.add(kind === 'gnd' ? 'hl-rail-rel-gnd' : 'hl-rail-rel-data');
 }
 
 function applyRailFilter(){
@@ -3709,13 +3767,12 @@ function applyRailFilter(){
     });
   });
 
-  /* Optional: secondary purple for other pins on the same circuits / fichas */
-  if(railRelatedEnabled()){
+  /* Related: grounds (green) + data (sky) on same circuits/fichas — opens groups */
+  if(railRelGndEnabled() || railRelDataEnabled()){
     const relCirc = new Set();
     railEcm.forEach(p=>{
       (pinToCirc[p] || pinToCirc[String(p)] || []).forEach(id => relCirc.add(id));
     });
-    /* cavities that matched a rail may belong to circuits via their ECM pin */
     Object.entries(CONN).forEach(([cid, conf])=>{
       (conf.pins||[]).forEach(pin=>{
         const r = cavRailOf(pin);
@@ -3740,9 +3797,7 @@ function applyRailFilter(){
     relEcm.forEach(p=>{
       if(railEcm.has(p)) return;
       const el = document.querySelector(`#blocks .pin[data-pin="${p}"]`);
-      if(!el || el.classList.contains('hl-rail')) return;
-      el.classList.remove('dim');
-      el.classList.add('hl-rail-rel');
+      markRailRelEl(el, railRelKindForEcm(p));
     });
 
     relConns.forEach(cid=>{
@@ -3750,27 +3805,19 @@ function applyRailFilter(){
       const conf = CONN[cid] || CONN_BASE[cid];
       (conf && conf.pins || []).forEach(pin=>{
         const r = cavRailOf(pin);
-        if(r && activeRails.has(r)) return; /* already primary */
+        if(r && activeRails.has(r)) return;
+        const kind = railRelKindForCav(pin);
         document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
-          if(cav.classList.contains('hl-rail')) return;
-          cav.classList.remove('dim');
-          cav.classList.add('hl-rail-rel');
+          markRailRelEl(cav, kind);
         });
         if(cid === 'ix_f102_m72'){
-          const fp = f102PinEl(pin.id);
-          if(fp && !fp.classList.contains('hl-rail')){
-            fp.classList.remove('dim');
-            fp.classList.add('hl-rail-rel');
-          }
+          markRailRelEl(f102PinEl(pin.id), kind);
         }
         if(pin.ecm != null){
           const e = Number(pin.ecm);
           if(!railEcm.has(e)){
             const el = document.querySelector(`#blocks .pin[data-pin="${e}"]`);
-            if(el && !el.classList.contains('hl-rail')){
-              el.classList.remove('dim');
-              el.classList.add('hl-rail-rel');
-            }
+            markRailRelEl(el, railRelKindForEcm(e));
           }
         }
       });
@@ -4291,7 +4338,8 @@ document.getElementById('colorMode').addEventListener('change', applyColorMode);
 document.getElementById('ecmOrient').addEventListener('change', applyOrient);
 document.getElementById('lang').addEventListener('change', applyLang);
 document.getElementById('collapseIdleSubs').addEventListener('change', onCollapseIdleToggle);
-document.getElementById('railRelatedPins').addEventListener('change', onRailRelatedToggle);
+document.getElementById('railRelGnd').addEventListener('change', onRailRelKindToggle);
+document.getElementById('railRelData').addEventListener('change', onRailRelKindToggle);
 
 document.getElementById('clear').onclick=()=>{
   clearSelection();
@@ -4350,10 +4398,15 @@ document.getElementById('q').addEventListener('input', e=>{
     const saved = localStorage.getItem(LS_COLLAPSE_IDLE);
     collapseEl.checked = saved === null ? true : saved === '1';
   }
-  const railRelEl = document.getElementById('railRelatedPins');
-  if(railRelEl){
-    const rs = localStorage.getItem(LS_RAIL_RELATED);
-    railRelEl.checked = rs === null ? true : rs === '1';
+  const railGndEl = document.getElementById('railRelGnd');
+  if(railGndEl){
+    const gs = localStorage.getItem(LS_RAIL_REL_GND);
+    railGndEl.checked = gs === null ? true : gs === '1';
+  }
+  const railDataEl = document.getElementById('railRelData');
+  if(railDataEl){
+    const ds = localStorage.getItem(LS_RAIL_REL_DATA);
+    railDataEl.checked = ds === null ? true : ds === '1';
   }
   document.body.dataset.colorCodes = '0';
   applyEcmPinPx();
