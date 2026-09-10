@@ -1681,15 +1681,9 @@ function cavRailOf(pin){
   if(pin && pin.ecm != null && PIN_RAIL[pin.ecm]) return PIN_RAIL[pin.ecm];
   return null;
 }
-/** Top line: ECM # first, else rail, else short lab, else — */
+/** Top line: always ECM # when present; never rail (rail goes on bottom). */
 function cavTopLabel(pin){
   if(pin && pin.ecm != null) return String(pin.ecm);
-  const rail = cavRailOf(pin);
-  if(rail === 'gnd') return 'GND';
-  if(rail === '12v') return '12V';
-  if(rail === '5v') return '5V';
-  const lab = String(pin && pin.lab || '').trim();
-  if(lab && !/^nc$/i.test(lab) && lab !== String(pin.id)) return lab;
   return '—';
 }
 /** Bottom line: 5V/12V/GND when rail, else cavity id. */
@@ -1820,15 +1814,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const railAttr = rail ? ` data-rail="${rail}"` : '';
   const ecmFace = isUnk ? '—' : cavTopLabel(pin);
   let topFill = (mode === 'solid') ? txtFill : '#90caf9';
-  if(isUnk){
-    topFill = '#90a4ae';
-  } else if(pin.ecm == null && rail === 'gnd'){
-    topFill = mode === 'solid' ? txtFill : '#81C784';
-  } else if(pin.ecm == null && rail === '12v'){
-    topFill = mode === 'solid' ? txtFill : '#ef9a9a';
-  } else if(pin.ecm == null && rail === '5v'){
-    topFill = mode === 'solid' ? txtFill : '#F9A825';
-  } else if(pin.ecm == null){
+  if(isUnk || pin.ecm == null){
     topFill = mode === 'solid' ? txtFill : '#90a4ae';
   }
   const midFace = isUnk
@@ -1993,9 +1979,7 @@ function svgRing(cid, f){
   let topFill = mode === 'solid' ? fgForWireCav(wcol) : '#90caf9';
   let botFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
   if(mode !== 'solid'){
-    if(p.ecm == null && rail === '5v') topFill = '#F9A825';
-    else if(p.ecm == null && rail === '12v') topFill = '#ef9a9a';
-    else if(p.ecm == null && rail === 'gnd') topFill = '#81C784';
+    if(p.ecm == null) topFill = '#90a4ae';
     if(rail === '5v') botFill = '#F9A825';
     else if(rail === '12v') botFill = '#ef9a9a';
     else if(rail === 'gnd') botFill = '#81C784';
