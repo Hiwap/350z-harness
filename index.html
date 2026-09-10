@@ -4770,31 +4770,117 @@ document.querySelectorAll('.rail-btn').forEach(btn=>{
   btn.addEventListener('click', () => toggleRail(btn.dataset.rail));
 });
 
+function connSearchBlob(id, f){
+  const bits = [id, f.name||'', f.meta||'', f.note||''];
+  (f.pins||[]).forEach(pin=>{
+    bits.push(String(pin.id||''), pin.code||'', pin.lab||'', pin.note||'', pin.note_en||'', pin.note_ja||'');
+  });
+  const i18 = CONN_I18N[id];
+  if(i18){
+    ['en','ja'].forEach(L=>{
+      const tr = i18[L]; if(!tr) return;
+      bits.push(tr.name||'', tr.meta||'', tr.note||'');
+    });
+  }
+  return bits.join(' ').toLowerCase();
+}
+
+function revealConnHits(connIds){
+  const ids = [...new Set((connIds||[]).filter(id => id && CONN[id] && !SKIP_SEL_CONN.has(id)))];
+  if(!ids.length) return;
+  activeRails.clear(); updateRailButtons();
+  clearHL(); dimAll();
+  const q = (document.getElementById('q') && document.getElementById('q').value || '').trim().toLowerCase();
+  ids.forEach(cid=>{
+    markFichaHL(cid, true);
+    const conf = CONN[cid];
+    (conf.pins||[]).forEach(pin=>{
+      const blob = [pin.id, pin.code, pin.lab, pin.note, pin.note_en, pin.note_ja].join(' ').toLowerCase();
+      const fichaHit = (conf.name||'').toLowerCase().includes(q) || (conf.meta||'').toLowerCase().includes(q) || String(cid).toLowerCase().includes(q);
+      const pinHit = !q || blob.includes(q);
+      if(!(fichaHit || pinHit)) return;
+      if(pin.ecm==null && (!pin.code || pin.code==='—' || pin.code==='-' || pin.code==='nc')) return;
+      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
+        cav.classList.remove('dim'); cav.classList.add('hl-group');
+      });
+    });
+  });
+  const infoEl=document.getElementById('info'); infoEl.dataset.locked='1';
+  delete infoEl.dataset.railMode;
+  infoEl.innerHTML = ids.map(cid=>{
+    const conf=CONN[cid];
+    return `<div><b>${esc(conf ? connField(cid, conf, 'name') : cid)}</b> — ${esc(conf ? connField(cid, conf, 'meta') : '')}</div>`;
+  }).join('');
+  revealConns(ids);
+  ids.forEach(cid => markFichaHL(cid, true));
+  /* Re-paint cavity highlights after selTop clones */
+  ids.forEach(cid=>{
+    const conf = CONN[cid];
+    (conf.pins||[]).forEach(pin=>{
+      const blob = [pin.id, pin.code, pin.lab, pin.note, pin.note_en, pin.note_ja].join(' ').toLowerCase();
+      const fichaHit = (conf.name||'').toLowerCase().includes(q) || (conf.meta||'').toLowerCase().includes(q) || String(cid).toLowerCase().includes(q);
+      const pinHit = !q || blob.includes(q);
+      if(!(fichaHit || pinHit)) return;
+      if(pin.ecm==null && (!pin.code || pin.code==='—' || pin.code==='-' || pin.code==='nc')) return;
+      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
+        cav.classList.remove('dim'); cav.classList.add('hl-group');
+      });
+    });
+  });
+  updateEcmSelCount();
+  updateF102SelPins();
+}
+
 document.getElementById('q').addEventListener('input', e=>{
   const q=e.target.value.trim().toLowerCase();
   if(!q){ clearSelection(); return; }
-  if(/^\d{1,3}$/.test(q)){ const p=+q; if(p>=1&&p<=121){ selectPin(p); return; } }
-  const hits=[];
+  if(/^\d{1,3}$/.test(q)){ const pn=+q; if(pn>=1&&pn<=121){ selectPin(pn); return; } }
+
+  /* Circuits that themselves match — do not fan out from shared fichas */
+  const circHits=[];
   CIRCUITS.forEach(c=>{
-    if(c.title.toLowerCase().includes(q)||c.id.includes(q)||c.notes.toLowerCase().includes(q)) hits.push(c.id);
+    const trT = (typeof TITLES_I18N!=='undefined' && TITLES_I18N[c.id]) || {};
+    const trN = (typeof NOTES_I18N!=='undefined' && NOTES_I18N[c.id]) || {};
+    const blob = [c.title, c.id, c.notes, trT.en||'', trT.ja||'', trN.en||'', trN.ja||''].join(' ').toLowerCase();
+    if(blob.includes(q)) circHits.push(c.id);
   });
+
+  const pinHits=[];
+  Object.entries(PIN_NAME).forEach(([pn,name])=>{
+    const names = [name, PIN_NAME_EN[+pn]||'', PIN_NAME_JA[+pn]||''].join(' ').toLowerCase();
+    if(names.includes(q)) pinHits.push(+pn);
+  });
+  /* Wire color: exact match only */
+  Object.entries(PIN_COL).forEach(([pn,code])=>{
+    if(String(code).toLowerCase()===q) pinHits.push(+pn);
+  });
+
+  const connHits=[];
   Object.entries(CONN).forEach(([id,f])=>{
-    if(f.name.toLowerCase().includes(q)||f.meta.toLowerCase().includes(q)||id.includes(q)){
-      (connToCirc[id]||[]).forEach(x=>hits.push(x));
-      if(!connToCirc[id]) selectConn(id);
-    }
+    if(SKIP_SEL_CONN.has(id)) return;
+    if(connSearchBlob(id, f).includes(q)) connHits.push(id);
   });
-  Object.entries(PIN_COL).forEach(([p,code])=>{
-    if(code.toLowerCase()===q || code.toLowerCase().includes(q)){
-      (pinToCirc[+p]||[]).forEach(x=>hits.push(x));
-    }
-  });
-  Object.entries(PIN_NAME).forEach(([p,name])=>{
-    const names = [name, PIN_NAME_EN[+p]||'', PIN_NAME_JA[+p]||''].join(' ').toLowerCase();
-    if(names.includes(q)) (pinToCirc[+p]||[]).forEach(x=>hits.push(x));
-  });
-  const uniq=[...new Set(hits)];
-  if(uniq.length) selectCircuits(uniq);
+
+  if(circHits.length){
+    selectCircuits([...new Set(circHits)]);
+    return;
+  }
+  if(pinHits.length){
+    const fromPins=[];
+    [...new Set(pinHits)].forEach(pn=>{
+      (pinToCirc[pn]||pinToCirc[String(pn)]||[]).forEach(x=>fromPins.push(x));
+    });
+    const uniq=[...new Set(fromPins)];
+    if(uniq.length){ selectCircuits(uniq); return; }
+    if(pinHits.length===1){ selectPin(pinHits[0]); return; }
+  }
+  if(connHits.length){
+    revealConnHits(connHits);
+    return;
+  }
+  clearSelection();
+  const info=document.getElementById('info');
+  if(info){ info.dataset.locked='1'; info.textContent = t('noCirc'); }
 });
 
 /* Init from localStorage */
