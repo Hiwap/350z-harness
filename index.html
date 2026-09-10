@@ -599,9 +599,11 @@
   .rail-btn.on[data-rail="12v"] { background: #3a1212; color: #ffcdd2; }
   .rail-btn.on[data-rail="gnd"] { background: #123018; color: #a5d6a7; }
 
-  .pin.hl-rail, .cav-hit.hl-rail .cav-face { opacity: 1 !important; }
-  .pin.hl-rail-rel-gnd, .cav-hit.hl-rail-rel-gnd .cav-face,
-  .pin.hl-rail-rel-data, .cav-hit.hl-rail-rel-data .cav-face { opacity: 1 !important; }
+  .pin.hl-rail, .cav-hit.hl-rail,
+  .cav-hit.hl-rail .cav-face { opacity: 1 !important; }
+  .pin.hl-rail-rel-gnd, .pin.hl-rail-rel-data,
+  .cav-hit.hl-rail-rel-gnd, .cav-hit.hl-rail-rel-data,
+  .cav-hit.hl-rail-rel-gnd .cav-face, .cav-hit.hl-rail-rel-data .cav-face { opacity: 1 !important; }
   .pin.hl-rail-rel-gnd {
     outline: 2px solid #66bb6a; outline-offset: 1px;
   }
@@ -610,6 +612,11 @@
   }
   .cav-hit.hl-rail-rel-gnd .cav-face { stroke: #66bb6a !important; stroke-width: 2; }
   .cav-hit.hl-rail-rel-data .cav-face { stroke: #4fc3f7 !important; stroke-width: 2; }
+  /* Inside a lit ficha, non-path cavities must stay dim (selTop clones too). */
+  .ficha.hl .cav-hit.dim, .ficha-wrap.hl .cav-hit.dim,
+  .ficha.hl .cav-hit.dim .cav-face, .ficha-wrap.hl .cav-hit.dim .cav-face {
+    opacity: 0.22 !important;
+  }
   details.opts .opts-rail-rel {
     flex: 1 1 100%;
     display: flex; flex-wrap: nowrap; gap: 8px 12px;
@@ -637,7 +644,7 @@
   .cav-hit.rail-5v .cav-face { stroke: #F9A825 !important; stroke-width: 2.6; }
   .cav-hit.rail-12v .cav-face { stroke: #C62828 !important; stroke-width: 2.6; }
   .cav-hit.rail-gnd .cav-face { stroke: #2E7D32 !important; stroke-width: 2.6; }
-  .cav-hit.dim { opacity: 0.22; }
+  .cav-hit.dim { opacity: 0.22 !important; }
   .cav-label.lab-5v { fill: #F9A825 !important; }
   .cav-label.lab-12v { fill: #C62828 !important; }
   .cav-label.lab-gnd { fill: #2E7D32 !important; }
@@ -3747,68 +3754,37 @@ function applyRailFilter(){
     }
     return;
   }
-  clearHL();
-  dimAll();
-  document.querySelectorAll('.cav-hit').forEach(el => el.classList.add('dim'));
 
-  const matchedConns = new Set();
   const railEcm = new Set();
   Object.entries(PIN_RAIL).forEach(([pin, r])=>{
     if(activeRails.has(r)) railEcm.add(Number(pin));
   });
 
-  /* Primary = PIN_RAIL only (same for 5V and 12V). Tags like F102 17H IGN rail:12v do not count. */
   function railOfEcm(ecm){
     if(ecm == null || ecm === '') return null;
     const r = PIN_RAIL[Number(ecm)];
     return (r && activeRails.has(r)) ? r : null;
   }
 
-  document.querySelectorAll('#blocks .pin[data-pin]').forEach(el=>{
-    const r = railOfEcm(el.dataset.pin);
-    if(!r) return;
-    el.classList.remove('dim');
-    el.classList.add('hl-rail', 'rail-'+r);
-  });
-  document.querySelectorAll('#f102Blocks .pin').forEach(el=>{
-    const r = railOfEcm(el.dataset.ecm);
-    if(!r) return;
-    el.classList.remove('dim');
-    el.classList.add('hl-rail', 'rail-'+r);
-    const panel = document.getElementById('f102Panel');
-    if(panel) panel.classList.add('hl');
-    matchedConns.add('ix_f102_m72');
-  });
-  // Ficha cavities — only if cavity ECM is on the active PIN_RAIL
+  /* Collect connectors that belong on this rail path (before DOM paint). */
+  const matchedConns = new Set();
   Object.entries(CONN).forEach(([cid, conf])=>{
     (conf.pins||[]).forEach(pin=>{
-      const r = railOfEcm(pin.ecm);
-      if(!r) return;
-      matchedConns.add(cid);
-      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
-        cav.classList.remove('dim');
-        cav.classList.add('hl-rail', 'rail-'+r);
-      });
-      if(cid === 'ix_f102_m72'){
-        const fp = f102PinEl(pin.id);
-        if(fp){ fp.classList.remove('dim'); fp.classList.add('hl-rail', 'rail-'+r); }
-        const panel = document.getElementById('f102Panel');
-        if(panel) panel.classList.add('hl');
-        matchedConns.add('ix_f102_m72');
-      }
+      if(railOfEcm(pin.ecm)) matchedConns.add(cid);
     });
   });
+  /* F102 face has PIN_RAIL ecm cavities */
+  (CONN['ix_f102_m72'] && CONN['ix_f102_m72'].pins || []).forEach(pin=>{
+    if(railOfEcm(pin.ecm)) matchedConns.add('ix_f102_m72');
+  });
 
-  /* Related: only circuits that list the rail ECM pin (no bus mega-expand). */
-  if(railRelGndEnabled() || railRelDataEnabled()){
-    const relCirc = new Set();
+  const relCirc = new Set();
+  const relEcm = new Set();
+  const wantRelated = railRelGndEnabled() || railRelDataEnabled();
+  if(wantRelated){
     railEcm.forEach(p=>{
       (pinToCirc[p] || pinToCirc[String(p)] || []).forEach(id => relCirc.add(id));
     });
-
-    const relEcm = new Set();
-    const relConns = new Set(matchedConns);
-    /* Shared buses (SNS GND, …) still contribute ECM companions, not every ficha. */
     const REL_CONN_MAX = 4;
     relCirc.forEach(id=>{
       const cir = CIRCUITS.find(x => x.id === id);
@@ -3816,25 +3792,64 @@ function applyRailFilter(){
       (cir.ecm || []).forEach(p => relEcm.add(Number(p)));
       const conns = cir.conn || [];
       if(conns.length <= REL_CONN_MAX){
-        conns.forEach(c => relConns.add(c));
+        conns.forEach(c => matchedConns.add(c));
       }
     });
+  }
 
+  clearHL();
+  /* Open / clone fichas first (selTop may rebuild DOM), then paint cavities on the final nodes. */
+  matchedConns.forEach(cid => markFichaHL(cid, true));
+  revealConns([...matchedConns]);
+  matchedConns.forEach(cid => markFichaHL(cid, true));
+
+  dimAll();
+  document.querySelectorAll('.cav-hit').forEach(el => el.classList.add('dim'));
+  matchedConns.forEach(cid => markFichaHL(cid, true));
+
+  /* Primary ECM */
+  document.querySelectorAll('#blocks .pin[data-pin]').forEach(el=>{
+    const r = railOfEcm(el.dataset.pin);
+    if(!r) return;
+    el.classList.remove('dim');
+    el.classList.add('hl-rail', 'rail-'+r);
+  });
+  /* Primary F102 */
+  document.querySelectorAll('#f102Blocks .pin').forEach(el=>{
+    const r = railOfEcm(el.dataset.ecm);
+    if(!r) return;
+    el.classList.remove('dim');
+    el.classList.add('hl-rail', 'rail-'+r);
+    const panel = document.getElementById('f102Panel');
+    if(panel) panel.classList.add('hl');
+  });
+  /* Primary ficha cavities (incl. selTop clones) */
+  Object.entries(CONN).forEach(([cid, conf])=>{
+    (conf.pins||[]).forEach(pin=>{
+      const r = railOfEcm(pin.ecm);
+      if(!r) return;
+      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
+        cav.classList.remove('dim');
+        cav.classList.add('hl-rail', 'rail-'+r);
+      });
+      if(cid === 'ix_f102_m72'){
+        const fp = f102PinEl(pin.id);
+        if(fp){ fp.classList.remove('dim'); fp.classList.add('hl-rail', 'rail-'+r); }
+      }
+    });
+  });
+
+  if(wantRelated){
+    const f102Allow = f102AllowForCircuits([...relCirc]);
     relEcm.forEach(p=>{
       if(railEcm.has(p)) return;
       const el = document.querySelector(`#blocks .pin[data-pin="${p}"]`);
       markRailRelEl(el, railRelKindForEcm(p));
     });
-
-    /* F102: only cavities declared on related circuits (or ECM in path) — never the whole SMJ. */
-    const f102Allow = f102AllowForCircuits([...relCirc]);
-
-    relConns.forEach(cid=>{
-      matchedConns.add(cid);
+    matchedConns.forEach(cid=>{
       const conf = CONN[cid] || CONN_BASE[cid];
       (conf && conf.pins || []).forEach(pin=>{
-        const r = cavRailOf(pin);
-        if(r && activeRails.has(r)) return;
+        if(railOfEcm(pin.ecm)) return; /* primary already */
         if(cid === 'ix_f102_m72'){
           const e = pin.ecm != null ? Number(pin.ecm) : null;
           const ok = (f102Allow && f102Allow.has(String(pin.id)))
@@ -3859,12 +3874,7 @@ function applyRailFilter(){
     });
   }
 
-  matchedConns.forEach(cid=>{
-    markFichaHL(cid, true);
-  });
-  revealConns([...matchedConns]);
-
-  updateEcmSelCount(); /* DOM: rail + related gnd/data */
+  updateEcmSelCount();
   updateF102SelPins();
 
   const labels = {gnd:'Tierra / GND', '12v':'12V', '5v':'5V'};
