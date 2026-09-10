@@ -1138,6 +1138,8 @@ const FEED_ECM_FOCUS = {
   feed_ckp_maf_12v: [13, 51],    /* sensors powered by that 12V (signals) */
   feed_inj_coil_12v: [21, 22, 23, 40, 41, 42, 60, 61, 62, 79, 80, 81]
 };
+/* Loom faces that only mirror ECM pin #s — never clone into #selTop / path reveal */
+const SKIP_SEL_CONN = new Set(['ecm_f101_can']);
 
 /* Canonical inverted layout (bancada): 121 LEFT, lever up, blocks L→R */
 const B1_INV = [[121,120,119],[118,117],[116,115,114]];
@@ -1249,7 +1251,7 @@ function buildCircuits(model){
 {id:'dlc_k', title:'DLC K-line (CONSULT)', color:'#7e57c2',
       ecm:[85], conn:['dlc'], notes:'ECM 85 (LG) → DLC pin 7 · Data link / CONSULT-II / GST.'},
     {id:'can', title:'CAN / DLC / combination meter', color:'#7e57c2',
-      ecm:[86,94], conn:['ecm_f101_can','ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','comb_meter'], notes:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · también IPDM E9 48/49 · rama E108 2G/7G → ABS/DLC · nodos: combination meter (nivel / CRUISE) + DLC.'},
+      ecm:[86,94], conn:['ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','comb_meter'], notes:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · también IPDM E9 48/49 · rama E108 2G/7G → ABS/DLC · nodos: combination meter (nivel / CRUISE) + DLC.'},
     {id:'maf', title:'MAF', color:'#fb8c00',
       ecm:[51], conn:['maf','feed_ckp_maf_12v'], notes:'Señal MAF → ECM 51 (OR).'},
     {id:'tb', title:'ETC throttle body', color:'#029eb7',
@@ -1442,7 +1444,7 @@ const CONN_BASE = {
     note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: terminales ECM 1 (B), 115 (B/W), 116 (B/R) = ECM ground → body ground. Path vía harness connectors F103, F151 (también F3/E12 en el diag.). Procedimiento: CHECK ECM GROUND CIRCUIT FOR OPEN AND SHORT.'},
   e17:{group:'motor', sub:'power', name:'Body ground · E17', meta:'FSM: Body ground · ground point E17', accent:'#66bb6a', shape:'ring',
     pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
-  ecm_f101_can:{group:'motor', sub:'power', name:'ECM F101 · CAN', meta:'conector arnés ECM · CAN-H/L · FSM LAN', accent:'#7e57c2', shape:'tab2',
+  ecm_f101_can:{group:'motor', sub:'power', name:'ECM F101 · CAN', meta:'cara F101 (mismo que grid ECM) · no se clona en selección', accent:'#7e57c2', shape:'tab2',
     pins:[{id:'94',code:'L',ecm:94,lab:'CAN-H'},{id:'86',code:'P',ecm:86,lab:'CAN-L'}],
     note:'F101 = conector del arnés a la ECM (lado loom). CAN: 94 L = CAN-H · 86 P = CAN-L · vía F102 26H/27H → M72 → DLC M8 6/14 · también IPDM E9 48/49.'},
 
@@ -3699,7 +3701,7 @@ function updateSelectedTop(connIds){
   removeSelectedTop();
   const root = document.getElementById('fichas');
   if(!root) return;
-  const ids = [...new Set((connIds||[]).filter(id => id && CONN[id] && id !== 'ix_f102_m72'))];
+  const ids = [...new Set((connIds||[]).filter(id => id && CONN[id] && id !== 'ix_f102_m72' && !SKIP_SEL_CONN.has(id)))];
   if(ids.length < 1) return;
 
   // Distinct subcategory buckets in SUB_ORDER
@@ -3754,7 +3756,7 @@ function updateSelectedTop(connIds){
 
 function revealConns(connIds, opts){
   const collapseF102 = !!(opts && opts.collapseF102);
-  const ids = [...new Set((connIds||[]).filter(Boolean))];
+  const ids = [...new Set((connIds||[]).filter(id => id && !SKIP_SEL_CONN.has(id)))];
   if(!ids.length){
     // Selection active but no conns (or empty) → F102 not involved → collapse
     setF102PanelOpen(false);
@@ -4266,6 +4268,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     });
     lines.push(`<div style="color:var(--muted);margin-top:4px"><span class="pill" style="border-color:#90a4ae;color:#90a4ae">F102</span>${bits.join(' · ')}</div>`);
   }
+  SKIP_SEL_CONN.forEach(id => connSet.delete(id));
   ecmSet.forEach(p=>{
     const el=document.querySelector(`#blocks .pin[data-pin="${p}"]`);
     if(!el) return;
@@ -4384,6 +4387,7 @@ function selectPin(p){
   if(!circs.length){
     const found=[];
     Object.entries(CONN).forEach(([cid,f])=>{
+      if(SKIP_SEL_CONN.has(cid)) return;
       if(f.pins.some(x=>x.ecm===p || Number(x.ecm)===n)) found.push(cid);
     });
     activeRails.clear(); updateRailButtons();
