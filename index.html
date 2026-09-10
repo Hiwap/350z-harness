@@ -1239,13 +1239,13 @@ function buildCircuits(model){
     {id:'ign_sw', title:'IGN SW → ECM', color:'#ef5350',
       ecm:[109], conn:['ign_sw','ix_f102_m72'], notes:'IGN SW → ECM 109 (W/B) · F102 17H.'},
     {id:'ecm_relay_ss', title:'ECM relay / SSOFF', color:'#ef5350',
-      ecm:[111], conn:['ecm_relay','ipdm_e9','ix_f102_m72'], notes:'SSOFF ECM 111 ↔ IPDM E9-46 (W/B) vía E108/M15 · F102 11H.'},
+      ecm:[111], conn:['ecm_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], notes:'SSOFF ECM 111 ↔ IPDM E9-46 (W/B) · vía E108 69G · F102 11H (GY/L).'},
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
-      ecm:[104], conn:['ecm_relay','ipdm_e9'], notes:'MOTRLY ECM 104 ↔ IPDM E9-47 (OR).'},
+      ecm:[104], conn:['ecm_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], notes:'MOTRLY ECM 104 ↔ IPDM E9-47 (OR) · vía E108 30G · F102 12H (SB).'},
     {id:'vmot', title:'VMOT supply', color:'#ef5350',
       ecm:[3], conn:['vmot','ipdm_e8','ix_e12_f3'], notes:'VMOT ECM 3 ↔ IPDM E8-42 (G) vía E12/F3.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
-      ecm:[113], conn:['fp_relay','ipdm_e8'], notes:'FP relay ctrl ECM 113 ↔ IPDM E8-40 (L/W).'},
+      ecm:[113], conn:['fp_relay','ipdm_e8','ix_e108_m15','ix_f102_m72'], notes:'FP relay ctrl ECM 113 ↔ IPDM E8-40 (L/W) · vía E108 28G · F102 6H (LG/B).'},
         {id:'ftt', title:'Fuel tank temperature', color:'#7e57c2',
       ecm:[107], conn:['fuel_tank_temp','ix_f102_m72'], notes:'FTT señal → ECM 107 (GY/R) · path vía M72/F102 · sensor en fuel level sensor unit (term. 4). DTC P0181/0182/0183.'},
 {id:'dlc_k', title:'DLC K-line (CONSULT)', color:'#7e57c2',
@@ -1265,9 +1265,9 @@ function buildCircuits(model){
     {id:'evap_vent', title:'EVAP canister vent', color:'#6a1b9a',
       ecm:[117], conn:['evap_vent'], notes:'Vent control → ECM 117 (G/W) · B1/M12 · DTC P0447/P1446.'},
     {id:'brake_stop', title:'Stop lamp switch', color:'#e53935',
-      ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], notes:'Señal freno → ECM 101 (L/OR) · vía E108/M15 · F102/M72.'},
+      ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], notes:'Señal freno → ECM 101 (L/OR) · vía E108 38G · F102 21H.'},
     {id:'ascd_brake', title:'ASCD brake (+ clutch M/T)', color:'#fb8c00',
-      ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], f102:['2H'], notes:'ASCD brake → ECM 108 (B/R). En M/T clutch en serie · vía E108/M15 · F102 2H.'},
+      ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], f102:['2H'], notes:'ASCD brake → ECM 108 (B/R). En M/T clutch en serie · vía E108 3G · F102 2H.'},
     {id:'ascd_steer', title:'ASCD steering (clock spring)', color:'#26c6da',
       ecm:[99,67], conn:['clock_spring','ix_f102_m72'], f102:['1H','7H'], notes:'Señal ASCD volante → ECM 99 (G/Y) vía clock spring · Tierra ECM 67 · F102 1H/7H.'},
   {id:'pnp_sw', title:'PNP / park-neutral (A/T)', color:'#ab47bc',
@@ -1608,12 +1608,82 @@ const CONN_BASE = {
       {id:'8',code:'—',ecm:null}
     ],
     note:'FSM EC-705: F33 cav1→I5/ECM21 · 2→I3/22 · 3→I4/41 · 4→I2/42 · 5=12V · 6→I1/23 · 7→I6/40 · 8 nc. Mate F221. No es F18 (6-pin bobinas).'},
-  ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · Rama CAN', meta:'2G/7G CAN · engine room↔body · FSM LAN', accent:'#90a4ae', shape:'tab2',
-    pins:[{id:'2G',code:'L',ecm:94,lab:'CAN-H'},{id:'7G',code:'P',ecm:86,lab:'CAN-L'}],
-    note:'Empalme sala de máquinas (E108) ↔ body (M15). CAN: 2G L = CAN-H (DLC 6 / ABS E51-20) · 7G P = CAN-L (DLC 14 / ABS E51-23). Rama hacia ABS/DLC vía body.'},
+  ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · SMJ engine room↔body', meta:'SMJ 69G · PG-84 · cara E108 H.S.', accent:'#90a4ae', shape:'e108', face:'smj_g',
+    pins:[
+      {id:'1G',code:'—',ecm:null},
+      {id:'2G',code:'L',ecm:94,lab:'CAN-H'},
+      {id:'3G',code:'B/R',ecm:108,lab:'ASCD-B'},
+      {id:'4G',code:'—',ecm:null},
+      {id:'5G',code:'—',ecm:null},
+      {id:'6G',code:'—',ecm:null},
+      {id:'7G',code:'P',ecm:86,lab:'CAN-L'},
+      {id:'8G',code:'—',ecm:null},
+      {id:'9G',code:'—',ecm:null},
+      {id:'10G',code:'—',ecm:null},
+      {id:'11G',code:'—',ecm:null},
+      {id:'12G',code:'—',ecm:null},
+      {id:'13G',code:'—',ecm:null},
+      {id:'14G',code:'—',ecm:null},
+      {id:'15G',code:'—',ecm:null},
+      {id:'16G',code:'—',ecm:null},
+      {id:'17G',code:'—',ecm:null},
+      {id:'18G',code:'—',ecm:null},
+      {id:'19G',code:'—',ecm:null},
+      {id:'20G',code:'—',ecm:null},
+      {id:'21G',code:'—',ecm:null},
+      {id:'22G',code:'—',ecm:null},
+      {id:'23G',code:'—',ecm:null},
+      {id:'24G',code:'—',ecm:null},
+      {id:'25G',code:'—',ecm:null},
+      {id:'26G',code:'—',ecm:null},
+      {id:'27G',code:'—',ecm:null},
+      {id:'28G',code:'L/W',ecm:113,lab:'FPR'},
+      {id:'29G',code:'—',ecm:null},
+      {id:'30G',code:'OR',ecm:104,lab:'MOTRLY'},
+      {id:'31G',code:'—',ecm:null},
+      {id:'32G',code:'—',ecm:null},
+      {id:'33G',code:'—',ecm:null},
+      {id:'34G',code:'—',ecm:null},
+      {id:'35G',code:'—',ecm:null},
+      {id:'36G',code:'—',ecm:null},
+      {id:'37G',code:'—',ecm:null},
+      {id:'38G',code:'P/L',ecm:101,lab:'STOP'},
+      {id:'39G',code:'—',ecm:null},
+      {id:'40G',code:'—',ecm:null},
+      {id:'41G',code:'—',ecm:null},
+      {id:'42G',code:'—',ecm:null},
+      {id:'43G',code:'—',ecm:null},
+      {id:'44G',code:'—',ecm:null},
+      {id:'45G',code:'—',ecm:null},
+      {id:'46G',code:'—',ecm:null},
+      {id:'47G',code:'—',ecm:null},
+      {id:'48G',code:'—',ecm:null},
+      {id:'49G',code:'—',ecm:null},
+      {id:'50G',code:'—',ecm:null},
+      {id:'51G',code:'—',ecm:null},
+      {id:'52G',code:'—',ecm:null},
+      {id:'53G',code:'—',ecm:null},
+      {id:'54G',code:'—',ecm:null},
+      {id:'55G',code:'—',ecm:null},
+      {id:'56G',code:'—',ecm:null},
+      {id:'57G',code:'—',ecm:null},
+      {id:'58G',code:'—',ecm:null},
+      {id:'59G',code:'—',ecm:null},
+      {id:'60G',code:'—',ecm:null},
+      {id:'61G',code:'—',ecm:null},
+      {id:'62G',code:'—',ecm:null},
+      {id:'63G',code:'—',ecm:null},
+      {id:'64G',code:'—',ecm:null},
+      {id:'65G',code:'—',ecm:null},
+      {id:'66G',code:'—',ecm:null},
+      {id:'67G',code:'—',ecm:null},
+      {id:'68G',code:'—',ecm:null},
+      {id:'69G',code:'W/B',ecm:111,lab:'SSOFF'}
+    ],
+    note:'SMJ E108 (engine room) ↔ M15 (main). Confirmados FSM: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 69G SSOFF (111). Resto vacío (sin inventar). Cara PG-84 H.S. E108.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔body', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'—',ecm:null},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'—',ecm:null},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'—',ecm:null},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'—',ecm:null},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
-  note:'Puente SMJ motor↔carrocería · 13 cavidades con cable.'},
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'—',ecm:null},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'—',ecm:null},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+  note:'Puente SMJ motor↔carrocería · 15 cavidades con cable (incl. 6H FPR · 12H MOTRLY).'},
 
   /* —— Habitáculo / pedales / ASCD —— */
   pnp:{group:'body', sub:'pedals', name:'PNP / Inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
@@ -2462,6 +2532,48 @@ function svgIxNote(cid, f){
  *  L+M pin grids; R 30H–46H shown as compact empty stub (no cavity grid).
  *  Intermedias: always FSM H.S. — do NOT apply flipRow / ECM Invertida.
  *  Mate M72 (MAIN HARNESS) mirrors rows on PG-85. Primary ficha = F102. */
+
+function svgE108(cid, f){
+  /* E108 H.S. · PG-84 SMJ · 10 rows · 1G–69G (mate M15 mirrored). No Invertida. */
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const rows = [
+    ['1G','2G','3G','4G','5G'],
+    ['6G','7G','8G','9G','10G'],
+    ['11G','12G','13G','14G','15G','16G','17G','18G'],
+    ['19G','20G','21G','22G','23G','24G','25G','26G','27G'],
+    ['28G','29G','30G','31G','32G','33G','34G','35G'],
+    ['36G','37G','38G','39G','40G','41G','42G','43G','44G'],
+    ['45G','46G','47G','48G','49G','50G','51G'],
+    ['52G','53G','54G','55G','56G','57G','58G','59G'],
+    ['60G','61G','62G','63G','64G'],
+    ['65G','66G','67G','68G','69G']
+  ];
+  const cw = Math.max(14, Math.round(CAV_STD_W * 0.55));
+  const ch = Math.max(16, Math.round(CAV_STD_H * 0.55));
+  const gap = 2, padX = 10, padTop = 18;
+  const maxCols = Math.max(...rows.map(r => r.length));
+  const W = padX*2 + maxCols*(cw+gap) - gap;
+  let cavities = '';
+  rows.forEach((row, ri)=>{
+    const y = padTop + ri*(ch+gap);
+    const rowW = row.length*(cw+gap) - gap;
+    const x0 = padX + Math.floor((maxCols*(cw+gap)-gap - rowW)/2);
+    row.forEach((id,i)=>{
+      cavities += cavOrEmpty(cid, byId, id, x0+i*(cw+gap), y, cw, ch);
+    });
+  });
+  const H = padTop + rows.length*(ch+gap) + 8;
+  const _c = cornersFromRows(rows[0], rows[rows.length-1]);
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
+    <text x="${padX}" y="14" font-size="7" fill="#90a4ae" font-weight="700">E108</text>
+    <text x="${W-padX}" y="14" text-anchor="end" font-size="6.5" fill="#78909c">mate M15 · PG-84 H.S.</text>
+    ${cavities}
+    ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H, {inset: 8, yTop: 20, yBot: H - 4})}
+  </svg>`;
+}
+
 function svgF102(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   const blocks = [
@@ -2535,6 +2647,8 @@ function renderConnSvg(cid, f){
     case 'clock': svg = svgClock(cid,f); break;
     case 'note': svg = svgNote(cid,f); break; /* feed notes have cavities → scale */
     case 'ixnote': return svgIxNote(cid,f); /* no cavities; leave flexible */
+    case 'e108':
+    case 'smj_g': svg = svgE108(cid,f); break;
     case 'f102':
     case 'smj_h': svg = svgF102(cid,f); break;
     default: svg = svgTabN(cid,f,f.pins.length||2); break;
@@ -3202,10 +3316,10 @@ const CONN_I18N = {
       note:'F33: 1→21 · 2→22 · 3→41 · 4→42 · 5=12V · 6→23 · 7→40 · 8 nc。' },
   },
   ix_e108_m15: {
-    en: { name:'E108 ↔ M15 · CAN (ABS/DLC branch)', meta:'2G/7G CAN · engine room↔body · FSM LAN',
-      note:'Engine-room (E108) ↔ body (M15). CAN: 2G L = CAN-H (cont. to DLC 6 / ABS E51-20) · 7G P = CAN-L (cont. to DLC 14 / ABS E51-23). Branch toward ABS/DLC via body.S. (intermedias — no Invertida).' },
-    ja: { name:'E108 ↔ M15 · CAN（ABS/DLC分岐）', meta:'2G/7G CAN · エンジンルーム↔ボディ · FSM LAN',
-      note:'エンジンルーム (E108) ↔ ボディ (M15)。確認済CAN: 2G L = CAN-H（DLC 6 / ABS E51-20）· 7G P = CAN-L（DLC 14 / ABS E51-23）。ボディ経由でABS/DLCへ分岐。他キャビティ（ブレーキ/ASCD等）あり; CANのみ掲載。面: FSM H.S.（中間はInvertidaなし）。' },
+    en: { name:'E108 ↔ M15 · SMJ engine room↔body', meta:'SMJ 69G · PG-84 · E108 H.S.',
+      note:'SMJ E108 (engine room) ↔ M15 (main). Confirmed: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 69G SSOFF (111). Other cavities empty (not guessed). Face PG-84 H.S. E108.' },
+    ja: { name:'E108 ↔ M15 · SMJ エンジンルーム↔ボディ', meta:'SMJ 69G · PG-84 · E108 H.S.',
+      note:'SMJ E108（エンジンルーム）↔ M15（メイン）。確認済: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 69G SSOFF (111)。他は空（推測なし）。面 PG-84 H.S. E108。' },
   },
   ix_f102_m72: {
     en: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'SMJ bridge engine↔body · 13 wired cavities.' },
