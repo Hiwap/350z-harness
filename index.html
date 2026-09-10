@@ -71,7 +71,7 @@
   #ecm .ecm-sel-pins .sel-pin { font-weight: 800; }
   #ecm .ecm-sel-pins .sel-5v { color: #F9A825; }
   #ecm .ecm-sel-pins .sel-12v { color: #ef9a9a; }
-  #ecm .ecm-sel-pins .sel-gnd-rail { color: #81c784; }
+  #ecm .ecm-sel-pins .sel-gnd-rail,
   #ecm .ecm-sel-pins .sel-gnd { color: #66bb6a; }
   #ecm .ecm-sel-pins .sel-data { color: #4fc3f7; }
   #ecm .ecm-sel-pins .sel-group { color: #ce93d8; }
@@ -3757,24 +3757,33 @@ function applyRailFilter(){
     if(activeRails.has(r)) railEcm.add(Number(pin));
   });
 
-  // ECM grid + F102 interactive pins — primary rail match
-  document.querySelectorAll('#blocks .pin[data-pin], #f102Blocks .pin').forEach(el=>{
-    const r = el.dataset.rail || (el.dataset.pin ? PIN_RAIL[+el.dataset.pin] : null) || null;
-    if(r && activeRails.has(r)){
-      el.classList.remove('dim');
-      el.classList.add('hl-rail', 'rail-'+r);
-      if(el.closest('#f102Blocks')){
-        const panel = document.getElementById('f102Panel');
-        if(panel) panel.classList.add('hl');
-        matchedConns.add('ix_f102_m72');
-      }
-    }
+  /* Primary = PIN_RAIL only (same for 5V and 12V). Tags like F102 17H IGN rail:12v do not count. */
+  function railOfEcm(ecm){
+    if(ecm == null || ecm === '') return null;
+    const r = PIN_RAIL[Number(ecm)];
+    return (r && activeRails.has(r)) ? r : null;
+  }
+
+  document.querySelectorAll('#blocks .pin[data-pin]').forEach(el=>{
+    const r = railOfEcm(el.dataset.pin);
+    if(!r) return;
+    el.classList.remove('dim');
+    el.classList.add('hl-rail', 'rail-'+r);
   });
-  // Ficha cavities — primary rail match
+  document.querySelectorAll('#f102Blocks .pin').forEach(el=>{
+    const r = railOfEcm(el.dataset.ecm);
+    if(!r) return;
+    el.classList.remove('dim');
+    el.classList.add('hl-rail', 'rail-'+r);
+    const panel = document.getElementById('f102Panel');
+    if(panel) panel.classList.add('hl');
+    matchedConns.add('ix_f102_m72');
+  });
+  // Ficha cavities — only if cavity ECM is on the active PIN_RAIL
   Object.entries(CONN).forEach(([cid, conf])=>{
     (conf.pins||[]).forEach(pin=>{
-      const r = cavRailOf(pin);
-      if(!(r && activeRails.has(r))) return;
+      const r = railOfEcm(pin.ecm);
+      if(!r) return;
       matchedConns.add(cid);
       document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
         cav.classList.remove('dim');
@@ -3917,13 +3926,21 @@ function sortF102CavIds(ids){
 /** Label color kind from highlight classes on a pin el. */
 function selKindFromEl(el){
   if(!el) return 'hl';
+  /* Related tierras always green (checkbox-gated elsewhere). */
   if(el.classList.contains('hl-rail-rel-gnd')) return 'gnd';
   if(el.classList.contains('hl-rail-rel-data')) return 'data';
-  const rail = el.dataset.rail || null;
-  if(el.classList.contains('hl-rail') || el.classList.contains('rail-5v') || el.classList.contains('rail-12v') || el.classList.contains('rail-gnd')){
+  const ecmN = el.dataset.pin != null ? Number(el.dataset.pin)
+    : (el.dataset.ecm != null ? Number(el.dataset.ecm) : NaN);
+  const pinRail = !isNaN(ecmN) ? (PIN_RAIL[ecmN] || null) : null;
+  const rail = pinRail || el.dataset.rail || null;
+  /* Explicit ground (PIN_RAIL / classes) beats a stale 12v tag in the label. */
+  if(el.classList.contains('rail-gnd') || pinRail === 'gnd' || (el.dataset.rail === 'gnd' && el.classList.contains('hl-rail'))){
+    return 'gnd';
+  }
+  if(el.classList.contains('hl-rail') || el.classList.contains('rail-5v') || el.classList.contains('rail-12v')){
     if(el.classList.contains('rail-5v') || rail === '5v') return '5v';
     if(el.classList.contains('rail-12v') || rail === '12v') return '12v';
-    if(el.classList.contains('rail-gnd') || rail === 'gnd') return 'gnd-rail';
+    if(rail === 'gnd') return 'gnd';
   }
   if(el.classList.contains('hl-group')) return 'group';
   if(el.classList.contains('hl-end')) return 'end';
