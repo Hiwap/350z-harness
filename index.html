@@ -67,6 +67,16 @@
     border-radius: 8px; padding: 6px 10px;
     line-height: 1.35;
   }
+  #ecm .ecm-sel-pins .sel-sep { color: #90a4ae; font-weight: 600; }
+  #ecm .ecm-sel-pins .sel-pin { font-weight: 800; }
+  #ecm .ecm-sel-pins .sel-5v { color: #F9A825; }
+  #ecm .ecm-sel-pins .sel-12v { color: #ef9a9a; }
+  #ecm .ecm-sel-pins .sel-gnd-rail { color: #81c784; }
+  #ecm .ecm-sel-pins .sel-gnd { color: #66bb6a; }
+  #ecm .ecm-sel-pins .sel-data { color: #4fc3f7; }
+  #ecm .ecm-sel-pins .sel-group { color: #ce93d8; }
+  #ecm .ecm-sel-pins .sel-end { color: #4fc3f7; }
+  #ecm .ecm-sel-pins .sel-hl { color: #ffe082; }
   #ecm .ecm-sel-pins[hidden] { display: none !important; }
   #ecm .f102-sel-pins { margin: 8px 4px 6px; }
 
@@ -3904,23 +3914,79 @@ function sortF102CavIds(ids){
   });
 }
 
+/** Label color kind from highlight classes on a pin el. */
+function selKindFromEl(el){
+  if(!el) return 'hl';
+  if(el.classList.contains('hl-rail-rel-gnd')) return 'gnd';
+  if(el.classList.contains('hl-rail-rel-data')) return 'data';
+  const rail = el.dataset.rail || null;
+  if(el.classList.contains('hl-rail') || el.classList.contains('rail-5v') || el.classList.contains('rail-12v') || el.classList.contains('rail-gnd')){
+    if(el.classList.contains('rail-5v') || rail === '5v') return '5v';
+    if(el.classList.contains('rail-12v') || rail === '12v') return '12v';
+    if(el.classList.contains('rail-gnd') || rail === 'gnd') return 'gnd-rail';
+  }
+  if(el.classList.contains('hl-group')) return 'group';
+  if(el.classList.contains('hl-end')) return 'end';
+  return 'hl';
+}
+/** Related gnd/data only listed when their Options checkbox is on (DOM classes already gated). */
+function selKindAllowed(kind){
+  if(kind === 'gnd') return railRelGndEnabled();
+  if(kind === 'data') return railRelDataEnabled();
+  return true;
+}
+function formatSelPinsLabel(tmpl, items){
+  const parts = items.map(({id, kind})=>{
+    const k = selKindAllowed(kind) ? kind : 'hl';
+    return `<span class="sel-pin sel-${esc(k)}">${esc(String(id))}</span>`;
+  });
+  const pinsHtml = parts.join('<span class="sel-sep"> · </span>');
+  return String(tmpl || '{pins}').replace('{pins}', pinsHtml);
+}
+
 function updateF102SelPins(cavsOrNull){
   const el = document.getElementById('f102SelPins');
   if(!el) return;
-  let cavs;
-  if(Array.isArray(cavsOrNull) || cavsOrNull instanceof Set){
-    cavs = [...cavsOrNull].map(String).filter(Boolean);
-  } else if(cavsOrNull === 0){
-    cavs = [];
+  const domSel = '#f102Blocks .pin.hl, #f102Blocks .pin.hl-group, #f102Blocks .pin.hl-end, #f102Blocks .pin.hl-rail, #f102Blocks .pin.hl-rail-rel-gnd, #f102Blocks .pin.hl-rail-rel-data';
+  let items = [];
+  if(cavsOrNull === 0){
+    items = [];
+  } else if(Array.isArray(cavsOrNull) || cavsOrNull instanceof Set){
+    const want = new Set([...cavsOrNull].map(String).filter(Boolean));
+    [...document.querySelectorAll(domSel)].forEach(p=>{
+      const id = p.dataset.cav;
+      if(!id || !want.has(String(id))) return;
+      const kind = selKindFromEl(p);
+      if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
+      items.push({id, kind});
+    });
+    /* ids passed but not in DOM yet */
+    want.forEach(id=>{
+      if(items.some(x => String(x.id) === String(id))) return;
+      items.push({id, kind: 'hl'});
+    });
   } else {
-    cavs = [...document.querySelectorAll(
-      '#f102Blocks .pin.hl, #f102Blocks .pin.hl-group, #f102Blocks .pin.hl-end, #f102Blocks .pin.hl-rail, #f102Blocks .pin.hl-rail-rel-gnd, #f102Blocks .pin.hl-rail-rel-data'
-    )].map(p => p.dataset.cav).filter(Boolean);
+    [...document.querySelectorAll(domSel)].forEach(p=>{
+      const id = p.dataset.cav;
+      if(!id) return;
+      const kind = selKindFromEl(p);
+      if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
+      items.push({id, kind});
+    });
   }
-  cavs = sortF102CavIds(cavs);
-  if(cavs.length >= 1){
-    const tmpl = t('f102SelCount') || 'F102: {pins}';
-    el.textContent = tmpl.replace('{pins}', cavs.join(' · '));
+  /* de-dupe + sort */
+  const seen = new Set();
+  items = items.filter(x=>{
+    const k = String(x.id);
+    if(seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  const order = sortF102CavIds(items.map(x => x.id));
+  const byId = Object.fromEntries(items.map(x => [String(x.id), x]));
+  items = order.map(id => byId[String(id)]).filter(Boolean);
+  if(items.length >= 1){
+    el.innerHTML = formatSelPinsLabel(t('f102SelCount') || 'F102: {pins}', items);
     el.hidden = false;
   } else {
     el.textContent = '';
@@ -3932,28 +3998,43 @@ function updateEcmSelCount(nOrPins){
   const el = document.getElementById('ecmSelCount');
   if(!el) return;
   const domSel = '#blocks .pin.hl, #blocks .pin.hl-group, #blocks .pin.hl-end, #blocks .pin.hl-rail, #blocks .pin.hl-rail-rel-gnd, #blocks .pin.hl-rail-rel-data';
-  let pins;
-  if(Array.isArray(nOrPins) || nOrPins instanceof Set){
-    pins = [...nOrPins].map(Number).filter(x=>!isNaN(x));
-  } else if(typeof nOrPins === 'number'){
-    /* 0 = clear; otherwise rebuild from DOM (incl. single pin) */
-    pins = [...document.querySelectorAll(domSel)]
-      .map(p => Number(p.dataset.pin)).filter(x=>!isNaN(x));
-    if(nOrPins < 1) pins = [];
+  let items = [];
+  if(nOrPins === 0 || (typeof nOrPins === 'number' && nOrPins < 1)){
+    items = [];
+  } else if(Array.isArray(nOrPins) || nOrPins instanceof Set){
+    const want = [...new Set([...nOrPins].map(Number).filter(x=>!isNaN(x)))];
+    want.forEach(n=>{
+      const p = document.querySelector(`#blocks .pin[data-pin="${n}"]`);
+      let kind = selKindFromEl(p);
+      if(p && (p.classList.contains('hl-rail-rel-gnd') || p.classList.contains('hl-rail-rel-data'))){
+        if(!selKindAllowed(kind)) return;
+      } else if(!p || !(p.classList.contains('hl') || p.classList.contains('hl-group') || p.classList.contains('hl-end') || p.classList.contains('hl-rail') || p.classList.contains('hl-rail-rel-gnd') || p.classList.contains('hl-rail-rel-data'))){
+        kind = 'hl';
+      }
+      items.push({id: n, kind});
+    });
   } else {
-    pins = [...document.querySelectorAll(domSel)]
-      .map(p => Number(p.dataset.pin)).filter(x=>!isNaN(x));
+    [...document.querySelectorAll(domSel)].forEach(p=>{
+      const n = Number(p.dataset.pin);
+      if(isNaN(n)) return;
+      const kind = selKindFromEl(p);
+      if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
+      items.push({id: n, kind});
+    });
   }
-  pins = [...new Set(pins)].sort((a,b)=>a-b);
-  if(pins.length >= 1){
-    const tmpl = t('ecmSelCount') || 'ECM: {pins}';
-    el.textContent = tmpl.replace('{pins}', pins.join(' · '));
+  const seen = new Set();
+  items = items.filter(x=>{
+    if(seen.has(x.id)) return false;
+    seen.add(x.id);
+    return true;
+  }).sort((a,b)=>a.id-b.id);
+  if(items.length >= 1){
+    el.innerHTML = formatSelPinsLabel(t('ecmSelCount') || 'ECM: {pins}', items);
     el.hidden = false;
   } else {
     el.textContent = '';
     el.hidden = true;
   }
-  /* F102 list: clear with 0; otherwise caller refreshes after F102 DOM paint */
   if(nOrPins === 0 || (typeof nOrPins === 'number' && nOrPins < 1)) updateF102SelPins(0);
 }
 
