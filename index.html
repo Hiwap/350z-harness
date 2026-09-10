@@ -3807,12 +3807,21 @@ function applyRailFilter(){
       markRailRelEl(el, railRelKindForEcm(p));
     });
 
+    /* F102: only cavities declared on related circuits (or ECM in path) — never the whole SMJ. */
+    const f102Allow = f102AllowForCircuits([...relCirc]);
+
     relConns.forEach(cid=>{
       matchedConns.add(cid);
       const conf = CONN[cid] || CONN_BASE[cid];
       (conf && conf.pins || []).forEach(pin=>{
         const r = cavRailOf(pin);
         if(r && activeRails.has(r)) return;
+        if(cid === 'ix_f102_m72'){
+          const e = pin.ecm != null ? Number(pin.ecm) : null;
+          const ok = (f102Allow && f102Allow.has(String(pin.id)))
+            || (e != null && (relEcm.has(e) || railEcm.has(e)));
+          if(!ok) return;
+        }
         const kind = railRelKindForCav(pin);
         document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
           markRailRelEl(cav, kind);
