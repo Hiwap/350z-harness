@@ -1174,9 +1174,9 @@ let CIRCUITS = [];
 function buildCircuits(model){
   const base = [
     {id:'af_b1', title:'A/F Sensor 1 Bank 1', color:'#ef6c00',
-      ecm:[2,16,35,56,75], conn:['af_b1','feed_af_12v','ix_e12_f3'], notes:'Calentador B1 → ECM 2 (GY/R). Pin 3 = 12V fusible (no ECM).'},
+      ecm:[2,16,35,56,75], conn:['af_b1','feed_af_12v','ix_e12_f3','ix_e108_m15'], notes:'Calentador B1 → ECM 2 (GY/R). Pin 3 = 12V fusible (no ECM).'},
     {id:'af_b2', title:'A/F Sensor 1 Bank 2', color:'#2e7d32',
-      ecm:[24,76,57,58,77], conn:['af_b2','feed_af_12v','ix_e12_f3'], notes:'Calentador B2 → ECM 24 (G/Y). Señales 76/77/57/58 · pin 3 = 12V fusible.'},
+      ecm:[24,76,57,58,77], conn:['af_b2','feed_af_12v','ix_e12_f3','ix_e108_m15'], notes:'Calentador B2 → ECM 24 (G/Y). Señales 76/77/57/58 · pin 3 = 12V fusible.'},
     {id:'app_5v', title:'APP 5V', color:'#f9a825',
       ecm:[90,91], conn:['app','ix_e11_f2'], notes:'5V APP1/APP2 (90/91) vía E11/F2 (pedal E113→E11/F2→ECM). Rails 47/48/49/68: usar toggle 5V (no se agrupan al click).'},
     {id:'app_gnd', title:'APP grounds', color:'#f9a825',
@@ -1370,7 +1370,7 @@ const CONN_BASE = {
       {id:'31',code:'L/B',ecm:null,rail:'12v',note:'Limpia parabrisas HI (L/B) · WW-15.',note_en:'Front wiper high (L/B) · WW-15.',note_ja:'ワイパーHi (L/B) · WW-15。'},
       {id:'32',code:'L/Y',ecm:null,rail:'12v',note:'Señal auto-stop limpia (L/Y) · WW-15.',note_en:'Wiper auto-stop signal (L/Y) · WW-15.',note_ja:'ワイパーオートストップ (L/Y) · WW-15。'}
     ],
-    note:'IPDM E7 · colores FSM 2005 (EC/LT/WW/SC). Cav 26 = back-up (G/W · LT-183). Sin destino FSM etiquetado: 19, 23, 24, 29. Slots ∅ del layout = cavEmpty.'},
+    note:'IPDM E7 · cara PG-26 completa (17–32 + 2∅). Colores FSM 2005. Cav 26 = back-up. Destino aún ?: 19, 23, 24, 29. Slots ∅ = cavEmpty.'},
   ipdm_e8:{group:'motor', sub:'ipdm', name:'IPDM E8 · Bomba / mariposa / A/C', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8',
     pins:[
       {id:'33',code:'L/Y',ecm:null,rail:'12v',note:'Embrague magnético compresor A/C (L/Y) → compressor pin1 · ATC-81.',note_en:'A/C compressor magnet clutch (L/Y) → compressor pin1 · ATC-81.',note_ja:'A/Cマグネットクラッチ (L/Y) · ATC-81。'},
@@ -1386,7 +1386,7 @@ const CONN_BASE = {
       {id:'43',code:'G/R',ecm:null,rail:'12v',note:'IGN ON (ruta Canada DTRL) (G/R) · LT-80 · confianza media.',note_en:'Ign ON (Canada DTRL path) (G/R) · LT-80 · medium confidence.',note_ja:'IGN ON（カナダDTRL）(G/R) · LT-80 · 中確度。'},
       {id:'44',code:'OR',ecm:null,rail:'12v',note:'Alimentación motor lava-parabrisas (OR) · WW-15.',note_en:'Washer motor power (OR) · WW-15.',note_ja:'ウォッシャーモータ電源 (OR) · WW-15。'}
     ],
-    note:'IPDM E8 · 38 GND · 42 VMOT · 39/40 bomba · 33 A/C · 35 bocina · 44 washer. Sin destino FSM etiquetado: 34, 36, 37, 41. Slots ∅ del layout = cavEmpty.'},
+    note:'IPDM E8 · cara PG-26 completa (33–44 + 2∅). 38 GND · 42 VMOT · 39/40 bomba · 33 A/C · 35 bocina · 44 washer. Destino aún ?: 34, 36, 37, 41.'},
   ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9',
     pins:[
       {id:'45',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
@@ -1450,7 +1450,7 @@ const CONN_BASE = {
 
   /* —— Alimentación en el arnés motor que NO pasa por cavidad ECM (FSM) —— */
   feed_af_12v:{group:'motor', sub:'feeds', name:'12V calentadores A/F (fusible)', meta:'pin 3 A/F B1/B2 · no ECM', accent:'#ff7043', shape:'note',
-    pins:[{id:'AF1-3',code:'12V',ecm:null,rail:'12v'},{id:'AF2-3',code:'12V',ecm:null,rail:'12v'}],
+    pins:[{id:'AF1-3',code:'R/B',ecm:null,rail:'12v',lab:'12V'},{id:'AF2-3',code:'R/B',ecm:null,rail:'12v',lab:'12V'}],
     note:'En el arnés motor: alimentación 12V fusionada al pin 3 de cada A/F Sensor 1 (B1/B2). No entra a la ECM — solo el drive de calentador (ECM 2 / 24) y señales.'},
   feed_ho2s_12v:{group:'motor', sub:'feeds', name:'12V calentadores HO2S2 (fusible)', meta:'post-cat · no ECM', accent:'#ce93d8', shape:'note',
     pins:[{id:'B1-12V',code:'12V',ecm:null,rail:'12v'},{id:'B2-12V',code:'12V',ecm:null,rail:'12v'}],
@@ -1464,9 +1464,9 @@ const CONN_BASE = {
 
   /* —— Sensores motor —— */
   af_b1:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 1', meta:'6-pin · Bank 1 · FSM face A/F', accent:'#ef6c00', shape:'af6',
-    pins:[{id:'1',code:'LG/B',ecm:16},{id:'2',code:'P/B',ecm:75},{id:'3',code:'12V',ecm:null,rail:'12v'},{id:'4',code:'GY/R',ecm:2},{id:'5',code:'L/W',ecm:35},{id:'6',code:'W/L',ecm:56}]},
+    pins:[{id:'1',code:'LG/B',ecm:16},{id:'2',code:'P/B',ecm:75},{id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V'},{id:'4',code:'GY/R',ecm:2},{id:'5',code:'L/W',ecm:35},{id:'6',code:'W/L',ecm:56}]},
   af_b2:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 2', meta:'6-pin · Bank 2 · FSM face A/F', accent:'#2e7d32', shape:'af6',
-    pins:[{id:'1',code:'LG',ecm:76},{id:'2',code:'P',ecm:77},{id:'3',code:'12V',ecm:null,rail:'12v'},{id:'4',code:'G/Y',ecm:24},{id:'5',code:'L',ecm:57},{id:'6',code:'W',ecm:58}]},
+    pins:[{id:'1',code:'LG',ecm:76},{id:'2',code:'P',ecm:77},{id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V'},{id:'4',code:'G/Y',ecm:24},{id:'5',code:'L',ecm:57},{id:'6',code:'W',ecm:58}]},
   ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 1 (post-cat R)', meta:'post-cat R · señal ECM 74', accent:'#8e24aa', shape:'tab3',
     pins:[{id:'SIG',code:'OR',ecm:74},{id:'htr',code:'P/B',ecm:25},{id:'GND',code:'B/Y',ecm:78,rail:'gnd',lab:'SNS'}],
     note:'Señal HO2S2 B1 → ECM 74 (OR) · heater → ECM 25 · tierra → ECM 78 (B/Y). 12V fusible en feed HO2S.'},
@@ -1674,13 +1674,13 @@ const CONN_BASE = {
       {id:'62G',code:'—',ecm:null},
       {id:'63G',code:'—',ecm:null},
       {id:'64G',code:'—',ecm:null},
-      {id:'65G',code:'—',ecm:null},
+      {id:'65G',code:'R/B',ecm:null,rail:'12v',lab:'12V'},
       {id:'66G',code:'—',ecm:null},
       {id:'67G',code:'—',ecm:null},
       {id:'68G',code:'—',ecm:null},
       {id:'69G',code:'W/B',ecm:111,lab:'SSOFF'}
     ],
-    note:'SMJ E108 (engine room) ↔ M15 (main). Confirmados FSM: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 69G SSOFF (111). Resto vacío (sin inventar). Cara PG-84 H.S. E108.'},
+    note:'SMJ E108 (engine room) ↔ M15 (main). Confirmados FSM: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 65G 12V A/F (R/B) · 69G SSOFF (111). Resto vacío (sin inventar). Cara PG-84 H.S. E108.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔body', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
     pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'—',ecm:null},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'—',ecm:null},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
   note:'Puente SMJ motor↔carrocería · 15 cavidades con cable (incl. 6H FPR · 12H MOTRLY).'},
@@ -1692,9 +1692,9 @@ const CONN_BASE = {
     pins:[{id:'1',code:'G/R',ecm:83,rail:'gnd'},{id:'2',code:'R/Y',ecm:98},{id:'3',code:'B/W',ecm:82,rail:'gnd'},{id:'4',code:'B/OR',ecm:91,rail:'5v'},{id:'5',code:'Y',ecm:106},{id:'6',code:'L',ecm:90,rail:'5v'}],
     note:'PATH APP: pedal E113 → E11/F2 (10-pin GY) → ECM 90/91/82/83/98/106. Colores aquí = lado pedal (EC-523); en F2→ECM cambian (LG, G/OR, G/Y, B/OR, G/B, G/R). Cara FSM: top 3-2-1 / bot 6-5-4.'},
   stop_lamp:{group:'body', sub:'pedals', name:'Stop lamp · Interruptor freno', meta:'freno · ECM 101 L/OR', accent:'#e53935', shape:'tab2',
-    pins:[{id:'SIG',code:'L/OR',ecm:101},{id:'PWR',code:'12V',ecm:null,rail:'12v'}]},
+    pins:[{id:'SIG',code:'L/OR',ecm:101},{id:'PWR',code:'R/Y',ecm:null,rail:'12v',lab:'12V'}]},
   ascd_brake:{group:'body', sub:'pedals', name:'ASCD · Interruptor freno', meta:'2-pin · term2 → ECM 108', accent:'#fb8c00', shape:'tab2',
-    pins:[{id:'1',code:'12V',ecm:null},{id:'2',code:'B/R',ecm:108}]},
+    pins:[{id:'1',code:'Y/G',ecm:null,rail:'12v',lab:'12V'},{id:'2',code:'B/R',ecm:108}]},
   ascd_clutch:{group:'body', sub:'pedals', name:'ASCD · Interruptor embrague', meta:'solo M/T · en serie con ASCD brake → señal ECM 108', accent:'#fb8c00', shape:'tab2',
     pins:[{id:'1',code:'B/R',ecm:null},{id:'2',code:'B/R',ecm:108}]},
   clock_spring:{group:'body', sub:'ascd_dlc', name:'Clock spring · ASCD volante', meta:'comb. sw · SIG→99 · GND→67', accent:'#26c6da', shape:'clock',
@@ -1785,6 +1785,10 @@ function cavTopLabel(pin){
   if(pin && pin.ecm != null) return String(pin.ecm);
   return '—';
 }
+function isPseudoWireCode(code){
+  const u = String(code == null ? '' : code).trim().toUpperCase();
+  return !u || u === '12V' || u === '5V' || u === 'GND' || u === '—' || u === '-' || u === 'NC' || u === '?';
+}
 /** Bottom line: rail / CAN tag when known, else cavity id. */
 function cavBottomLabel(pin){
   const rail = cavRailOf(pin);
@@ -1793,7 +1797,15 @@ function cavBottomLabel(pin){
   if(rail === '5v') return '5V';
   const can = cavCanOf(pin);
   if(can) return can;
+  if(pin && pin.lab && !isPseudoWireCode(pin.lab)) return String(pin.lab);
   return String(pin && pin.id != null ? pin.id : '');
+}
+/** Mid wire letters — never repeat 12V/5V/GND placeholders. */
+function cavWireCode(pin){
+  if(!pin) return '';
+  const code = pin.code || '';
+  if(!isPseudoWireCode(code)) return code;
+  return '';
 }
 function cavRailBottomClass(pin){
   const rail = cavRailOf(pin);
@@ -1877,14 +1889,15 @@ function wrapConnSvg(svgStr){
 
 function cavGroup(cid, pin, x, y, w, h, rx){
   const isUnk = !!(pin && pin.unknown);
-  const code = isUnk ? '?' : (pin.code || '');
-  const wcol = parseWire(code);
+  const rawCode = isUnk ? '?' : (pin.code || '');
+  const code = (!isUnk && isPseudoWireCode(rawCode)) ? '' : rawCode;
+  const wcol = code ? parseWire(code) : {c1:'#455a64', c2:null, tracer:false};
   const sc = isUnk ? '#78909c' : wcol.c1;
   const rx0 = rx||3;
   const safeId = String(cid).replace(/[^A-Za-z0-9_-]/g,'_') + '-' + String(pin.id).replace(/[^A-Za-z0-9_-]/g,'_');
   const gid = 'grad-' + safeId;
   let defs = '';
-  let fillVal = isUnk ? '#263238' : fillFor(code);
+  let fillVal = isUnk ? '#263238' : (code ? fillFor(code) : '#1a1f28');
   if(!isUnk && wcol.tracer){
     defs = `<defs><linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="50%" stop-color="${wcol.c1}"/><stop offset="50%" stop-color="${wcol.c2}"/>
@@ -1920,9 +1933,12 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   if(isUnk || pin.ecm == null){
     topFill = mode === 'solid' ? txtFill : '#90a4ae';
   }
+  const wireLetters = isUnk ? '?' : cavWireCode(pin);
   const midFace = isUnk
     ? `<text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" ${ink('#b0bec5')} font-size="${h<30?11:13}" font-weight="800">?</text>`
-    : wireCodeSvg(code, x+w/2, codeY, 'cav-sub cav-code', true, codeSw);
+    : (wireLetters
+        ? wireCodeSvg(wireLetters, x+w/2, codeY, 'cav-sub cav-code', true, codeSw)
+        : `<text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" ${ink('#78909c')} font-size="${h<30?9:11}" font-weight="700">·</text>`);
   const cavCls = (h < 30 ? ' cav-compact' : '') + (isUnk ? ' cav-unknown' : '');
   return `<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr} role="button">
     ${defs}
@@ -2534,43 +2550,44 @@ function svgIxNote(cid, f){
  *  Mate M72 (MAIN HARNESS) mirrors rows on PG-85. Primary ficha = F102. */
 
 function svgE108(cid, f){
-  /* E108 H.S. · PG-84 SMJ · 10 rows · 1G–69G (mate M15 mirrored). No Invertida. */
+  /* E108 H.S. · PG-84 · full-size cavities on populated bands; stub empty-only ranges. */
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const rows = [
-    ['1G','2G','3G','4G','5G'],
-    ['6G','7G','8G','9G','10G'],
-    ['11G','12G','13G','14G','15G','16G','17G','18G'],
-    ['19G','20G','21G','22G','23G','24G','25G','26G','27G'],
-    ['28G','29G','30G','31G','32G','33G','34G','35G'],
-    ['36G','37G','38G','39G','40G','41G','42G','43G','44G'],
-    ['45G','46G','47G','48G','49G','50G','51G'],
-    ['52G','53G','54G','55G','56G','57G','58G','59G'],
-    ['60G','61G','62G','63G','64G'],
-    ['65G','66G','67G','68G','69G']
+  const bands = [
+    {rows:[['1G','2G','3G','4G','5G'],['6G','7G','8G','9G','10G']]},
+    {stub:['11G','27G'], label:'11G–27G'},
+    {rows:[['28G','29G','30G','31G','32G','33G','34G','35G'],['36G','37G','38G','39G','40G','41G','42G','43G','44G']]},
+    {stub:['45G','64G'], label:'45G–64G'},
+    {rows:[['65G','66G','67G','68G','69G']]}
   ];
-  const cw = Math.max(14, Math.round(CAV_STD_W * 0.55));
-  const ch = Math.max(16, Math.round(CAV_STD_H * 0.55));
-  const gap = 2, padX = 10, padTop = 18;
-  const maxCols = Math.max(...rows.map(r => r.length));
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=10, padTop=18, stubH=18, bandGap=6;
+  const maxCols = 9;
   const W = padX*2 + maxCols*(cw+gap) - gap;
-  let cavities = '';
-  rows.forEach((row, ri)=>{
-    const y = padTop + ri*(ch+gap);
-    const rowW = row.length*(cw+gap) - gap;
-    const x0 = padX + Math.floor((maxCols*(cw+gap)-gap - rowW)/2);
-    row.forEach((id,i)=>{
-      cavities += cavOrEmpty(cid, byId, id, x0+i*(cw+gap), y, cw, ch);
+  let cavities='', y = padTop;
+  const cornerTop = ['1G','5G'], cornerBot = ['65G','69G'];
+  bands.forEach(band=>{
+    if(band.stub){
+      cavities += `<rect x="${padX}" y="${y}" width="${W-2*padX}" height="${stubH}" rx="3" fill="#1a1f28" stroke="#455a64" stroke-width="1" stroke-dasharray="3 2" opacity="0.95"/>`;
+      cavities += `<text x="${W/2}" y="${y+stubH/2+3}" text-anchor="middle" font-size="8" fill="#78909c" font-weight="700">${esc(band.label)} vacío</text>`;
+      y += stubH + bandGap;
+      return;
+    }
+    band.rows.forEach(row=>{
+      const rowW = row.length*(cw+gap) - gap;
+      const x0 = padX + Math.floor((maxCols*(cw+gap)-gap - rowW)/2);
+      row.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x0+i*(cw+gap), y, cw, ch); });
+      y += ch + gap;
     });
+    y += bandGap - gap;
   });
-  const H = padTop + rows.length*(ch+gap) + 8;
-  const _c = cornersFromRows(rows[0], rows[rows.length-1]);
+  const H = y + 6;
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="12" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
     <text x="${padX}" y="14" font-size="7" fill="#90a4ae" font-weight="700">E108</text>
-    <text x="${W-padX}" y="14" text-anchor="end" font-size="6.5" fill="#78909c">mate M15 · PG-84 H.S.</text>
+    <text x="${W-padX}" y="14" text-anchor="end" font-size="6.5" fill="#78909c">SMJ 69G · mate M15 · PG-84</text>
     ${cavities}
-    ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H, {inset: 8, yTop: 20, yBot: H - 4})}
+    ${svgCornerPins(cornerTop[0], cornerTop[1], cornerBot[0], cornerBot[1], W, H, {inset: 8, yTop: 20, yBot: H - 4})}
   </svg>`;
 }
 
@@ -3317,7 +3334,7 @@ const CONN_I18N = {
   },
   ix_e108_m15: {
     en: { name:'E108 ↔ M15 · SMJ engine room↔body', meta:'SMJ 69G · PG-84 · E108 H.S.',
-      note:'SMJ E108 (engine room) ↔ M15 (main). Confirmed: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 69G SSOFF (111). Other cavities empty (not guessed). Face PG-84 H.S. E108.' },
+      note:'SMJ E108 (engine room) ↔ M15 (main). Confirmed: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 65G A/F 12V (R/B) · 69G SSOFF (111). Other cavities empty (not guessed). Face PG-84 H.S. E108.' },
     ja: { name:'E108 ↔ M15 · SMJ エンジンルーム↔ボディ', meta:'SMJ 69G · PG-84 · E108 H.S.',
       note:'SMJ E108（エンジンルーム）↔ M15（メイン）。確認済: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 69G SSOFF (111)。他は空（推測なし）。面 PG-84 H.S. E108。' },
   },
