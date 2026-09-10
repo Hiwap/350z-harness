@@ -647,8 +647,10 @@
   .cav-hit.rail-gnd .cav-face { stroke: #2E7D32 !important; stroke-width: 2.6; }
   .cav-hit.dim { opacity: 0.22 !important; }
   .conn-svg .corner-pin {
-    fill: #78909c; font-size: 6.5px; font-weight: 700;
+    fill: #90a4ae; font-size: 6px; font-weight: 800;
     pointer-events: none; user-select: none;
+    paint-order: stroke fill;
+    stroke: #0b0e14; stroke-width: 2.5px; stroke-linejoin: round;
   }
 
   .cav-label.lab-5v { fill: #F9A825 !important; }
@@ -1624,9 +1626,17 @@ const CONN_BASE = {
     pins:[{id:'1',code:'B/R',ecm:null},{id:'2',code:'B/R',ecm:108}]},
   clock_spring:{group:'body', sub:'ascd_dlc', name:'Clock spring · ASCD volante', meta:'comb. sw · SIG→99 · GND→67', accent:'#26c6da', shape:'clock',
     pins:[{id:'14',code:'G/Y',ecm:99},{id:'15',code:'B/W',ecm:67}]},
-  dlc:{group:'body', sub:'ascd_dlc', name:'DLC · OBD-II', meta:'bajo dash · 16-pin', accent:'#7e57c2', shape:'dlc',
-    pins:[{id:'16',code:'R',ecm:null},{id:'7',code:'LG',ecm:85,lab:'K'},{id:'6',code:'L',ecm:94},{id:'14',code:'P',ecm:86},{id:'4/5',code:'B',ecm:null}],
-    note:'ECM 85 (LG) = Data link / CONSULT-II · tip. DLC pin 7 (K-line). CAN en 6/14.'},
+  dlc:{group:'body', sub:'ascd_dlc', name:'DLC · OBD-II', meta:'bajo dash · 16-pin · J1962', accent:'#7e57c2', shape:'dlc',
+    pins:[
+      {id:'1',code:'—',ecm:null},{id:'2',code:'—',ecm:null},{id:'3',code:'—',ecm:null},
+      {id:'4',code:'B',ecm:null,rail:'gnd',lab:'GND'},{id:'5',code:'B',ecm:null,rail:'gnd',lab:'GND'},
+      {id:'6',code:'L',ecm:94,lab:'CAN-H'},{id:'7',code:'LG',ecm:85,lab:'K'},{id:'8',code:'—',ecm:null},
+      {id:'9',code:'—',ecm:null},{id:'10',code:'—',ecm:null},{id:'11',code:'—',ecm:null},
+      {id:'12',code:'—',ecm:null},{id:'13',code:'—',ecm:null},
+      {id:'14',code:'P',ecm:86,lab:'CAN-L'},{id:'15',code:'—',ecm:null},
+      {id:'16',code:'R',ecm:null,rail:'12v',lab:'12V'}
+    ],
+    note:'OBD-II J1962 (M8). Pin 16 = B+ · 4/5 = GND chasis/señal · 6/14 = CAN-H/L (ECM 94/86) · 7 = K-line (ECM 85 LG). Cara: top 1–8 / bot 9–16.'},
 
   /* —— Red / otros —— */
   fuel_tank_temp:{group:'body', sub:'ascd_dlc', name:'FTT · Temp. tanque combustible', meta:'fuel level sensor unit · ECM 107 GY/R · P0181/182/183', accent:'#7e57c2', shape:'tab2',
@@ -2047,18 +2057,27 @@ function cavEmpty(x, y, w, h, label){
   </g>`;
 }
 
-/** Tiny cavity ids at the four corners of a ficha/intermedia shell (not ECM/F102). */
-function svgCornerPins(tl, tr, bl, br, W, H){
-  const x0 = 5, y0 = 18.5, x1 = Math.max(x0 + 4, W - 5), y1 = Math.max(y0 + 4, H - 3.5);
+/** Tiny ficha cavity ids at shell corners (never ECM #). Inset so they clear the outline. */
+function svgCornerPins(tl, tr, bl, br, W, H, opt){
+  const o = opt || {};
+  const inset = o.inset != null ? o.inset : 7;
+  const yTop = o.yTop != null ? o.yTop : 21;
+  const yBot = o.yBot != null ? o.yBot : (H - 5);
+  const x0 = inset, x1 = Math.max(inset + 4, W - inset);
   const mk = (id, x, y, anchor) => {
     if(id == null || id === '') return '';
+    /* cavity id only — strip accidental ECM-looking values is NOT done; callers pass pin.id */
     return `<text class="corner-pin" x="${x}" y="${y}" text-anchor="${anchor}">${esc(String(id))}</text>`;
   };
-  return mk(tl, x0, y0, 'start') + mk(tr, x1, y0, 'end') + mk(bl, x0, y1, 'start') + mk(br, x1, y1, 'end');
+  return mk(tl, x0, yTop, 'start') + mk(tr, x1, yTop, 'end') + mk(bl, x0, yBot, 'start') + mk(br, x1, yBot, 'end');
 }
 function cornerIdOf(p){
   if(p == null || p === '') return '';
-  if(typeof p === 'object') return p.id != null ? String(p.id) : '';
+  if(typeof p === 'object'){
+    /* Always ficha cavity id — never ECM pin number */
+    if(p.id != null && String(p.id) !== '') return String(p.id);
+    return '';
+  }
   return String(p);
 }
 function cornersFromRow(row){
@@ -2249,23 +2268,39 @@ function svgIpdmE9(cid, f){
 }
 
 function svgDlc(cid, f){
-  // Simplified OBD trapezoid · key pins · Invertida = flipRow L↔R of the pin row
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=16, topY=18;
-  const W = padX*2 + 4*cw + 3*gap;
-  const H = topY + ch + 20;
-  let cavities='';
-  const ids = flipRow(['16','6','14','4/5']);
-  const byId = Object.fromEntries(f.pins.map(p=>[p.id,p]));
-  ids.forEach((id,i)=>{
-    const p = byId[id];
-    if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3);
+  /* OBD-II J1962 vehicle DLC · looking into connector: top 1–8 / bot 9–16 (1 = top-left).
+     Always this order (standard face — no Invertida flip). Empty cavities = unused pins. */
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const top = ['1','2','3','4','5','6','7','8'];
+  const bot = ['9','10','11','12','13','14','15','16'];
+  const cw = Math.round(CAV_STD_W * 0.72);
+  const ch = Math.round(CAV_STD_H * 0.78);
+  const gap = 3;
+  const padX = 18, topY = 22;
+  const botY = topY + ch + gap + 2;
+  const gridW = 8*cw + 7*gap;
+  const W = padX*2 + gridW;
+  const H = botY + ch + 14;
+  let cavities = '';
+  top.forEach((id,i)=>{
+    const p = byId[id] || {id, code:'—', ecm:null};
+    const empty = !p.code || p.code === '—' || p.code === '-' || p.code === 'nc';
+    if(empty && p.ecm == null && !p.lab) cavities += cavEmpty(padX+i*(cw+gap), topY, cw, ch, id);
+    else cavities += cavGroup(cid, p, padX+i*(cw+gap), topY, cw, ch, 2);
   });
-  const _c = cornersFromRow(ids);
+  bot.forEach((id,i)=>{
+    const p = byId[id] || {id, code:'—', ecm:null};
+    const empty = !p.code || p.code === '—' || p.code === '-' || p.code === 'nc';
+    if(empty && p.ecm == null && !p.lab) cavities += cavEmpty(padX+i*(cw+gap), botY, cw, ch, id);
+    else cavities += cavGroup(cid, p, padX+i*(cw+gap), botY, cw, ch, 2);
+  });
+  /* Trapezoid shell (wider at top — typical OBD look) */
+  const shell = `M12 12 L${W-12} 12 L${W-22} ${H-10} L22 ${H-10} Z`;
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="shell" d="M10 10 L${W-10} 10 L${W-18} ${H-10} L18 ${H-10} Z" style="stroke:${f.accent};fill:#0f1319"/>
+    <path class="shell" d="${shell}" style="stroke:${f.accent};fill:#0f1319;stroke-width:2"/>
+    <text x="${W/2}" y="11" text-anchor="middle" font-size="7" fill="#7e57c2" font-weight="700">OBD-II · 1→8 / 9→16</text>
     ${cavities}
-    ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
+    ${svgCornerPins('1','8','9','16', W, H, {inset: 9, yTop: 20, yBot: H - 4})}
   </svg>`;
 }
 
@@ -3312,7 +3347,7 @@ const CONN_I18N = {
   ascd_brake: { en:{name:'ASCD brake switch', meta:'2-pin · term2 → ECM 108'}, ja:{name:'ASCDブレーキSW', meta:'2ピン · term2 → ECM 108'} },
   ascd_clutch: { en:{name:'ASCD clutch switch', meta:'M/T only · in series with ASCD brake → ECM 108'}, ja:{name:'ASCDクラッチSW', meta:'M/Tのみ · ASCDブレーキと直列 → ECM 108'} },
   clock_spring: { en:{name:'Clock spring / ASCD steer', meta:'comb. sw · SIG→99 · GND→67'}, ja:{name:'クロックスプリング / ASCDステア', meta:'コンビSW · SIG→99 · GND→67'} },
-  dlc: { en:{name:'DLC · OBD-II', meta:'under dash · 16-pin · K-line ECM 85'}, ja:{name:'DLC · OBD-II診断', meta:'ダッシュ下 · K線 ECM 85'} },
+  dlc: { en:{name:'DLC · OBD-II', meta:'under dash · 16-pin J1962 · K-line ECM 85'}, ja:{name:'DLC · OBD-II診断', meta:'ダッシュ下 · 16ピン · K線 ECM 85'} },
   fuel_tank_temp: {
     en: { name:'Fuel tank temp (FTT)', meta:'fuel level sensor unit · ECM 107 GY/R' },
     ja: { name:'燃料タンク温度 (FTT)', meta:'燃料センダ · ECM 107 GY/R' },
