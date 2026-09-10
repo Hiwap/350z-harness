@@ -1681,22 +1681,31 @@ function cavRailOf(pin){
   if(pin && pin.ecm != null && PIN_RAIL[pin.ecm]) return PIN_RAIL[pin.ecm];
   return null;
 }
-/** Top line: rail (5V/12V/GND) first, else ECM #, else short lab, else — */
+/** Top line: ECM # first, else rail, else short lab, else — */
 function cavTopLabel(pin){
+  if(pin && pin.ecm != null) return String(pin.ecm);
   const rail = cavRailOf(pin);
   if(rail === 'gnd') return 'GND';
   if(rail === '12v') return '12V';
   if(rail === '5v') return '5V';
-  if(pin && pin.ecm != null) return String(pin.ecm);
   const lab = String(pin && pin.lab || '').trim();
   if(lab && !/^nc$/i.test(lab) && lab !== String(pin.id)) return lab;
   return '—';
 }
-/** Bottom line on ficha face: ECM # when top is a rail, else cavity id. */
+/** Bottom line: 5V/12V/GND when rail, else cavity id. */
 function cavBottomLabel(pin){
   const rail = cavRailOf(pin);
-  if(rail && pin && pin.ecm != null) return String(pin.ecm);
+  if(rail === 'gnd') return 'GND';
+  if(rail === '12v') return '12V';
+  if(rail === '5v') return '5V';
   return String(pin && pin.id != null ? pin.id : '');
+}
+function cavRailBottomClass(pin){
+  const rail = cavRailOf(pin);
+  if(rail === '5v') return 'lab-5v';
+  if(rail === '12v') return 'lab-12v';
+  if(rail === 'gnd') return 'lab-gnd';
+  return '';
 }
 /* Uniform cavity cell size for all connector face SVGs (not ECM #blocks). */
 const CAV_STD_W = 40;
@@ -1791,12 +1800,14 @@ function cavGroup(cid, pin, x, y, w, h, rx){
         fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
   const mode = document.body.dataset.mode || 'outlines';
-  /* Face order: rail/ECM top · wire mid · ECM# (if rail) or cavity id bottom */
+  /* Face order: ECM top · wire mid · rail (5V/12V/GND) or cavity id bottom */
   const disp = isUnk ? String(pin.id) : cavBottomLabel(pin);
-  const lc = mode === 'solid' ? '' : labClass(cavTopLabel(pin));
+  const lc = mode === 'solid' ? '' : cavRailBottomClass(pin);
   const rail = isUnk ? null : cavRailOf(pin);
   let txtFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
-  if(mode !== 'solid' && rail) txtFill = '#90caf9'; /* ECM # under rail */
+  if(mode !== 'solid' && rail === '5v') txtFill = '#F9A825';
+  if(mode !== 'solid' && rail === '12v') txtFill = '#ef9a9a';
+  if(mode !== 'solid' && rail === 'gnd') txtFill = '#81C784';
   if(isUnk) txtFill = '#b0bec5';
   const ink = (c) => svgInk(c, true);
   /* Scale 3 lines to cavity height so short IPDM faces don't stack/halo-overlap */
@@ -1811,11 +1822,11 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   let topFill = (mode === 'solid') ? txtFill : '#90caf9';
   if(isUnk){
     topFill = '#90a4ae';
-  } else if(rail === 'gnd'){
+  } else if(pin.ecm == null && rail === 'gnd'){
     topFill = mode === 'solid' ? txtFill : '#81C784';
-  } else if(rail === '12v'){
+  } else if(pin.ecm == null && rail === '12v'){
     topFill = mode === 'solid' ? txtFill : '#ef9a9a';
-  } else if(rail === '5v'){
+  } else if(pin.ecm == null && rail === '5v'){
     topFill = mode === 'solid' ? txtFill : '#F9A825';
   } else if(pin.ecm == null){
     topFill = mode === 'solid' ? txtFill : '#90a4ae';
@@ -1982,10 +1993,12 @@ function svgRing(cid, f){
   let topFill = mode === 'solid' ? fgForWireCav(wcol) : '#90caf9';
   let botFill = mode === 'solid' ? fgForWireCav(wcol) : '#e8eaed';
   if(mode !== 'solid'){
-    if(rail === '5v') topFill = '#F9A825';
-    else if(rail === '12v') topFill = '#ef9a9a';
-    else if(rail === 'gnd') topFill = '#81C784';
-    if(rail) botFill = '#90caf9';
+    if(p.ecm == null && rail === '5v') topFill = '#F9A825';
+    else if(p.ecm == null && rail === '12v') topFill = '#ef9a9a';
+    else if(p.ecm == null && rail === 'gnd') topFill = '#81C784';
+    if(rail === '5v') botFill = '#F9A825';
+    else if(rail === '12v') botFill = '#ef9a9a';
+    else if(rail === 'gnd') botFill = '#81C784';
   }
   const ink = (c) => svgInk(c, true);
   return `<svg class="conn-svg" viewBox="0 0 90 84" xmlns="http://www.w3.org/2000/svg">
