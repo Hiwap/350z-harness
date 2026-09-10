@@ -3703,16 +3703,21 @@ function onRailRelKindToggle(){
   if(d) localStorage.setItem(LS_RAIL_REL_DATA, d.checked ? '1' : '0');
   if(activeRails.size) applyRailFilter();
 }
-/** Related pin kind: 'gnd' | 'data' (signals / other rails). */
+/** Related pin kind: 'gnd' | 'data' | null (skip other power rails). */
 function railRelKindForEcm(p){
   const r = PIN_RAIL[p] || PIN_RAIL[Number(p)] || null;
-  return r === 'gnd' ? 'gnd' : 'data';
+  if(r === 'gnd') return 'gnd';
+  if(r === '5v' || r === '12v') return null; /* never paint another rail as "data" */
+  return 'data';
 }
 function railRelKindForCav(pin){
-  return cavRailOf(pin) === 'gnd' ? 'gnd' : 'data';
+  const r = cavRailOf(pin);
+  if(r === 'gnd') return 'gnd';
+  if(r === '5v' || r === '12v') return null;
+  return 'data';
 }
 function markRailRelEl(el, kind){
-  if(!el) return;
+  if(!el || !kind) return;
   if(kind === 'gnd' && !railRelGndEnabled()) return;
   if(kind === 'data' && !railRelDataEnabled()) return;
   if(el.classList.contains('hl-rail')) return;
