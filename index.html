@@ -3775,31 +3775,25 @@ function applyRailFilter(){
     });
   });
 
-  /* Related: grounds (green) + data (sky) on same circuits/fichas — opens groups */
+  /* Related: only circuits that list the rail ECM pin (no bus mega-expand). */
   if(railRelGndEnabled() || railRelDataEnabled()){
     const relCirc = new Set();
     railEcm.forEach(p=>{
       (pinToCirc[p] || pinToCirc[String(p)] || []).forEach(id => relCirc.add(id));
     });
-    Object.entries(CONN).forEach(([cid, conf])=>{
-      (conf.pins||[]).forEach(pin=>{
-        const r = cavRailOf(pin);
-        if(!(r && activeRails.has(r))) return;
-        if(pin.ecm != null){
-          const e = Number(pin.ecm);
-          (pinToCirc[e] || pinToCirc[String(e)] || []).forEach(id => relCirc.add(id));
-        }
-        (connToCirc[cid] || []).forEach(id => relCirc.add(id));
-      });
-    });
 
     const relEcm = new Set();
     const relConns = new Set(matchedConns);
+    /* Shared buses (SNS GND, …) still contribute ECM companions, not every ficha. */
+    const REL_CONN_MAX = 4;
     relCirc.forEach(id=>{
       const cir = CIRCUITS.find(x => x.id === id);
       if(!cir) return;
       (cir.ecm || []).forEach(p => relEcm.add(Number(p)));
-      (cir.conn || []).forEach(c => relConns.add(c));
+      const conns = cir.conn || [];
+      if(conns.length <= REL_CONN_MAX){
+        conns.forEach(c => relConns.add(c));
+      }
     });
 
     relEcm.forEach(p=>{
