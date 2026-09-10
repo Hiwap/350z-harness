@@ -645,6 +645,11 @@
   .cav-hit.rail-12v .cav-face { stroke: #C62828 !important; stroke-width: 2.6; }
   .cav-hit.rail-gnd .cav-face { stroke: #2E7D32 !important; stroke-width: 2.6; }
   .cav-hit.dim { opacity: 0.22 !important; }
+  .conn-svg .corner-pin {
+    fill: #78909c; font-size: 6.5px; font-weight: 700;
+    pointer-events: none; user-select: none;
+  }
+
   .cav-label.lab-5v { fill: #F9A825 !important; }
   .cav-label.lab-12v { fill: #C62828 !important; }
   .cav-label.lab-gnd { fill: #2E7D32 !important; }
@@ -1855,10 +1860,13 @@ function svgF33(cid, f){
   let cavities='';
   orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
   orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
+  const _c = cornersFromRows(orderTop, orderBot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="8" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -1874,11 +1882,14 @@ function svgF18(cid, f){
   let cavities='';
   orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
   orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
+  const _c = cornersFromRows(orderTop, orderBot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="8" style="stroke:#424242;fill:#212121"/>
     <rect x="12" y="20" width="${W-24}" height="${H-32}" rx="4" fill="#ef6c00" stroke="#e65100" stroke-width="1"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -1893,10 +1904,13 @@ function svgAf6(cid, f){
   let cavities='';
   orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
   orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
+  const _c = cornersFromRows(orderTop, orderBot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 function svgRect6(cid, f){
@@ -1917,10 +1931,13 @@ function svgRect6(cid, f){
   let cavities='';
   top.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
   bot.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
+  const _c = cornersFromRows(top, bot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -1935,10 +1952,13 @@ function svgTabN(cid, f, n){
   const row = String(cid).startsWith('ix_') ? f.pins.slice(0,cols) : flipRow(f.pins.slice(0,cols));
   row.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
   const tabX = W/2 - 16;
+  const _c = cornersFromRow(row);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${tabX} 2 h32 l5 10 H${tabX-5} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -1948,11 +1968,14 @@ function svgRect4(cid, f){
   const W = padX*2 + 4*cw + 3*gap;
   const H = topY + ch + 12;
   let cavities='';
-  flipRow(f.pins.slice(0,4)).forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3); });
+  const row = flipRow(f.pins.slice(0,4));
+  row.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3); });
+  const _c = cornersFromRow(row);
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
+    ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2005,6 +2028,38 @@ function cavEmpty(x, y, w, h, label){
     <text x="${x+w/2}" y="${y+h/2+3}" text-anchor="middle" font-size="8" fill="#78909c">${esc(lab)}</text>
   </g>`;
 }
+
+/** Tiny cavity ids at the four corners of a ficha/intermedia shell (not ECM/F102). */
+function svgCornerPins(tl, tr, bl, br, W, H){
+  const x0 = 5, y0 = 18.5, x1 = Math.max(x0 + 4, W - 5), y1 = Math.max(y0 + 4, H - 3.5);
+  const mk = (id, x, y, anchor) => {
+    if(id == null || id === '') return '';
+    return `<text class="corner-pin" x="${x}" y="${y}" text-anchor="${anchor}">${esc(String(id))}</text>`;
+  };
+  return mk(tl, x0, y0, 'start') + mk(tr, x1, y0, 'end') + mk(bl, x0, y1, 'start') + mk(br, x1, y1, 'end');
+}
+function cornerIdOf(p){
+  if(p == null || p === '') return '';
+  if(typeof p === 'object') return p.id != null ? String(p.id) : '';
+  return String(p);
+}
+function cornersFromRow(row){
+  const ids = (row || []).map(cornerIdOf).filter(Boolean);
+  if(!ids.length) return {tl:'',tr:'',bl:'',br:''};
+  const a = ids[0], b = ids[ids.length - 1];
+  return {tl:a, tr:b, bl:a, br:b};
+}
+function cornersFromRows(top, bot){
+  const ids = (arr) => (arr || []).map(cornerIdOf).filter(x => x !== '' && x !== 'null');
+  const T = ids(top), B = ids(bot);
+  return {
+    tl: T[0] || '',
+    tr: T.length ? T[T.length - 1] : '',
+    bl: B[0] || '',
+    br: B.length ? B[B.length - 1] : ''
+  };
+}
+
 function cavOrEmpty(cid, byId, id, x, y, w, h){
   if(id == null || id === '') return cavEmpty(x, y, w, h, '');
   const p = byId[String(id)];
@@ -2023,10 +2078,13 @@ function svgIpdmE3(cid, f){
   const H = topY + ch + 12;
   let cavities = '';
   row.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
+  const _c = cornersFromRow(row);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2043,10 +2101,13 @@ function svgIpdmE4(cid, f){
   let cavities='';
   top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
   bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
+  const _c = cornersFromRows(top, bot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2063,10 +2124,13 @@ function svgIpdmE5(cid, f){
   let cavities='';
   top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
   bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
+  const _c = cornersFromRows(top, bot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2083,10 +2147,13 @@ function svgIpdmE6(cid, f){
   let cavities='';
   top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
   bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
+  const _c = cornersFromRows(top, bot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2105,10 +2172,13 @@ function svgIpdmE7(cid, f){
   let cavities='';
   top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
   bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
+  const _c = cornersFromRows(top, bot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 9 H${W/2-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="11" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2127,10 +2197,13 @@ function svgIpdmE8(cid, f){
   let cavities='';
   top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
   bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
+  const _c = cornersFromRows(top, bot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 9 H${W/2-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="11" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2147,10 +2220,13 @@ function svgIpdmE9(cid, f){
   let cavities='';
   top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
   bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
+  const _c = cornersFromRows(top, bot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2167,9 +2243,11 @@ function svgDlc(cid, f){
     const p = byId[id];
     if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3);
   });
+  const _c = cornersFromRow(ids);
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="shell" d="M10 10 L${W-10} 10 L${W-18} ${H-10} L18 ${H-10} Z" style="stroke:${f.accent};fill:#0f1319"/>
     ${cavities}
+    ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2180,10 +2258,13 @@ function svgBox(cid, f){
   const W = padX*2 + n*cw + Math.max(0,n-1)*gap;
   const H = topY + ch + 12;
   let cavities='';
-  flipRow(f.pins).forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3); });
+  const row = flipRow(f.pins);
+  row.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3); });
+  const _c = cornersFromRow(row);
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <rect class="shell" x="4" y="4" width="${W-8}" height="${H-8}" rx="3" style="stroke:${f.accent}"/>
     ${cavities}
+    ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2236,10 +2317,13 @@ function svgRect10(cid, f){
   let cavities='';
   top.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 3); });
   bot.forEach((p,i)=>{ cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 3); });
+  const _c = cornersFromRows(top, bot);
+
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2264,10 +2348,12 @@ function svgF1(cid, f){
     const p = byId[id] || {id,code:'—',ecm:null};
     cavities += cavGroup(cid, p, gridX+i*(cw+gap), botY, cw, ch, 3);
   });
+  const _c = {tl:'2', tr:'5', bl:'6', br:'9'};
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
+    ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2280,18 +2366,21 @@ function svgF3(cid, f){
   const W = padX*2 + 4*cw + 3*gap;
   const H = botY + ch + 12;
   let cavities='';
-  ['1','2','3','4'].forEach((id,i)=>{
+  const top = ['1','2','3','4'], bot = ['5','6','7','8'];
+  top.forEach((id,i)=>{
     const p = byId[id] || {id,code:'—',ecm:null};
     cavities += cavGroup(cid, p, padX+i*(cw+gap), topY, cw, ch, 3);
   });
-  ['5','6','7','8'].forEach((id,i)=>{
+  bot.forEach((id,i)=>{
     const p = byId[id] || {id,code:'—',ecm:null};
     cavities += cavGroup(cid, p, padX+i*(cw+gap), botY, cw, ch, 3);
   });
+  const _c = cornersFromRows(top, bot);
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
     ${cavities}
+    ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
@@ -2793,11 +2882,11 @@ function makePinEl(p){
   if(LIGHT_FILLS.has(wcol.c1) && !wcol.tracer) d.classList.add('light-wire');
   const rail = PIN_RAIL[p] || null;
   if(rail){
-    /* 3-row like F102: rail · wire · pin # */
+    /* 3-row: pin # top · wire · rail bottom (match fichas) */
     const railLab = rail === '5v' ? '5V' : (rail === '12v' ? '12V' : 'GND');
     const lc = labClass(railLab);
     d.classList.add('rail-lab');
-    d.innerHTML = `<span class="dest${lc?' '+lc:''}">${esc(railLab)}</span><small class="pw">${wireCodeHtml(code||'·')}</small><span class="pn">${p}</span>`;
+    d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small><span class="dest${lc?' '+lc:''}">${esc(railLab)}</span>`;
   } else {
     d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>`;
   }
