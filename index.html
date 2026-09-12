@@ -3804,7 +3804,7 @@ function onCollapseIdleToggle(){
   const el = document.getElementById('collapseIdleSubs');
   if(!el) return;
   localStorage.setItem(LS_COLLAPSE_IDLE, el.checked ? '1' : '0');
-  if(el.checked) applyCollapseIdleSubs(currentSelectedConnIds());
+  if(el.checked) applyCollapseIdleSubs(lastSelConnIds.length ? lastSelConnIds : currentSelectedConnIds());
   else restoreCollapsedSubs();
 }
 
@@ -4030,6 +4030,7 @@ function revealConns(connIds, opts){
     }
   });
   /* selTop + promote; then scroll the fichas panel to the selection */
+  lastSelConnIds = ids.slice();
   updateSelectedTop(ids);
   promoteSelectedInGroups(ids);
   syncF102PanelForSelection(ids, { collapseF102 });
@@ -4047,6 +4048,7 @@ function revealConns(connIds, opts){
 
 let selKey = null; /* 'pin:N' | 'cav:cid:id' — second click clears */
 let selFocusPin = null; /* ECM pin in focus for current selection (cav or pin) */
+let lastSelConnIds = []; /* conn ids for collapseIdle (not path-only) */
 
 function clearSelectionClasses(){
   document.querySelectorAll('.pin,.ficha,.ficha-wrap,.cav-hit,.f102-panel').forEach(el=>{
@@ -4072,6 +4074,7 @@ function clearSelection(){
 }
 
 function clearHL(){
+  lastSelConnIds = [];
   removeSelectedTop();
   restoreCollapsedSubs();
   restoreFichaOrder();
@@ -4586,17 +4589,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   if(collapseF102) setF102PanelOpen(false);
   /* Clones in #selTop are fresh — re-mark fichas + dim off-path cavities, then light path. */
   connSet.forEach(cid => markFichaHL(cid, true));
-  /* Open path-only fichas in-place (no selTop) so E7/F3/feed cavities can light */
-  pathCavByConn.forEach((_cavs, cid)=>{
-    if(connSet.has(cid) || SKIP_SEL_CONN.has(cid)) return;
-    markFichaHL(cid, true);
-    const f = document.querySelector(`.ficha-wrap[data-conn="${CSS.escape(cid)}"]`) || document.querySelector(`.ficha[data-conn="${CSS.escape(cid)}"]`);
-    if(!f) return;
-    const nest = f.closest('details.ficha-nest');
-    if(nest) nest.open = true;
-    const sec = f.closest('details.ficha-sec');
-    if(sec) sec.open = true;
-  });
+  /* path (Alim. 12V): cavity HL only via paintFichaCavHL — never markFichaHL / open groups
+     (that left IPDM+feeds “selected” in capa grupo and undid collapseIdle). */
   paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn);
 }
 
