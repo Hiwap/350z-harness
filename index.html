@@ -1225,17 +1225,17 @@ function buildCircuits(model){
     {id:'ect', title:'ECT', color:'#5c6bc0',
       ecm:[73], conn:['ect'], notes:'Señal ECT → ECM 73 (BR/Y).'},
     {id:'coil_1', title:'Bobina 1', color:'#26a69a',
-      ecm:[62], conn:['coil1','ix_f18_f201','ix_e12_f3','feed_inj_coil_12v','ipdm_e7'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 62 Y/R · vía F18 cav3 · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
+      ecm:[62], conn:['coil1','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 62 Y/R · vía F18 cav3 · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
     {id:'coil_2', title:'Bobina 2', color:'#26a69a',
-      ecm:[81], conn:['coil2','ix_e12_f3','feed_inj_coil_12v','ipdm_e7'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 81 G/B · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
+      ecm:[81], conn:['coil2'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 81 G/B · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
     {id:'coil_3', title:'Bobina 3', color:'#26a69a',
-      ecm:[61], conn:['coil3','ix_f18_f201','ix_e12_f3','feed_inj_coil_12v','ipdm_e7'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 61 L/R · vía F18 cav2 · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
+      ecm:[61], conn:['coil3','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 61 L/R · vía F18 cav2 · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
     {id:'coil_4', title:'Bobina 4', color:'#26a69a',
-      ecm:[80], conn:['coil4','ix_e12_f3','feed_inj_coil_12v','ipdm_e7'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 80 GY · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
+      ecm:[80], conn:['coil4'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 80 GY · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
     {id:'coil_5', title:'Bobina 5', color:'#26a69a',
-      ecm:[60], conn:['coil5','ix_e12_f3','feed_inj_coil_12v','ipdm_e7'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 60 PU/W · F15 aparte (no F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
+      ecm:[60], conn:['coil5'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 60 PU/W · F15 aparte (no F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
     {id:'coil_6', title:'Bobina 6', color:'#26a69a',
-      ecm:[79], conn:['coil6','ix_e12_f3','feed_inj_coil_12v','ipdm_e7'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 79 GY/R · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
+      ecm:[79], conn:['coil6'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 79 GY/R · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
     {id:'inj_1', title:'Inyector 1', color:'#9ccc65',
       ecm:[23], conn:['jb_10a_inj','inj1','ix_f221_f33','feed_inj_coil_12v','ix_f102_m72'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Drive ECM 23 R/B · vía F33/F221 · +12V (JB 10A → F102·17H → F33·5) · EC-705.'},
     {id:'inj_2', title:'Inyector 2', color:'#9ccc65',
@@ -1637,7 +1637,7 @@ const CONN_BASE = {
     note:'Intermedia F14/F229 del path knock (FSM): señal W→ECM 15 · shield→SNS GND. Referencia de circuito FSM; cara pin-number: ver manual.'},
   ix_f103_f151:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: continuidad ECM ground 1/115/116 ↔ body ground. Malfunction check lista harness connectors F103, F151 (y F3/E12).'},
-  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Bobinas bank 1 + VTC', meta:'6-pin · Bank 1 only · EC-691/455 · no E10/F1', accent:'#ef6c00', shape:'f18',
+  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Bobinas bank 1 + VTC', meta:'6-pin · Bank 1 only · EC-691/455 · no E10/F1', accent:'#ab47bc', shape:'f18',
     pins:[
       {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},
       {id:'2',lab:'C3',code:'L/R',ecm:61},
@@ -2064,8 +2064,7 @@ function svgF18(cid, f){
 
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="8" style="stroke:#424242;fill:#212121"/>
-    <rect x="12" y="20" width="${W-24}" height="${H-32}" rx="4" fill="#ef6c00" stroke="#e65100" stroke-width="1"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="8" style="stroke:${f.accent};fill:#212121"/>
     ${cavities}
   ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
@@ -4483,7 +4482,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     cir.conn.forEach(cid=>connSet.add(cid));
     if(cir.path){
       Object.entries(cir.path).forEach(([cid, cavs])=>{
-        connSet.add(cid);
+        /* path = Alim. 12V + cavity HL only — not Selección groups (avoids pin 61 → IPDM+feeds+intermedias) */
         if(!pathCavByConn.has(cid)) pathCavByConn.set(cid, new Set());
         (cavs||[]).forEach(c => pathCavByConn.get(cid).add(String(c)));
       });
@@ -4587,6 +4586,17 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   if(collapseF102) setF102PanelOpen(false);
   /* Clones in #selTop are fresh — re-mark fichas + dim off-path cavities, then light path. */
   connSet.forEach(cid => markFichaHL(cid, true));
+  /* Open path-only fichas in-place (no selTop) so E7/F3/feed cavities can light */
+  pathCavByConn.forEach((_cavs, cid)=>{
+    if(connSet.has(cid) || SKIP_SEL_CONN.has(cid)) return;
+    markFichaHL(cid, true);
+    const f = document.querySelector(`.ficha-wrap[data-conn="${CSS.escape(cid)}"]`) || document.querySelector(`.ficha[data-conn="${CSS.escape(cid)}"]`);
+    if(!f) return;
+    const nest = f.closest('details.ficha-nest');
+    if(nest) nest.open = true;
+    const sec = f.closest('details.ficha-sec');
+    if(sec) sec.open = true;
+  });
   paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn);
 }
 
