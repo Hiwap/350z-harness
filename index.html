@@ -1225,17 +1225,17 @@ function buildCircuits(model){
     {id:'ect', title:'ECT', color:'#5c6bc0',
       ecm:[73], conn:['ect'], notes:'Señal ECT → ECM 73 (BR/Y).'},
     {id:'coil_1', title:'Bobina 1', color:'#26a69a',
-      ecm:[62], conn:['coil1','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 62 Y/R · vía F18 cav3 · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
+      ecm:[62], conn:['coil1','ix_f18_f201','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 62 Y/R · vía F18 cav3 · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
     {id:'coil_2', title:'Bobina 2', color:'#26a69a',
-      ecm:[81], conn:['coil2'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 81 G/B · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
+      ecm:[81], conn:['coil2','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 81 G/B · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
     {id:'coil_3', title:'Bobina 3', color:'#26a69a',
-      ecm:[61], conn:['coil3','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 61 L/R · vía F18 cav2 · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
+      ecm:[61], conn:['coil3','ix_f18_f201','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 61 L/R · vía F18 cav2 · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
     {id:'coil_4', title:'Bobina 4', color:'#26a69a',
-      ecm:[80], conn:['coil4'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 80 GY · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
+      ecm:[80], conn:['coil4','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 80 GY · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
     {id:'coil_5', title:'Bobina 5', color:'#26a69a',
-      ecm:[60], conn:['coil5'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 60 PU/W · F15 aparte (no F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
+      ecm:[60], conn:['coil5','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 60 PU/W · F15 aparte (no F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-691.'},
     {id:'coil_6', title:'Bobina 6', color:'#26a69a',
-      ecm:[79], conn:['coil6'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 79 GY/R · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
+      ecm:[79], conn:['coil6','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Drive ECM 79 GY/R · Bank2 (sin F18) · 12V W/L (IPDM E7-17 → F3-5) · EC-693.'},
     {id:'inj_1', title:'Inyector 1', color:'#9ccc65',
       ecm:[23], conn:['inj1','ix_f221_f33','ix_f102_m72'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Drive ECM 23 R/B · vía F33/F221 · +12V (JB 10A → F102·17H → F33·5) · EC-705.'},
     {id:'inj_2', title:'Inyector 2', color:'#9ccc65',
@@ -1277,7 +1277,7 @@ function buildCircuits(model){
     {id:'evap_press', title:'EVAP pressure', color:'#7b1fa2',
       ecm:[32,48,67], conn:['evap_press','ix_f102_m72'], f102:['18H','19H','20H'], notes:'T21: 5V=L · SIG=W · GND=B/W. En F102: 18H PU→48 · 19H BR/W→32 · 20H B/W→67 (GND-A). EC-379.'},
     {id:'evap_purge', title:'EVAP purge', color:'#8e24aa',
-      ecm:[45], conn:['evap_purge'], path:{ipdm_e7:['18'],ix_e12_f3:['7']}, notes:'F5 pin1 R/W (E7-18 → F3) · pin2 G/W → ECM 45. EC-360.'},
+      ecm:[45], conn:['evap_purge','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7']}, notes:'F5 pin1 R/W (E7-18 → F3) · pin2 G/W → ECM 45. EC-360.'},
     {id:'evap_vent', title:'EVAP canister vent', color:'#6a1b9a',
       ecm:[117], conn:['evap_vent','ix_f102_m72'], f102:['29H'], notes:'T20 pin1 W/R · pin2 G→…→F102 G/W → ECM 117. B1/M12 · P0447/P1446. EC-367.'},
     {id:'brake_stop', title:'Stop lamp switch', color:'#e53935',
@@ -1292,10 +1292,10 @@ function buildCircuits(model){
   ];
   if(model === 'de_early'){
     base.push({id:'vtc', title:'VTC intake ×2 (DE early)', color:'#d81b60',
-      ecm:[11,10], conn:['vtc_b1','vtc_b2','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']}, notes:'VTC admisión: ECM11 B1 vía F18 cav4 · ECM10 B2 solo. 12V: E7-17 → F3-5 → F18·5/6.'});
+      ecm:[11,10], conn:['vtc_b1','vtc_b2','ix_f18_f201','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']}, notes:'VTC admisión: ECM11 B1 vía F18 cav4 · ECM10 B2 solo. 12V: E7-17 → F3-5 → F18·5/6.'});
   } else if(model === 'de_revup'){
     base.push({id:'vtc', title:'VTC intake + exhaust ×4 (Rev-Up)', color:'#d81b60',
-      ecm:[11,10], conn:['vtc_b1','vtc_b2','vtc_ex_b1','vtc_ex_b2','ix_f18_f201'],
+      ecm:[11,10], conn:['vtc_b1','vtc_b2','vtc_ex_b1','vtc_ex_b2','ix_f18_f201','ix_e12_f3'],
       path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']},
       notes:'VTC: ECM11 B1 vía F18 · ECM10 B2 solo. 12V: E7-17 → F3-5 → F18. Rev-Up +escape.'});
   } else {
