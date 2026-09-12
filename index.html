@@ -1155,7 +1155,7 @@ const FEED_ECM_FOCUS = {
   feed_inj_coil_12v: [21, 22, 23, 40, 41, 42, 60, 61, 62, 79, 80, 81]
 };
 /* Loom faces that only mirror ECM pin #s — never clone into #selTop / path reveal */
-const SKIP_SEL_CONN = new Set(['ecm_f101_can']);
+const SKIP_SEL_CONN = new Set(['ecm_f101_can','ix_f103_f151']);
 
 /* Canonical inverted layout (bancada): 121 LEFT, lever up, blocks L→R */
 const B1_INV = [[121,120,119],[118,117],[116,115,114]];
@@ -1207,11 +1207,11 @@ function buildCircuits(model){
       ecm:[], conn:['ix_e10_f1','backup_sw','ix_f102_m72','ipdm_e7'], path:{ipdm_e7:['26'],ix_e10_f1:['2'],backup_sw:['1','2'],ix_f102_m72:['22H']}, notes:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → F36; F36 pin2 OR → F102 22H → rear lamps · LT-183.'},
 
     {id:'gnd_ecm', title:'ECM ground → body ground', color:'#66bb6a',
-      ecm:[1,115,116], conn:['gnd4','e17','ix_f103_f151'], notes:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground vía harness connectors F103, F151.'},
+      ecm:[1,115,116], conn:['gnd4','e17'], notes:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground vía harness connectors F103, F151.'},
 
     {id:'sns_gnd', title:'SNS GND', color:'#ef6c00',
-      ecm:[66,67,78], conn:['maf','ckp','cmp_b1','cmp_b2','ect','iat','knock','etc','ac_press','evap_press','psp','af_b1','af_b2','ho2s_b1','ho2s_b2'],
-      notes:'SNS GND ECM 66 / 67 / 78 · tierras de sensores (no bobinas · no APP 82/83).'},
+      ecm:[66,67,78], conn:['maf','ckp','cmp_b1','cmp_b2','ect','iat','knock','etc','ac_press','evap_press','psp','af_b1','af_b2','ho2s_b1','ho2s_b2','ix_f102_m72'], f102:['20H'],
+      notes:'SNS GND ECM 66 / 67 / 78 · tierras de sensores (no bobinas · no APP 82/83). ECM 67 también F102·20H.'},
     {id:'knock', title:'Knock sensor', color:'#42a5f5',
       ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Señal ECM 15 (W) vía intermedia F14/F229 · shield a SNS GND (FSM EC).'},
     {id:'psp', title:'PSP · Power steering pressure', color:'#00897b',
@@ -1456,8 +1456,8 @@ const CONN_BASE = {
     pins:[{id:'CTRL',code:'GY/L',ecm:111},{id:'coil+',code:'12V',ecm:null,rail:'12v'}]},
   vmot:{group:'motor', sub:'power', name:'VMOT · Alim. motor mariposa', meta:'alimentación motor TB · ECM 3', accent:'#029eb7', shape:'tab2',
     pins:[{id:'VMOT',code:'G',ecm:3,rail:'12v'},{id:'relay',code:'12V',ecm:null,rail:'12v'}]},
-  gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'ECM 1 / 115 / 116 → body ground · EC POWER SUPPLY AND GROUND', accent:'#66bb6a', shape:'rect4',
-    pins:[{id:'A',code:'B',ecm:1,rail:'gnd'},{id:'B',code:'B/W',ecm:115,rail:'gnd'},{id:'C',code:'B/R',ecm:116,rail:'gnd'},{id:'D',code:'B',ecm:null,rail:'gnd'}],
+  gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4-pin · ECM 1/115/116 → body · EC-169', accent:'#66bb6a', shape:'rect4',
+    pins:[{id:'A',code:'B',ecm:1,rail:'gnd'},{id:'B',code:'B/W',ecm:115,rail:'gnd'},{id:'C',code:'B/R',ecm:116,rail:'gnd'},{id:'D',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power',lab:'GND'}],
     note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: terminales ECM 1 (B), 115 (B/W), 116 (B/R) = ECM ground → body ground. Path vía harness connectors F103, F151 (también F3/E12 en el diag.). Procedimiento: CHECK ECM GROUND CIRCUIT FOR OPEN AND SHORT.'},
   e17:{group:'motor', sub:'power', name:'Body ground · E17', meta:'FSM: Body ground · ground point E17', accent:'#66bb6a', shape:'ring',
     pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
@@ -1780,7 +1780,7 @@ function rebuildIndexes(){
 
 function activeConnIds(model){
   // Show IPDM fichas (ECM/harness paths). F102 stays in #f102Panel only.
-  const hide = new Set(['orange_box','blue_box','ix_f102_m72','ipdm_legend']);
+  const hide = new Set(['orange_box','blue_box','ix_f102_m72','ipdm_legend','ix_f103_f151']);
   let ids = Object.keys(CONN_BASE).filter(id => !hide.has(id));
   if(model === 'de_early'){
     ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2');
@@ -4628,7 +4628,13 @@ function selectPin(p){
     clearSelection();
     return;
   }
-  const circs = pinToCirc[p] || pinToCirc[Number(p)] || pinToCirc[String(p)] || [];
+  let circs = pinToCirc[p] || pinToCirc[Number(p)] || pinToCirc[String(p)] || [];
+  /* Shared SNS grounds are listed on many circuits — picking 67/66/78 must not fan-out all of them. */
+  const SNS_GND_PINS = new Set([66, 67, 78]);
+  if(SNS_GND_PINS.has(n)){
+    const only = circs.filter(id => id === 'sns_gnd');
+    if(only.length) circs = only;
+  }
   if(!circs.length){
     const found=[];
     Object.entries(CONN).forEach(([cid,f])=>{
