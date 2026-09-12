@@ -1456,11 +1456,16 @@ const CONN_BASE = {
     pins:[{id:'CTRL',code:'GY/L',ecm:111},{id:'coil+',code:'12V',ecm:null,rail:'12v'}]},
   vmot:{group:'motor', sub:'power', name:'VMOT · Alim. motor mariposa', meta:'alimentación motor TB · ECM 3', accent:'#029eb7', shape:'tab2',
     pins:[{id:'VMOT',code:'G',ecm:3,rail:'12v'},{id:'relay',code:'12V',ecm:null,rail:'12v'}]},
-  gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4-pin · ECM 1/115/116 → body · EC-169', accent:'#66bb6a', shape:'rect4',
-    pins:[{id:'A',code:'B',ecm:1,rail:'gnd'},{id:'B',code:'B/W',ecm:115,rail:'gnd'},{id:'C',code:'B/R',ecm:116,rail:'gnd'},{id:'D',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power',lab:'GND'}],
-    note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: terminales ECM 1 (B), 115 (B/W), 116 (B/R) = ECM ground → body ground. Path vía harness connectors F103, F151 (también F3/E12 en el diag.). Procedimiento: CHECK ECM GROUND CIRCUIT FOR OPEN AND SHORT.'},
+  gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4-pin · A/B/C→ECM · D→E17 · EC-169', accent:'#66bb6a', shape:'rect4',
+    pins:[
+      {id:'A',code:'B',ecm:1,rail:'gnd'},
+      {id:'B',code:'B/W',ecm:115,rail:'gnd'},
+      {id:'C',code:'B/R',ecm:116,rail:'gnd'},
+      {id:'D',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power',lab:'E17',note:'Masa carrocería → ground point E17.'}
+    ],
+    note:'F103/F151: A B→ECM1 · B B/W→ECM115 · C B/R→ECM116 · D B→body ground E17. EC-169/171.'},
   e17:{group:'motor', sub:'power', name:'Body ground · E17', meta:'FSM: Body ground · ground point E17', accent:'#66bb6a', shape:'ring',
-    pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',lab:'GND'}]},
+    pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',src:'body',srcSub:'power',lab:'E17'}]},
   ecm_f101_can:{group:'motor', sub:'power', name:'ECM F101 · CAN', meta:'cara F101 (mismo que grid ECM) · no se clona en selección', accent:'#7e57c2', shape:'tab2',
     pins:[{id:'94',code:'L',ecm:94,lab:'CAN-H'},{id:'86',code:'P',ecm:86,lab:'CAN-L'}],
     note:'F101 = conector del arnés a la ECM (lado loom). CAN: 94 L = CAN-H · 86 P = CAN-L · vía F102 26H/27H → M72 → DLC M8 6/14 · también IPDM E9 48/49.'},
@@ -1849,12 +1854,17 @@ function isPseudoWireCode(code){
 /** Bottom line: rail / CAN tag when known, else cavity id. */
 function cavBottomLabel(pin){
   const rail = cavRailOf(pin);
-  if(rail === 'gnd') return 'GND';
+  const lab = pin && pin.lab != null ? String(pin.lab).trim() : '';
+  /* Ground that names a body point (E17, D105…) — show that, not generic GND */
+  if(rail === 'gnd'){
+    if(lab && lab !== 'GND' && lab !== 'SNS' && lab !== 'SH' && !isPseudoWireCode(lab)) return lab;
+    return 'GND';
+  }
   if(rail === '12v') return '12V';
   if(rail === '5v') return '5V';
   const can = cavCanOf(pin);
   if(can) return can;
-  if(pin && pin.lab && !isPseudoWireCode(pin.lab)) return String(pin.lab);
+  if(lab && !isPseudoWireCode(lab)) return lab;
   return String(pin && pin.id != null ? pin.id : '');
 }
 /** Mid wire letters — never repeat 12V/5V/GND placeholders. */
