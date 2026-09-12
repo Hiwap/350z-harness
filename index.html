@@ -1190,9 +1190,9 @@ let CIRCUITS = [];
 function buildCircuits(model){
   const base = [
     {id:'af_b1', title:'A/F Sensor 1 Bank 1', color:'#ef6c00',
-      ecm:[2,16,35,56,75], conn:['af_b1'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF1-3'],af_b1:['3']}, notes:'Calentador B1 → ECM 2 (GY/R). Pin 3 = 12V fusible (no ECM) · 12V R/B JB15A→E108·65G→F3·3.'},
+      ecm:[2,16,35,56,75], conn:['af_b1','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF1-3'],af_b1:['3']}, notes:'Calentador B1 → ECM 2 (GY/R). Pin 3 = 12V fusible (no ECM) · 12V R/B JB15A→E108·65G→F3·3.'},
     {id:'af_b2', title:'A/F Sensor 1 Bank 2', color:'#2e7d32',
-      ecm:[24,76,57,58,77], conn:['af_b2'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF2-3'],af_b2:['3']}, notes:'Calentador B2 → ECM 24 (G/Y). Señales 76/77/57/58 · pin 3 = 12V fusible · 12V R/B JB15A→E108·65G→F3·3.'},
+      ecm:[24,76,57,58,77], conn:['af_b2','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF2-3'],af_b2:['3']}, notes:'Calentador B2 → ECM 24 (G/Y). Señales 76/77/57/58 · pin 3 = 12V fusible · 12V R/B JB15A→E108·65G→F3·3.'},
     {id:'app_5v', title:'APP 5V', color:'#f9a825',
       ecm:[90,91], conn:['app','ix_e11_f2'], notes:'5V APP1/APP2 (90/91) vía E11/F2 (pedal E113→E11/F2→ECM). Rails 47/48/49/68: usar toggle 5V (no se agrupan al click).'},
     {id:'app_gnd', title:'APP grounds', color:'#f9a825',
@@ -1273,7 +1273,7 @@ function buildCircuits(model){
     {id:'tb', title:'ETC throttle body', color:'#029eb7',
       ecm:[4,5,47,50,69,66], conn:['etc'], notes:'Motor TB ± · TPS1/TPS2 · 5V rail 47 · SNS GND TPS → ECM 66 (L).'},
     {id:'ho2s', title:'HO2S2 downstream ×2', color:'#8e24aa',
-      ecm:[74,55,25,6,78], conn:['ho2s_b1','ho2s_b2'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B1-12V','B2-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b1:['2'],ho2s_b2:['2']}, notes:'Señal B1→74 · B2→55 · heaters 25/6 · 12V R/B JB15A→65G→F3·3→pin2 · SNS 78.'},
+      ecm:[74,55,25,6,78], conn:['ho2s_b1','ho2s_b2','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B1-12V','B2-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b1:['2'],ho2s_b2:['2']}, notes:'Señal B1→74 · B2→55 · heaters 25/6 · 12V R/B JB15A→65G→F3·3→pin2 · SNS 78.'},
     {id:'evap_press', title:'EVAP pressure', color:'#7b1fa2',
       ecm:[32,48,67], conn:['evap_press','ix_f102_m72'], f102:['18H','19H','20H'], notes:'T21: 5V=L · SIG=W · GND=B/W. En F102: 18H PU→48 · 19H BR/W→32 · 20H B/W→67 (GND-A). EC-379.'},
     {id:'evap_purge', title:'EVAP purge', color:'#8e24aa',
