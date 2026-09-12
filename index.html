@@ -3952,16 +3952,19 @@ function updateSelectedTop(connIds){
     bucketKeys.push(s);
   });
   const names = bucketKeys.map(s => selectedBucketLabel(s));
-  const n = bucketKeys.length;
-  // Single bucket (e.g. pin 115 → only Poder/tierras): skip sel-top; category already promoted
-  if(n < 2) return;
+  const nBuckets = bucketKeys.length;
+  /* Need 2+ fichas for sel-top (not 2+ subcategories). Same-group pairs e.g. F103+E17 must still appear. */
+  if(ids.length < 2) return;
 
   const top = document.createElement('details');
   top.id = 'selTop';
   top.className = 'ficha-sec sel-top';
   top.open = true;
   const sum = document.createElement('summary');
-  sum.innerHTML = `${esc(String(n) + ' ' + t('selTopGroups'))}<span>${esc(names.join(', '))}</span>`;
+  const head = nBuckets > 1
+    ? `${esc(String(nBuckets) + ' ' + t('selTopGroups'))}<span>${esc(names.join(', '))}</span>`
+    : `${esc(String(ids.length))}<span>${esc(names[0] || '')}</span>`;
+  sum.innerHTML = head;
   top.appendChild(sum);
   const body = document.createElement('div');
   body.className = 'fichas-body';
