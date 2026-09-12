@@ -1210,8 +1210,8 @@ function buildCircuits(model){
       ecm:[1,115,116], conn:['gnd4','e17'], notes:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground vía harness connectors F103, F151.'},
 
     {id:'sns_gnd', title:'SNS GND', color:'#ef6c00',
-      ecm:[66,67,78], conn:['maf','ckp','cmp_b1','cmp_b2','ect','iat','knock','etc','ac_press','evap_press','psp','af_b1','af_b2','ho2s_b1','ho2s_b2','ix_f102_m72'], f102:['20H'],
-      notes:'SNS GND ECM 66 / 67 / 78 · tierras de sensores (no bobinas · no APP 82/83). ECM 67 también F102·20H.'},
+      ecm:[66,67,78], conn:[], f102:['20H'],
+      notes:'SNS GND ECM 66 / 67 / 78 · tierra compartida de sensores (MAF/CKP/CMP/ECT/IAT/knock/ETC/A/C/EVAP/PSP/A/F/HO2S · no bobinas · no APP 82/83). ECM 67 también F102·20H. Al elegir 66/67/78 no se abren todos esos sensores.'},
     {id:'knock', title:'Knock sensor', color:'#42a5f5',
       ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Señal ECM 15 (W) vía intermedia F14/F229 · shield a SNS GND (FSM EC).'},
     {id:'psp', title:'PSP · Power steering pressure', color:'#00897b',
