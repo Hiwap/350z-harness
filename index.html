@@ -1211,7 +1211,7 @@ function buildCircuits(model){
 
     {id:'sns_gnd', title:'SNS GND', color:'#ef6c00',
       ecm:[66,67,78], conn:[], f102:['20H'],
-      notes:'SNS GND ECM 66 / 67 / 78 · tierra compartida de sensores (MAF/CKP/CMP/ECT/IAT/knock/ETC/A/C/EVAP/PSP/A/F/HO2S · no bobinas · no APP 82/83). ECM 67 también F102·20H. Al elegir 66/67/78 no se abren todos esos sensores.'},
+      notes:'SNS GND ECM 66 / 67 / 78 · tierra compartida (no bobinas · no APP 82/83). ECM 67 también F102·20H. Los sensores que usan esta masa se abren desde su propio pin de señal, no desde la masa.'},
     {id:'knock', title:'Knock sensor', color:'#42a5f5',
       ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Señal ECM 15 (W) vía intermedia F14/F229 · shield a SNS GND (FSM EC).'},
     {id:'psp', title:'PSP · Power steering pressure', color:'#00897b',
@@ -4642,12 +4642,8 @@ function selectPin(p){
     return;
   }
   let circs = pinToCirc[p] || pinToCirc[Number(p)] || pinToCirc[String(p)] || [];
-  /* Shared SNS grounds are listed on many circuits — picking 67/66/78 must not fan-out all of them. */
-  const SNS_GND_PINS = new Set([66, 67, 78]);
-  if(SNS_GND_PINS.has(n)){
-    const only = circs.filter(id => id === 'sns_gnd');
-    if(only.length) circs = only;
-  }
+  /* sns_gnd.conn stays empty so 66/67/78 do not open every sensor on the shared rail —
+     only circuits that list this ECM pin (e.g. 67 → A/C, PSP, EVAP, ASCD). */
   if(!circs.length){
     const found=[];
     Object.entries(CONN).forEach(([cid,f])=>{
