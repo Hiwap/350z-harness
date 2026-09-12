@@ -3339,6 +3339,40 @@ function renderECM(){
 /** Classic pin size — no aggressive shrink (prefer overflow-x scroll over crushing EC-123 shape) */
 function fitEcmPins(){ /* no-op: CSS vars stay at classic ~34×32 */ }
 
+function connShortLabel(cid){
+  const SHORT = {
+    jb_10a_inj:'JB 10A iny', jb_15a_ht:'JB 15A A/F+HO2S',
+    feed_af_12v:'Feed A/F', feed_ho2s_12v:'Feed HO2S', feed_inj_coil_12v:'Rail iny/bobinas',
+    feed_ckp_maf_12v:'Feed CKP/MAF',
+    ix_e108_m15:'E108', ix_e12_f3:'E12/F3', ix_f102_m72:'F102', ix_f221_f33:'F33',
+    ix_e10_f1:'E10/F1', ix_f18_f201:'F18', ix_e11_f2:'E11/F2', ix_f14_f229:'F14',
+    ix_f103_f151:'F103', ipdm_e3:'IPDM E3', ipdm_e4:'IPDM E4', ipdm_e5:'IPDM E5',
+    ipdm_e6:'IPDM E6', ipdm_e7:'IPDM E7', ipdm_e8:'IPDM E8', ipdm_e9:'IPDM E9',
+    af_b1:'A/F B1', af_b2:'A/F B2', ho2s_b1:'HO2S2 B1', ho2s_b2:'HO2S2 B2',
+    fp_relay:'Relé bomba', fuel_pump:'Bomba comb.', backup_sw:'Back-up sw',
+    evap_purge:'EVAP purga', evap_vent:'EVAP venteo', evap_press:'EVAP presión',
+    ascd_brake:'ASCD freno', stop_lamp:'Stop lamp', dlc:'OBD/DLC',
+    comb_meter:'Comb. meter', fuel_tank_temp:'FTT'
+  };
+  if(SHORT[cid]) return SHORT[cid];
+  const conf = CONN[cid] || CONN_BASE[cid];
+  if(!conf) return String(cid);
+  const name = connField(cid, conf, 'name') || String(cid);
+  /* "E108 ↔ M15 · SMJ…" → E108 ; "Bobina 1" → Bobina 1 */
+  let s = name.split('·')[0].trim();
+  if(s.includes('↔')) s = s.split('↔')[0].trim();
+  return s || String(cid);
+}
+function pathStepLabel(cid, cav, pin){
+  const face = connShortLabel(cid);
+  const cavTxt = pin && pin.lab ? String(pin.lab) : String(cav);
+  const code = pin && pin.code && !isPseudoWireCode(pin.code) ? String(pin.code) : '';
+  const bit = (String(cav) === cavTxt || !pin || !pin.lab)
+    ? `${face}·${cavTxt}`
+    : `${face}·${cav} ${cavTxt}`;
+  return code ? `${bit} (${code})` : bit;
+}
+
 function accentForConn(f){
   if(f && f.sub && SUB_ACCENT[f.sub]) return SUB_ACCENT[f.sub];
   return (f && f.accent) || '#546e7a';
@@ -4444,7 +4478,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
         (cavs||[]).forEach(c => pathCavByConn.get(cid).add(String(c)));
       });
     }
-    lines.push(`<div><span class="pill" style="border-color:${cir.color};color:${cir.color}">${cir.id}</span><b>${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
+    lines.push(`<div><b style="color:${cir.color}">${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
   /* Feed card focus: keep related fichas, but ECM label/highlight = control pins only */
   if(focusConn && FEED_ECM_FOCUS[focusConn]){
@@ -4530,12 +4564,10 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       const conf = CONN[cid];
       cavs.forEach(cav=>{
         const pin = (conf && conf.pins || []).find(x => String(x.id)===String(cav));
-        const code = pin && pin.code ? ` ${pin.code}` : '';
-        const lab = pin && pin.lab ? ` ${pin.lab}` : '';
-        bits.push(`<code>${esc(cid)}·${esc(String(cav))}</code>${esc(lab)}${esc(code)}`);
+        bits.push(esc(pathStepLabel(cid, cav, pin)));
       });
     });
-    lines.push(`<div style="color:var(--muted);margin-top:4px"><span class="pill" style="border-color:#ffca28;color:#ffca28">12V path</span>${bits.join(' · ')}</div>`);
+    lines.push(`<div style="color:var(--muted);margin-top:4px"><span class="pill" style="border-color:#ffca28;color:#ffca28">Alim. 12V</span> ${bits.join(' → ')}</div>`);
   }
   const pinInfo = focusPin!=null
     ? `<div style="margin-bottom:6px"><b>${esc(t('pinEcm'))} ${focusPin}</b> · ${pinName(focusPin)||''} · <code>${PIN_COL[focusPin]||'—'}</code></div>`
@@ -4746,7 +4778,7 @@ function selectConnPin(cid, cavId){
     if(pnote || pin.lab){
       const infoEl=document.getElementById('info');
       const extra = pnote ? ` — ${esc(pnote)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
-      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(String(cid))}·${esc(cavId)}</code> · ${esc(pin.code||'')}${extra} → ECM ${esc(String(pin.ecm))}</div>`;
+      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(pin.code||'')}${extra} → ECM ${esc(String(pin.ecm))}</div>`;
     }
     selKey = key;
     selFocusPin = ecmN;
@@ -4766,7 +4798,7 @@ function selectConnPin(cid, cavId){
     if(pin && (pnote || pin.code || pin.lab)){
       const infoEl=document.getElementById('info');
       const extra = pnote ? ` — ${esc(pnote)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
-      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(String(cid))}·${esc(cavId)}</code> · ${esc(pin.code||'')}${extra}</div>`;
+      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(pin.code||'')}${extra}</div>`;
     }
     selKey = key;
     selFocusPin = null;
