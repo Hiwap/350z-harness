@@ -710,25 +710,25 @@
   /* Per-line rail colors (5V/12V/GND button → distinct networks) */
   .pin.hl-rail.rail-line-5v_app { outline-color: #F9A825; }
   .pin.hl-rail.rail-line-5v_sns { outline-color: #42a5f5; }
-  .pin.hl-rail.rail-line-12v_coil { outline-color: #f57f17; }
-  .pin.hl-rail.rail-line-12v_inj { outline-color: #c62828; }
-  .pin.hl-rail.rail-line-12v_ht { outline-color: #ffca28; }
-  .pin.hl-rail.rail-line-12v_vb { outline-color: #e57373; }
-  .pin.hl-rail.rail-line-12v_batt { outline-color: #ef5350; }
-  .pin.hl-rail.rail-line-12v_vmot { outline-color: #ff7043; }
-  .pin.hl-rail.rail-line-12v_other { outline-color: #8d6e63; }
+  .pin.hl-rail.rail-line-12v_coil { outline-color: #ff9800; }
+  .pin.hl-rail.rail-line-12v_inj { outline-color: #e53935; }
+  .pin.hl-rail.rail-line-12v_ht { outline-color: #ba68c8; }
+  .pin.hl-rail.rail-line-12v_vb { outline-color: #00bcd4; }
+  .pin.hl-rail.rail-line-12v_batt { outline-color: #ffee58; }
+  .pin.hl-rail.rail-line-12v_vmot { outline-color: #7e57c2; }
+  .pin.hl-rail.rail-line-12v_other { outline-color: #a1887f; }
   .pin.hl-rail.rail-line-gnd_pwr { outline-color: #2E7D32; }
   .pin.hl-rail.rail-line-gnd_sns { outline-color: #66bb6a; }
   .pin.hl-rail.rail-line-gnd_app { outline-color: #a5d6a7; }
   .cav-hit.hl-rail.rail-line-5v_app .cav-face { stroke: #F9A825 !important; }
   .cav-hit.hl-rail.rail-line-5v_sns .cav-face { stroke: #42a5f5 !important; }
-  .cav-hit.hl-rail.rail-line-12v_coil .cav-face { stroke: #f57f17 !important; }
-  .cav-hit.hl-rail.rail-line-12v_inj .cav-face { stroke: #c62828 !important; }
-  .cav-hit.hl-rail.rail-line-12v_ht .cav-face { stroke: #ffca28 !important; }
-  .cav-hit.hl-rail.rail-line-12v_vb .cav-face { stroke: #e57373 !important; }
-  .cav-hit.hl-rail.rail-line-12v_batt .cav-face { stroke: #ef5350 !important; }
-  .cav-hit.hl-rail.rail-line-12v_vmot .cav-face { stroke: #ff7043 !important; }
-  .cav-hit.hl-rail.rail-line-12v_other .cav-face { stroke: #8d6e63 !important; }
+  .cav-hit.hl-rail.rail-line-12v_coil .cav-face { stroke: #ff9800 !important; }
+  .cav-hit.hl-rail.rail-line-12v_inj .cav-face { stroke: #e53935 !important; }
+  .cav-hit.hl-rail.rail-line-12v_ht .cav-face { stroke: #ba68c8 !important; }
+  .cav-hit.hl-rail.rail-line-12v_vb .cav-face { stroke: #00bcd4 !important; }
+  .cav-hit.hl-rail.rail-line-12v_batt .cav-face { stroke: #ffee58 !important; }
+  .cav-hit.hl-rail.rail-line-12v_vmot .cav-face { stroke: #7e57c2 !important; }
+  .cav-hit.hl-rail.rail-line-12v_other .cav-face { stroke: #a1887f !important; }
   .cav-hit.hl-rail.rail-line-gnd_pwr .cav-face { stroke: #2E7D32 !important; }
   .cav-hit.hl-rail.rail-line-gnd_sns .cav-face { stroke: #66bb6a !important; }
   .cav-hit.hl-rail.rail-line-gnd_app .cav-face { stroke: #a5d6a7 !important; }
@@ -1229,13 +1229,13 @@ const PIN_RAIL_LINE = {
 const RAIL_LINE = {
   '5v_app':  { rail:'5v',  color:'#F9A825', es:'5V APP', en:'5V APP', ja:'5V APP' },
   '5v_sns':  { rail:'5v',  color:'#42a5f5', es:'5V sensores', en:'5V sensors', ja:'5Vセンサ' },
-  '12v_coil':{ rail:'12v', color:'#f57f17', es:'12V bobinas/VTC', en:'12V coils/VTC', ja:'12Vコイル/VTC' },
-  '12v_inj': { rail:'12v', color:'#c62828', es:'12V iny', en:'12V injectors', ja:'12Vインジェクタ' },
-  '12v_ht':  { rail:'12v', color:'#ffca28', es:'12V calentadores', en:'12V heaters', ja:'12Vヒータ' },
-  '12v_vb':  { rail:'12v', color:'#e57373', es:'12V VB ECM', en:'12V ECM VB', ja:'12V ECM VB' },
-  '12v_batt':{ rail:'12v', color:'#ef5350', es:'12V BATT', en:'12V BATT', ja:'12V BATT' },
-  '12v_vmot':{ rail:'12v', color:'#ff7043', es:'12V VMOT', en:'12V VMOT', ja:'12V VMOT' },
-  '12v_other':{rail:'12v', color:'#8d6e63', es:'12V otros', en:'12V other', ja:'12Vその他' },
+  '12v_coil':{ rail:'12v', color:'#ff9800', es:'12V bobinas/VTC', en:'12V coils/VTC', ja:'12Vコイル/VTC' },
+  '12v_inj': { rail:'12v', color:'#e53935', es:'12V iny', en:'12V injectors', ja:'12Vインジェクタ' },
+  '12v_ht':  { rail:'12v', color:'#ba68c8', es:'12V calentadores', en:'12V heaters', ja:'12Vヒータ' },
+  '12v_vb':  { rail:'12v', color:'#00bcd4', es:'12V VB ECM', en:'12V ECM VB', ja:'12V ECM VB' },
+  '12v_batt':{ rail:'12v', color:'#ffee58', es:'12V BATT', en:'12V BATT', ja:'12V BATT' },
+  '12v_vmot':{ rail:'12v', color:'#7e57c2', es:'12V VMOT', en:'12V VMOT', ja:'12V VMOT' },
+  '12v_other':{rail:'12v', color:'#a1887f', es:'12V otros', en:'12V other', ja:'12Vその他' },
   'gnd_pwr': { rail:'gnd', color:'#2E7D32', es:'GND potencia', en:'Power GND', ja:'パワーGND' },
   'gnd_sns': { rail:'gnd', color:'#66bb6a', es:'GND sensores', en:'Sensor GND', ja:'センサGND' },
   'gnd_app': { rail:'gnd', color:'#a5d6a7', es:'GND APP', en:'APP GND', ja:'APP GND' }
