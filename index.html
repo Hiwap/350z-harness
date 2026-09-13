@@ -1308,16 +1308,42 @@ function buildCircuits(model){
 
   ];
   if(model === 'de_early'){
-    base.push({id:'vtc', title:'VTC admisión ×2 (DE early)', color:'#d81b60',
-      ecm:[11,10], conn:['vtc_b1','vtc_b2','ix_f18_f201','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']}, notes:'VTC admisión (DE early): dos solenoides. Ruta: ECM 11 Bank1 vía F18·4 · ECM 10 Bank2 · 12V E7-17 → F3·5 → F18·5/6.'});
+    base.push(
+      {id:'vtc_adm_b1', title:'VTC admisión B1', color:'#d81b60',
+        ecm:[11], conn:['vtc_b1','ix_f18_f201'],
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']},
+        notes:'VTC admisión Bank 1. Señal propia ECM 11 (no comparte con B2). Ruta: F18·4 → ECM 11 · 12V E7-17 → F3·5 → F18·5/6.'},
+      {id:'vtc_adm_b2', title:'VTC admisión B2', color:'#d81b60',
+        ecm:[10], conn:['vtc_b2'],
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']},
+        notes:'VTC admisión Bank 2. Señal propia ECM 10 (sin F18). Ruta: solenoide → ECM 10 · mismo 12V E7-17 → F3·5.'}
+    );
   } else if(model === 'de_revup'){
-    base.push({id:'vtc', title:'VTC admisión + escape ×4 (Rev-Up)', color:'#d81b60',
-      ecm:[11,10], conn:['vtc_b1','vtc_b2','vtc_ex_b1','vtc_ex_b2','ix_f18_f201','ix_e12_f3'],
-      path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']},
-      notes:'VTC Rev-Up: admisión + escape. Ruta: admisión ECM 11/10 (F18 en B1) · escape según FSM · mismo 12V E7-17 → F3·5.'});
+    base.push(
+      {id:'vtc_adm_b1', title:'VTC admisión B1', color:'#d81b60',
+        ecm:[11], conn:['vtc_b1','ix_f18_f201'],
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']},
+        notes:'VTC admisión Bank 1 (Rev-Up). Señal ECM 11 vía F18·4. 12V E7-17 → F3·5 → F18·5/6.'},
+      {id:'vtc_adm_b2', title:'VTC admisión B2', color:'#d81b60',
+        ecm:[10], conn:['vtc_b2'],
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']},
+        notes:'VTC admisión Bank 2 (Rev-Up). Señal ECM 10 sin F18. Mismo rail 12V E7-17 → F3·5.'},
+      {id:'vtc_ex_b1', title:'VTC escape B1', color:'#ad1457',
+        ecm:[], conn:['vtc_ex_b1'],
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']},
+        notes:'VTC escape Bank 1 (Rev-Up). Pin ECM según FSM — señal propia, no va con admisión B1.'},
+      {id:'vtc_ex_b2', title:'VTC escape B2', color:'#ad1457',
+        ecm:[], conn:['vtc_ex_b2'],
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']},
+        notes:'VTC escape Bank 2 (Rev-Up). Pin ECM según FSM — señal propia.'}
+    );
   } else {
-    base.push({id:'vtc', title:'VTC (HR — ver FSM)', color:'#d81b60',
-      ecm:[], conn:['vtc_b1','vtc_b2'], notes:'VQ35HR: VTC y ECM distintos (3 conectores). Ver FSM 2007 EC — este mapa es VQ35DE.'});
+    base.push(
+      {id:'vtc_adm_b1', title:'VTC admisión B1 (HR)', color:'#d81b60',
+        ecm:[], conn:['vtc_b1'], notes:'VQ35HR: VTC/ECM distintos. Ver FSM 2007 EC — este mapa es VQ35DE.'},
+      {id:'vtc_adm_b2', title:'VTC admisión B2 (HR)', color:'#d81b60',
+        ecm:[], conn:['vtc_b2'], notes:'VQ35HR: VTC/ECM distintos. Ver FSM 2007 EC — este mapa es VQ35DE.'}
+    );
   }
   return base;
 }
@@ -2967,10 +2993,17 @@ const TITLES_I18N = {
   ascd_brake: {en:'ASCD brake (+ clutch M/T)', ja:'ASCDブレーキ（+クラッチ M/T）'},
   ascd_steer: {en:'ASCD steering (clock spring)', ja:'ASCDステアリング（クロックスプリング）'},
   pnp_sw: {en:'PNP / park-neutral (A/T)', ja:'PNP / パーキング・ニュートラル（A/T）'},
-  vtc: {en:'VTC intake ×2 (DE early)', ja:'VTC吸気 ×2（DE early）'},
+  vtc_adm_b1: {en:'VTC intake B1', ja:'VTC吸気 B1'},
+  vtc_adm_b2: {en:'VTC intake B2', ja:'VTC吸気 B2'},
+  vtc_ex_b1: {en:'VTC exhaust B1', ja:'VTC排気 B1'},
+  vtc_ex_b2: {en:'VTC exhaust B2', ja:'VTC排気 B2'},
 };
 
 const NOTES_I18N = {
+  vtc_adm_b1: {en:'Intake VTC Bank 1 — own signal ECM 11 (not shared with B2). Path: F18·4 → ECM 11 · 12V E7-17 → F3·5 → F18·5/6.', ja:'吸気VTC B1 — 信号はECM 11（B2と非共有）。経路: F18·4→ECM 11 · 12V E7-17→F3·5→F18·5/6。'},
+  vtc_adm_b2: {en:'Intake VTC Bank 2 — own signal ECM 10 (no F18). Path: solenoid → ECM 10 · same 12V E7-17 → F3·5.', ja:'吸気VTC B2 — 信号はECM 10（F18なし）。経路: ソレノイド→ECM 10 · 同じ12V E7-17→F3·5。'},
+  vtc_ex_b1: {en:'Exhaust VTC Bank 1 (Rev-Up) — own signal; ECM pin per FSM.', ja:'排気VTC B1（Rev-Up）— 独自信号。ECMピンはFSM参照。'},
+  vtc_ex_b2: {en:'Exhaust VTC Bank 2 (Rev-Up) — own signal; ECM pin per FSM.', ja:'排気VTC B2（Rev-Up）— 独自信号。ECMピンはFSM参照。'},
   start_sig: {en:'Start signal GY/R (not starter 12V). Path: F102·23H ↔ cluster/TCM · also SC-START branch.', ja:'スタート信号 GY/R（スタータ12Vではない）。経路: F102·23H↔メータ/TCM · SC-START分岐。'},
   af_b1: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM).', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。FSM 2005。'},
   af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
@@ -3039,11 +3072,7 @@ function circuitNotes(cir){
   if(lang === 'es') return cir.notes;
   const n = NOTES_I18N[cir.id];
   if(!n) return cir.notes;
-  if(cir.id === 'vtc'){
-    const model = document.getElementById('model').value;
-    const k = lang + '_' + (model === 'de_early' ? 'early' : model === 'de_revup' ? 'revup' : 'hr');
-    return n[k] || cir.notes;
-  }
+  /* vtc split into vtc_adm_b1/b2 (+ ex on Rev-Up); notes live on each circuit */
   return n[lang] || cir.notes;
 }
 
