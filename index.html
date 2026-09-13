@@ -1314,6 +1314,24 @@ function markRailPrimaryEl(el, rail, line){
     delete el.dataset.railLine;
   }
 }
+const RAIL_LINE_ORDER = ['5v_app','5v_sns','12v_coil','12v_inj','12v_ht','12v_vb','12v_batt','12v_vmot','12v_other','gnd_pwr','gnd_sns','gnd_app'];
+/** Which rail-lines have primary pins on this ficha (for selTop subgroups). */
+function primaryLinesForConn(cid){
+  const conf = CONN[cid];
+  if(!conf || !activeRails || !activeRails.size) return [];
+  const lines = new Set();
+  (conf.pins || []).forEach(pin=>{
+    const rEcm = (pin.ecm!=null && pin.ecm!=='') ? (PIN_RAIL[Number(pin.ecm)] || null) : null;
+    let primary = false;
+    if(rEcm && activeRails.has(rEcm)) primary = true;
+    else if((pin.ecm==null || pin.ecm==='') && pin.rail && activeRails.has(pin.rail) && pin.rail !== 'gnd') primary = true;
+    if(!primary) return;
+    const line = railLineOfCav(cid, pin) || railLineOfEcm(pin.ecm);
+    if(line && RAIL_LINE[line] && activeRails.has(RAIL_LINE[line].rail)) lines.add(line);
+  });
+  return RAIL_LINE_ORDER.filter(id => lines.has(id));
+}
+
 
 
 /* CAN bus — bottom row C/H · C/L */
@@ -2992,9 +3010,11 @@ const I18N = {
     fichasTitle: 'Fichas',
     selTopTitle: '選択グループ',
     selTopGroups: 'グループ',
+    selTopLines: 'ライン',
     selTopSub: '選択を上に · 下に通常グループ',
     selTopTitle: 'Selected groups',
     selTopGroups: 'groups',
+    selTopLines: 'lines',
     selTopSub: 'selection on top · full groups below',
     selTopTitle: 'Grupos seleccionados',
     selTopGroups: 'grupos',
@@ -3287,8 +3307,7 @@ function renderHlLegend(){
   if(typeof activeRails !== 'undefined' && activeRails && activeRails.size){
     html += sec(t('hlLegSecRail'));
     if(railLineGroupsEnabled()){
-      const lineOrder = ['5v_app','5v_sns','12v_coil','12v_inj','12v_ht','12v_vb','12v_batt','12v_vmot','12v_other','gnd_pwr','gnd_sns','gnd_app'];
-      const lines = lineOrder.filter(id => RAIL_LINE[id] && activeRails.has(RAIL_LINE[id].rail));
+      const lines = RAIL_LINE_ORDER.filter(id => RAIL_LINE[id] && activeRails.has(RAIL_LINE[id].rail));
       lines.forEach(id => html += row(RAIL_LINE[id].color, railLineLabel(id)));
     } else {
       const famLab = {
@@ -4239,6 +4258,61 @@ function updateSelectedTop(connIds){
   const ids = [...new Set((connIds||[]).filter(id => id && CONN[id] && id !== 'ix_f102_m72' && !SKIP_SEL_CONN.has(id)))];
   if(ids.length < 1) return;
 
+  /* One rail toggle ON → subgroup by line (bobinas, iny, heaters…). Else by subcategory. */
+  if(typeof railLineGroupsEnabled === 'function' && railLineGroupsEnabled()){
+    const byLine = new Map(); /* lineId → [connIds] */
+    ids.forEach(id=>{
+      let lines = primaryLinesForConn(id);
+      if(!lines.length) lines = ['_other'];
+      lines.forEach(line=>{
+        if(!byLine.has(line)) byLine.set(line, []);
+        byLine.get(line).push(id);
+      });
+    });
+    const lineKeys = RAIL_LINE_ORDER.filter(k => byLine.has(k));
+    if(byLine.has('_other')) lineKeys.push('_other');
+    if(lineKeys.length < 2) return; /* one line only → stay in-place like same-sub */
+
+    const names = lineKeys.map(k => k === '_other' ? t('hlLegRelData') : railLineLabel(k));
+    const top = document.createElement('details');
+    top.id = 'selTop';
+    top.className = 'ficha-sec sel-top';
+    top.open = true;
+    const sum = document.createElement('summary');
+    sum.innerHTML = `${esc(String(lineKeys.length) + ' ' + t('selTopLines'))}<span>${esc(names.join(', '))}</span>`;
+    top.appendChild(sum);
+    const body = document.createElement('div');
+    body.className = 'fichas-body';
+
+    lineKeys.forEach(line=>{
+      const lineIds = byLine.get(line) || [];
+      const nest = document.createElement('details');
+      nest.className = 'ficha-nest sel-line';
+      nest.open = true;
+      const color = (line !== '_other' && RAIL_LINE[line]) ? RAIL_LINE[line].color : '#888';
+      const nsum = document.createElement('summary');
+      const lab = line === '_other' ? (lang==='en'?'Other':lang==='ja'?'その他':'Otros') : railLineLabel(line);
+      nsum.innerHTML = `<span class="opts-hl-swatch" style="background:${color};vertical-align:middle;margin-right:6px"></span><span class="sub-label">${esc(lab)}</span>`;
+      nsum.style.borderLeft = '3px solid ' + color;
+      nest.appendChild(nsum);
+      const ngrid = document.createElement('div');
+      ngrid.className = 'fichas-grid';
+      const ordered = lineIds.slice().sort((a,b)=> String(CONN[a].name).localeCompare(String(CONN[b].name)));
+      ordered.forEach(id=>{
+        const el = makeFichaEl(id, CONN[id]);
+        el.classList.add('hl');
+        el.classList.remove('dim');
+        ngrid.appendChild(el);
+      });
+      nest.appendChild(ngrid);
+      body.appendChild(nest);
+    });
+
+    top.appendChild(body);
+    root.insertBefore(top, root.firstChild);
+    return;
+  }
+
   // Distinct subcategory buckets in SUB_ORDER
   const bucketKeys = [];
   const seen = new Set();
@@ -4255,7 +4329,7 @@ function updateSelectedTop(connIds){
   });
   const names = bucketKeys.map(s => selectedBucketLabel(s));
   const nBuckets = bucketKeys.length;
-  /* Seleccionados only when 2+ distinct groups. Same-sub picks (bobinas, F103+E17…) stay in-group, promoted first. */
+  /* Seleccionados only when 2+ distinct groups. Same-sub picks stay in-group, promoted first. */
   if(nBuckets < 2) return;
 
   const top = document.createElement('details');
@@ -4269,7 +4343,6 @@ function updateSelectedTop(connIds){
   body.className = 'fichas-body';
   const grid = document.createElement('div');
   grid.className = 'fichas-grid';
-  // Keep stable order: SUB_ORDER then name
   const ordered = ids.slice().sort((a,b)=>{
     const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
     const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
