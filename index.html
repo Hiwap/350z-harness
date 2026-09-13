@@ -1380,7 +1380,7 @@ function buildCircuits(model){
 
     {id:'sns_gnd', title:'SNS GND · masas sensores', color:'#ef6c00',
       ecm:[66,67,78], conn:[], f102:['20H'],
-      notes:'Masas de sensores (SNS). No es tierra de bobinas ni del pedal APP. Ruta: ECM 66 / 67 / 78 (67 también F102·20H). Para ver un sensor, tocá su pin de señal.'},
+      notes:'Masas de sensores (SNS). No es tierra de bobinas ni del pedal APP. Ruta: ECM 66 / 67 / 78 (67 también F102·20H). El 78 es masa de HO2S B1/B2; tocá 78 para esas fichas, o el pin de señal de otro sensor.'},
     {id:'knock', title:'Sensor de detonación (knock)', color:'#42a5f5',
       ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Sensor de detonación. Ruta: señal → F14/F229 → ECM 15 · malla a SNS GND.'},
     {id:'psp', title:'PSP · presión dirección', color:'#00897b',
@@ -4334,11 +4334,13 @@ function clearSelectionClasses(){
   document.querySelectorAll('.pin,.ficha,.ficha-wrap,.cav-hit,.f102-panel').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','rail-5v','rail-12v','rail-gnd');
     stripRailLineClasses(el);
+    clearHlGroupElColor(el);
   });
   /* Explicit ECM/F102 pass — dim must never stick after deselect */
   document.querySelectorAll('#blocks .pin, #f102Blocks .pin').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','rail-5v','rail-12v','rail-gnd');
     stripRailLineClasses(el);
+    clearHlGroupElColor(el);
   });
 }
 
@@ -4672,7 +4674,12 @@ function selKindAllowed(kind){
 function formatSelPinsLabel(tmpl, items){
   const parts = items.map(({id, kind})=>{
     const k = selKindAllowed(kind) ? kind : 'hl';
-    return `<span class="sel-pin sel-${esc(k)}">${esc(String(id))}</span>`;
+    let style = '';
+    if(k === 'group'){
+      const col = accentForEcmPin(id);
+      if(col) style = ` style="color:${col}"`;
+    }
+    return `<span class="sel-pin sel-${esc(k)}"${style}>${esc(String(id))}</span>`;
   });
   const pinsHtml = parts.join('<span class="sel-sep"> · </span>');
   return String(tmpl || '{pins}').replace('{pins}', pinsHtml);
@@ -4815,6 +4822,47 @@ function setHlGroupColor(color){
 function clearHlGroupColor(){
   document.documentElement.style.removeProperty('--hl-group-color');
 }
+/** Per-pin/cavity group accent (nest Bobinas/Iny beats subcategory). */
+function accentForConnId(cid){
+  if(!cid) return null;
+  if(ACT_BOBINAS.has(cid)) return NEST_ACCENT.bobinas;
+  if(ACT_INYECTORES.has(cid)) return NEST_ACCENT.inyectores;
+  const f = CONN[cid] || CONN_BASE[cid];
+  if(f && f.sub && SUB_ACCENT[f.sub]) return SUB_ACCENT[f.sub];
+  return accentForConn(f, cid);
+}
+function accentForEcmPin(ecm){
+  const n = Number(ecm);
+  if(isNaN(n)) return null;
+  const rank = { bobinas:0, inyectores:0, sensors:1, actuators:2, pedals:3, ascd_dlc:4, power:5, ipdm:6, feeds:7, intermedias:8 };
+  let best = null, bestRank = 99;
+  Object.entries(CONN).forEach(([cid, conf])=>{
+    const hit = (conf.pins||[]).some(p => p.ecm!=null && Number(p.ecm)===n);
+    if(!hit) return;
+    let col = null, r = 50;
+    if(ACT_BOBINAS.has(cid)){ col = NEST_ACCENT.bobinas; r = 0; }
+    else if(ACT_INYECTORES.has(cid)){ col = NEST_ACCENT.inyectores; r = 0; }
+    else if(conf.sub && SUB_ACCENT[conf.sub]){ col = SUB_ACCENT[conf.sub]; r = rank[conf.sub] ?? 40; }
+    if(col && r < bestRank){ best = col; bestRank = r; }
+  });
+  return best;
+}
+function accentForCav(cid, pin){
+  if(pin && pin.ecm!=null && pin.ecm!==''){
+    const a = accentForEcmPin(pin.ecm);
+    if(a) return a;
+  }
+  return accentForConnId(cid);
+}
+function applyHlGroupEl(el, color){
+  if(!el) return;
+  el.classList.remove('dim');
+  el.classList.add('hl-group');
+  if(color) el.style.setProperty('--hl-group-color', color);
+}
+function clearHlGroupElColor(el){
+  if(el && el.style) el.style.removeProperty('--hl-group-color');
+}
 
 function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   activeRails.clear(); updateRailButtons();
@@ -4846,6 +4894,19 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     FEED_ECM_FOCUS[focusConn].forEach(p=>ecmSet.add(p));
     connSet.add(focusConn);
   }
+  /* sns_gnd (and any circuit with empty conn): open fichas that actually carry the focused ECM pin
+     (e.g. 78 → HO2S B1/B2 GND). Avoids a dead selection without fan-out to every sensor. */
+  {
+    const circObjs = circIds.map(id => CIRCUITS.find(x=>x.id===id)).filter(Boolean);
+    const allEmptyConn = circObjs.length > 0 && circObjs.every(c => !(c.conn && c.conn.length));
+    if(allEmptyConn && focusPin!=null){
+      const n = Number(focusPin);
+      Object.entries(CONN).forEach(([cid, conf])=>{
+        if(SKIP_SEL_CONN.has(cid)) return;
+        if((conf.pins||[]).some(p => p.ecm!=null && Number(p.ecm)===n)) connSet.add(cid);
+      });
+    }
+  }
   /* Auto-attach F102 whenever any ECM on the path crosses the SMJ */
   const f102Allow = f102AllowForCircuits(circIds, focusConn==='ix_f102_m72' ? focusCav : null);
   const f102Hits = f102HitsForEcm(ecmSet, focusPin, f102Allow);
@@ -4867,8 +4928,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     const el=document.querySelector(`#blocks .pin[data-pin="${p}"]`);
     if(!el) return;
     el.classList.remove('dim');
-    if(focusPin!=null && p===focusPin) el.classList.add('hl');
-    else el.classList.add('hl-group');
+    if(focusPin!=null && p===focusPin){ el.classList.add('hl'); clearHlGroupElColor(el); }
+    else applyHlGroupEl(el, accentForEcmPin(p) || hlGroupColorForCircuits(circIds, focusPin));
   });
   updateEcmSelCount(ecmSet);
   connSet.forEach(cid=>{
@@ -4886,18 +4947,21 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       const onPathFeed = pathCavByConn.has(cid) && pathCavByConn.get(cid).has(String(p.id));
       /* Only path cavities stay lit (E9/OBD have many off-path pins). */
       if(!(isFocusCav || onFocusEcm || onPathEcm || onPathFeed)) return;
-      /* exact pin = yellow hl; siblings on path = hl-group */
-      const cls = (isFocusCav || onFocusEcm) ? 'hl' : 'hl-group';
+      /* exact pin = yellow hl; siblings on path = hl-group (per-group color) */
+      const isFocus = (isFocusCav || onFocusEcm);
+      const gCol = accentForCav(cid, p) || hlGroupColorForCircuits(circIds, focusPin);
       document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`).forEach(cav=>{
         cav.classList.remove('dim','hl','hl-end','hl-group');
-        cav.classList.add(cls);
+        if(isFocus){ cav.classList.add('hl'); clearHlGroupElColor(cav); }
+        else applyHlGroupEl(cav, gCol);
       });
       if(cid === 'ix_f102_m72'){
         const fp = f102PinEl(p.id);
         if(!fp) return;
         if(f102Allow && !f102Allow.has(String(p.id)) && !isFocusCav) return;
         fp.classList.remove('dim','hl','hl-end','hl-group');
-        fp.classList.add(cls);
+        if(isFocus){ fp.classList.add('hl'); clearHlGroupElColor(fp); }
+        else applyHlGroupEl(fp, gCol);
       }
     });
   });
@@ -4975,14 +5039,16 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
     const hit = pathOk(p, cid, pid);
     if(!hit) return;
     cav.classList.remove('dim','hl','hl-end','hl-group');
-    cav.classList.add(hit.cls);
+    if(hit.cls === 'hl-group') applyHlGroupEl(cav, accentForCav(cid, p));
+    else { cav.classList.add(hit.cls); clearHlGroupElColor(cav); }
   });
   document.querySelectorAll('#f102Blocks .pin[data-cav]').forEach(fp=>{
     const p = (CONN['ix_f102_m72']&&CONN['ix_f102_m72'].pins||[]).find(x=>String(x.id)===String(fp.dataset.cav));
     const hit = pathOk(p, 'ix_f102_m72', fp.dataset.cav);
     if(!hit) return;
     fp.classList.remove('dim','hl','hl-end','hl-group');
-    fp.classList.add(hit.cls);
+    if(hit.cls === 'hl-group') applyHlGroupEl(fp, accentForCav('ix_f102_m72', p));
+    else { fp.classList.add(hit.cls); clearHlGroupElColor(fp); }
   });
   updateF102SelPins();
 }
@@ -5052,14 +5118,15 @@ function selectConn(cid){
       if(panel) panel.classList.add('hl');
     }
     (conf&&conf.pins||[]).forEach(p=>{
-      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`).forEach(cav=>cav.classList.add('hl-group'));
+      const gCol = accentForCav(cid, p);
+      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`).forEach(cav=>applyHlGroupEl(cav, gCol));
       if(cid === 'ix_f102_m72'){
         const fp = f102PinEl(p.id);
-        if(fp && p.code && p.code !== '—'){ fp.classList.remove('dim'); fp.classList.add('hl-group'); }
+        if(fp && p.code && p.code !== '—') applyHlGroupEl(fp, gCol);
       }
       if(p.ecm!=null){
         const el=document.querySelector(`#blocks .pin[data-pin="${p.ecm}"]`);
-        if(el){ el.classList.remove('dim'); el.classList.add('hl-group'); }
+        if(el) applyHlGroupEl(el, accentForEcmPin(p.ecm) || gCol);
       }
     });
     const infoEl=document.getElementById('info'); infoEl.dataset.locked='1';
@@ -5301,7 +5368,7 @@ function revealConnHits(connIds){
       if(!(fichaHit || pinHit)) return;
       if(pin.ecm==null && (!pin.code || pin.code==='—' || pin.code==='-' || pin.code==='nc')) return;
       document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
-        cav.classList.remove('dim'); cav.classList.add('hl-group');
+        applyHlGroupEl(cav, accentForCav(cid, pin));
       });
     });
   });
@@ -5323,7 +5390,7 @@ function revealConnHits(connIds){
       if(!(fichaHit || pinHit)) return;
       if(pin.ecm==null && (!pin.code || pin.code==='—' || pin.code==='-' || pin.code==='nc')) return;
       document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
-        cav.classList.remove('dim'); cav.classList.add('hl-group');
+        applyHlGroupEl(cav, accentForCav(cid, pin));
       });
     });
   });
