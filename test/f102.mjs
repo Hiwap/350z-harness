@@ -115,6 +115,52 @@ await clickPin(106);
 ok(await pinMarked(106), 'pin 106 APS1 marked');
 ok(await pinMarked(98), 'pin 98 APS2 still sibling (same APP ficha)');
 
+console.log('\nToggling Datos keeps pin 15 selection');
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(15);
+ok(await pinMarked(15), 'pin 15 selected');
+await page.evaluate(() => {
+  const d = document.getElementById('railRelData');
+  d.checked = false;
+  d.dispatchEvent(new Event('change', { bubbles: true }));
+});
+ok(await pinMarked(15), 'pin 15 still selected after Datos off');
+const infoAfter = await page.$eval('#info', (el) => el.dataset.locked === '1' && (el.textContent || '').length > 10);
+ok(infoAfter, 'info panel still locked after Datos off');
+await page.evaluate(() => {
+  const d = document.getElementById('railRelData');
+  d.checked = true;
+  d.dispatchEvent(new Event('change', { bubbles: true }));
+});
+ok(await pinMarked(15), 'pin 15 still selected after Datos on');
+
+console.log('\nClick sibling keeps group; only yellow moves');
+await page.evaluate(() => {
+  const g = document.getElementById('railRelGnd');
+  const d = document.getElementById('railRelData');
+  if (g && !g.checked) { g.checked = true; g.dispatchEvent(new Event('change', { bubbles: true })); }
+  if (d && !d.checked) { d.checked = true; d.dispatchEvent(new Event('change', { bubbles: true })); }
+});
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(15);
+ok(await pinMarked(15), 'knock 15 selected');
+ok(await pinMarked(116), 'knock shield 116 in group');
+await clickPin(116);
+ok(await pinMarked(15), '15 still in group after clicking 116');
+ok(await pinMarked(116), '116 still marked (now yellow)');
+ok(!(await pinMarked(1)), 'ECM ground 1 not added (did not switch to gnd_ecm)');
+ok(!(await pinMarked(115)), 'ECM ground 115 not added');
+await page.click('#blocks .pin[data-pin="116"]');
+const infoEmpty = await page.$eval('#info', (el) => el.dataset.locked !== '1');
+ok(!(await pinMarked(15)) && infoEmpty, 'second click on yellow 116 clears');
+
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(32);
+ok(await pinMarked(32) && await pinMarked(67), 'EVAP 32+67');
+await clickPin(67);
+ok(await pinMarked(32), '32 still in group after clicking 67');
+ok(!(await pinMarked(70)), 'A/C 70 not added (did not switch to ac_press)');
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

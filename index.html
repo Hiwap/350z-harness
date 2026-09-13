@@ -4717,9 +4717,49 @@ function revealConns(connIds, opts){
   scrollFichasToSelection(first);
 }
 
-let selKey = null; /* 'pin:N' | 'cav:cid:id' — second click clears */
+let selKey = null; /* 'pin:N' | 'cav:cid:id' | 'conn:cid' — second click on yellow clears */
 let selFocusPin = null; /* ECM pin in focus for current selection (cav or pin) */
 let lastSelConnIds = []; /* conn ids for collapseIdle (not path-only) */
+let lastCircIds = []; /* circuits of the current selection — retarget yellow inside this set */
+
+function selMarkOn(el){
+  if(!el) return false;
+  return el.classList.contains('hl') || el.classList.contains('hl-group') || el.classList.contains('hl-end')
+    || el.classList.contains('hl-rail') || el.classList.contains('hl-rail-rel-gnd') || el.classList.contains('hl-rail-rel-data');
+}
+function ecmPinEl(n){
+  return document.querySelector(`#blocks .pin[data-pin="${n}"]`);
+}
+function ecmPinIsMarked(n){
+  return selMarkOn(ecmPinEl(n));
+}
+function cavSelEl(cid, cavId){
+  if(cid === 'ix_f102_m72') return f102PinEl(cavId);
+  return document.querySelector(`.cav-hit[data-conn="${CSS.escape(String(cid))}"][data-cav="${CSS.escape(String(cavId))}"]`);
+}
+function connIsSelected(cid){
+  if((lastSelConnIds||[]).includes(cid)) return true;
+  if(cid === 'ix_f102_m72'){
+    const panel = document.getElementById('f102Panel');
+    return !!(panel && panel.classList.contains('hl'));
+  }
+  const f = document.querySelector(`.ficha-wrap[data-conn="${CSS.escape(String(cid))}"]`)
+    || document.querySelector(`.ficha[data-conn="${CSS.escape(String(cid))}"]`);
+  return !!(f && (f.classList.contains('hl') || (f.querySelector && f.querySelector('.ficha.hl'))));
+}
+function retargetSelection(focusPin, focusConn, focusCav){
+  if(!lastCircIds.length) return false;
+  const n = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
+  selectCircuits(lastCircIds, n, focusConn || null, focusCav != null ? String(focusCav) : null);
+  if(n!=null){
+    selFocusPin = n;
+    selKey = (focusConn && focusCav != null) ? ('cav:' + focusConn + ':' + focusCav) : ('pin:' + String(n));
+  } else if(focusConn){
+    selFocusPin = null;
+    selKey = 'conn:' + focusConn;
+  }
+  return true;
+}
 
 function clearSelectionClasses(){
   clearHlGroupColor();
@@ -4739,6 +4779,7 @@ function clearSelectionClasses(){
 function clearSelection(){
   selKey = null;
   selFocusPin = null;
+  lastCircIds = [];
   activeRails.clear(); updateRailButtons();
   clearHL();
   const info = document.getElementById('info');
@@ -4844,14 +4885,15 @@ function refreshCurrentSelection(){
   if(activeRails.size){ applyRailFilter(); return; }
   if(!selKey) return;
   const key = selKey;
-  selKey = null; /* allow re-select without toggle-clear */
   if(key.startsWith('pin:')){
-    selectPin(key.slice(4));
+    selectPin(key.slice(4), { keep: true });
   } else if(key.startsWith('cav:')){
     const rest = key.slice(4);
     const i = rest.indexOf(':');
     if(i < 0) return;
-    selectConnPin(rest.slice(0, i), rest.slice(i + 1));
+    selectConnPin(rest.slice(0, i), rest.slice(i + 1), { keep: true });
+  } else if(key.startsWith('conn:')){
+    selectConn(key.slice(5));
   }
 }
 
@@ -5302,6 +5344,7 @@ function clearHlGroupElColor(el){
 }
 
 function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
+  lastCircIds = (circIds || []).slice();
   activeRails.clear(); updateRailButtons();
   clearHL();
   if(!circIds.length){ const info=document.getElementById('info'); info.dataset.locked='1'; info.textContent=t('noCirc'); clearHlGroupColor(); return; }
@@ -5369,7 +5412,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     const el=document.querySelector(`#blocks .pin[data-pin="${p}"]`);
     if(!el) return;
     el.classList.remove('dim');
-    if(focusPin!=null && p===focusPin){ el.classList.add('hl'); clearHlGroupElColor(el); }
+    if(focusPin!=null && Number(p)===Number(focusPin)){ el.classList.add('hl'); clearHlGroupElColor(el); }
     else {
       const kind = circuitSiblingKindEcm(p);
       if(!circuitSiblingAllowed(kind)){ el.classList.add('dim'); clearHlGroupElColor(el); return; }
@@ -5508,13 +5551,19 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
   updateF102SelPins();
 }
 
-function selectPin(p){
-  const key = 'pin:' + String(p);
+function selectPin(p, opts){
   const n = Number(p);
-  /* Re-click same ECM pin, or ECM pin that is focus of a cavity selection → clear + undim */
-  if(selKey === key || (selFocusPin != null && Number(selFocusPin) === n && String(selKey||'').startsWith('cav:'))){
-    clearSelection();
-    return;
+  const key = 'pin:' + String(n);
+  /* Re-click yellow focus → clear. Click another pin already in the set → only move yellow. */
+  if(!opts || !opts.keep){
+    if(selKey === key || (selFocusPin != null && Number(selFocusPin) === n && String(selKey||'').startsWith('cav:'))){
+      clearSelection();
+      return;
+    }
+    if(selKey && lastCircIds.length && ecmPinIsMarked(n)){
+      retargetSelection(n);
+      return;
+    }
   }
   let circs = pinToCirc[p] || pinToCirc[Number(p)] || pinToCirc[String(p)] || [];
   /* sns_gnd.conn stays empty so 78 does not fan out as a signal sibling —
@@ -5555,7 +5604,7 @@ function selectPin(p){
     selFocusPin = n;
     return;
   }
-  selectCircuits(circs, p);
+  selectCircuits(circs, n);
   selKey = key;
   selFocusPin = n;
 }
@@ -5563,6 +5612,11 @@ function selectPin(p){
 function selectConn(cid){
   const conf=CONN[cid] || CONN_BASE[cid];
   const circs = connToCirc[cid] || [];
+  if(selKey && lastCircIds.length && connIsSelected(cid)){
+    const pin = (conf && conf.pins || []).find(p => p.ecm != null && ecmPinIsMarked(Number(p.ecm)));
+    if(pin){ retargetSelection(pin.ecm, cid, pin.id); return; }
+    return;
+  }
   /* F102 is a shared SMJ — clicking the card must not open every circuit that crosses it */
   if(cid === 'ix_f102_m72'){
     activeRails.clear(); updateRailButtons();
@@ -5581,8 +5635,11 @@ function selectConn(cid){
     selFocusPin = null;
     return;
   }
-  if(circs.length) selectCircuits(circs, null, cid, null); /* reveal via selectCircuits */
-  else {
+  if(circs.length){
+    selectCircuits(circs, null, cid, null);
+    selKey = 'conn:' + cid;
+    selFocusPin = null;
+  } else {
     activeRails.clear(); updateRailButtons();
     clearHL(); dimAll();
     markFichaHL(cid, true);
@@ -5612,12 +5669,22 @@ function selectConn(cid){
     if(collapseF102) setF102PanelOpen(false);
     updateEcmSelCount();
     updateF102SelPins();
+    selKey = 'conn:' + cid;
+    selFocusPin = null;
   }
 }
 
-function selectConnPin(cid, cavId){
+function selectConnPin(cid, cavId, opts){
   const key = 'cav:' + String(cid) + ':' + String(cavId);
-  if(selKey === key){ clearSelection(); return; }
+  if(!opts || !opts.keep){
+    if(selKey === key){ clearSelection(); return; }
+    if(selKey && lastCircIds.length && selMarkOn(cavSelEl(cid, cavId))){
+      const conf0 = CONN[cid] || CONN_BASE[cid];
+      const pin0 = (conf0 && conf0.pins || []).find(x => String(x.id) === String(cavId));
+      retargetSelection(pin0 && pin0.ecm != null ? pin0.ecm : selFocusPin, cid, cavId);
+      return;
+    }
+  }
   const conf=CONN[cid] || CONN_BASE[cid];
   if(!conf) return;
   const pin=(conf.pins||[]).find(x=>String(x.id)===String(cavId));
