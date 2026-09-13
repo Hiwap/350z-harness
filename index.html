@@ -1276,6 +1276,7 @@ function railLineOfCav(cid, pin){
     if(cid === 'jb_15a_ht' || cid === 'feed_af_12v' || cid === 'feed_ho2s_12v') return '12v_ht';
     if(cid.startsWith('af_') || cid.startsWith('ho2s_')) return '12v_ht';
     if(cid === 'ix_f18_f201' || cid.startsWith('coil') || cid.startsWith('vtc')) return '12v_coil';
+    if((cid === 'ix_e106_b2' || cid === 'ix_b43_t1' || cid === 'evap_vent') && (pin.rail === '12v')) return '12v_coil';
     if(cid === 'ix_e12_f3'){
       if(id === '5') return '12v_coil';
       if(id === '3' || id === '65G') return '12v_ht'; /* heater path via F3 when tagged 12v */
@@ -1476,7 +1477,7 @@ function buildCircuits(model){
     {id:'evap_purge', title:'EVAP · purga', color:'#8e24aa',
       ecm:[45], conn:['evap_purge','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7']}, notes:'Válvula de purga del canister. Ruta: 12V (E7-18 → F3) en F5·1 · control F5·2 → ECM 45.'},
     {id:'evap_vent', title:'EVAP · venteo', color:'#6a1b9a',
-      ecm:[117], conn:['evap_vent','ix_t2_b44','ix_b1_m12','ix_f102_m72','ipdm_e7'], path:{evap_vent:['2'],ix_t2_b44:['VENT'],ix_b1_m12:['VENT'],ix_f102_m72:['29H'],ipdm_e7:['17']}, f102:['29H'], notes:'Válvula de venteo del canister. Ruta: 12V E7-17 → E106/B2 → B43/T1 → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.'},
+      ecm:[117], conn:['evap_vent','ix_e106_b2','ix_b43_t1','ix_t2_b44','ix_b1_m12','ix_f102_m72','ipdm_e7'], path:{evap_vent:['1','2'],ix_e106_b2:['13'],ix_b43_t1:['2'],ix_t2_b44:['VENT'],ix_b1_m12:['VENT'],ix_f102_m72:['29H'],ipdm_e7:['17']}, f102:['29H'], notes:'Válvula de venteo del canister. Ruta: 12V E7-17 → E106/B2·13 → B43/T1·2 → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.'},
     {id:'brake_stop', title:'Interruptor de freno', color:'#e53935',
       ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], path:{ix_e108_m15:['38G'],ix_f102_m72:['21H'],stop_lamp:['SIG']}, notes:'Señal de freno al ECM. Ruta: interruptor → E108·38G → F102·21H → ECM 101.'},
     {id:'ascd_brake', title:'ASCD freno (+ embrague M/T)', color:'#fb8c00',
@@ -1798,15 +1799,21 @@ const CONN_BASE = {
   vtc_ex_b1:{group:'motor', sub:'actuators', name:'VTC escape B1', meta:'F40 · magnet retarder · EC-198', accent:'#ad1457', shape:'tab2',
     pins:[{id:'12V',code:'W/L',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},{id:'CTRL',code:'SB',ecm:9,lab:'CTRL'}],
     note:'Magnet retarder escape B1. Ruta: 12V E7-17 (W/L) → F40·4 · control F40·3 (SB) → ECM 9 · EC-198.',},
-  vtc_ex_b2:{group:'motor', sub:'actuators', name:'VTC escape B2', meta:'magnet retarder · EC-198/201', accent:'#ad1457', shape:'tab2',
-    pins:[{id:'12V',code:'W/L',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},{id:'CTRL',code:'?',ecm:8,lab:'CTRL'}],
-    note:'Magnet retarder escape B2. Ruta: 12V E7-17 (mismo rail W/L vía F3) · control → ECM 8 · EC-201. Color control: ver diagrama bank 2.',},
+  vtc_ex_b2:{group:'motor', sub:'actuators', name:'VTC escape B2', meta:'F41 · magnet retarder · EC-200', accent:'#ad1457', shape:'tab2',
+    pins:[{id:'12V',code:'W/L',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},{id:'CTRL',code:'P',ecm:8,lab:'CTRL'}],
+    note:'Magnet retarder escape B2. Ruta: 12V E7-17 (W/L) → F3·5 → F41·1 · control F41·2 (P) → ECM 8 · EC-200.',},
   evap_purge:{group:'motor', sub:'actuators', name:'EVAP · Purga', meta:'F5 · solenoide · EC-360', accent:'#7b1fa2', shape:'tab2',
     pins:[{id:'1',code:'R/W',ecm:null,rail:'12v',lab:'12V',src:'E7·18',srcSub:'ipdm'},{id:'2',code:'G/W',ecm:45,lab:'CTRL'}],
     note:'Válvula purga EVAP. Ruta: 12V pin1 · control pin2 → ECM 45.'},
   evap_vent:{group:'motor', sub:'actuators', name:'EVAP · Venteo', meta:'T20 · vent · ECM 117 · P0447/P1446', accent:'#6a1b9a', shape:'tab2',
     pins:[{id:'1',code:'W/R',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},{id:'2',code:'G',ecm:117,lab:'CTRL'}],
     note:'Válvula venteo EVAP. Ruta: 12V E7-17 (W/L) → E106/B2 → B43/T1 (W/R) → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.',},
+  ix_e106_b2:{group:'motor', sub:'intermedias', name:'E106 ↔ B2 · EVAP venteo 12V', meta:'intermedia · E7-17 → trasera · EC-367', accent:'#90a4ae', shape:'tab2',
+    pins:[{id:'13',code:'W/L',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'}],
+    note:'12V venteo EVAP. Ruta: E7-17 (W/L) → E106/B2·13 → B43/T1 · EC-367.'},
+  ix_b43_t1:{group:'body', sub:'intermedias', name:'B43 ↔ T1 · EVAP venteo 12V', meta:'coupe · a T20 · EC-367', accent:'#90a4ae', shape:'tab2',
+    pins:[{id:'2',code:'W/R',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'}],
+    note:'12V venteo EVAP (coupe). Ruta: E106/B2 → B43/T1·2 (W/R) → T20·1 · EC-367.'},
   ix_t2_b44:{group:'motor', sub:'intermedias', name:'T2 ↔ B44 · EVAP venteo', meta:'intermedia · control T20 → habitáculo', accent:'#90a4ae', shape:'tab2',
     pins:[{id:'VENT',code:'G',ecm:117,lab:'VENT'}],
     note:'Empalme del control de venteo EVAP. Ruta: T20 → T2/B44 → B1/M12.'},
@@ -3251,7 +3258,7 @@ const NOTES_I18N = {
   tb: {en:'TB motor ± · TPS1/TPS2 · 5V rail 47.', ja:'TBモータ± · TPS1/TPS2 · 5Vレール47。'},
   evap_press: {en:'T21: 5V=L · SIG=W · GND=B/W. At F102: 18H PU→48 · 19H BR/W→32 · 20H B/W→67 (GND-A). EC-379.', ja:'信号 ECM 32 (F102 19H) · 5V ECM 48 (F102 18H) · GND ECM 67 B/W（SNS共用 MAF/IAT/PSP/EVAP · F102 20H）。'},
   evap_purge: {en:'F5 pin1 R/W (ECM relay 12V) · pin2 G/W → ECM 45. EC-360.', ja:'パージソレノイド → ECM 45。'},
-  evap_vent: {en:'EVAP vent valve. Path: 12V E7-17 (W/L) → E106/B2 → B43/T1 (W/R) → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.', ja:'EVAPベント弁。経路: 12V E7-17→E106/B2→B43/T1→T20·1 · 制御→ECM 117 · EC-367。'},
+  evap_vent: {en:'EVAP vent valve. Path: 12V E7-17 → E106/B2·13 → B43/T1·2 → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.', ja:'EVAPベント弁。経路: E7-17→E106/B2·13→B43/T1·2→T20·1 · 制御→ECM 117 · EC-367。'},
   dlc_k: {en:'ECM 85 (LG) → DLC pin 7 · CONSULT-II / GST.', ja:'ECM 85 (LG) → DLCピン7 · CONSULT-II / GST。'},
   ho2s_b1: {en:'Signal B1→74 (OR) · heater→25 (P/B) · 12V R/B JB15A→65G→F3·3→pin2 · SNS GND 78 shared.', ja:'信号B1→74 · ヒータ→25 · 12V R/B→65G→F3·3 · SNS 78共用。'},
   ho2s_b2: {en:'Signal B2→55 (L/B) · heater→6 (P/L) · 12V R/B same rail JB15A→65G→F3·3→pin2 · SNS GND 78 shared.', ja:'信号B2→55 · ヒータ→6 · 12V R/B→65G→F3·3 · SNS 78共用。'},
@@ -3887,6 +3894,8 @@ const CONN_I18N = {
   vtc_ex_b2: { en:{name:'VTC exhaust B2', meta:'Rev-Up · exhaust LH'}, ja:{name:'VTC排気ソレノイド B2', meta:'Rev-Up · 排気 左'} },
   evap_purge: { en:{name:'EVAP · Purge solenoid', meta:'solenoid'}, ja:{name:'EVAP · パージソレノイド', meta:'ソレノイド'} },
   evap_vent: { en:{name:'EVAP vent', meta:'canister vent · ECM 117'}, ja:{name:'EVAPベント', meta:'キャニスタベント · ECM 117'} },
+  ix_e106_b2: { en:{name:'E106 ↔ B2 · EVAP vent 12V', meta:'intermediate · E7-17 feed · EC-367'}, ja:{name:'E106 ↔ B2 · EVAPベント12V', meta:'中間 · E7-17 · EC-367'} },
+  ix_b43_t1: { en:{name:'B43 ↔ T1 · EVAP vent 12V', meta:'coupe · to T20 · EC-367'}, ja:{name:'B43 ↔ T1 · EVAPベント12V', meta:'クーペ · T20 · EC-367'} },
   ix_t2_b44: { en:{name:'T2 ↔ B44 · EVAP vent', meta:'intermediate · T20 control'}, ja:{name:'T2 ↔ B44 · EVAPベント', meta:'中間 · T20制御'} },
   ix_b1_m12: { en:{name:'B1 ↔ M12 · body', meta:'cabin intermediate → F102'}, ja:{name:'B1 ↔ M12 · ボディ', meta:'室内中間 → F102'} },
   pnp: { en:{name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y'}, ja:{name:'PNP / インヒビタSW', meta:'A/T · ECM 102 BR/Y'} },
