@@ -1454,8 +1454,12 @@ const CONN_BASE = {
     note:'Relés (integrados): ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog (vacío). Fusibles: 71=10A 72=10A 73=20A 74=10A 75=20A 76=15A · 77=15A 78=15A 79=10A 80=20A · 81=15A 82=10A 83=10A 84=10A 85=15A 86=15A 87=15A 88=— 89=10A. 77→ECM relay · 87→throttle motor relay. Credit: FSM PG-26.'},
   ign_sw:{group:'motor', sub:'power', name:'IGN SW · Señal llave', meta:'señal llave → ECM 109', accent:'#ef5350', shape:'tab2',
     pins:[{id:'IGN',code:'W/B',ecm:109},{id:'PWR',code:'12V',ecm:null,rail:'12v',src:'B+',srcSub:'feeds'}]},
-  ecm_relay:{group:'motor', sub:'power', name:'Relé ECM · control bobina', meta:'ECM 111 · coil drive', accent:'#ef5350', shape:'tab2',
-    pins:[{id:'CTRL',code:'GY/L',ecm:111},{id:'coil+',code:'12V',ecm:null,rail:'12v'}]},
+  ecm_relay:{group:'motor', sub:'power', name:'Relé ECM · control bobina', meta:'IPDM F77 15A · ECM 111 SSOFF · EC-167', accent:'#ef5350', shape:'tab2',
+    pins:[
+      {id:'CTRL',code:'GY/L',ecm:111,lab:'SSOFF'},
+      {id:'coil+',code:'—',ecm:null,rail:'12v',src:'F77',srcSub:'ipdm',lab:'12V'}
+    ],
+    note:'Relé integrado IPDM: bobina alimentada por fusible 77 (15A). Control SSOFF E9-46 W/B → E108·69G → F102·11H GY/L → ECM 111. Salida conmutada E7-17 W/L (ECM-RLY) → bobinas vía F3·5.'},
   vmot:{group:'motor', sub:'power', name:'VMOT · Alim. motor mariposa', meta:'alimentación motor TB · ECM 3', accent:'#029eb7', shape:'tab2',
     pins:[{id:'VMOT',code:'G',ecm:3,rail:'12v'},{id:'relay',code:'12V',ecm:null,rail:'12v'}]},
   gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4-pin · A/B/C→ECM · D→E17 · EC-169', accent:'#66bb6a', shape:'rect4',
@@ -3485,8 +3489,10 @@ const CONN_I18N = {
     ja: { name:'イグニッションSW', meta:'イグニッションSW信号 → ECM 109' },
   },
   ecm_relay: {
-    en: { name:'ECM relay control', meta:'ECM 111 · coil drive' },
-    ja: { name:'ECMリレー制御', meta:'ECM 111 · コイル駆動' },
+    en: { name:'ECM relay control', meta:'IPDM F77 15A · ECM 111 SSOFF · EC-167',
+      note:'IPDM-integrated relay: coil from fuse 77 (15A). SSOFF control E9-46 → E108·69G → F102·11H → ECM 111. Switched out E7-17 W/L (ECM-RLY) → coils via F3·5.' },
+    ja: { name:'ECMリレー制御', meta:'IPDM F77 15A · ECM 111 SSOFF · EC-167',
+      note:'IPDM内蔵リレー: コイルはヒューズ77 (15A)。SSOFF制御 E9-46 → E108·69G → F102·11H → ECM 111。出力 E7-17 W/L → F3·5。' },
   },
   vmot: {
     en: { name:'VMOT supply', meta:'throttle motor power · ECM 3' },
