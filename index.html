@@ -275,11 +275,22 @@
   body[data-mode="solid"] .cav-tracer { display: none; }
   .legend-note { width: 100%; font-size: 11px; color: #c5cad3; margin-top: 2px; }
 
-  .banner-hr {
-    display: none; margin: 0 0 10px; padding: 10px 12px; border-radius: 8px;
-    background: #1a2433; border: 1px solid #3d5a80; color: #bbdefb; font-size: 12px; line-height: 1.4;
+  details.banner-hr {
+    display: none; margin: 0 0 10px; border-radius: 8px;
+    background: #1a2433; border: 1px solid #3d5a80; color: #bbdefb; overflow: hidden;
   }
-  .banner-hr.show { display: block; }
+  details.banner-hr.show { display: block; }
+  details.banner-hr > summary {
+    cursor: pointer; list-style: none; user-select: none;
+    font-size: 12px; font-weight: 700; color: #90caf9;
+    padding: 8px 10px;
+  }
+  details.banner-hr > summary::-webkit-details-marker { display: none; }
+  details.banner-hr > summary::before { content: '▸ '; }
+  details.banner-hr[open] > summary::before { content: '▾ '; }
+  details.banner-hr .banner-hr-body {
+    padding: 0 10px 10px; font-size: 12px; line-height: 1.4; font-weight: 400; color: #bbdefb;
+  }
   .orient {
     text-align: center; font-weight: 700; font-size: 12px; margin: 2px 0 10px;
     padding: 8px 10px; border-radius: 8px; border: 1px solid;
@@ -984,7 +995,10 @@
     <div class="ecm-head">
       <h2 id="ecmTitle">EC-123 · ECM pin grid</h2>
     </div>
-    <div class="banner-hr" id="hrBanner"></div>
+    <details class="banner-hr" id="modelBannerBox">
+      <summary id="modelBannerSum"></summary>
+      <div class="banner-hr-body" id="hrBanner"></div>
+    </details>
     <details class="warn-box" id="warnBox">
       <summary id="warnSummary">⚠ Orientación ECM</summary>
       <div class="orient inv" id="orientBanner"></div>
@@ -2138,6 +2152,7 @@ function rebuildIndexes(){
 /* Loom view: all = full map; motor = pulled engine-room harness only.
    E108 + F102 stay (motor faces of SMJ). Body / rear EVAP path hide. */
 const LS_LOOM = 'z33_loomView';
+const LS_MODEL_BANNER = 'z33_modelBannerOpen';
 const LOOM_BODY_EXTRA = new Set([
   /* motor-group but live on body/rear loom, not the pulled engine harness */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump'
@@ -3274,6 +3289,8 @@ const I18N = {
     modelEarly: 'VQ35DE · sin VTC escape',
     modelRevup: 'VQ35DE Rev-Up · con VTC escape',
     earlyBanner: '<b>VQ35DE sin VTC escape:</b> mismos datos base del mapa; <b>sin</b> solenoides de escape (F40/F41 · ECM 8/9). Para Rev-Up elegí la otra opción.',
+    modelBannerSumEarly: 'ℹ VQ35DE · sin VTC escape',
+    modelBannerSumHr: '⚠ VQ35HR · ECM distinto',
     lblColor: 'Color',
     lblOrient: 'Orientación ECM',
     lblLang: 'Idioma',
@@ -3346,6 +3363,8 @@ const I18N = {
     modelEarly: 'VQ35DE · intake VTC only',
     modelRevup: 'VQ35DE Rev-Up · intake + exhaust VTC',
     earlyBanner: '<b>VQ35DE without exhaust VTC:</b> same base map data; <b>no</b> exhaust solenoids (F40/F41 · ECM 8/9). Choose Rev-Up for the 4-solenoid variant.',
+    modelBannerSumEarly: 'ℹ VQ35DE · intake VTC only',
+    modelBannerSumHr: '⚠ VQ35HR · different ECM',
     lblColor: 'Color',
     lblOrient: 'ECM orientation',
     lblLang: 'Language',
@@ -3406,6 +3425,8 @@ const I18N = {
     modelEarly: 'VQ35DE · 排気VTCなし',
     modelRevup: 'VQ35DE Rev-Up · 吸気+排気VTC',
     earlyBanner: '<b>VQ35DE（排気VTCなし）:</b> 基本マップは同じ。<b>排気</b>ソレノイドなし（F40/F41 · ECM 8/9）。4ソレノイドは Rev-Up を選択。',
+    modelBannerSumEarly: 'ℹ VQ35DE · 排気VTCなし',
+    modelBannerSumHr: '⚠ VQ35HR · 別ECM',
     lblColor: '色表示',
     lblOrient: 'ECM向き',
     lblLang: '言語',
@@ -3689,10 +3710,17 @@ function applyLang(){
   const ft = document.getElementById('fichasTitle'); if(ft) ft.textContent = t('fichasTitle');
   const pf = document.getElementById('pageFooter'); if(pf) pf.textContent = t('footer');
   const hb = document.getElementById('hrBanner');
-  if(hb){
-    const mv = document.getElementById('model') && document.getElementById('model').value;
-    if(mv === 'de_early') hb.innerHTML = t('earlyBanner');
-    else hb.innerHTML = t('hrBanner');
+  const mbb = document.getElementById('modelBannerBox');
+  const mbs = document.getElementById('modelBannerSum');
+  const mv = document.getElementById('model') && document.getElementById('model').value;
+  if(hb && mbb && mbb.classList.contains('show')){
+    if(mv === 'de_early'){
+      if(mbs) mbs.textContent = t('modelBannerSumEarly');
+      hb.innerHTML = t('earlyBanner');
+    } else if(mv === 'hr'){
+      if(mbs) mbs.textContent = t('modelBannerSumHr');
+      hb.innerHTML = t('hrBanner');
+    }
   }
   const osu = document.getElementById('optsSummary'); if(osu) osu.textContent = t('optsSummary');
   const wsu = document.getElementById('warnSummary'); if(wsu) wsu.textContent = t('warnSummary');
@@ -3960,20 +3988,32 @@ function renderECM(){
   const blocksEl = document.getElementById('blocks');
   const title = document.getElementById('ecmTitle');
   updateOrientBanner();
+  const modelBannerBox = document.getElementById('modelBannerBox');
+  const modelBannerSum = document.getElementById('modelBannerSum');
+  function showModelBanner(sumKey, bodyHtml){
+    if(!modelBannerBox || !hrBanner) return;
+    if(modelBannerSum) modelBannerSum.textContent = t(sumKey);
+    hrBanner.innerHTML = bodyHtml;
+    modelBannerBox.classList.add('show');
+    const saved = localStorage.getItem(LS_MODEL_BANNER);
+    modelBannerBox.open = saved === '1'; /* collapsed by default */
+  }
+  function hideModelBanner(){
+    if(!modelBannerBox) return;
+    modelBannerBox.classList.remove('show');
+    modelBannerBox.open = false;
+  }
   if(model === 'hr'){
-    hrBanner.innerHTML = t('hrBanner');
-    hrBanner.classList.add('show');
+    showModelBanner('modelBannerSumHr', t('hrBanner'));
     title.textContent = t('ecmTitleHr');
     blocksEl.innerHTML = `<div style="padding:24px;text-align:center;color:var(--muted);min-width:320px;line-height:1.5">${t('hrGrid')}</div>`;
     renderF102();
     return;
   }
   if(model === 'de_early'){
-    hrBanner.innerHTML = t('earlyBanner');
-    hrBanner.classList.add('show');
+    showModelBanner('modelBannerSumEarly', t('earlyBanner'));
   } else {
-    hrBanner.innerHTML = t('hrBanner');
-    hrBanner.classList.remove('show');
+    hideModelBanner();
   }
   title.textContent = t('ecmTitle');
   const orient = document.getElementById('ecmOrient').value;
@@ -5842,6 +5882,14 @@ document.getElementById('colorMode').addEventListener('change', applyColorMode);
 document.getElementById('ecmOrient').addEventListener('change', applyOrient);
 document.getElementById('lang').addEventListener('change', applyLang);
 document.getElementById('loomView').addEventListener('change', applyLoomView);
+(function(){
+  const box = document.getElementById('modelBannerBox');
+  if(!box) return;
+  box.addEventListener('toggle', () => {
+    if(!box.classList.contains('show')) return;
+    localStorage.setItem(LS_MODEL_BANNER, box.open ? '1' : '0');
+  });
+})();
 document.getElementById('collapseIdleSubs').addEventListener('change', onCollapseIdleToggle);
 document.getElementById('railRelGnd').addEventListener('change', onRailRelKindToggle);
 document.getElementById('railRelData').addEventListener('change', onRailRelKindToggle);
