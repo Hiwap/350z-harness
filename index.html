@@ -549,7 +549,20 @@
     font-size: 11px;
     opacity: 0.85;
   }
-  #ecm #f102Blocks .f102-face-block .tag {
+  
+  #ecm #f102Blocks .f102-face-block { position: relative; }
+  #ecm #f102Blocks .f102-face-block .corner-pin {
+    position: absolute; z-index: 2; pointer-events: none; user-select: none;
+    font-size: 8px; font-weight: 800; color: #90a4ae;
+    text-shadow: 0 0 3px #0b0e14, 0 0 2px #0b0e14;
+    line-height: 1;
+  }
+  #ecm #f102Blocks .f102-face-block .corner-pin.tl { top: 2px; left: 3px; }
+  #ecm #f102Blocks .f102-face-block .corner-pin.tr { top: 2px; right: 3px; }
+  #ecm #f102Blocks .f102-face-block .corner-pin.bl { bottom: 14px; left: 3px; }
+  #ecm #f102Blocks .f102-face-block .corner-pin.br { bottom: 14px; right: 3px; }
+  #ecm #f102Blocks .f102-face-block.stub .corner-pin { display: none; }
+#ecm #f102Blocks .f102-face-block .tag {
     font-size: 10px; color: #90a4ae; font-weight: 700; text-align: center;
   }
   #ecm #f102Blocks .f102-face-block .row {
@@ -2227,13 +2240,14 @@ function svgCornerPins(tl, tr, bl, br, W, H, opt){
   const inset = o.inset != null ? o.inset : 7;
   const yTop = o.yTop != null ? o.yTop : 21;
   const yBot = o.yBot != null ? o.yBot : (H - 5);
-  const x0 = inset, x1 = Math.max(inset + 4, W - inset);
+  const ox = o.ox || 0, oy = o.oy || 0;
+  const x0 = ox + inset, x1 = ox + Math.max(inset + 4, W - inset);
   const mk = (id, x, y, anchor) => {
     if(id == null || id === '') return '';
     /* cavity id only — strip accidental ECM-looking values is NOT done; callers pass pin.id */
     return `<text class="corner-pin" x="${x}" y="${y}" text-anchor="${anchor}">${esc(String(id))}</text>`;
   };
-  return mk(tl, x0, yTop, 'start') + mk(tr, x1, yTop, 'end') + mk(bl, x0, yBot, 'start') + mk(br, x1, yBot, 'end');
+  return mk(tl, x0, oy + yTop, 'start') + mk(tr, x1, oy + yTop, 'end') + mk(bl, x0, oy + yBot, 'start') + mk(br, x1, oy + yBot, 'end');
 }
 function cornerIdOf(p){
   if(p == null || p === '') return '';
@@ -2678,9 +2692,11 @@ function svgF102(cid, f){
   /* Uniform CAV_STD for both L/M blocks (same cell size as other faces). */
   const cw=CAV_STD_W, ch=CAV_STD_H;
   const gap=CAV_GAP, blockGap=8, padX=8, padTop=16;
-  let cavities='', x=padX;
+  let cavities='', corners='', x=padX;
+  const hMax = 2*ch + gap;
   blocks.forEach((blk, bi)=>{
     const cols = Math.max(blk.top.length, blk.bot.length);
+    const blkW = cols*(cw+gap) - gap;
     blk.top.forEach((id,i)=>{
       const p = byId[id] || {id, code:'—', ecm:null};
       cavities += cavGroup(cid, p, x+i*(cw+gap), padTop, cw, ch, 2);
@@ -2689,15 +2705,19 @@ function svgF102(cid, f){
       const p = byId[id] || {id, code:'—', ecm:null};
       cavities += cavGroup(cid, p, x+i*(cw+gap), padTop+ch+gap, cw, ch, 2);
     });
+    /* Corner cavity ids on each wired block (L / M) — same idea as other fichas */
+    const _c = cornersFromRows(blk.top, blk.bot);
+    corners += svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, blkW, hMax, {
+      ox: x, oy: padTop, inset: 1, yTop: 7, yBot: hMax - 2
+    });
     if(bi < blocks.length-1){
       const dx = x + cols*(cw+gap) + blockGap/2 - 1;
       cavities += `<line x1="${dx}" y1="${padTop-2}" x2="${dx}" y2="${padTop+2*ch+gap+2}" stroke="${f.accent}" stroke-width="1" opacity="0.45"/>`;
     }
     x += cols*(cw+gap) + blockGap;
   });
-  /* Compact R stub instead of 30H–46H empty cavities */
+  /* Compact R stub instead of 30H–46H empty cavities (already labeled 30H/46H) */
   const stubW = 18;
-  const hMax = 2*ch + gap;
   cavities += `<rect x="${x}" y="${padTop}" width="${stubW}" height="${hMax}" rx="2" fill="#1a1f28" stroke="#455a64" stroke-width="1" stroke-dasharray="3 2" opacity="0.9"/>`;
   cavities += `<text x="${x+stubW/2}" y="${padTop+12}" text-anchor="middle" font-size="7" fill="#78909c" font-weight="800">30H</text>`;
   cavities += `<text x="${x+stubW/2}" y="${padTop+hMax/2+3}" text-anchor="middle" font-size="10" fill="#78909c" font-weight="700">—</text>`;
@@ -2711,6 +2731,7 @@ function svgF102(cid, f){
     <text x="${padX+2}" y="14" font-size="7" fill="#90a4ae" font-weight="700">F102</text>
     <text x="${W-padX-2}" y="14" text-anchor="end" font-size="6.5" fill="#78909c">mate M72 · PG-85 H.S.</text>
     ${cavities}
+    ${corners}
   </svg>`;
 }
 
@@ -3271,6 +3292,14 @@ function renderF102(){
     };
     blk.appendChild(mkRow(g.top, 0));
     blk.appendChild(mkRow(g.bot, g.botPadEnd || 0));
+    const _c = cornersFromRows(g.top, g.bot);
+    [['tl',_c.tl],['tr',_c.tr],['bl',_c.bl],['br',_c.br]].forEach(([cls,id])=>{
+      if(!id) return;
+      const el = document.createElement('span');
+      el.className = 'corner-pin ' + cls;
+      el.textContent = id;
+      blk.appendChild(el);
+    });
     const tagEl = document.createElement('div');
     tagEl.className = 'tag';
     tagEl.textContent = g.tag;
