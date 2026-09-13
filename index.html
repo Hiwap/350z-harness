@@ -4629,7 +4629,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   applyCollapseIdleSubs([...connSet]);
 }
 
-/** Yellow hl = exact ECM/cavity; purple hl-group = other pins on the same path. Runs after selTop exists. */
+/** Yellow hl = focused ECM/cavity; purple hl-group = other path pins only (not the focused ECM). */
 function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=null){
   /* selTop clones are fresh DOM without .dim — opacar todas las cavidades primero. */
   document.querySelectorAll('.cav-hit').forEach(cav=>{
@@ -4643,14 +4643,15 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
     if(!p) return false;
     const isFocusCav = focusConn===cid && String(focusCav)===String(pid);
     if(isFocusCav) return {cls:'hl'};
+    /* Exact ECM match = yellow hl first (path list must not force purple hl-group). */
+    if(p.ecm!=null && p.ecm!=='' && focusPin!=null && Number(p.ecm)===Number(focusPin)) return {cls:'hl'};
     const onPathFeed = pathCavByConn && pathCavByConn.has(cid) && pathCavByConn.get(cid).has(String(pid));
     if(onPathFeed) return {cls:'hl-group'};
     if(p.ecm==null || p.ecm==='') return false;
     const e = Number(p.ecm);
-    const onFocusEcm = focusPin!=null && e===Number(focusPin);
     const onPath = ecmSet && (ecmSet.has(e) || ecmSet.has(String(e)) || ecmSet.has(Number(e)));
-    if(!(onFocusEcm || onPath)) return false;
-    return {cls: onFocusEcm ? 'hl' : 'hl-group'};
+    if(!onPath) return false;
+    return {cls:'hl-group'};
   };
   document.querySelectorAll('.cav-hit').forEach(cav=>{
     const cid = cav.dataset.conn;
