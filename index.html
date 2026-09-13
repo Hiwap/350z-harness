@@ -4645,8 +4645,8 @@ function updateSelectedTop(connIds){
     });
     const lineKeys = RAIL_LINE_ORDER.filter(k => byLine.has(k));
     if(byLine.has('_other')) lineKeys.push('_other');
-    if(lineKeys.length < 2) return; /* one line only → stay in-place like same-sub */
-
+    /* Need 2+ lines for line-nests. One line (e.g. Arnès motor + 5V hides APP) → fall through to subcategory groups. */
+    if(lineKeys.length >= 2){
     const names = lineKeys.map(k => k === '_other' ? t('hlLegRelData') : railLineLabel(k));
     const top = document.createElement('details');
     top.id = 'selTop';
@@ -4685,6 +4685,7 @@ function updateSelectedTop(connIds){
     top.appendChild(body);
     root.insertBefore(top, root.firstChild);
     return;
+    } /* end lineKeys.length >= 2 */
   }
 
   // Distinct subcategory buckets in SUB_ORDER
@@ -4995,7 +4996,10 @@ function applyRailFilter(){
       (cir.ecm || []).forEach(p => relEcm.add(Number(p)));
       const conns = cir.conn || [];
       if(conns.length <= REL_CONN_MAX){
-        conns.forEach(c => matchedConns.add(c));
+        conns.forEach(c => {
+          if(typeof connVisibleInLoom === 'function' && !connVisibleInLoom(c)) return;
+          matchedConns.add(c);
+        });
       }
     });
   }
