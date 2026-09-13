@@ -2161,8 +2161,8 @@ const LOOM_BODY_EXTRA = new Set([
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
   'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9'
 ]);
-/* E10/F1 · E11/F2 · E12/F3 sit in the battery-tray hole (mates to control harness; REV on E10/F1) */
-const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);
+/* E10/F1 · E12/F3 battery-tray mates on control loom (REV on E10/F1). E11/F2 APP stays cabin/body. */
+const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e12_f3']); /* E11/F2 = APP cabin path → hidden in Arnès motor */
 function loomView(){
   const el = document.getElementById('loomView');
   if(el && (el.value === 'motor' || el.value === 'all')) return el.value;
