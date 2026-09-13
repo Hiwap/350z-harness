@@ -2154,8 +2154,10 @@ function rebuildIndexes(){
 const LS_LOOM = 'z33_loomView';
 const LS_MODEL_BANNER = 'z33_modelBannerOpen';
 const LOOM_BODY_EXTRA = new Set([
-  /* motor-group but live on body/rear loom, not the pulled engine harness */
-  'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump'
+  /* motor-group but not on the pulled engine harness (as on the bench) */
+  'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
+  /* SMJ E108 stays at firewall / body side when harness is out — hide in Arnès motor */
+  'ix_e108_m15'
 ]);
 function loomView(){
   const el = document.getElementById('loomView');
