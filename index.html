@@ -1409,8 +1409,8 @@ const CONN_BASE = {
   ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9',
     pins:[
       {id:'45',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
-      {id:'46',code:'W/B',ecm:111,rail:'12v',note:'SSOFF auto-apagado relé ECM (W/B) → ECM 111 vía E108/M15 · M72/F102 · EC-167.',note_en:'ECM relay self shut-off SSOFF (W/B) → ECM 111 via E108/M15 · M72/F102 · EC-167.',note_ja:'ECMリレー自己遮断 SSOFF (W/B) → ECM 111 · EC-167。'},
-      {id:'47',code:'OR',ecm:104,rail:'12v',note:'MOTRLY alimentación relé mariposa (OR) → ECM 104 vía E108/M15 · M72/F102 · EC-472.',note_en:'Throttle motor relay power MOTRLY (OR) → ECM 104 via E108/M15 · M72/F102 · EC-472.',note_ja:'スロットルモータリレー電源 MOTRLY (OR) → ECM 104 · EC-472。'},
+      {id:'46',code:'W/B',ecm:111,rail:'12v',lab:'SSOFF',note:'SSOFF auto-apagado relé ECM (W/B) → ECM 111 vía E108/M15 · M72/F102 · EC-167.',note_en:'ECM relay self shut-off SSOFF (W/B) → ECM 111 via E108/M15 · M72/F102 · EC-167.',note_ja:'ECMリレー自己遮断 SSOFF (W/B) → ECM 111 · EC-167。'},
+      {id:'47',code:'OR',ecm:104,rail:'12v',lab:'MOTRLY',note:'MOTRLY alimentación relé mariposa (OR) → ECM 104 vía E108/M15 · M72/F102 · EC-472.',note_en:'Throttle motor relay power MOTRLY (OR) → ECM 104 via E108/M15 · M72/F102 · EC-472.',note_ja:'スロットルモータリレー電源 MOTRLY (OR) → ECM 104 · EC-472。'},
       {id:'48',code:'L',ecm:94,note:'CAN-H (L) → ECM 94 / bus CAN vía E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_en:'CAN-H (L) → ECM 94 / CAN bus via E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_ja:'CAN-H (L) → ECM 94 · LAN-49 / EC-509。'},
       {id:'49',code:'P',ecm:86,note:'CAN-L (P) → ECM 86 / bus CAN vía E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_en:'CAN-L (P) → ECM 86 / CAN bus via E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_ja:'CAN-L (P) → ECM 86 · LAN-49 / EC-509。'},
       {id:'50',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra IPDM → body E17 (B) · PG-27.',note_en:'IPDM ground → body E17 (B) · PG-27.',note_ja:'IPDMアース → ボディ E17 (B) · PG-27。'},
@@ -1861,13 +1861,15 @@ function isPseudoWireCode(code){
 function cavBottomLabel(pin){
   const rail = cavRailOf(pin);
   const lab = pin && pin.lab != null ? String(pin.lab).trim() : '';
+  /* Named signal beats generic rail tag (MOTRLY / SSOFF / FPR… not just “12V”). */
+  const named = lab && !isPseudoWireCode(lab) && lab !== '12V' && lab !== '5V' && lab !== 'GND';
   /* Ground that names a body point (E17, D105…) — show that, not generic GND */
   if(rail === 'gnd'){
-    if(lab && lab !== 'GND' && lab !== 'SNS' && lab !== 'SH' && !isPseudoWireCode(lab)) return lab;
+    if(named || (lab && lab !== 'GND' && lab !== 'SNS' && lab !== 'SH' && !isPseudoWireCode(lab))) return lab;
     return 'GND';
   }
-  if(rail === '12v') return '12V';
-  if(rail === '5v') return '5V';
+  if(rail === '12v') return named ? lab : '12V';
+  if(rail === '5v') return named ? lab : '5V';
   const can = cavCanOf(pin);
   if(can) return can;
   if(lab && !isPseudoWireCode(lab)) return lab;
