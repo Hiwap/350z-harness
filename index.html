@@ -675,6 +675,31 @@
   .cav-hit.rail-5v .cav-face { stroke: #F9A825 !important; stroke-width: 2.6; }
   .cav-hit.rail-12v .cav-face { stroke: #C62828 !important; stroke-width: 2.6; }
   .cav-hit.rail-gnd .cav-face { stroke: #2E7D32 !important; stroke-width: 2.6; }
+  /* Per-line rail colors (5V/12V/GND button → distinct networks) */
+  .pin.hl-rail.rail-line-5v_app { outline-color: #F9A825; }
+  .pin.hl-rail.rail-line-5v_sns { outline-color: #42a5f5; }
+  .pin.hl-rail.rail-line-12v_coil { outline-color: #f57f17; }
+  .pin.hl-rail.rail-line-12v_inj { outline-color: #c62828; }
+  .pin.hl-rail.rail-line-12v_ht { outline-color: #ffca28; }
+  .pin.hl-rail.rail-line-12v_vb { outline-color: #e57373; }
+  .pin.hl-rail.rail-line-12v_batt { outline-color: #ef5350; }
+  .pin.hl-rail.rail-line-12v_vmot { outline-color: #ff7043; }
+  .pin.hl-rail.rail-line-12v_other { outline-color: #8d6e63; }
+  .pin.hl-rail.rail-line-gnd_pwr { outline-color: #2E7D32; }
+  .pin.hl-rail.rail-line-gnd_sns { outline-color: #66bb6a; }
+  .pin.hl-rail.rail-line-gnd_app { outline-color: #a5d6a7; }
+  .cav-hit.hl-rail.rail-line-5v_app .cav-face { stroke: #F9A825 !important; }
+  .cav-hit.hl-rail.rail-line-5v_sns .cav-face { stroke: #42a5f5 !important; }
+  .cav-hit.hl-rail.rail-line-12v_coil .cav-face { stroke: #f57f17 !important; }
+  .cav-hit.hl-rail.rail-line-12v_inj .cav-face { stroke: #c62828 !important; }
+  .cav-hit.hl-rail.rail-line-12v_ht .cav-face { stroke: #ffca28 !important; }
+  .cav-hit.hl-rail.rail-line-12v_vb .cav-face { stroke: #e57373 !important; }
+  .cav-hit.hl-rail.rail-line-12v_batt .cav-face { stroke: #ef5350 !important; }
+  .cav-hit.hl-rail.rail-line-12v_vmot .cav-face { stroke: #ff7043 !important; }
+  .cav-hit.hl-rail.rail-line-12v_other .cav-face { stroke: #8d6e63 !important; }
+  .cav-hit.hl-rail.rail-line-gnd_pwr .cav-face { stroke: #2E7D32 !important; }
+  .cav-hit.hl-rail.rail-line-gnd_sns .cav-face { stroke: #66bb6a !important; }
+  .cav-hit.hl-rail.rail-line-gnd_app .cav-face { stroke: #a5d6a7 !important; }
   .cav-hit.dim { opacity: 0.22 !important; }
   .conn-svg .corner-pin {
     fill: #90a4ae; font-size: 6px; font-weight: 800;
@@ -1154,6 +1179,99 @@ const PIN_RAIL = {
   1:'gnd', 115:'gnd', 116:'gnd',
   66:'gnd', 67:'gnd', 78:'gnd', 82:'gnd', 83:'gnd'
 };
+
+/* Sub-networks inside each rail button — distinct highlight colors */
+const PIN_RAIL_LINE = {
+  90:'5v_app', 91:'5v_app',
+  47:'5v_sns', 48:'5v_sns', 49:'5v_sns', 68:'5v_sns',
+  119:'12v_vb', 120:'12v_vb', 121:'12v_batt',
+  3:'12v_vmot',
+  1:'gnd_pwr', 115:'gnd_pwr', 116:'gnd_pwr',
+  66:'gnd_sns', 67:'gnd_sns', 78:'gnd_sns',
+  82:'gnd_app', 83:'gnd_app'
+};
+const RAIL_LINE = {
+  '5v_app':  { rail:'5v',  color:'#F9A825', es:'5V APP', en:'5V APP', ja:'5V APP' },
+  '5v_sns':  { rail:'5v',  color:'#42a5f5', es:'5V sensores', en:'5V sensors', ja:'5Vセンサ' },
+  '12v_coil':{ rail:'12v', color:'#f57f17', es:'12V bobinas/VTC', en:'12V coils/VTC', ja:'12Vコイル/VTC' },
+  '12v_inj': { rail:'12v', color:'#c62828', es:'12V iny', en:'12V injectors', ja:'12Vインジェクタ' },
+  '12v_ht':  { rail:'12v', color:'#ffca28', es:'12V calentadores', en:'12V heaters', ja:'12Vヒータ' },
+  '12v_vb':  { rail:'12v', color:'#e57373', es:'12V VB ECM', en:'12V ECM VB', ja:'12V ECM VB' },
+  '12v_batt':{ rail:'12v', color:'#ef5350', es:'12V BATT', en:'12V BATT', ja:'12V BATT' },
+  '12v_vmot':{ rail:'12v', color:'#ff7043', es:'12V VMOT', en:'12V VMOT', ja:'12V VMOT' },
+  '12v_other':{rail:'12v', color:'#8d6e63', es:'12V otros', en:'12V other', ja:'12Vその他' },
+  'gnd_pwr': { rail:'gnd', color:'#2E7D32', es:'GND potencia', en:'Power GND', ja:'パワーGND' },
+  'gnd_sns': { rail:'gnd', color:'#66bb6a', es:'GND sensores', en:'Sensor GND', ja:'センサGND' },
+  'gnd_app': { rail:'gnd', color:'#a5d6a7', es:'GND APP', en:'APP GND', ja:'APP GND' }
+};
+function railLineLabel(line){
+  const meta = RAIL_LINE[line];
+  if(!meta) return line;
+  return meta[lang] || meta.es || line;
+}
+function railLineOfEcm(ecm){
+  if(ecm == null || ecm === '') return null;
+  return PIN_RAIL_LINE[Number(ecm)] || null;
+}
+function railLineOfCav(cid, pin){
+  if(!pin) return null;
+  if(pin.railLine && RAIL_LINE[pin.railLine]) return pin.railLine;
+  const fromEcm = railLineOfEcm(pin.ecm);
+  if(fromEcm) return fromEcm;
+  const rail = pin.rail;
+  if(!rail) return null;
+  const id = String(pin.id);
+  if(rail === '5v'){
+    if(cid === 'app' || cid === 'ix_e11_f2') return '5v_app';
+    return '5v_sns';
+  }
+  if(rail === 'gnd'){
+    if(cid === 'app' || cid === 'ix_e11_f2') return 'gnd_app';
+    if(cid === 'gnd4' || cid === 'e17' || (pin.src === 'E17' || pin.srcSub === 'power')) return 'gnd_pwr';
+    if(pin.lab === 'GND' && (cid.startsWith('af_') || cid.startsWith('ho2s_') || cid === 'maf' || cid === 'ckp' || cid === 'knock' || cid === 'ect' || cid === 'iat' || cid === 'etc' || cid === 'ac_press' || cid === 'evap_press' || cid === 'psp')) return 'gnd_sns';
+    return 'gnd_sns';
+  }
+  if(rail === '12v'){
+    if(cid === 'feed_inj_coil_12v'){
+      if(id === 'INJ+' || id.toUpperCase().indexOf('INJ') === 0) return '12v_inj';
+      return '12v_coil';
+    }
+    if(cid === 'jb_10a_inj' || cid === 'ix_f221_f33' || /^inj\d$/.test(cid)) return '12v_inj';
+    if(cid === 'jb_15a_ht' || cid === 'feed_af_12v' || cid === 'feed_ho2s_12v') return '12v_ht';
+    if(cid.startsWith('af_') || cid.startsWith('ho2s_')) return '12v_ht';
+    if(cid === 'ix_f18_f201' || cid.startsWith('coil') || cid.startsWith('vtc')) return '12v_coil';
+    if(cid === 'ix_e12_f3'){
+      if(id === '5') return '12v_coil';
+      if(id === '3' || id === '65G') return '12v_ht'; /* heater path via F3 when tagged 12v */
+      return '12v_other';
+    }
+    if(cid === 'ipdm_e7' && id === '17') return '12v_coil';
+    if(cid === 'ipdm_e7' && id === '18') return '12v_vb';
+    if(cid === 'ipdm_e8' && (id === '40' || id === '48')) return '12v_vmot'; /* rough */
+    if(cid === 'batt_feed' || id === 'BATT') return '12v_batt';
+    if(pin.ecm === 119 || pin.ecm === 120) return '12v_vb';
+    if(pin.ecm === 121) return '12v_batt';
+    if(pin.ecm === 3) return '12v_vmot';
+    return '12v_other';
+  }
+  return null;
+}
+function stripRailLineClasses(el){
+  if(!el || !el.classList) return;
+  [...el.classList].forEach(c => { if(c.startsWith('rail-line-')) el.classList.remove(c); });
+  if(el.dataset) delete el.dataset.railLine;
+}
+function markRailPrimaryEl(el, rail, line){
+  if(!el || !rail) return;
+  stripRailLineClasses(el);
+  el.classList.remove('dim');
+  el.classList.add('hl-rail', 'rail-'+rail);
+  if(line && RAIL_LINE[line]){
+    el.classList.add('rail-line-'+line);
+    el.dataset.railLine = line;
+  }
+}
+
 
 /* CAN bus — bottom row C/H · C/L */
 const PIN_CAN = { 94:'C/H', 86:'C/L' };
@@ -4120,10 +4238,12 @@ function clearSelectionClasses(){
   clearHlGroupColor();
   document.querySelectorAll('.pin,.ficha,.ficha-wrap,.cav-hit,.f102-panel').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','rail-5v','rail-12v','rail-gnd');
+    stripRailLineClasses(el);
   });
   /* Explicit ECM/F102 pass — dim must never stick after deselect */
   document.querySelectorAll('#blocks .pin, #f102Blocks .pin').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','rail-5v','rail-12v','rail-gnd');
+    stripRailLineClasses(el);
   });
 }
 
@@ -4236,16 +4356,21 @@ function applyRailFilter(){
     return (r && activeRails.has(r)) ? r : null;
   }
 
-  /* Collect connectors that belong on this rail path (before DOM paint). */
+  /* Collect connectors on active rails (ECM PIN_RAIL or cavity pin.rail). */
   const matchedConns = new Set();
+  const litLines = new Set();
+  function considerPin(cid, pin){
+    const rEcm = railOfEcm(pin.ecm);
+    const rCav = (pin.rail && activeRails.has(pin.rail)) ? pin.rail : null;
+    const rail = rEcm || rCav;
+    if(!rail) return null;
+    const line = railLineOfCav(cid, pin) || (rEcm ? (railLineOfEcm(pin.ecm) || null) : null);
+    matchedConns.add(cid);
+    if(line) litLines.add(line);
+    return { rail, line };
+  }
   Object.entries(CONN).forEach(([cid, conf])=>{
-    (conf.pins||[]).forEach(pin=>{
-      if(railOfEcm(pin.ecm)) matchedConns.add(cid);
-    });
-  });
-  /* F102 face has PIN_RAIL ecm cavities */
-  (CONN['ix_f102_m72'] && CONN['ix_f102_m72'].pins || []).forEach(pin=>{
-    if(railOfEcm(pin.ecm)) matchedConns.add('ix_f102_m72');
+    (conf.pins||[]).forEach(pin => considerPin(cid, pin));
   });
 
   const relCirc = new Set();
@@ -4281,30 +4406,37 @@ function applyRailFilter(){
   document.querySelectorAll('#blocks .pin[data-pin]').forEach(el=>{
     const r = railOfEcm(el.dataset.pin);
     if(!r) return;
-    el.classList.remove('dim');
-    el.classList.add('hl-rail', 'rail-'+r);
+    const line = railLineOfEcm(el.dataset.pin);
+    if(line) litLines.add(line);
+    markRailPrimaryEl(el, r, line);
   });
   /* Primary F102 */
   document.querySelectorAll('#f102Blocks .pin').forEach(el=>{
     const r = railOfEcm(el.dataset.ecm);
     if(!r) return;
-    el.classList.remove('dim');
-    el.classList.add('hl-rail', 'rail-'+r);
+    const line = railLineOfEcm(el.dataset.ecm);
+    if(line) litLines.add(line);
+    markRailPrimaryEl(el, r, line);
     const panel = document.getElementById('f102Panel');
     if(panel) panel.classList.add('hl');
   });
-  /* Primary ficha cavities (incl. selTop clones) */
+  /* Primary ficha cavities (ECM rail pins + bare pin.rail feeds) */
   Object.entries(CONN).forEach(([cid, conf])=>{
     (conf.pins||[]).forEach(pin=>{
-      const r = railOfEcm(pin.ecm);
+      const hit = considerPin(cid, pin);
+      if(!hit) return;
+      /* considerPin always adds conn; only paint if this pin itself is on rail */
+      const rEcm = railOfEcm(pin.ecm);
+      const rCav = (pin.rail && activeRails.has(pin.rail)) ? pin.rail : null;
+      const r = rEcm || rCav;
       if(!r) return;
+      const line = hit.line;
       document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
-        cav.classList.remove('dim');
-        cav.classList.add('hl-rail', 'rail-'+r);
+        markRailPrimaryEl(cav, r, line);
       });
       if(cid === 'ix_f102_m72'){
         const fp = f102PinEl(pin.id);
-        if(fp){ fp.classList.remove('dim'); fp.classList.add('hl-rail', 'rail-'+r); }
+        if(fp) markRailPrimaryEl(fp, r, line);
       }
     });
   });
@@ -4353,10 +4485,16 @@ function applyRailFilter(){
   const pills = [...activeRails].map(r =>
     `<span class="pill" style="border-color:${colors[r]};color:${colors[r]}">${labels[r]}</span>`
   ).join(' ');
+  const lineOrder = ['5v_app','5v_sns','12v_coil','12v_inj','12v_ht','12v_vb','12v_batt','12v_vmot','12v_other','gnd_pwr','gnd_sns','gnd_app'];
+  const linePills = lineOrder.filter(id => litLines.has(id)).map(id => {
+    const meta = RAIL_LINE[id];
+    return `<span class="pill" style="border-color:${meta.color};color:${meta.color}">${esc(railLineLabel(id))}</span>`;
+  }).join(' ');
   const info = document.getElementById('info');
   info.dataset.locked = '1';
   info.dataset.railMode = '1';
-  info.innerHTML = `<div>${pills}<b>${esc(t('railActive'))}</b> — ${esc(t('railActiveHint'))}</div>`;
+  info.innerHTML = `<div>${pills}<b>${esc(t('railActive'))}</b> — ${esc(t('railActiveHint'))}</div>` +
+    (linePills ? `<div style="margin-top:4px;color:var(--muted)">${linePills}</div>` : '');
 }
 
 function toggleRail(rail){
