@@ -1257,7 +1257,7 @@ function buildCircuits(model){
     {id:'ecm_relay_ss', title:'ECM relay / SSOFF', color:'#ef5350',
       ecm:[111], conn:['ecm_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], notes:'SSOFF ECM 111 ↔ IPDM E9-46 (W/B) · vía E108 69G · F102 11H (GY/L).'},
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
-      ecm:[104], conn:['motrly_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{motrly_relay:['MOTRLY'],ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'MOTRLY ECM 104 ↔ relé mariposa IPDM (F87). Color: E9·47+E108·30G = OR (naranja) · tras el SMJ F102·12H+ECM = SB (celeste). El cambio es el cruce E108↔M15, no otro conector.'},
+      ecm:[104], conn:['motrly_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{motrly_relay:['MOTRLY'],ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'MOTRLY ECM 104 ↔ relé mariposa IPDM (F87) · E9-47 OR → E108 30G → F102 12H SB.'},
     {id:'vmot', title:'VMOT supply', color:'#ef5350',
       ecm:[3], conn:['vmot','ipdm_e8','ix_e12_f3'], notes:'VMOT ECM 3 ↔ IPDM E8-42 (G) vía E12/F3.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
@@ -1283,7 +1283,7 @@ function buildCircuits(model){
     {id:'evap_vent', title:'EVAP canister vent', color:'#6a1b9a',
       ecm:[117], conn:['evap_vent','ix_f102_m72'], f102:['29H'], notes:'T20 pin1 W/R · pin2 G→…→F102 G/W → ECM 117. B1/M12 · P0447/P1446. EC-367.'},
     {id:'brake_stop', title:'Stop lamp switch', color:'#e53935',
-      ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], path:{ix_e108_m15:['38G'],ix_f102_m72:['21H'],stop_lamp:['SIG']}, notes:'Señal freno → ECM 101. Color: E108·38G = P/L · tras SMJ F102·21H+ECM = L/OR (mismo truco que MOTRLY).'},
+      ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], path:{ix_e108_m15:['38G'],ix_f102_m72:['21H'],stop_lamp:['SIG']}, notes:'Señal freno → ECM 101 (L/OR) · vía E108 38G · F102 21H.'},
     {id:'ascd_brake', title:'ASCD brake (+ clutch M/T)', color:'#fb8c00',
       ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], f102:['2H'], notes:'ASCD brake → ECM 108 (B/R). En M/T clutch en serie · vía E108 3G · F102 2H.'},
     {id:'ascd_steer', title:'ASCD steering (clock spring)', color:'#26c6da',
@@ -1696,7 +1696,7 @@ const CONN_BASE = {
       {id:'27G',code:'—',ecm:null},
       {id:'28G',code:'L/W',ecm:113,lab:'FPR'},
       {id:'29G',code:'—',ecm:null},
-      {id:'30G',code:'OR',ecm:104,lab:'MOTRLY',note:'Lado motor (E108): OR. Cruce SMJ → arnés carrocería SB → F102·12H → ECM 104. EC-472.',note_en:'Engine-room side (E108): OR. Through SMJ → body harness SB → F102·12H → ECM 104. EC-472.',note_ja:'エンジンルーム側 (E108): OR。SMJ経由でボディ側 SB → F102·12H → ECM 104。'},
+      {id:'30G',code:'OR',ecm:104,lab:'MOTRLY'},
       {id:'31G',code:'—',ecm:null},
       {id:'32G',code:'—',ecm:null},
       {id:'33G',code:'—',ecm:null},
@@ -1704,7 +1704,7 @@ const CONN_BASE = {
       {id:'35G',code:'—',ecm:null},
       {id:'36G',code:'—',ecm:null},
       {id:'37G',code:'—',ecm:null},
-      {id:'38G',code:'P/L',ecm:101,lab:'STOP',note:'Lado SMJ E108: P/L. Cruce E108↔M15 → F102·21H / ECM 101 en L/OR. Misma idea que MOTRLY OR→SB.',note_en:'E108 SMJ side: P/L. Through E108↔M15 → F102·21H / ECM 101 as L/OR. Same pattern as MOTRLY OR→SB.',note_ja:'E108側: P/L。SMJ経由で F102·21H / ECM 101 は L/OR。MOTRLYのOR→SBと同じ。'},
+      {id:'38G',code:'P/L',ecm:101,lab:'STOP'},
       {id:'39G',code:'—',ecm:null},
       {id:'40G',code:'—',ecm:null},
       {id:'41G',code:'—',ecm:null},
@@ -1739,7 +1739,7 @@ const CONN_BASE = {
     ],
     note:'SMJ E108 (engine room) ↔ M15 (main). Confirmados FSM: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 65G 12V A/F+HO2S (R/B) · 69G SSOFF (111). Resto vacío (sin inventar). Cara PG-84 H.S. E108.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔body', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY',note:'Lado carrocería: SB (celeste) desde SMJ M15. En E108·30G / E9·47 el mismo circuito es OR (naranja).',note_en:'Body side: SB from SMJ M15. Same circuit is OR at E108·30G / E9·47.',note_ja:'ボディ側: SB（M15）。E108·30G / E9·47 では同じ回路が OR。'},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP',note:'Lado F102/ECM: L/OR. En E108·38G el mismo circuito es P/L (cambio en el SMJ).',note_en:'F102/ECM side: L/OR. Same circuit is P/L at E108·38G (change at SMJ).',note_ja:'F102/ECM側: L/OR。E108·38G では P/L（SMJで色が変わる）。'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators'},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators'},{id:'23H',code:'GY/R',ecm:null,lab:'START'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
   note:'Puente SMJ motor↔carrocería · 15 cavidades con cable (incl. 6H FPR · 12H MOTRLY).'},
 
   /* —— Habitáculo / pedales / ASCD —— */
@@ -2808,7 +2808,7 @@ const I18N = {
       {id:'MOTRLY',code:'OR',ecm:104,lab:'MON'},
       {id:'coil+',code:'—',ecm:null,rail:'12v',src:'F87',srcSub:'ipdm',lab:'12V'}
     ],
-    note:'Relé ETC dentro IPDM (F87 15A). Monitor: E9·47 OR → E108·30G OR → [SMJ cambia a SB] → F102·12H SB → ECM 104. Motor mariposa = VMOT (pin 3).'},
+    note:'Relé ETC dentro IPDM (F87 15A). Monitor MOTRLY E9-47 OR → E108·30G → F102·12H SB → ECM 104. Motor mariposa = VMOT (pin 3).'},
 
   en: {
     pageSub: 'FSM reference · click ECM pin or cavity → end-to-end',
@@ -2997,7 +2997,7 @@ const NOTES_I18N = {
   dlc_k: {en:'ECM 85 (LG) → DLC pin 7 · CONSULT-II / GST.', ja:'ECM 85 (LG) → DLCピン7 · CONSULT-II / GST。'},
   ho2s_b1: {en:'Signal B1→74 (OR) · heater→25 (P/B) · 12V R/B JB15A→65G→F3·3→pin2 · SNS GND 78 shared.', ja:'信号B1→74 · ヒータ→25 · 12V R/B→65G→F3·3 · SNS 78共用。'},
   ho2s_b2: {en:'Signal B2→55 (L/B) · heater→6 (P/L) · 12V R/B same rail JB15A→65G→F3·3→pin2 · SNS GND 78 shared.', ja:'信号B2→55 · ヒータ→6 · 12V R/B→65G→F3·3 · SNS 78共用。'},
-  brake_stop: {en:'Brake → ECM 101. Color: E108·38G P/L · after SMJ F102·21H+ECM L/OR (same SMJ recolor as MOTRLY).', ja:'ブレーキ → ECM 101。色: E108·38G P/L · SMJ後 F102·21H+ECM は L/OR（MOTRLYと同じ）。'},
+  brake_stop: {en:'Brake signal → ECM 101 (L/OR). Stop lamp switch under pedal.', ja:'ブレーキ信号 → ECM 101 (L/OR)。ストップランプSWはペダル下。'},
   ascd_brake: {en:'ASCD brake → ECM 108 (B/R). On M/T the clutch switch is in series on the same signal path.', ja:'ASCDブレーキ → ECM 108 (B/R)。MTではクラッチSWが同信号経路に直列。'},
   ascd_steer: {en:'ASCD steering → ECM 99 (G/Y) via combination switch / clock spring (term. 14). Ground via ECM 67 (B/W) (term. 15).', ja:'ASCDステア → ECM 99 (G/Y)（コンビスイッチ/クロックスプリング端子14）。アースは ECM 67 (B/W)（端子15）。'},
   pnp_sw: {en:'PNP switch → ECM 102 (BR/Y). A/T only.', ja:'PNPスイッチ → ECM 102 (BR/Y)。ATのみ。'},
