@@ -1808,12 +1808,38 @@ const CONN_BASE = {
   evap_vent:{group:'motor', sub:'actuators', name:'EVAP · Venteo', meta:'T20 · vent · ECM 117 · P0447/P1446', accent:'#6a1b9a', shape:'tab2',
     pins:[{id:'1',code:'W/R',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},{id:'2',code:'G',ecm:117,lab:'CTRL'}],
     note:'Válvula venteo EVAP. Ruta: 12V E7-17 (W/L) → E106/B2 → B43/T1 (W/R) → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.',},
-  ix_e106_b2:{group:'motor', sub:'intermedias', name:'E106 ↔ B2 · EVAP venteo 12V', meta:'intermedia · E7-17 → trasera · EC-367', accent:'#90a4ae', shape:'tab2',
-    pins:[{id:'13',code:'W/L',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'}],
-    note:'12V venteo EVAP. Ruta: E7-17 (W/L) → E106/B2·13 → B43/T1 · EC-367.'},
-  ix_b43_t1:{group:'body', sub:'intermedias', name:'B43 ↔ T1 · EVAP venteo 12V', meta:'coupe · a T20 · EC-367', accent:'#90a4ae', shape:'tab2',
-    pins:[{id:'2',code:'W/R',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'}],
-    note:'12V venteo EVAP (coupe). Ruta: E106/B2 → B43/T1·2 (W/R) → T20·1 · EC-367.'},
+  ix_e106_b2:{group:'motor', sub:'intermedias', name:'E106 ↔ B2 · EVAP venteo 12V', meta:'18-pin W · H.S. B2 · pin 13 · EC-367', accent:'#90a4ae', shape:'b2', face:'b2',
+    pins:[
+      {id:'1',code:'—',ecm:null},
+      {id:'2',code:'—',ecm:null},
+      {id:'3',code:'—',ecm:null},
+      {id:'4',code:'—',ecm:null},
+      {id:'5',code:'—',ecm:null},
+      {id:'6',code:'—',ecm:null},
+      {id:'7',code:'—',ecm:null},
+      {id:'8',code:'—',ecm:null},
+      {id:'9',code:'—',ecm:null},
+      {id:'10',code:'—',ecm:null},
+      {id:'11',code:'—',ecm:null},
+      {id:'12',code:'—',ecm:null},
+      {id:'13',code:'W/L',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},
+      {id:'14',code:'—',ecm:null},
+      {id:'15',code:'—',ecm:null},
+      {id:'16',code:'—',ecm:null},
+      {id:'17',code:'—',ecm:null},
+      {id:'18',code:'—',ecm:null}
+    ],
+    note:'Intermedia E106/B2 (18 pines). 12V venteo: pin 13 (W/L) desde E7-17 → B43/T1 · EC-367.'},
+  ix_b43_t1:{group:'body', sub:'intermedias', name:'B43 ↔ T1 · EVAP venteo 12V', meta:'6-pin W · H.S. B43 · pin 2 · EC-367', accent:'#90a4ae', shape:'b43', face:'b43',
+    pins:[
+      {id:'1',code:'—',ecm:null},
+      {id:'2',code:'W/R',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},
+      {id:'3',code:'—',ecm:null},
+      {id:'4',code:'—',ecm:null},
+      {id:'5',code:'—',ecm:null},
+      {id:'6',code:'—',ecm:null}
+    ],
+    note:'Intermedia B43/T1 (6 pines, coupe). 12V venteo: pin 2 (W/R) → T20·1 · EC-367.'},
   ix_t2_b44:{group:'motor', sub:'intermedias', name:'T2 ↔ B44 · EVAP venteo', meta:'16-pin W · H.S. B44 · pin 9 VENT · EC-367', accent:'#90a4ae', shape:'b44', face:'b44',
     pins:[
       {id:'1',code:'—',ecm:null},
@@ -2936,6 +2962,65 @@ function svgIxNote(cid, f){
  *  Mate M72 (MAIN HARNESS) mirrors rows on PG-85. Primary ficha = F102. */
 
 
+
+function svgB2(cid, f){
+  /* B2 / E106 · EC-367 H.S.: top 1–5 | 6–10 · bot 11–18 */
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const topL = ['1','2','3','4','5'], topR = ['6','7','8','9','10'];
+  const bot = ['11','12','13','14','15','16','17','18'];
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP, midGap=10;
+  const padX=10, topY=20;
+  const topW = topL.length*(cw+gap)-gap + midGap + topR.length*(cw+gap)-gap;
+  const botW = bot.length*(cw+gap)-gap;
+  const innerW = Math.max(topW, botW);
+  const W = padX*2 + innerW;
+  const botY = topY + ch + gap;
+  const H = botY + ch + 12;
+  let cavities='';
+  let x = padX + Math.floor((innerW - topW)/2);
+  topL.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x+i*(cw+gap), topY, cw, ch); });
+  x += topL.length*(cw+gap)-gap + midGap;
+  topR.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x+i*(cw+gap), topY, cw, ch); });
+  x = padX + Math.floor((innerW - botW)/2);
+  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x+i*(cw+gap), botY, cw, ch); });
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
+    <text x="${padX}" y="14" font-size="8" fill="#90a4ae" font-weight="700">B2</text>
+    <text x="${W-padX}" y="14" text-anchor="end" font-size="7.5" fill="#78909c">E106 · H.S.</text>
+    ${cavities}
+  </svg>`;
+}
+
+function svgB43(cid, f){
+  /* B43 / T1 · EC-367 H.S.: top 1 | 2 · bot 3–6 */
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const topL = ['1'], topR = ['2'];
+  const bot = ['3','4','5','6'];
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP, midGap=14;
+  const padX=10, topY=20;
+  const topW = topL.length*(cw+gap)-gap + midGap + topR.length*(cw+gap)-gap;
+  const botW = bot.length*(cw+gap)-gap;
+  const innerW = Math.max(topW, botW);
+  const W = padX*2 + innerW;
+  const botY = topY + ch + gap;
+  const H = botY + ch + 12;
+  let cavities='';
+  let x = padX + Math.floor((innerW - topW)/2);
+  topL.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x+i*(cw+gap), topY, cw, ch); });
+  x += topL.length*(cw+gap)-gap + midGap;
+  topR.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x+i*(cw+gap), topY, cw, ch); });
+  x = padX + Math.floor((innerW - botW)/2);
+  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x+i*(cw+gap), botY, cw, ch); });
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
+    <text x="${padX}" y="14" font-size="8" fill="#90a4ae" font-weight="700">B43</text>
+    <text x="${W-padX}" y="14" text-anchor="end" font-size="7.5" fill="#78909c">T1 · H.S.</text>
+    ${cavities}
+  </svg>`;
+}
+
 function svgB44(cid, f){
   /* B44 / T2 · EC-367 H.S.: top 1-2-3 | 4-5-6-7 · bot 8–16 */
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
@@ -3130,6 +3215,8 @@ function renderConnSvg(cid, f){
     case 'clock': svg = svgClock(cid,f); break;
     case 'note': svg = svgNote(cid,f); break; /* feed notes have cavities → scale */
     case 'ixnote': return svgIxNote(cid,f); /* no cavities; leave flexible */
+    case 'b2': svg = svgB2(cid,f); break;
+    case 'b43': svg = svgB43(cid,f); break;
     case 'b44': svg = svgB44(cid,f); break;
     case 'b1':
     case 'smj_j': svg = svgB1(cid,f); break;
@@ -4056,8 +4143,8 @@ const CONN_I18N = {
   vtc_ex_b2: { en:{name:'VTC exhaust B2', meta:'Rev-Up · exhaust LH'}, ja:{name:'VTC排気ソレノイド B2', meta:'Rev-Up · 排気 左'} },
   evap_purge: { en:{name:'EVAP · Purge solenoid', meta:'solenoid'}, ja:{name:'EVAP · パージソレノイド', meta:'ソレノイド'} },
   evap_vent: { en:{name:'EVAP vent', meta:'canister vent · ECM 117'}, ja:{name:'EVAPベント', meta:'キャニスタベント · ECM 117'} },
-  ix_e106_b2: { en:{name:'E106 ↔ B2 · EVAP vent 12V', meta:'intermediate · E7-17 feed · EC-367'}, ja:{name:'E106 ↔ B2 · EVAPベント12V', meta:'中間 · E7-17 · EC-367'} },
-  ix_b43_t1: { en:{name:'B43 ↔ T1 · EVAP vent 12V', meta:'coupe · to T20 · EC-367'}, ja:{name:'B43 ↔ T1 · EVAPベント12V', meta:'クーペ · T20 · EC-367'} },
+  ix_e106_b2: { en:{name:'E106 ↔ B2 · EVAP vent 12V', meta:'18-pin · pin 13 · EC-367'}, ja:{name:'E106 ↔ B2 · EVAPベント12V', meta:'18ピン · pin13 · EC-367'} },
+  ix_b43_t1: { en:{name:'B43 ↔ T1 · EVAP vent 12V', meta:'6-pin · pin 2 · EC-367'}, ja:{name:'B43 ↔ T1 · EVAPベント12V', meta:'6ピン · pin2 · EC-367'} },
   ix_t2_b44: { en:{name:'T2 ↔ B44 · EVAP vent', meta:'16-pin · pin 9 VENT · EC-367'}, ja:{name:'T2 ↔ B44 · EVAPベント', meta:'16ピン · pin9 · EC-367'} },
   ix_b1_m12: { en:{name:'B1 ↔ M12 · SMJ body', meta:'69J SMJ · pin 37J · PG-84'}, ja:{name:'B1 ↔ M12 · SMJ', meta:'69J · pin37J · PG-84'} },
   pnp: { en:{name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y'}, ja:{name:'PNP / インヒビタSW', meta:'A/T · ECM 102 BR/Y'} },
