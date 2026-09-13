@@ -2956,8 +2956,8 @@ const I18N = {
     hlLegendTitle: 'Colores de highlight',
     hlLegSecSel: 'Selección de pin / ficha',
     hlLegFocus: 'Foco (pin o cavidad tocada)',
-    hlLegSiblings: 'Hermanos del circuito — color del grupo o nest (sensores azul, bobinas naranja, …)',
-    hlLegSecRail: 'Botones 5V · 12V · GND (líneas)',
+    hlLegSiblings: 'Hermanos — cada grupo/nest su color',
+    hlLegSecRail: 'Rails activos (líneas)',
     hlLegSecRel: 'Rail · relacionados',
     hlLegRelGnd: 'Tierras relacionadas',
     hlLegRelData: 'Data / señales relacionadas',
@@ -3019,8 +3019,8 @@ const I18N = {
     hlLegendTitle: 'Highlight colors',
     hlLegSecSel: 'Pin / connector selection',
     hlLegFocus: 'Focus (pin or cavity you clicked)',
-    hlLegSiblings: 'Circuit siblings — group or nest accent (sensors blue, coils orange, …)',
-    hlLegSecRail: '5V · 12V · GND buttons (lines)',
+    hlLegSiblings: 'Siblings — each group/nest its own color',
+    hlLegSecRail: 'Active rails (lines)',
     hlLegSecRel: 'Rail · related',
     hlLegRelGnd: 'Related grounds',
     hlLegRelData: 'Related data / signals',
@@ -3073,8 +3073,8 @@ const I18N = {
     hlLegendTitle: 'ハイライト色',
     hlLegSecSel: 'ピン / フィチャ選択',
     hlLegFocus: 'フォーカス（クリックしたピン/キャビティ）',
-    hlLegSiblings: '回路の兄弟 — グループ/ネスト色（センサ青、コイル橙など）',
-    hlLegSecRail: '5V · 12V · GND（ライン別）',
+    hlLegSiblings: '兄弟 — グループ/ネストごとに色',
+    hlLegSecRail: '有効レール（ライン）',
     hlLegSecRel: 'レール · 関連',
     hlLegRelGnd: '関連アース',
     hlLegRelData: '関連データ / 信号',
@@ -3255,23 +3255,31 @@ function renderHlLegend(){
   const title = document.getElementById('hlLegendTitle');
   if(title) title.textContent = t('hlLegendTitle');
   if(!body) return;
-  const row = (color, label) =>
-    `<div class="opts-hl-legend-row"><span class="opts-hl-swatch" style="background:${color}"></span><span>${esc(label)}</span></div>`;
+  const sw = (color) => `<span class="opts-hl-swatch" style="background:${color}"></span>`;
+  const row = (colors, label) => {
+    const list = Array.isArray(colors) ? colors : [colors];
+    return `<div class="opts-hl-legend-row"><span class="opts-hl-swatches">${list.map(sw).join('')}</span><span>${esc(label)}</span></div>`;
+  };
   const sec = (label) => `<div class="opts-hl-legend-sec">${esc(label)}</div>`;
   let html = '';
   html += sec(t('hlLegSecSel'));
   html += row('#ffd54f', t('hlLegFocus'));
-  html += row('#42a5f5', t('hlLegSiblings'));
-  html += sec(t('hlLegSecRail'));
-  const lineOrder = ['5v_app','5v_sns','12v_coil','12v_inj','12v_ht','12v_vb','12v_batt','12v_vmot','12v_other','gnd_pwr','gnd_sns','gnd_app'];
-  lineOrder.forEach(id => {
-    const meta = RAIL_LINE[id];
-    if(!meta) return;
-    html += row(meta.color, railLineLabel(id));
-  });
-  html += sec(t('hlLegSecRel'));
-  html += row('#66bb6a', t('hlLegRelGnd'));
-  html += row('#4fc3f7', t('hlLegRelData'));
+  const sibColors = [
+    SUB_ACCENT.power, SUB_ACCENT.sensors, NEST_ACCENT.bobinas, NEST_ACCENT.inyectores,
+    SUB_ACCENT.actuators, SUB_ACCENT.pedals, SUB_ACCENT.ascd_dlc, SUB_ACCENT.intermedias
+  ];
+  html += row(sibColors, t('hlLegSiblings'));
+  if(typeof activeRails !== 'undefined' && activeRails && activeRails.size){
+    const lineOrder = ['5v_app','5v_sns','12v_coil','12v_inj','12v_ht','12v_vb','12v_batt','12v_vmot','12v_other','gnd_pwr','gnd_sns','gnd_app'];
+    const lines = lineOrder.filter(id => RAIL_LINE[id] && activeRails.has(RAIL_LINE[id].rail));
+    if(lines.length){
+      html += sec(t('hlLegSecRail'));
+      lines.forEach(id => html += row(RAIL_LINE[id].color, railLineLabel(id)));
+    }
+    html += sec(t('hlLegSecRel'));
+    if(railRelGndEnabled()) html += row('#66bb6a', t('hlLegRelGnd'));
+    if(railRelDataEnabled()) html += row('#4fc3f7', t('hlLegRelData'));
+  }
   body.innerHTML = html;
 }
 
@@ -4383,6 +4391,7 @@ function onRailRelKindToggle(){
   if(g) localStorage.setItem(LS_RAIL_REL_GND, g.checked ? '1' : '0');
   if(d) localStorage.setItem(LS_RAIL_REL_DATA, d.checked ? '1' : '0');
   if(activeRails.size) applyRailFilter();
+  else renderHlLegend();
 }
 /** True if cavity has a real wire (not empty / nc / unknown hole). */
 function cavHasWire(pin){
@@ -4424,6 +4433,7 @@ function applyRailFilter(){
       delete info.dataset.railMode;
       info.textContent = t('infoEmpty');
     }
+    renderHlLegend();
     return;
   }
 
@@ -4577,6 +4587,7 @@ function applyRailFilter(){
   info.dataset.railMode = '1';
   info.innerHTML = `<div>${pills}<b>${esc(t('railActive'))}</b> — ${esc(t('railActiveHint'))}</div>` +
     (linePills ? `<div style="margin-top:4px;color:var(--muted)">${linePills}</div>` : '');
+  renderHlLegend();
 }
 
 function toggleRail(rail){
