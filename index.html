@@ -1477,7 +1477,7 @@ function buildCircuits(model){
     {id:'evap_purge', title:'EVAP · purga', color:'#8e24aa',
       ecm:[45], conn:['evap_purge','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7']}, notes:'Válvula de purga del canister. Ruta: 12V (E7-18 → F3) en F5·1 · control F5·2 → ECM 45.'},
     {id:'evap_vent', title:'EVAP · venteo', color:'#6a1b9a',
-      ecm:[117], conn:['evap_vent','ix_e106_b2','ix_b43_t1','ix_t2_b44','ix_b1_m12','ix_f102_m72','ipdm_e7'], path:{evap_vent:['1','2'],ix_e106_b2:['13'],ix_b43_t1:['2'],ix_t2_b44:['VENT'],ix_b1_m12:['VENT'],ix_f102_m72:['29H'],ipdm_e7:['17']}, f102:['29H'], notes:'Válvula de venteo del canister. Ruta: 12V E7-17 → E106/B2·13 → B43/T1·2 → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.'},
+      ecm:[117], conn:['evap_vent','ix_e106_b2','ix_b43_t1','ix_t2_b44','ix_b1_m12','ix_f102_m72','ipdm_e7'], path:{evap_vent:['1','2'],ix_e106_b2:['13'],ix_b43_t1:['2'],ix_t2_b44:['9'],ix_b1_m12:['37J'],ix_f102_m72:['29H'],ipdm_e7:['17']}, f102:['29H'], notes:'Válvula de venteo del canister. Ruta: 12V E7-17 → E106/B2·13 → B43/T1·2 → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.'},
     {id:'brake_stop', title:'Interruptor de freno', color:'#e53935',
       ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], path:{ix_e108_m15:['38G'],ix_f102_m72:['21H'],stop_lamp:['SIG']}, notes:'Señal de freno al ECM. Ruta: interruptor → E108·38G → F102·21H → ECM 101.'},
     {id:'ascd_brake', title:'ASCD freno (+ embrague M/T)', color:'#fb8c00',
@@ -1814,12 +1814,99 @@ const CONN_BASE = {
   ix_b43_t1:{group:'body', sub:'intermedias', name:'B43 ↔ T1 · EVAP venteo 12V', meta:'coupe · a T20 · EC-367', accent:'#90a4ae', shape:'tab2',
     pins:[{id:'2',code:'W/R',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'}],
     note:'12V venteo EVAP (coupe). Ruta: E106/B2 → B43/T1·2 (W/R) → T20·1 · EC-367.'},
-  ix_t2_b44:{group:'motor', sub:'intermedias', name:'T2 ↔ B44 · EVAP venteo', meta:'intermedia · control T20 → habitáculo', accent:'#90a4ae', shape:'tab2',
-    pins:[{id:'VENT',code:'G',ecm:117,lab:'VENT'}],
-    note:'Empalme del control de venteo EVAP. Ruta: T20 → T2/B44 → B1/M12.'},
-  ix_b1_m12:{group:'body', sub:'intermedias', name:'B1 ↔ M12 · EVAP / body', meta:'intermedia habitáculo · hacia F102', accent:'#90a4ae', shape:'tab2',
-    pins:[{id:'VENT',code:'G/W',ecm:117,lab:'VENT'}],
-    note:'Empalme habitáculo hacia F102. Ruta: B1/M12 → F102·29H (G/W) → ECM 117.'},
+  ix_t2_b44:{group:'motor', sub:'intermedias', name:'T2 ↔ B44 · EVAP venteo', meta:'16-pin W · H.S. B44 · pin 9 VENT · EC-367', accent:'#90a4ae', shape:'b44', face:'b44',
+    pins:[
+      {id:'1',code:'—',ecm:null},
+      {id:'2',code:'—',ecm:null},
+      {id:'3',code:'—',ecm:null},
+      {id:'4',code:'—',ecm:null},
+      {id:'5',code:'—',ecm:null},
+      {id:'6',code:'—',ecm:null},
+      {id:'7',code:'—',ecm:null},
+      {id:'8',code:'—',ecm:null},
+      {id:'9',code:'G',ecm:117,lab:'VENT'},
+      {id:'10',code:'—',ecm:null},
+      {id:'11',code:'—',ecm:null},
+      {id:'12',code:'—',ecm:null},
+      {id:'13',code:'—',ecm:null},
+      {id:'14',code:'—',ecm:null},
+      {id:'15',code:'—',ecm:null},
+      {id:'16',code:'—',ecm:null}
+    ],
+    note:'Intermedia T2/B44 (16 pines). Control venteo: pin 9 (G) → B1/M12 · EC-367.'},
+  ix_b1_m12:{group:'body', sub:'intermedias', name:'B1 ↔ M12 · SMJ body', meta:'SMJ 69J · PG-84 · pin 37J VENT · EC-367', accent:'#90a4ae', shape:'b1', face:'smj_j',
+    pins:[
+      {id:'1J',code:'—',ecm:null},
+      {id:'2J',code:'—',ecm:null},
+      {id:'3J',code:'—',ecm:null},
+      {id:'4J',code:'—',ecm:null},
+      {id:'5J',code:'—',ecm:null},
+      {id:'6J',code:'—',ecm:null},
+      {id:'7J',code:'—',ecm:null},
+      {id:'8J',code:'—',ecm:null},
+      {id:'9J',code:'—',ecm:null},
+      {id:'10J',code:'—',ecm:null},
+      {id:'11J',code:'—',ecm:null},
+      {id:'12J',code:'—',ecm:null},
+      {id:'13J',code:'—',ecm:null},
+      {id:'14J',code:'—',ecm:null},
+      {id:'15J',code:'—',ecm:null},
+      {id:'16J',code:'—',ecm:null},
+      {id:'17J',code:'—',ecm:null},
+      {id:'18J',code:'—',ecm:null},
+      {id:'19J',code:'—',ecm:null},
+      {id:'20J',code:'—',ecm:null},
+      {id:'21J',code:'—',ecm:null},
+      {id:'22J',code:'—',ecm:null},
+      {id:'23J',code:'—',ecm:null},
+      {id:'24J',code:'—',ecm:null},
+      {id:'25J',code:'—',ecm:null},
+      {id:'26J',code:'—',ecm:null},
+      {id:'27J',code:'—',ecm:null},
+      {id:'28J',code:'—',ecm:null},
+      {id:'29J',code:'—',ecm:null},
+      {id:'30J',code:'—',ecm:null},
+      {id:'31J',code:'—',ecm:null},
+      {id:'32J',code:'—',ecm:null},
+      {id:'33J',code:'—',ecm:null},
+      {id:'34J',code:'—',ecm:null},
+      {id:'35J',code:'—',ecm:null},
+      {id:'36J',code:'—',ecm:null},
+      {id:'37J',code:'G/B',ecm:117,lab:'VENT'},
+      {id:'38J',code:'—',ecm:null},
+      {id:'39J',code:'—',ecm:null},
+      {id:'40J',code:'—',ecm:null},
+      {id:'41J',code:'—',ecm:null},
+      {id:'42J',code:'—',ecm:null},
+      {id:'43J',code:'—',ecm:null},
+      {id:'44J',code:'—',ecm:null},
+      {id:'45J',code:'—',ecm:null},
+      {id:'46J',code:'—',ecm:null},
+      {id:'47J',code:'—',ecm:null},
+      {id:'48J',code:'—',ecm:null},
+      {id:'49J',code:'—',ecm:null},
+      {id:'50J',code:'—',ecm:null},
+      {id:'51J',code:'—',ecm:null},
+      {id:'52J',code:'—',ecm:null},
+      {id:'53J',code:'—',ecm:null},
+      {id:'54J',code:'—',ecm:null},
+      {id:'55J',code:'—',ecm:null},
+      {id:'56J',code:'—',ecm:null},
+      {id:'57J',code:'—',ecm:null},
+      {id:'58J',code:'—',ecm:null},
+      {id:'59J',code:'—',ecm:null},
+      {id:'60J',code:'—',ecm:null},
+      {id:'61J',code:'—',ecm:null},
+      {id:'62J',code:'—',ecm:null},
+      {id:'63J',code:'—',ecm:null},
+      {id:'64J',code:'—',ecm:null},
+      {id:'65J',code:'—',ecm:null},
+      {id:'66J',code:'—',ecm:null},
+      {id:'67J',code:'—',ecm:null},
+      {id:'68J',code:'—',ecm:null},
+      {id:'69J',code:'—',ecm:null}
+    ],
+    note:'SMJ B1/M12 (69 pines J). Control venteo: 37J (G/B) → F102·29H (G/W) → ECM 117 · EC-367 / PG-84.'},
   fuel_pump:{group:'motor', sub:'actuators', name:'Bomba combustible', meta:'B27 · unidad nivel · EC-710', accent:'#ef5350', shape:'tab2',
     pins:[{id:'1',lab:'12V',code:'B/Y',ecm:null,rail:'12v',src:'E8·39',srcSub:'ipdm'},{id:'3',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'D105',srcSub:'power'}],
     note:'Bomba de combustible. Ruta: E8-39 → pin1 · masa pin3 → D105.'},
@@ -2848,6 +2935,78 @@ function svgIxNote(cid, f){
  *  Intermedias: always FSM H.S. — do NOT apply flipRow / ECM Invertida.
  *  Mate M72 (MAIN HARNESS) mirrors rows on PG-85. Primary ficha = F102. */
 
+
+function svgB44(cid, f){
+  /* B44 / T2 · EC-367 H.S.: top 1-2-3 | 4-5-6-7 · bot 8–16 */
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const topL = ['1','2','3'], topR = ['4','5','6','7'];
+  const bot = ['8','9','10','11','12','13','14','15','16'];
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP, midGap=10;
+  const padX=10, topY=20;
+  const topCount = topL.length + topR.length;
+  const botCount = bot.length;
+  const topW = topL.length*(cw+gap)-gap + midGap + topR.length*(cw+gap)-gap;
+  const botW = botCount*(cw+gap)-gap;
+  const innerW = Math.max(topW, botW);
+  const W = padX*2 + innerW;
+  const botY = topY + ch + gap;
+  const H = botY + ch + 12;
+  let cavities='';
+  let x = padX + Math.floor((innerW - topW)/2);
+  topL.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x+i*(cw+gap), topY, cw, ch); });
+  x += topL.length*(cw+gap)-gap + midGap;
+  topR.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x+i*(cw+gap), topY, cw, ch); });
+  x = padX + Math.floor((innerW - botW)/2);
+  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x+i*(cw+gap), botY, cw, ch); });
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
+    <text x="${padX}" y="14" font-size="8" fill="#90a4ae" font-weight="700">B44</text>
+    <text x="${W-padX}" y="14" text-anchor="end" font-size="7.5" fill="#78909c">H.S.</text>
+    ${cavities}
+  </svg>`;
+}
+
+function svgB1(cid, f){
+  /* B1 / M12 · PG-84 SMJ J-face — same band layout as E108 G, suffix J */
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const bands = [
+    {rows:[['1J','2J','3J','4J','5J'],['6J','7J','8J','9J','10J']]},
+    {stub:['11J','27J'], label:'11J–27J'},
+    {rows:[['28J','29J','30J','31J','32J'],['33J','34J','35J','36J','37J'],['38J','39J','40J','41J','42J'],['43J','44J']]},
+    {stub:['45J','64J'], label:'45J–64J'},
+    {rows:[['65J','66J','67J','68J','69J']]}
+  ];
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=10, padTop=18, stubH=20, bandGap=8;
+  const maxCols = 5;
+  const W = padX*2 + maxCols*(cw+gap) - gap;
+  let cavities='', y = padTop;
+  bands.forEach(band=>{
+    if(band.stub){
+      cavities += `<rect x="${padX}" y="${y}" width="${W-2*padX}" height="${stubH}" rx="3" fill="#1a1f28" stroke="#455a64" stroke-width="1" stroke-dasharray="3 2" opacity="0.95"/>`;
+      cavities += `<text x="${W/2}" y="${y+stubH/2+4}" text-anchor="middle" font-size="9" fill="#78909c" font-weight="700">${esc(band.label)}</text>`;
+      y += stubH + bandGap;
+      return;
+    }
+    band.rows.forEach(row=>{
+      const rowW = row.length*(cw+gap) - gap;
+      const x0 = padX + Math.floor((maxCols*(cw+gap)-gap - rowW)/2);
+      row.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, x0+i*(cw+gap), y, cw, ch); });
+      y += ch + gap;
+    });
+    y += bandGap - gap;
+  });
+  const H = y + 8;
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
+    <text x="${padX}" y="14" font-size="8" fill="#90a4ae" font-weight="700">B1</text>
+    <text x="${W-padX}" y="14" text-anchor="end" font-size="7.5" fill="#78909c">M12 · J</text>
+    ${cavities}
+  </svg>`;
+}
+
 function svgE108(cid, f){
   /* E108 · PG-84 · same CAV_STD cell size as other fichas; ≤5 cols so card max-width does not shrink pins. */
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
@@ -2971,6 +3130,9 @@ function renderConnSvg(cid, f){
     case 'clock': svg = svgClock(cid,f); break;
     case 'note': svg = svgNote(cid,f); break; /* feed notes have cavities → scale */
     case 'ixnote': return svgIxNote(cid,f); /* no cavities; leave flexible */
+    case 'b44': svg = svgB44(cid,f); break;
+    case 'b1':
+    case 'smj_j': svg = svgB1(cid,f); break;
     case 'e108':
     case 'smj_g': svg = svgE108(cid,f); break;
     case 'f102':
@@ -3896,8 +4058,8 @@ const CONN_I18N = {
   evap_vent: { en:{name:'EVAP vent', meta:'canister vent · ECM 117'}, ja:{name:'EVAPベント', meta:'キャニスタベント · ECM 117'} },
   ix_e106_b2: { en:{name:'E106 ↔ B2 · EVAP vent 12V', meta:'intermediate · E7-17 feed · EC-367'}, ja:{name:'E106 ↔ B2 · EVAPベント12V', meta:'中間 · E7-17 · EC-367'} },
   ix_b43_t1: { en:{name:'B43 ↔ T1 · EVAP vent 12V', meta:'coupe · to T20 · EC-367'}, ja:{name:'B43 ↔ T1 · EVAPベント12V', meta:'クーペ · T20 · EC-367'} },
-  ix_t2_b44: { en:{name:'T2 ↔ B44 · EVAP vent', meta:'intermediate · T20 control'}, ja:{name:'T2 ↔ B44 · EVAPベント', meta:'中間 · T20制御'} },
-  ix_b1_m12: { en:{name:'B1 ↔ M12 · body', meta:'cabin intermediate → F102'}, ja:{name:'B1 ↔ M12 · ボディ', meta:'室内中間 → F102'} },
+  ix_t2_b44: { en:{name:'T2 ↔ B44 · EVAP vent', meta:'16-pin · pin 9 VENT · EC-367'}, ja:{name:'T2 ↔ B44 · EVAPベント', meta:'16ピン · pin9 · EC-367'} },
+  ix_b1_m12: { en:{name:'B1 ↔ M12 · SMJ body', meta:'69J SMJ · pin 37J · PG-84'}, ja:{name:'B1 ↔ M12 · SMJ', meta:'69J · pin37J · PG-84'} },
   pnp: { en:{name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y'}, ja:{name:'PNP / インヒビタSW', meta:'A/T · ECM 102 BR/Y'} },
   app: {
     en: { name:'APP pedal E113', meta:'6-pin GY · pedal · PATH E113→E11/F2→ECM',
