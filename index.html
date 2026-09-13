@@ -3270,11 +3270,13 @@ function renderHlLegend(){
   let html = '';
   html += sec(t('hlLegSecSel'));
   html += row('#ffd54f', t('hlLegFocus'));
-  const sibColors = [
-    SUB_ACCENT.power, SUB_ACCENT.sensors, NEST_ACCENT.bobinas, NEST_ACCENT.inyectores,
-    SUB_ACCENT.actuators, SUB_ACCENT.pedals, SUB_ACCENT.ascd_dlc, SUB_ACCENT.intermedias
-  ];
-  html += row(sibColors, t('hlLegSiblings'));
+  if(railRelGndEnabled() || railRelDataEnabled()){
+    const sibColors = [
+      SUB_ACCENT.power, SUB_ACCENT.sensors, NEST_ACCENT.bobinas, NEST_ACCENT.inyectores,
+      SUB_ACCENT.actuators, SUB_ACCENT.pedals, SUB_ACCENT.ascd_dlc, SUB_ACCENT.intermedias
+    ];
+    html += row(sibColors, t('hlLegSiblings'));
+  }
   if(typeof activeRails !== 'undefined' && activeRails && activeRails.size){
     const lineOrder = ['5v_app','5v_sns','12v_coil','12v_inj','12v_ht','12v_vb','12v_batt','12v_vmot','12v_other','gnd_pwr','gnd_sns','gnd_app'];
     const lines = lineOrder.filter(id => RAIL_LINE[id] && activeRails.has(RAIL_LINE[id].rail));
@@ -4398,8 +4400,7 @@ function onRailRelKindToggle(){
   const d = document.getElementById('railRelData');
   if(g) localStorage.setItem(LS_RAIL_REL_GND, g.checked ? '1' : '0');
   if(d) localStorage.setItem(LS_RAIL_REL_DATA, d.checked ? '1' : '0');
-  if(activeRails.size) applyRailFilter();
-  else renderHlLegend();
+  refreshCurrentSelection();
 }
 /** True if cavity has a real wire (not empty / nc / unknown hole). */
 function cavHasWire(pin){
@@ -4422,6 +4423,40 @@ function railRelKindForCav(pin){
   if(r === '5v' || r === '12v') return null;
   return 'data';
 }
+/* Circuit-selection siblings: gated by Tierras/Data. 5V/12V count as data here (not in rail-rel mode). */
+function circuitSiblingKindEcm(p){
+  const r = PIN_RAIL[p] || PIN_RAIL[Number(p)] || null;
+  if(r === 'gnd') return 'gnd';
+  return 'data';
+}
+function circuitSiblingKindCav(pin){
+  if(!cavHasWire(pin)) return null;
+  const r = cavRailOf(pin);
+  if(r === 'gnd' || pin.rail === 'gnd') return 'gnd';
+  return 'data';
+}
+function circuitSiblingAllowed(kind){
+  if(kind === 'gnd') return railRelGndEnabled();
+  if(kind === 'data') return railRelDataEnabled();
+  return false;
+}
+function refreshCurrentSelection(){
+  if(activeRails.size){ applyRailFilter(); return; }
+  if(!selKey){ renderHlLegend(); return; }
+  const key = selKey;
+  selKey = null; /* allow re-select without toggle-clear */
+  if(key.startsWith('pin:')){
+    selectPin(key.slice(4));
+  } else if(key.startsWith('cav:')){
+    const rest = key.slice(4);
+    const i = rest.indexOf(':');
+    if(i < 0){ renderHlLegend(); return; }
+    selectConnPin(rest.slice(0, i), rest.slice(i + 1));
+  } else {
+    renderHlLegend();
+  }
+}
+
 function markRailRelEl(el, kind){
   if(!el || !kind) return;
   if(kind === 'gnd' && !railRelGndEnabled()) return;
@@ -4932,7 +4967,11 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     if(!el) return;
     el.classList.remove('dim');
     if(focusPin!=null && p===focusPin){ el.classList.add('hl'); clearHlGroupElColor(el); }
-    else applyHlGroupEl(el, accentForEcmPin(p) || hlGroupColorForCircuits(circIds, focusPin));
+    else {
+      const kind = circuitSiblingKindEcm(p);
+      if(!circuitSiblingAllowed(kind)){ el.classList.add('dim'); clearHlGroupElColor(el); return; }
+      applyHlGroupEl(el, accentForEcmPin(p) || hlGroupColorForCircuits(circIds, focusPin));
+    }
   });
   updateEcmSelCount(ecmSet);
   connSet.forEach(cid=>{
@@ -4950,13 +4989,16 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       const onPathFeed = pathCavByConn.has(cid) && pathCavByConn.get(cid).has(String(p.id));
       /* Only path cavities stay lit (E9/OBD have many off-path pins). */
       if(!(isFocusCav || onFocusEcm || onPathEcm || onPathFeed)) return;
-      /* exact pin = yellow hl; siblings on path = hl-group (per-group color) */
+      /* exact pin = yellow hl; siblings only if Tierras/Data allow that kind */
       const isFocus = (isFocusCav || onFocusEcm);
       const gCol = accentForCav(cid, p) || hlGroupColorForCircuits(circIds, focusPin);
+      const sibKind = circuitSiblingKindCav(p);
+      const sibOk = isFocus || circuitSiblingAllowed(sibKind);
       document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`).forEach(cav=>{
         cav.classList.remove('dim','hl','hl-end','hl-group');
         if(isFocus){ cav.classList.add('hl'); clearHlGroupElColor(cav); }
-        else applyHlGroupEl(cav, gCol);
+        else if(sibOk) applyHlGroupEl(cav, gCol);
+        else { cav.classList.add('dim'); clearHlGroupElColor(cav); }
       });
       if(cid === 'ix_f102_m72'){
         const fp = f102PinEl(p.id);
@@ -4964,7 +5006,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
         if(f102Allow && !f102Allow.has(String(p.id)) && !isFocusCav) return;
         fp.classList.remove('dim','hl','hl-end','hl-group');
         if(isFocus){ fp.classList.add('hl'); clearHlGroupElColor(fp); }
-        else applyHlGroupEl(fp, gCol);
+        else if(sibOk) applyHlGroupEl(fp, gCol);
+        else { fp.classList.add('dim'); clearHlGroupElColor(fp); }
       }
     });
   });
@@ -5042,16 +5085,22 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
     const hit = pathOk(p, cid, pid);
     if(!hit) return;
     cav.classList.remove('dim','hl','hl-end','hl-group');
-    if(hit.cls === 'hl-group') applyHlGroupEl(cav, accentForCav(cid, p));
-    else { cav.classList.add(hit.cls); clearHlGroupElColor(cav); }
+    if(hit.cls === 'hl-group'){
+      const kind = circuitSiblingKindCav(p);
+      if(circuitSiblingAllowed(kind)) applyHlGroupEl(cav, accentForCav(cid, p));
+      else { cav.classList.add('dim'); clearHlGroupElColor(cav); }
+    } else { cav.classList.add(hit.cls); clearHlGroupElColor(cav); }
   });
   document.querySelectorAll('#f102Blocks .pin[data-cav]').forEach(fp=>{
     const p = (CONN['ix_f102_m72']&&CONN['ix_f102_m72'].pins||[]).find(x=>String(x.id)===String(fp.dataset.cav));
     const hit = pathOk(p, 'ix_f102_m72', fp.dataset.cav);
     if(!hit) return;
     fp.classList.remove('dim','hl','hl-end','hl-group');
-    if(hit.cls === 'hl-group') applyHlGroupEl(fp, accentForCav('ix_f102_m72', p));
-    else { fp.classList.add(hit.cls); clearHlGroupElColor(fp); }
+    if(hit.cls === 'hl-group'){
+      const kind = circuitSiblingKindCav(p);
+      if(circuitSiblingAllowed(kind)) applyHlGroupEl(fp, accentForCav('ix_f102_m72', p));
+      else { fp.classList.add('dim'); clearHlGroupElColor(fp); }
+    } else { fp.classList.add(hit.cls); clearHlGroupElColor(fp); }
   });
   updateF102SelPins();
 }
