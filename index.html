@@ -1257,7 +1257,7 @@ function buildCircuits(model){
     {id:'ecm_relay_ss', title:'ECM relay / SSOFF', color:'#ef5350',
       ecm:[111], conn:['ecm_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], notes:'SSOFF ECM 111 ↔ IPDM E9-46 (W/B) · vía E108 69G · F102 11H (GY/L).'},
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
-      ecm:[104], conn:['ecm_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], notes:'MOTRLY ECM 104 ↔ IPDM E9-47 (OR) · vía E108 30G · F102 12H (SB).'},
+      ecm:[104], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'MOTRLY ECM 104 ↔ IPDM E9-47 (OR) · vía E108 30G · F102 12H (SB). Relé mariposa (no el relé ECM/SSOFF 111).'},
     {id:'vmot', title:'VMOT supply', color:'#ef5350',
       ecm:[3], conn:['vmot','ipdm_e8','ix_e12_f3'], notes:'VMOT ECM 3 ↔ IPDM E8-42 (G) vía E12/F3.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
@@ -2924,7 +2924,7 @@ const TITLES_I18N = {
   ign_feeds: {en:'IGN feeds ECM 119/120', ja:'IGN供給 ECM 119/120'},
   ign_sw: {en:'IGN SW → ECM', ja:'IGN SW → ECM'},
   ecm_relay_ss: {en:'ECM relay / SSOFF', ja:'ECMリレー / SSOFF'},
-  motrly: {en:'MOTRLY', ja:'MOTRLY'},
+  motrly: {en:'MOTRLY ECM 104 ↔ IPDM E9-47 (OR) · via E108 30G · F102 12H (SB). Throttle motor relay (not ECM/SSOFF 111).', ja:'MOTRLY ECM 104 ↔ IPDM E9-47 · E108 30G · F102 12H。スロットルモータリレー（ECM/SSOFF 111ではない）。'},
   vmot: {en:'VMOT supply', ja:'VMOT供給'},
 
   fp_relay: {en:'Fuel pump relay', ja:'フューエルポンプリレー'},
