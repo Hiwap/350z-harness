@@ -1373,7 +1373,9 @@ function buildCircuits(model){
     {id:'start_sig', title:'Señal de arranque (START)', color:'#ef5350',
       ecm:[], conn:['ix_f102_m72','comb_meter'], path:{ix_f102_m72:['23H']}, f102:['23H'], notes:'Señal de arranque GY/R (no alimenta el motor). Ruta: F102·23H ↔ cluster / TCM · también rama a SC-START. Distinto del 12V de arranque (E4→F9).'},
     {id:'backup_lamp', title:'Luces de marcha atrás (M/T)', color:'#ffb300',
-      ecm:[], conn:['ix_e10_f1','backup_sw','ix_f102_m72','ipdm_e7'], path:{ipdm_e7:['26'],ix_e10_f1:['2'],backup_sw:['1','2'],ix_f102_m72:['22H']}, notes:'Luces de marcha atrás (M/T): pasan por el interruptor F36. Ruta: E7-26 → E10/F1·2 → F36 → F102·22H → faros traseros.'},
+      ecm:[], conn:['backup_sw','ix_f102_m72'], f102:['22H'],
+      path:{ipdm_e7:['26'],ix_e10_f1:['2'],backup_sw:['1','2'],ix_f102_m72:['22H']},
+      notes:'Luces de marcha atrás (M/T): interruptor F36. Selección: F36 + F102·22H. Alim. 12V: E7-26 → E10/F1·2 → F36 → F102·22H → faros traseros.'},
 
     {id:'gnd_ecm', title:'Tierras ECM → carrocería', color:'#66bb6a',
       ecm:[1,115,116], conn:['gnd4','e17'], notes:'Tierras de potencia del ECM a la carrocería. Ruta: ECM 1 / 115 / 116 → F103/F151 → masa carrocería (E17).'},
@@ -1756,7 +1758,7 @@ const CONN_BASE = {
       {id:'1',lab:'IN',code:'Y/R',ecm:null,rail:'12v',src:'E7·26',srcSub:'ipdm',circ:'backup_lamp',note:'Switch marcha atrás. Ruta: E7-26 → E10/F1·2 → F36.'},
       {id:'2',lab:'OUT',code:'OR',ecm:null,rail:'12v',src:'F36',srcSub:'actuators',circ:'backup_lamp',note:'→ F102 22H → luces reversa T10/T18'}
     ],
-    note:'Switch de marcha atrás (M/T). Ruta: F1·2 → F36 → F102·22H → luces.'},
+    note:'Switch de marcha atrás (M/T). Ruta: E7-26 → F1·2 → F36 → F102·22H → luces (12V en Alim.).'},
   inj1:{group:'motor', sub:'actuators', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/B',ecm:23},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
   inj2:{group:'motor', sub:'actuators', name:'Inyector 2', meta:'ECM42 B/R', accent:'#37474f', shape:'tab2', pins:[{id:'ECM',code:'B/R',ecm:42},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
   inj3:{group:'motor', sub:'actuators', name:'Inyector 3', meta:'ECM22 R/Y', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/Y',ecm:22},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
