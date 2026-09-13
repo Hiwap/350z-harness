@@ -920,6 +920,12 @@
           <option value="de_revup" selected>2005–2006 · VQ35DE Rev-Up</option>
         </select>
       </label>
+      <label id="lblLoom">Vista arnés
+        <select id="loomView">
+          <option value="all" selected>Completo</option>
+          <option value="motor">Arnès motor (sacado)</option>
+        </select>
+      </label>
       <label id="lblColor">Color
         <select id="colorMode">
           <option value="outlines" id="optOutlines">Outlines</option>
@@ -2129,6 +2135,30 @@ function rebuildIndexes(){
   });
 }
 
+/* Loom view: all = full map; motor = pulled engine-room harness only.
+   E108 + F102 stay (motor faces of SMJ). Body / rear EVAP path hide. */
+const LS_LOOM = 'z33_loomView';
+const LOOM_BODY_EXTRA = new Set([
+  /* motor-group but live on body/rear loom, not the pulled engine harness */
+  'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump'
+]);
+function loomView(){
+  const el = document.getElementById('loomView');
+  if(el && (el.value === 'motor' || el.value === 'all')) return el.value;
+  const s = localStorage.getItem(LS_LOOM);
+  return s === 'motor' ? 'motor' : 'all';
+}
+function loomOfConn(id, conf){
+  const c = conf || CONN_BASE[id] || CONN[id];
+  if(!c) return 'motor';
+  if(c.group === 'body') return 'body';
+  if(LOOM_BODY_EXTRA.has(id)) return 'body';
+  return 'motor';
+}
+function connVisibleInLoom(id, conf){
+  if(loomView() !== 'motor') return true;
+  return loomOfConn(id, conf) === 'motor';
+}
 function activeConnIds(model){
   // Show IPDM fichas (ECM/harness paths). F102 stays in #f102Panel only.
   const hide = new Set(['orange_box','blue_box','ix_f102_m72','ipdm_legend','ix_f103_f151']);
@@ -2136,6 +2166,7 @@ function activeConnIds(model){
   if(model === 'de_early'){
     ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2');
   }
+  ids = ids.filter(id => connVisibleInLoom(id, CONN_BASE[id]));
   return ids;
 }
 
@@ -3237,6 +3268,9 @@ const I18N = {
   es: {
     pageSub: 'Referencia FSM · click pin ECM o cavidad → punta a punta',
     lblModel: 'Modelo',
+    lblLoom: 'Vista arnés',
+    loomAll: 'Completo',
+    loomMotor: 'Arnès motor (sacado)',
     lblColor: 'Color',
     lblOrient: 'Orientación ECM',
     lblLang: 'Idioma',
@@ -3303,6 +3337,9 @@ const I18N = {
   en: {
     pageSub: 'FSM reference · click ECM pin or cavity → end-to-end',
     lblModel: 'Model',
+    lblLoom: 'Harness view',
+    loomAll: 'Full',
+    loomMotor: 'Engine harness (pulled)',
     lblColor: 'Color',
     lblOrient: 'ECM orientation',
     lblLang: 'Language',
@@ -3357,6 +3394,9 @@ const I18N = {
   ja: {
     pageSub: 'FSM参照 · ECMピンまたはカビティをクリック → 端点対端点',
     lblModel: 'モデル',
+    lblLoom: 'ハーネス表示',
+    loomAll: '全体',
+    loomMotor: 'エンジンハーネス（外した）',
     lblColor: '色表示',
     lblOrient: 'ECM向き',
     lblLang: '言語',
@@ -3607,6 +3647,14 @@ function applyLang(){
   const pageSub = document.getElementById('pageSub');
   if(pageSub) pageSub.textContent = t('pageSub');
   setLabel('lblModel', 'lblModel');
+  setLabel('lblLoom', 'lblLoom');
+  const loomSel = document.getElementById('loomView');
+  if(loomSel){
+    const oAll = loomSel.querySelector('option[value="all"]');
+    const oMot = loomSel.querySelector('option[value="motor"]');
+    if(oAll) oAll.textContent = t('loomAll');
+    if(oMot) oMot.textContent = t('loomMotor');
+  }
   setLabel('lblColor', 'lblColor');
   setLabel('lblOrient', 'lblOrient');
   setLabel('lblLang', 'lblLang');
@@ -5280,6 +5328,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     }
     lines.push(`<div><b style="color:${cir.color}">${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
+  /* Loom filter: drop body/rear fichas when viewing pulled engine harness */
+  [...connSet].forEach(cid => { if(!connVisibleInLoom(cid)) connSet.delete(cid); });
   /* Feed card focus: keep related fichas, but ECM label/highlight = control pins only */
   if(focusConn && FEED_ECM_FOCUS[focusConn]){
     ecmSet.clear();
@@ -5685,6 +5735,15 @@ function applyModel(){
   clearSelection();
 }
 
+function applyLoomView(){
+  const el = document.getElementById('loomView');
+  if(!el) return;
+  const v = el.value === 'motor' ? 'motor' : 'all';
+  localStorage.setItem(LS_LOOM, v);
+  renderFichas();
+  clearSelection();
+}
+
 function applyColorMode(){
   const mode = document.getElementById('colorMode').value;
   localStorage.setItem('z33_color', mode);
@@ -5761,6 +5820,7 @@ document.getElementById('model').addEventListener('change', applyModel);
 document.getElementById('colorMode').addEventListener('change', applyColorMode);
 document.getElementById('ecmOrient').addEventListener('change', applyOrient);
 document.getElementById('lang').addEventListener('change', applyLang);
+document.getElementById('loomView').addEventListener('change', applyLoomView);
 document.getElementById('collapseIdleSubs').addEventListener('change', onCollapseIdleToggle);
 document.getElementById('railRelGnd').addEventListener('change', onRailRelKindToggle);
 document.getElementById('railRelData').addEventListener('change', onRailRelKindToggle);
@@ -5899,6 +5959,11 @@ document.getElementById('q').addEventListener('input', e=>{
   if(o && ['invertida','fsm'].includes(o)) document.getElementById('ecmOrient').value = o;
   else document.getElementById('ecmOrient').value = 'invertida';
   if(L && ['es','en','ja'].includes(L)) document.getElementById('lang').value = L;
+  const loomEl = document.getElementById('loomView');
+  if(loomEl){
+    const loomSaved = localStorage.getItem(LS_LOOM);
+    loomEl.value = loomSaved === 'motor' ? 'motor' : 'all';
+  }
   const splitSaved = localStorage.getItem(LS_MAIN_SPLIT);
   if(splitSaved != null && /^\d+$/.test(splitSaved)) applyMainSplit(parseInt(splitSaved, 10), false);
   else applyMainSplit(59, false);
