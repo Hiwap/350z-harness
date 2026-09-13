@@ -966,6 +966,10 @@
           <input type="checkbox" id="railRelGnd" checked />
           <span id="lblRailRelGndTxt">Tierras</span>
         </label>
+        <label class="chk" id="lblRailRelPower">
+          <input type="checkbox" id="railRelPower" />
+          <span id="lblRailRelPowerTxt">Power</span>
+        </label>
         <label class="chk" id="lblRailRelData">
           <input type="checkbox" id="railRelData" checked />
           <span id="lblRailRelDataTxt">Data</span>
@@ -2149,13 +2153,15 @@ function rebuildIndexes(){
   });
 }
 
-/* Loom view: all = full map; motor = pulled engine-room harness only.
-   E108 + F102 stay (motor faces of SMJ). Body / rear EVAP path hide. */
+/* Loom view: all = full map; motor = pulled engine-control harness only.
+   F102 stays (motor face of SMJ). Body / rear EVAP path hide. */
 const LS_LOOM = 'z33_loomView';
 const LS_MODEL_BANNER = 'z33_modelBannerOpen';
 const LOOM_BODY_EXTRA = new Set([
   /* not on pulled engine-control harness (bench) */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
+  /* T21 on EVAP canister (EC-376), not engine control harness (PG-54) */
+  'evap_press',
   /* SMJ E108 stays at firewall / body (M15) */
   'ix_e108_m15',
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
@@ -3304,6 +3310,7 @@ const I18N = {
     collapseIdle: 'Colapsar grupos sin selección',
     railRelTitle: 'Rail · relacionados',
     railRelGnd: 'Tierras',
+    railRelPower: 'Power',
     railRelData: 'Data',
     hlLegendTitle: 'Colores de highlight',
     hlLegSecSel: 'Selección de pin / ficha',
@@ -3329,14 +3336,6 @@ const I18N = {
     searchPh: 'Buscar: 101, ASCD, APP, stop, CAN…',
     clear: 'Limpiar',
     fichasTitle: 'Fichas',
-    selTopTitle: '選択グループ',
-    selTopGroups: 'グループ',
-    selTopLines: 'ライン',
-    selTopSub: '選択を上に · 下に通常グループ',
-    selTopTitle: 'Selected groups',
-    selTopGroups: 'groups',
-    selTopLines: 'lines',
-    selTopSub: 'selection on top · full groups below',
     selTopTitle: 'Grupos seleccionados',
     selTopGroups: 'grupos',
     selTopLines: 'líneas',
@@ -3378,6 +3377,7 @@ const I18N = {
     collapseIdle: 'Collapse groups with no selection',
     railRelTitle: 'Rail · related',
     railRelGnd: 'Grounds',
+    railRelPower: 'Power',
     railRelData: 'Data',
     hlLegendTitle: 'Highlight colors',
     hlLegSecSel: 'Pin / connector selection',
@@ -3403,6 +3403,10 @@ const I18N = {
     searchPh: 'Search: 101, ASCD, APP, stop, CAN…',
     clear: 'Clear',
     fichasTitle: 'Connectors',
+    selTopTitle: 'Selected groups',
+    selTopGroups: 'groups',
+    selTopLines: 'lines',
+    selTopSub: 'selection on top · full groups below',
     footer: 'OEM FSM reference · NicoClub / jdmfsm · not a substitute for the service manual. Colors & pinouts per 2005 VQ35DE FSM EC/PG unless noted.',
     legendNote: 'R/W = base/tracer',
     infoEmpty: 'Click any pin or connector card to see the full connection.',
@@ -3440,6 +3444,7 @@ const I18N = {
     collapseIdle: '未選択グループを折りたたむ',
     railRelTitle: 'レール · 関連',
     railRelGnd: 'アース',
+    railRelPower: '電源',
     railRelData: 'データ',
     hlLegendTitle: 'ハイライト色',
     hlLegSecSel: 'ピン / フィチャ選択',
@@ -3465,6 +3470,10 @@ const I18N = {
     searchPh: '検索: 101, ASCD, APP, stop, CAN…',
     clear: 'クリア',
     fichasTitle: 'コネクタ',
+    selTopTitle: '選択グループ',
+    selTopGroups: 'グループ',
+    selTopLines: 'ライン',
+    selTopSub: '選択を上に · 下に通常グループ',
     footer: 'OEM FSM参照 · NicoClub / jdmfsm · サービスマニュアルの代用ではありません。色とピン配列は2005 VQ35DE FSM EC/PG準拠（注記がある場合を除く）。',
     legendNote: 'R/W = ベース/トレーサー',
     infoEmpty: 'ピンまたはコネクタカードをクリックすると接続全体を表示します。',
@@ -3635,7 +3644,7 @@ function renderHlLegend(){
   let html = '';
   html += sec(t('hlLegSecSel'));
   html += row('#ffd54f', t('hlLegFocus'));
-  if(railRelGndEnabled() || railRelDataEnabled()){
+  if(railRelGndEnabled() || railRelPowerEnabled() || railRelDataEnabled()){
     const sibColors = [
       SUB_ACCENT.power, SUB_ACCENT.sensors, NEST_ACCENT.bobinas, NEST_ACCENT.inyectores,
       SUB_ACCENT.actuators, SUB_ACCENT.pedals, SUB_ACCENT.ascd_dlc, SUB_ACCENT.intermedias
@@ -3703,6 +3712,8 @@ function applyLang(){
   if(rrt) rrt.textContent = t('railRelTitle');
   const rrg = document.getElementById('lblRailRelGndTxt');
   if(rrg) rrg.textContent = t('railRelGnd');
+  const rrp = document.getElementById('lblRailRelPowerTxt');
+  if(rrp) rrp.textContent = t('railRelPower');
   const rrd = document.getElementById('lblRailRelDataTxt');
   if(rrd) rrd.textContent = t('railRelData');
   renderHlLegend();
@@ -4855,11 +4866,17 @@ function updateRailButtons(){
 }
 
 const LS_RAIL_REL_GND = 'z33_railRelGnd';
+const LS_RAIL_REL_POWER = 'z33_railRelPower';
 const LS_RAIL_REL_DATA = 'z33_railRelData';
 function railRelGndEnabled(){
   const el = document.getElementById('railRelGnd');
   if(el) return !!el.checked;
   return localStorage.getItem(LS_RAIL_REL_GND) !== '0';
+}
+function railRelPowerEnabled(){
+  const el = document.getElementById('railRelPower');
+  if(el) return !!el.checked;
+  return localStorage.getItem(LS_RAIL_REL_POWER) === '1';
 }
 function railRelDataEnabled(){
   const el = document.getElementById('railRelData');
@@ -4868,8 +4885,10 @@ function railRelDataEnabled(){
 }
 function onRailRelKindToggle(){
   const g = document.getElementById('railRelGnd');
+  const pwr = document.getElementById('railRelPower');
   const d = document.getElementById('railRelData');
   if(g) localStorage.setItem(LS_RAIL_REL_GND, g.checked ? '1' : '0');
+  if(pwr) localStorage.setItem(LS_RAIL_REL_POWER, pwr.checked ? '1' : '0');
   if(d) localStorage.setItem(LS_RAIL_REL_DATA, d.checked ? '1' : '0');
   refreshCurrentSelection();
 }
@@ -4894,20 +4913,23 @@ function railRelKindForCav(pin){
   if(r === '5v' || r === '12v') return null;
   return 'data';
 }
-/* Circuit-selection siblings: gated by Tierras/Data. 5V/12V count as data here (not in rail-rel mode). */
+/* Circuit-selection siblings: Tierras / Power / Data. 5V·12V are Power, not Data. */
 function circuitSiblingKindEcm(p){
   const r = PIN_RAIL[p] || PIN_RAIL[Number(p)] || null;
   if(r === 'gnd') return 'gnd';
+  if(r === '5v' || r === '12v') return 'power';
   return 'data';
 }
 function circuitSiblingKindCav(pin){
   if(!cavHasWire(pin)) return null;
   const r = cavRailOf(pin);
   if(r === 'gnd' || pin.rail === 'gnd') return 'gnd';
+  if(r === '5v' || r === '12v' || pin.rail === '5v' || pin.rail === '12v') return 'power';
   return 'data';
 }
 function circuitSiblingAllowed(kind){
   if(kind === 'gnd') return railRelGndEnabled();
+  if(kind === 'power') return railRelPowerEnabled();
   if(kind === 'data') return railRelDataEnabled();
   return false;
 }
@@ -5213,11 +5235,6 @@ function updateF102SelPins(cavsOrNull){
       if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
       items.push({id, kind});
     });
-    /* ids passed but not in DOM yet */
-    want.forEach(id=>{
-      if(items.some(x => String(x.id) === String(id))) return;
-      items.push({id, kind: 'hl'});
-    });
   } else {
     [...document.querySelectorAll(domSel)].forEach(p=>{
       const id = p.dataset.cav;
@@ -5258,12 +5275,9 @@ function updateEcmSelCount(nOrPins){
     const want = [...new Set([...nOrPins].map(Number).filter(x=>!isNaN(x)))];
     want.forEach(n=>{
       const p = document.querySelector(`#blocks .pin[data-pin="${n}"]`);
-      let kind = selKindFromEl(p);
-      if(p && (p.classList.contains('hl-rail-rel-gnd') || p.classList.contains('hl-rail-rel-data'))){
-        if(!selKindAllowed(kind)) return;
-      } else if(!p || !(p.classList.contains('hl') || p.classList.contains('hl-group') || p.classList.contains('hl-end') || p.classList.contains('hl-rail') || p.classList.contains('hl-rail-rel-gnd') || p.classList.contains('hl-rail-rel-data'))){
-        kind = 'hl';
-      }
+      if(!p || !(p.classList.contains('hl') || p.classList.contains('hl-group') || p.classList.contains('hl-end') || p.classList.contains('hl-rail') || p.classList.contains('hl-rail-rel-gnd') || p.classList.contains('hl-rail-rel-data'))) return;
+      const kind = selKindFromEl(p);
+      if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
       items.push({id: n, kind});
     });
   } else {
@@ -5903,6 +5917,7 @@ document.getElementById('loomView').addEventListener('change', applyLoomView);
 })();
 document.getElementById('collapseIdleSubs').addEventListener('change', onCollapseIdleToggle);
 document.getElementById('railRelGnd').addEventListener('change', onRailRelKindToggle);
+document.getElementById('railRelPower').addEventListener('change', onRailRelKindToggle);
 document.getElementById('railRelData').addEventListener('change', onRailRelKindToggle);
 
 document.getElementById('clear').onclick=()=>{
@@ -6057,6 +6072,11 @@ document.getElementById('q').addEventListener('input', e=>{
   if(railGndEl){
     const gs = localStorage.getItem(LS_RAIL_REL_GND);
     railGndEl.checked = gs === null ? true : gs === '1';
+  }
+  const railPowerEl = document.getElementById('railRelPower');
+  if(railPowerEl){
+    const ps = localStorage.getItem(LS_RAIL_REL_POWER);
+    railPowerEl.checked = ps === '1';
   }
   const railDataEl = document.getElementById('railRelData');
   if(railDataEl){
