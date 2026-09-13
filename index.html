@@ -916,8 +916,8 @@
     <div class="controls">
       <label id="lblModel">Modelo / Model
         <select id="model">
-          <option value="de_early" id="optEarly">2003–2004 · VQ35DE (incompleto)</option>
-          <option value="de_revup" id="optRevup" selected>2005–2006 · VQ35DE Rev-Up</option>
+          <option value="de_early" id="optEarly" selected>VQ35DE · sin VTC escape</option>
+          <option value="de_revup" id="optRevup">VQ35DE Rev-Up · con VTC escape</option>
         </select>
       </label>
       <label id="lblLoom">Vista arnés
@@ -1499,11 +1499,11 @@ function buildCircuits(model){
       {id:'vtc_adm_b1', title:'VTC admisión B1', color:'#d81b60',
         ecm:[11], conn:['vtc_b1','ix_f18_f201'],
         path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']},
-        notes:'VTC admisión Bank 1 (mapa 03–04 incompleto: datos 2005 sin VTC escape). Señal ECM 11 vía F18·4. 12V E7-17 → F3·5 → F18·5/6.'},
+        notes:'VTC admisión Bank 1 (sin VTC escape). Señal ECM 11 vía F18·4. 12V E7-17 → F3·5 → F18·5/6.'},
       {id:'vtc_adm_b2', title:'VTC admisión B2', color:'#d81b60',
         ecm:[10], conn:['vtc_b2'],
         path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']},
-        notes:'VTC admisión Bank 2 (mapa 03–04 incompleto: datos 2005 sin VTC escape). Señal ECM 10 sin F18. Mismo 12V E7-17 → F3·5.'}
+        notes:'VTC admisión Bank 2 (sin VTC escape). Señal ECM 10 sin F18. Mismo 12V E7-17 → F3·5.'}
     );
   } else if(model === 'de_revup'){
     base.push(
@@ -3271,9 +3271,9 @@ const I18N = {
     lblLoom: 'Vista arnés',
     loomAll: 'Completo',
     loomMotor: 'Arnès motor (sacado)',
-    modelEarly: '2003–2004 · VQ35DE (incompleto)',
-    modelRevup: '2005–2006 · VQ35DE Rev-Up',
-    earlyBanner: '<b>VQ35DE 2003–2004 (incompleto):</b> este mapa es el de 2005 con una sola diferencia aplicada: sin solenoides de <b>VTC escape</b>. El resto de pines/rutas <b>no</b> está auditado contra FSM 03–04 — no inventamos datos de ese año.',
+    modelEarly: 'VQ35DE · sin VTC escape',
+    modelRevup: 'VQ35DE Rev-Up · con VTC escape',
+    earlyBanner: '<b>VQ35DE sin VTC escape:</b> mismos datos base del mapa; <b>sin</b> solenoides de escape (F40/F41 · ECM 8/9). Para Rev-Up elegí la otra opción.',
     lblColor: 'Color',
     lblOrient: 'Orientación ECM',
     lblLang: 'Idioma',
@@ -3343,9 +3343,9 @@ const I18N = {
     lblLoom: 'Harness view',
     loomAll: 'Full',
     loomMotor: 'Engine harness (pulled)',
-    modelEarly: '2003–2004 · VQ35DE (incomplete)',
-    modelRevup: '2005–2006 · VQ35DE Rev-Up',
-    earlyBanner: '<b>VQ35DE 2003–2004 (incomplete):</b> this map is the 2005 dataset with one applied difference: no <b>exhaust VTC</b> solenoids. Other pins/routes are <b>not</b> audited against the 03–04 FSM — we do not invent that year’s data.',
+    modelEarly: 'VQ35DE · intake VTC only',
+    modelRevup: 'VQ35DE Rev-Up · intake + exhaust VTC',
+    earlyBanner: '<b>VQ35DE without exhaust VTC:</b> same base map data; <b>no</b> exhaust solenoids (F40/F41 · ECM 8/9). Choose Rev-Up for the 4-solenoid variant.',
     lblColor: 'Color',
     lblOrient: 'ECM orientation',
     lblLang: 'Language',
@@ -3403,9 +3403,9 @@ const I18N = {
     lblLoom: 'ハーネス表示',
     loomAll: '全体',
     loomMotor: 'エンジンハーネス（外した）',
-    modelEarly: '2003–2004 · VQ35DE（未完成）',
-    modelRevup: '2005–2006 · VQ35DE Rev-Up',
-    earlyBanner: '<b>VQ35DE 2003–2004（未完成）:</b> このマップは2005データで、適用済みの差は<b>排気VTC</b>ソレノイドなしのみ。他のピン/経路は03–04 FSM未監査 — その年のデータは創作しません。',
+    modelEarly: 'VQ35DE · 排気VTCなし',
+    modelRevup: 'VQ35DE Rev-Up · 吸気+排気VTC',
+    earlyBanner: '<b>VQ35DE（排気VTCなし）:</b> 基本マップは同じ。<b>排気</b>ソレノイドなし（F40/F41 · ECM 8/9）。4ソレノイドは Rev-Up を選択。',
     lblColor: '色表示',
     lblOrient: 'ECM向き',
     lblLang: '言語',
@@ -3565,8 +3565,8 @@ const NOTES_I18N = {
   ascd_steer: {en:'ASCD steering → ECM 99 (G/Y) via combination switch / clock spring (term. 14). Ground via ECM 67 (B/W) (term. 15).', ja:'ASCDステア → ECM 99 (G/Y)（コンビスイッチ/クロックスプリング端子14）。アースは ECM 67 (B/W)（端子15）。'},
   pnp_sw: {en:'PNP switch → ECM 102 (BR/Y). A/T only.', ja:'PNPスイッチ → ECM 102 (BR/Y)。ATのみ。'},
   vtc: {
-    en_early:'VQ35DE 03–04 incomplete: 2005 map minus exhaust VTC only (not a full 03–04 FSM audit). Intake ECM 11 B1 · ECM 10 B2.',
-    ja_early:'VQ35DE 03–04 未完成: 2005マップから排気VTCのみ除外（03–04 FSM未監査）。吸気 ECM 11 B1 · ECM 10 B2。',
+    en_early:'VQ35DE without exhaust VTC: intake only (2 solenoids). ECM 11 B1 · ECM 10 B2.',
+    ja_early:'VQ35DE 排気VTCなし: 吸気のみ（2ソレノイド）。ECM 11 B1 · ECM 10 B2。',
     en_revup:'VQ35DE Rev-Up 05–06: intake + exhaust VTC (4 solenoids). Intake ECM 11/10; exhaust on engine harness (see FSM EC VTC).',
     ja_revup:'VQ35DE Rev-Up 05–06: 吸気+排気VTC（4ソレノイド）。吸気 ECM 11/10；排気はエンジンハーネス（FSM EC VTC参照）。',
     en_hr:'VQ35HR: different VTC control / 3-connector ECM. See 2007 FSM EC.',
