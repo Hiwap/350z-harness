@@ -680,32 +680,6 @@
     white-space: nowrap;
   }
 
-  .opts-hl-legend {
-    flex: 1 1 100%;
-    margin-top: 4px;
-    padding: 5px 4px 2px;
-    border-top: 1px dashed #2a3340;
-  }
-  .opts-hl-legend-title {
-    font-size: 10px; font-weight: 800; color: #cfd8dc;
-    margin-bottom: 3px;
-  }
-  .opts-hl-legend-sec {
-    font-size: 9px; font-weight: 700; color: #78909c;
-    margin: 4px 0 2px;
-    text-transform: uppercase;
-    letter-spacing: .02em;
-  }
-  .opts-hl-legend-row {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 10px; color: #90a4ae;
-    line-height: 1.25;
-    margin: 1px 0;
-  }
-  .opts-hl-swatches {
-    display: inline-flex; gap: 2px; flex: 0 0 auto;
-    align-items: center;
-  }
   .opts-hl-swatch {
     flex: 0 0 8px; width: 8px; height: 8px;
     border-radius: 2px;
@@ -961,23 +935,19 @@
         <span id="lblCollapseIdleTxt">Colapsar grupos sin selección</span>
       </label>
       <div class="opts-rail-rel" id="optsRailRel">
-        <span class="opts-rail-rel-title" id="railRelTitle">Rail · relacionados</span>
+        <span class="opts-rail-rel-title" id="railRelTitle">Relacionados</span>
         <label class="chk" id="lblRailRelGnd">
           <input type="checkbox" id="railRelGnd" checked />
           <span id="lblRailRelGndTxt">Tierras</span>
         </label>
         <label class="chk" id="lblRailRelPower">
           <input type="checkbox" id="railRelPower" />
-          <span id="lblRailRelPowerTxt">Power</span>
+          <span id="lblRailRelPowerTxt">Alim.</span>
         </label>
         <label class="chk" id="lblRailRelData">
           <input type="checkbox" id="railRelData" checked />
-          <span id="lblRailRelDataTxt">Data</span>
+          <span id="lblRailRelDataTxt">Datos</span>
         </label>
-      </div>
-      <div class="opts-hl-legend" id="optsHlLegend">
-        <div class="opts-hl-legend-title" id="hlLegendTitle">Colores de highlight</div>
-        <div class="opts-hl-legend-body" id="hlLegendBody"></div>
       </div>
     </div>
   </details>
@@ -1429,17 +1399,19 @@ function buildCircuits(model){
     {id:'gnd_ecm', title:'Tierras ECM → carrocería', color:'#66bb6a',
       ecm:[1,115,116], conn:['gnd4','e17'], notes:'Tierras de potencia del ECM a la carrocería. Ruta: ECM 1 / 115 / 116 → F103/F151 → masa carrocería (E17).'},
 
-    {id:'sns_gnd', title:'SNS GND · masas sensores', color:'#ef6c00',
-      ecm:[66,67,78], conn:[], f102:['20H'],
-      notes:'Masas de sensores (SNS). No es tierra de bobinas ni del pedal APP. Ruta: ECM 66 / 67 / 78 (67 también F102·20H). El 78 es masa de HO2S B1/B2; tocá 78 para esas fichas, o el pin de señal de otro sensor.'},
+    {id:'sns_gnd', title:'SNS GND · HO2S', color:'#ef6c00',
+      ecm:[78], conn:[],
+      notes:'Masa SNS de las sondas post-cat (HO2S B1/B2). Ruta: ECM 78. El 66 es TPS (ficha ETC); el 67 va con cada sensor (A/C, PSP, EVAP, MAF, ASCD).'},
     {id:'knock', title:'Sensor de detonación (knock)', color:'#42a5f5',
       ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Sensor de detonación. Ruta: señal → F14/F229 → ECM 15 · malla a SNS GND.'},
     {id:'psp', title:'PSP · presión dirección', color:'#00897b',
       ecm:[12,68,67], conn:['psp'], notes:'Presión de dirección (PSP). Ruta: señal ECM 12 · 5V ECM 68 · GND ECM 67.'},
     {id:'ckp', title:'CKP / POS · cigüeñal', color:'#ab47bc',
       ecm:[13], conn:['ckp'], path:{feed_ckp_maf_12v:['CKP+']}, notes:'Cigüeñal (CKP / POS): posición del motor. Ruta: señal → ECM 13 · 12V en el propio conector.'},
-    {id:'cmp', title:'CMP · fase levas', color:'#ec407a',
-      ecm:[33,14], conn:['cmp_b1','cmp_b2'], notes:'Árboles de levas (PHASE). Ruta: Bank 1 → ECM 33 · Bank 2 → ECM 14.'},
+    {id:'cmp_b1', title:'CMP · fase leva B1', color:'#ec407a',
+      ecm:[33], conn:['cmp_b1'], notes:'Árbol de levas PHASE bank 1. Ruta: señal → ECM 33 (R).'},
+    {id:'cmp_b2', title:'CMP · fase leva B2', color:'#ec407a',
+      ecm:[14], conn:['cmp_b2'], notes:'Árbol de levas PHASE bank 2. Ruta: señal → ECM 14 (R/L).'},
     {id:'iat', title:'IAT', color:'#8d6e63',
       ecm:[34], conn:['iat'], notes:'Temperatura de aire de admisión. Ruta: señal → ECM 34.'},
     {id:'ect', title:'ECT', color:'#5c6bc0',
@@ -3308,18 +3280,11 @@ const I18N = {
     lblOrient: 'Orientación ECM',
     lblLang: 'Idioma',
     collapseIdle: 'Colapsar grupos sin selección',
-    railRelTitle: 'Rail · relacionados',
+    railRelTitle: 'Relacionados',
     railRelGnd: 'Tierras',
-    railRelPower: 'Power',
-    railRelData: 'Data',
-    hlLegendTitle: 'Colores de highlight',
-    hlLegSecSel: 'Selección de pin / ficha',
-    hlLegFocus: 'Foco (pin o cavidad tocada)',
-    hlLegSiblings: 'Hermanos',
-    hlLegSecRail: 'Rails activos (líneas)',
-    hlLegSecRel: 'Rail · relacionados',
-    hlLegRelGnd: 'Tierras relacionadas',
-    hlLegRelData: 'Data / señales relacionadas',
+    railRelPower: 'Alim.',
+    railRelData: 'Datos',
+    hlLegRelData: 'Datos / señales relacionadas',
     nestBobinas: 'Bobinas',
     nestInyectores: 'Inyectores',
     optsSummary: 'Opciones / Options',
@@ -3375,17 +3340,10 @@ const I18N = {
     lblOrient: 'ECM orientation',
     lblLang: 'Language',
     collapseIdle: 'Collapse groups with no selection',
-    railRelTitle: 'Rail · related',
+    railRelTitle: 'Related',
     railRelGnd: 'Grounds',
     railRelPower: 'Power',
     railRelData: 'Data',
-    hlLegendTitle: 'Highlight colors',
-    hlLegSecSel: 'Pin / connector selection',
-    hlLegFocus: 'Focus (pin or cavity you clicked)',
-    hlLegSiblings: 'Siblings',
-    hlLegSecRail: 'Active rails (lines)',
-    hlLegSecRel: 'Rail · related',
-    hlLegRelGnd: 'Related grounds',
     hlLegRelData: 'Related data / signals',
     nestBobinas: 'Coils',
     nestInyectores: 'Injectors',
@@ -3442,17 +3400,10 @@ const I18N = {
     lblOrient: 'ECM向き',
     lblLang: '言語',
     collapseIdle: '未選択グループを折りたたむ',
-    railRelTitle: 'レール · 関連',
+    railRelTitle: '関連',
     railRelGnd: 'アース',
     railRelPower: '電源',
     railRelData: 'データ',
-    hlLegendTitle: 'ハイライト色',
-    hlLegSecSel: 'ピン / フィチャ選択',
-    hlLegFocus: 'フォーカス（クリックしたピン/キャビティ）',
-    hlLegSiblings: '兄弟',
-    hlLegSecRail: '有効レール（ライン）',
-    hlLegSecRel: 'レール · 関連',
-    hlLegRelGnd: '関連アース',
     hlLegRelData: '関連データ / 信号',
     nestBobinas: 'コイル',
     nestInyectores: 'インジェクタ',
@@ -3513,11 +3464,12 @@ const TITLES_I18N = {
   ac_press: {en:'A/C refrigerant pressure', ja:'A/C冷媒圧力'},
   gnd_ecm: {en:'ECM ground → body ground', ja:'ECM ground → body ground'},
 
-  sns_gnd: {en:'SNS GND', ja:'SNS GND'},
+  sns_gnd: {en:'SNS GND · HO2S', ja:'SNS GND · HO2S'},
     knock: {en:'Knock sensor', ja:'ノックセンサ'},
   psp: {en:'PSP · Power steering pressure', ja:'PSP · パワステ圧力'},
   ckp: {en:'CKP / POS', ja:'CKP / POS'},
-  cmp: {en:'Cam PHASE', ja:'カム PHASE'},
+  cmp_b1: {en:'CMP · cam phase B1', ja:'CMP · カム角 B1'},
+  cmp_b2: {en:'CMP · cam phase B2', ja:'CMP · カム角 B2'},
   iat: {en:'IAT', ja:'IAT'},
   ect: {en:'ECT', ja:'ECT'},
   coil_1: {en:'Coil 1', ja:'コイル1'}, coil_2: {en:'Coil 2', ja:'コイル2'}, coil_3: {en:'Coil 3', ja:'コイル3'},
@@ -3569,7 +3521,8 @@ const NOTES_I18N = {
   knock: {en:'Signal ECM 15 (W) via intermediate F14/F229 · shield to SNS GND (FSM EC).', ja:'信号 ECM 15 (W) は中間F14/F229経由 · シールドはSNS GNDへ（FSM EC）。'},
   psp: {en:'5V ECM 68 (R/W) · signal ECM 12 (L/W) · GND ECM 67 B/W (shared SNS MAF/IAT/PSP/EVAP). FSM EC-401.', ja:'5V ECM 68 (R/W) · 信号 ECM 12 (L/W) · GND ECM 67 B/W（SNS共用）。FSM EC-401。'},
   ckp: {en:'CKP signal → ECM 13 (W/L). 12V feed on connector.', ja:'CKP信号 → ECM 13 (W/L)。コネクタに12V供給。'},
-  cmp: {en:'CMP B1 → ECM 33 (R) · CMP B2 → ECM 14 (R/L).', ja:'CMP B1 → ECM 33 (R) · CMP B2 → ECM 14 (R/L)。'},
+  cmp_b1: {en:'PHASE bank 1 → ECM 33 (R).', ja:'PHASE B1 → ECM 33 (R)。'},
+  cmp_b2: {en:'PHASE bank 2 → ECM 14 (R/L).', ja:'PHASE B2 → ECM 14 (R/L)。'},
   iat: {en:'IAT signal → ECM 34 (Y/G).', ja:'IAT信号 → ECM 34 (Y/G)。'},
   ect: {en:'ECT signal → ECM 73 (BR/Y).', ja:'ECT信号 → ECM 73 (BR/Y)。'},
   coil_1: {en:'ECM 62 drive + common 12V.', ja:'ECM 62 + 共通12V。'},
@@ -3630,51 +3583,6 @@ function circuitNotes(cir){
 }
 
 
-function renderHlLegend(){
-  const body = document.getElementById('hlLegendBody');
-  const title = document.getElementById('hlLegendTitle');
-  if(title) title.textContent = t('hlLegendTitle');
-  if(!body) return;
-  const sw = (color) => `<span class="opts-hl-swatch" style="background:${color}"></span>`;
-  const row = (colors, label) => {
-    const list = Array.isArray(colors) ? colors : [colors];
-    return `<div class="opts-hl-legend-row"><span class="opts-hl-swatches">${list.map(sw).join('')}</span><span>${esc(label)}</span></div>`;
-  };
-  const sec = (label) => `<div class="opts-hl-legend-sec">${esc(label)}</div>`;
-  let html = '';
-  html += sec(t('hlLegSecSel'));
-  html += row('#ffd54f', t('hlLegFocus'));
-  if(railRelGndEnabled() || railRelPowerEnabled() || railRelDataEnabled()){
-    const sibColors = [
-      SUB_ACCENT.power, SUB_ACCENT.sensors, NEST_ACCENT.bobinas, NEST_ACCENT.inyectores,
-      SUB_ACCENT.actuators, SUB_ACCENT.pedals, SUB_ACCENT.ascd_dlc, SUB_ACCENT.intermedias
-    ];
-    html += row(sibColors, t('hlLegSiblings'));
-  }
-  if(typeof activeRails !== 'undefined' && activeRails && activeRails.size){
-    html += sec(t('hlLegSecRail'));
-    if(railLineGroupsEnabled()){
-      const lines = RAIL_LINE_ORDER.filter(id => RAIL_LINE[id] && activeRails.has(RAIL_LINE[id].rail));
-      lines.forEach(id => html += row(RAIL_LINE[id].color, railLineLabel(id)));
-    } else {
-      const famLab = {
-        '5v': { es:'5V', en:'5V', ja:'5V' },
-        '12v':{ es:'12V', en:'12V', ja:'12V' },
-        'gnd':{ es:'GND', en:'GND', ja:'GND' }
-      };
-      ['5v','12v','gnd'].forEach(r=>{
-        if(!activeRails.has(r)) return;
-        const L = famLab[r] || { es:r, en:r, ja:r };
-        html += row(RAIL_FAMILY_COLOR[r] || '#888', L[lang] || L.es || r);
-      });
-    }
-    html += sec(t('hlLegSecRel'));
-    if(railRelGndEnabled()) html += row('#66bb6a', t('hlLegRelGnd'));
-    if(railRelDataEnabled()) html += row('#4fc3f7', t('hlLegRelData'));
-  }
-  body.innerHTML = html;
-}
-
 function applyLang(){
   lang = document.getElementById('lang').value || 'es';
   localStorage.setItem('z33_lang', lang);
@@ -3716,7 +3624,6 @@ function applyLang(){
   if(rrp) rrp.textContent = t('railRelPower');
   const rrd = document.getElementById('lblRailRelDataTxt');
   if(rrd) rrd.textContent = t('railRelData');
-  renderHlLegend();
   const rg = document.getElementById('railGnd'); if(rg) rg.textContent = t('railGnd');
   const rt = document.getElementById('railToggles'); if(rt) rt.title = t('railTitle');
   const oo = document.getElementById('optOutlines'); if(oo) oo.textContent = t('optOutlines');
@@ -4935,7 +4842,7 @@ function circuitSiblingAllowed(kind){
 }
 function refreshCurrentSelection(){
   if(activeRails.size){ applyRailFilter(); return; }
-  if(!selKey){ renderHlLegend(); return; }
+  if(!selKey) return;
   const key = selKey;
   selKey = null; /* allow re-select without toggle-clear */
   if(key.startsWith('pin:')){
@@ -4943,10 +4850,8 @@ function refreshCurrentSelection(){
   } else if(key.startsWith('cav:')){
     const rest = key.slice(4);
     const i = rest.indexOf(':');
-    if(i < 0){ renderHlLegend(); return; }
+    if(i < 0) return;
     selectConnPin(rest.slice(0, i), rest.slice(i + 1));
-  } else {
-    renderHlLegend();
   }
 }
 
@@ -4969,7 +4874,6 @@ function applyRailFilter(){
       delete info.dataset.railMode;
       info.textContent = t('infoEmpty');
     }
-    renderHlLegend();
     return;
   }
 
@@ -5128,7 +5032,6 @@ function applyRailFilter(){
   info.dataset.railMode = '1';
   info.innerHTML = `<div>${pills}<b>${esc(t('railActive'))}</b> — ${esc(t('railActiveHint'))}</div>` +
     (linePills ? `<div style="margin-top:4px;color:var(--muted)">${linePills}</div>` : '');
-  renderHlLegend();
 }
 
 function toggleRail(rail){
@@ -5137,34 +5040,42 @@ function toggleRail(rail){
   applyRailFilter();
 }
 
-/** F102 cavities whose ECM pin is in the active set (or focus). */
+/** F102 cavities for this selection. Focused ECM pin: only that pin on F102 (not sibling 67). */
 function f102HitsForEcm(ecmSet, focusPin=null, allowCavs=null){
   const conf = CONN['ix_f102_m72'] || CONN_BASE['ix_f102_m72'];
   const hits = [];
-  const allow = allowCavs && allowCavs.size ? allowCavs : null;
+  const focus = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
+  const allow = allowCavs instanceof Set ? allowCavs : null;
   (conf && conf.pins || []).forEach(p=>{
     if(p.ecm==null) return;
     const e = Number(p.ecm);
-    if(!(ecmSet.has(e) || (focusPin!=null && e===Number(focusPin)))) return;
-    if(allow && !allow.has(String(p.id))) return;
+    if(focus!=null){
+      if(e !== focus) return;
+    } else {
+      if(!ecmSet || !ecmSet.has(e)) return;
+      if(allow && !allow.has(String(p.id))) return;
+    }
     hits.push(p);
   });
   return hits;
 }
 
-/** Union of circuit.f102 cavity ids (when circuits declare SMJ pins). */
+/** Declared SMJ cavities (circuit.f102 and path.ix_f102_m72). Empty = do not auto-attach F102. */
 function f102AllowForCircuits(circIds, focusCav=null){
   const allow = new Set();
-  let any = false;
   (circIds||[]).forEach(id=>{
     const cir = CIRCUITS.find(x=>x.id===id);
-    if(cir && Array.isArray(cir.f102) && cir.f102.length){
-      any = true;
+    if(!cir) return;
+    if(Array.isArray(cir.f102) && cir.f102.length){
       cir.f102.forEach(c=>allow.add(String(c)));
+    }
+    const pathCavs = cir.path && cir.path['ix_f102_m72'];
+    if(pathCavs && pathCavs.length){
+      pathCavs.forEach(c=>allow.add(String(c)));
     }
   });
   if(focusCav!=null && focusCav!=='') allow.add(String(focusCav));
-  return any ? allow : null;
+  return allow;
 }
 
 
@@ -5398,7 +5309,6 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   setHlGroupColor(hlGroupColorForCircuits(circIds, focusPin));
   const ecmSet=new Set(); const connSet=new Set();
   const lines=[];
-  const collapseF102 = shouldCollapseF102ForBackup(circIds, focusConn);
   const pathCavByConn = new Map(); /* cid -> Set(cavId) — feeds sin pin ECM (F3-5, E7-17, rail…) */
   circIds.forEach(id=>{
     const cir=CIRCUITS.find(x=>x.id===id);
@@ -5435,12 +5345,15 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       });
     }
   }
-  /* Auto-attach F102 whenever any ECM on the path crosses the SMJ */
+  /* Auto-attach F102 only if the focused ECM pin (or declared SMJ cavities) actually sit on F102.
+     Shared SNS 67 on 20H must not open the panel for 66 / 70 / PSP / etc. */
   const f102Allow = f102AllowForCircuits(circIds, focusConn==='ix_f102_m72' ? focusCav : null);
   const f102Hits = f102HitsForEcm(ecmSet, focusPin, f102Allow);
+  const collapseF102 = shouldCollapseF102ForBackup(circIds, focusConn)
+    || (focusConn!=='ix_f102_m72' && !f102Hits.length);
   /* Drop empty F102 attachment (circuit listed SMJ but no cavity maps to these ECM pins) */
   if(!f102Hits.length && focusConn!=='ix_f102_m72') connSet.delete('ix_f102_m72');
-  if(f102Hits.length){
+  if(f102Hits.length && !collapseF102){
     connSet.add('ix_f102_m72');
     const bits = f102Hits.map(p=>{
       const lab = p.lab ? ` ${esc(p.lab)}` : '';
@@ -5604,8 +5517,8 @@ function selectPin(p){
     return;
   }
   let circs = pinToCirc[p] || pinToCirc[Number(p)] || pinToCirc[String(p)] || [];
-  /* sns_gnd.conn stays empty so 66/67/78 do not open every sensor on the shared rail —
-     only circuits that list this ECM pin (e.g. 67 → A/C, PSP, EVAP, ASCD). */
+  /* sns_gnd.conn stays empty so 78 does not fan out as a signal sibling —
+     66 is ETC only; 67 is listed on each sensor circuit (A/C, PSP, EVAP, ASCD). */
   if(!circs.length){
     const found=[];
     Object.entries(CONN).forEach(([cid,f])=>{

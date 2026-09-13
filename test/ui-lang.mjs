@@ -40,16 +40,19 @@ function ok(cond, msg) {
 
 const expect = {
   es: {
-    railRelPower: 'Power',
+    railRelTitle: 'Relacionados',
+    railRelPower: 'Alim.',
     railRelGnd: 'Tierras',
-    railRelData: 'Data',
+    railRelData: 'Datos',
     loomAll: 'Completo',
     loomMotor: 'Arnès motor',
     lblLang: 'Idioma',
     fichasTitle: 'Fichas',
     htmlLang: 'es',
+    noHlLegend: true,
   },
   en: {
+    railRelTitle: 'Related',
     railRelPower: 'Power',
     railRelGnd: 'Grounds',
     railRelData: 'Data',
@@ -58,8 +61,10 @@ const expect = {
     lblLang: 'Language',
     fichasTitle: 'Connectors',
     htmlLang: 'en',
+    noHlLegend: true,
   },
   ja: {
+    railRelTitle: '関連',
     railRelPower: '電源',
     railRelGnd: 'アース',
     railRelData: 'データ',
@@ -68,6 +73,7 @@ const expect = {
     lblLang: '言語',
     fichasTitle: 'コネクタ',
     htmlLang: 'ja',
+    noHlLegend: true,
   },
 };
 
@@ -99,6 +105,7 @@ async function readChrome() {
     };
     return {
       htmlLang: document.documentElement.lang,
+      railRelTitle: document.getElementById('railRelTitle')?.textContent,
       railRelPower: document.getElementById('lblRailRelPowerTxt')?.textContent,
       railRelGnd: document.getElementById('lblRailRelGndTxt')?.textContent,
       railRelData: document.getElementById('lblRailRelDataTxt')?.textContent,
@@ -107,6 +114,7 @@ async function readChrome() {
       lblLang: textAfter(document.getElementById('lblLang')),
       fichasTitle: document.getElementById('fichasTitle')?.textContent,
       powerExists: !!document.getElementById('railRelPower'),
+      noHlLegend: !document.getElementById('optsHlLegend') && !document.getElementById('hlLegendTitle'),
     };
   });
 }

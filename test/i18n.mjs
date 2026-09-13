@@ -47,13 +47,13 @@ for (const l of LANGS) {
 
 console.log('\nexpected chrome labels');
 const expect = {
-  railRelPower: { es: 'Power', en: 'Power', ja: '電源' },
+  railRelTitle: { es: 'Relacionados', en: 'Related', ja: '関連' },
+  railRelPower: { es: 'Alim.', en: 'Power', ja: '電源' },
   railRelGnd: { es: 'Tierras', en: 'Grounds', ja: 'アース' },
-  railRelData: { es: 'Data', en: 'Data', ja: 'データ' },
+  railRelData: { es: 'Datos', en: 'Data', ja: 'データ' },
   loomAll: { es: 'Completo', en: 'Full', ja: '全体' },
   loomMotor: { es: 'Arnès motor', en: 'Engine harness', ja: 'エンジンハーネス' },
   lblLang: { es: 'Idioma', en: 'Language', ja: '言語' },
-  hlLegSiblings: { es: 'Hermanos', en: 'Siblings', ja: '兄弟' },
   selTopTitle: { es: 'Grupos seleccionados', en: 'Selected groups', ja: '選択グループ' },
   selTopGroups: { es: 'grupos', en: 'groups', ja: 'グループ' },
   selTopLines: { es: 'líneas', en: 'lines', ja: 'ライン' },
