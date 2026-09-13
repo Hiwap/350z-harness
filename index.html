@@ -74,7 +74,7 @@
   #ecm .ecm-sel-pins .sel-gnd-rail,
   #ecm .ecm-sel-pins .sel-gnd { color: #66bb6a; }
   #ecm .ecm-sel-pins .sel-data { color: #4fc3f7; }
-  #ecm .ecm-sel-pins .sel-group { color: #ce93d8; }
+  #ecm .ecm-sel-pins .sel-group { color: var(--hl-group-color, #ce93d8); }
   #ecm .ecm-sel-pins .sel-end { color: #4fc3f7; }
   #ecm .ecm-sel-pins .sel-hl { color: #ffe082; }
   #ecm .ecm-sel-pins[hidden] { display: none !important; }
@@ -262,7 +262,7 @@
   .pin.hl { outline: 3px solid var(--hl); outline-offset: 1px; box-shadow: 0 0 0 1px #000, 0 0 12px rgba(255,213,79,.55);
     opacity: 1 !important; z-index: 2; }
   .pin.hl-end { outline-color: var(--hl2); box-shadow: 0 0 0 1px #000, 0 0 12px rgba(79,195,247,.5); opacity: 1 !important; z-index: 2; }
-  .pin.hl-group { outline: 2px solid #ab47bc; outline-offset: 1px; opacity: 1 !important; }
+  .pin.hl-group { outline: 2px solid var(--hl-group-color, #ab47bc); outline-offset: 1px; opacity: 1 !important; }
 
   body[data-mode="solid"] .pin:not(.empty):not(.unused) {
     background: var(--pin-fill, #12161d); color: var(--pin-fg, #f5f5f5);
@@ -403,7 +403,7 @@
   .cav-hit .cav-face { pointer-events: all; }
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.hl-end .cav-face { stroke: var(--hl2) !important; stroke-width: 2.5; }
-  .cav-hit.hl-group .cav-face { stroke: #ab47bc !important; stroke-width: 2; }
+  .cav-hit.hl-group .cav-face { stroke: var(--hl-group-color, #ab47bc) !important; stroke-width: 2; }
   .cav-label { font-size: 7.5px; font-weight: 800; fill: #e8eaed; pointer-events: none; opacity: 0.95; }
   .cav-sub { font-size: 8px; font-weight: 800; fill: #e8eaed; pointer-events: none; }
   .cav-code { font-size: 8px; font-weight: 800; fill: none; pointer-events: none; }
@@ -4084,6 +4084,7 @@ let selFocusPin = null; /* ECM pin in focus for current selection (cav or pin) *
 let lastSelConnIds = []; /* conn ids for collapseIdle (not path-only) */
 
 function clearSelectionClasses(){
+  clearHlGroupColor();
   document.querySelectorAll('.pin,.ficha,.ficha-wrap,.cav-hit,.f102-panel').forEach(el=>{
     el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','rail-5v','rail-12v','rail-gnd');
   });
@@ -4502,11 +4503,46 @@ function updateEcmSelCount(nOrPins){
   if(nOrPins === 0 || (typeof nOrPins === 'number' && nOrPins < 1)) updateF102SelPins(0);
 }
 
+
+/* Sibling highlight outline follows subcategory accent (sensors blue, actuators magenta, …). Focus stays yellow. */
+const HL_GROUP_SUB_PRIORITY = ['sensors','actuators','pedals','ascd_dlc','power','ipdm','feeds','intermedias'];
+function primarySubForCircuits(circIds, focusPin=null){
+  const circs = (circIds||[]).map(id => CIRCUITS.find(x=>x.id===id)).filter(Boolean);
+  const ordered = (focusPin!=null)
+    ? [...circs.filter(c => (c.ecm||[]).some(p => Number(p)===Number(focusPin))), ...circs.filter(c => !(c.ecm||[]).some(p => Number(p)===Number(focusPin)))]
+    : circs;
+  const seen = [];
+  ordered.forEach(cir=>{
+    (cir.conn||[]).forEach(cid=>{
+      const f = CONN[cid] || CONN_BASE[cid];
+      if(!f || !f.sub) return;
+      if(seen.includes(f.sub)) return;
+      seen.push(f.sub);
+    });
+  });
+  for(const s of HL_GROUP_SUB_PRIORITY){
+    if(seen.includes(s)) return s;
+  }
+  return seen[0] || null;
+}
+function hlGroupColorForCircuits(circIds, focusPin=null){
+  const sub = primarySubForCircuits(circIds, focusPin);
+  if(sub && SUB_ACCENT[sub]) return SUB_ACCENT[sub];
+  return '#ab47bc';
+}
+function setHlGroupColor(color){
+  document.documentElement.style.setProperty('--hl-group-color', color || '#ab47bc');
+}
+function clearHlGroupColor(){
+  document.documentElement.style.removeProperty('--hl-group-color');
+}
+
 function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   activeRails.clear(); updateRailButtons();
   clearHL();
-  if(!circIds.length){ const info=document.getElementById('info'); info.dataset.locked='1'; info.textContent=t('noCirc'); return; }
+  if(!circIds.length){ const info=document.getElementById('info'); info.dataset.locked='1'; info.textContent=t('noCirc'); clearHlGroupColor(); return; }
   dimAll();
+  setHlGroupColor(hlGroupColorForCircuits(circIds, focusPin));
   const ecmSet=new Set(); const connSet=new Set();
   const lines=[];
   const collapseF102 = shouldCollapseF102ForBackup(circIds, focusConn);
