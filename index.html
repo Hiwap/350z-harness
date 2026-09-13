@@ -1268,13 +1268,13 @@ function buildCircuits(model){
     {id:'ign_sw', title:'IGN SW → ECM', color:'#ef5350',
       ecm:[109], conn:['ign_sw','ix_f102_m72'], notes:'IGN SW → ECM 109 (W/B) · F102 17H.'},
     {id:'ecm_relay_ss', title:'ECM relay / SSOFF', color:'#ef5350',
-      ecm:[111], conn:['ecm_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], notes:'Control del relé ECM (activa 12V bobinas/IGN). SSOFF ECM 111 ↔ E9-46 → E108 69G → F102 11H.'},
+      ecm:[111], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['46'],ix_e108_m15:['69G'],ix_f102_m72:['11H']}, notes:'Control SSOFF del relé ECM (dentro IPDM / F77). ECM 111 ↔ E9-46 → E108 69G → F102 11H.'},
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
       ecm:[104], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'Monitor del relé ETC (dentro IPDM / F87). ECM 104 ↔ E9-47 OR → E108 30G → F102 12H SB.'},
     {id:'vmot', title:'VMOT supply', color:'#ef5350',
       ecm:[3], conn:['vmot','ipdm_e8','ix_e12_f3'], notes:'12V al motor mariposa (tras relé ETC). ECM 3 ↔ IPDM E8-42 vía E12/F3. Relé = MOTRLY/F87.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
-      ecm:[113], conn:['fp_relay','fuel_pump','ipdm_e8','ix_e108_m15','ix_f102_m72'], path:{fp_relay:['coil+','CTRL'],fuel_pump:['1','3'],ipdm_e8:['40','39'],ix_e108_m15:['28G'],ix_f102_m72:['6H']}, notes:'Relé que activa la bomba. F81 alimenta bobina; ctrl ECM 113 vía E8-40→E108·28G→F102·6H; salida E8-39 → B27. EC-710.'},
+      ecm:[113], conn:['fuel_pump','ipdm_e8','ix_e108_m15','ix_f102_m72'], path:{fuel_pump:['1','3'],ipdm_e8:['40','39'],ix_e108_m15:['28G'],ix_f102_m72:['6H']}, notes:'Relé bomba dentro IPDM (F81). Ctrl ECM 113 vía E8-40→E108·28G→F102·6H; salida E8-39 → B27. EC-710.'},
         {id:'ftt', title:'Fuel tank temperature', color:'#7e57c2',
       ecm:[107], conn:['fuel_tank_temp','ix_f102_m72'], notes:'FTT señal → ECM 107 (GY/R) · path vía M72/F102 · sensor en fuel level sensor unit (term. 4). DTC P0181/0182/0183.'},
 {id:'dlc_k', title:'DLC K-line (CONSULT)', color:'#7e57c2',
@@ -1467,12 +1467,6 @@ const CONN_BASE = {
     note:'Relés (integrados): ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog (vacío). Fusibles: 71=10A 72=10A 73=20A 74=10A 75=20A 76=15A · 77=15A 78=15A 79=10A 80=20A · 81=15A 82=10A 83=10A 84=10A 85=15A 86=15A 87=15A 88=— 89=10A. 77→ECM relay · 87→throttle motor relay. Credit: FSM PG-26.'},
   ign_sw:{group:'motor', sub:'power', name:'IGN SW · Señal llave', meta:'señal llave → ECM 109', accent:'#ef5350', shape:'tab2',
     pins:[{id:'IGN',code:'W/B',ecm:109},{id:'PWR',code:'12V',ecm:null,rail:'12v',src:'B+',srcSub:'feeds'}]},
-  ecm_relay:{group:'motor', sub:'power', name:'Relé ECM · control bobina', meta:'Activa 12V bobinas/IGN · F77 · ECM 111 · EC-167', accent:'#ef5350', shape:'tab2',
-    pins:[
-      {id:'CTRL',code:'GY/L',ecm:111,lab:'SSOFF'},
-      {id:'coil+',code:'—',ecm:null,rail:'12v',src:'F77',srcSub:'ipdm',lab:'12V'}
-    ],
-    note:'Qué activa: alimentación conmutada de encendido (bobinas e IGN vía E7-17 W/L → F3·5). Relé dentro del IPDM (fusible 77). ECM 111 (SSOFF) mantiene/apaga el relé. No es el relé de mariposa (MOTRLY/104) ni el de bomba (FPR/113).'},
   vmot:{group:'motor', sub:'power', name:'VMOT · Alim. motor mariposa', meta:'12V motor ETC tras relé · ECM 3', accent:'#029eb7', shape:'tab2',
     pins:[{id:'VMOT',code:'G',ecm:3,rail:'12v'},{id:'relay',code:'12V',ecm:null,rail:'12v',lab:'via MOTRLY'}],
     note:'Qué alimenta: motor de la mariposa (ETC). 12V llega después del relé ETC interno del IPDM (F87). ECM 3 = VMOT; el relé no es ficha de arnés.'},
@@ -1604,12 +1598,6 @@ const CONN_BASE = {
   fuel_pump:{group:'motor', sub:'actuators', name:'Bomba combustible', meta:'B27 · level sensor unit · EC-710', accent:'#ef5350', shape:'tab2',
     pins:[{id:'1',lab:'12V',code:'B/Y',ecm:null,rail:'12v',src:'E8·39',srcSub:'ipdm'},{id:'3',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'D105',srcSub:'power'}],
     note:'B27 pin1 B/Y desde IPDM E8-39 (relé/F81). Pin3 B → masa D105. Unidad nivel+bomba.'},
-  fp_relay:{group:'motor', sub:'actuators', name:'Relé bomba combustible', meta:'Activa bomba comb. · F81 · ECM 113 · EC-710', accent:'#ef5350', shape:'tab2',
-    pins:[
-      {id:'CTRL',code:'LG/B',ecm:113,lab:'FPR'},
-      {id:'coil+',code:'—',ecm:null,rail:'12v',src:'F81',srcSub:'ipdm',lab:'12V'}
-    ],
-    note:'Qué activa: la bomba de combustible (B27). Bobina alimentada por F81 15A; control ECM 113 (LG/B) vía E8-40 → E108·28G → F102·6H; salida E8-39 B/Y → bomba. EC-710.'},
 
 
   /* —— ix_* paths: single-purpose in their sub; multi stay in intermedias —— */
@@ -3396,7 +3384,7 @@ function connShortLabel(cid){
     ix_f103_f151:'F103', ipdm_e3:'IPDM E3', ipdm_e4:'IPDM E4', ipdm_e5:'IPDM E5',
     ipdm_e6:'IPDM E6', ipdm_e7:'IPDM E7', ipdm_e8:'IPDM E8', ipdm_e9:'IPDM E9',
     af_b1:'A/F B1', af_b2:'A/F B2', ho2s_b1:'HO2S2 B1', ho2s_b2:'HO2S2 B2',
-    fp_relay:'Relé bomba', fuel_pump:'Bomba comb.', backup_sw:'Back-up sw',
+    fuel_pump:'Bomba comb.', backup_sw:'Back-up sw',
     evap_purge:'EVAP purga', evap_vent:'EVAP venteo', evap_press:'EVAP presión',
     ascd_brake:'ASCD freno', stop_lamp:'Stop lamp', dlc:'OBD/DLC',
     comb_meter:'Comb. meter', fuel_tank_temp:'FTT'
@@ -3520,12 +3508,6 @@ const CONN_I18N = {
     en: { name:'IGN SW', meta:'key switch signal → ECM 109' },
     ja: { name:'イグニッションSW', meta:'イグニッションSW信号 → ECM 109' },
   },
-  ecm_relay: {
-    en: { name:'ECM relay control', meta:'Switches coil/IGN 12V · F77 · ECM 111 · EC-167',
-      note:'What it turns on: switched ignition power for coils via E7-17 W/L → F3·5. IPDM relay (fuse 77). ECM 111 (SSOFF) holds/drops it. Not throttle (104) or fuel-pump (113) relays.' },
-    ja: { name:'ECMリレー制御', meta:'コイル/IGN 12V切替 · F77 · ECM 111 · EC-167',
-      note:'作動対象: イグニッション電源（コイル等、E7-17 → F3·5）。IPDM内蔵（ヒューズ77）。ECM 111が保持/遮断。スロットル(104)やポンプ(113)リレーではない。' },
-  },
   vmot: {
     en: { name:'VMOT supply', meta:'throttle motor power · ECM 3' },
     ja: { name:'VMOT電源', meta:'スロットルモータ電源 · ECM 3' },
@@ -3611,7 +3593,6 @@ const CONN_I18N = {
   vtc_ex_b2: { en:{name:'VTC exhaust B2', meta:'Rev-Up · exhaust LH'}, ja:{name:'VTC排気ソレノイド B2', meta:'Rev-Up · 排気 左'} },
   evap_purge: { en:{name:'EVAP · Purge solenoid', meta:'solenoid'}, ja:{name:'EVAP · パージソレノイド', meta:'ソレノイド'} },
   evap_vent: { en:{name:'EVAP vent', meta:'canister vent · ECM 117'}, ja:{name:'EVAPベント', meta:'キャニスタベント · ECM 117'} },
-  fp_relay: { en:{name:'Fuel pump relay', meta:'pump control · ECM 113'}, ja:{name:'フューエルポンプリレー', meta:'ポンプ制御 · ECM 113'} },
   pnp: { en:{name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y'}, ja:{name:'PNP / インヒビタSW', meta:'A/T · ECM 102 BR/Y'} },
   app: {
     en: { name:'APP pedal E113', meta:'6-pin GY · pedal · PATH E113→E11/F2→ECM',
