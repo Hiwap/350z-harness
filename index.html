@@ -1262,17 +1262,17 @@ function buildCircuits(model){
     {id:'inj_6', title:'Inyector 6', color:'#9ccc65',
       ecm:[40], conn:['inj6','ix_f221_f33','ix_f102_m72'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Drive ECM 40 LG · vía F33/F221 · +12V (JB 10A → F102·17H → F33·5) · EC-705.'},
     {id:'batt_ecm', title:'BATT feed ECM', color:'#ef5350',
-      ecm:[121], conn:['batt_feed'], notes:'ECM 121 always-hot BATT.'},
+      ecm:[121], conn:['batt_feed'], path:{batt_feed:['BATT']}, notes:'ECM 121 BATT always-hot (R/W) · back-up power · no ficha intermedia en arnés motor.'},
     {id:'ign_feeds', title:'IGN feeds ECM 119/120', color:'#ef5350',
       ecm:[119,120], conn:['ix_e12_f3','ipdm_e7'], notes:'119/120: IPDM E7-18 R/W → E12/F3 cav7→119 · cav4 P→120.'},
     {id:'ign_sw', title:'IGN SW → ECM', color:'#ef5350',
-      ecm:[109], conn:['ign_sw','ix_f102_m72'], notes:'IGN SW → ECM 109 (W/B) · F102 17H.'},
+      ecm:[109], conn:['ix_f102_m72'], path:{ix_f102_m72:['17H']}, notes:'Señal IGN SW → ECM 109 (W/B) · entra al arnés motor en F102·17H (llave queda en el auto).'},
     {id:'ecm_relay_ss', title:'ECM relay / SSOFF', color:'#ef5350',
       ecm:[111], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['46'],ix_e108_m15:['69G'],ix_f102_m72:['11H']}, notes:'Control SSOFF del relé ECM (dentro IPDM / F77). ECM 111 ↔ E9-46 → E108 69G → F102 11H.'},
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
       ecm:[104], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'Monitor del relé ETC (dentro IPDM / F87). ECM 104 ↔ E9-47 OR → E108 30G → F102 12H SB.'},
     {id:'vmot', title:'VMOT supply', color:'#ef5350',
-      ecm:[3], conn:['vmot','ipdm_e8','ix_e12_f3'], notes:'12V al motor mariposa (tras relé ETC). ECM 3 ↔ IPDM E8-42 vía E12/F3. Relé = MOTRLY/F87.'},
+      ecm:[3], conn:['ipdm_e8','ix_e12_f3'], path:{ipdm_e8:['42']}, notes:'12V al motor mariposa (tras relé ETC en IPDM/F87). ECM 3 ↔ E8-42 (G) vía E12/F3.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
       ecm:[113], conn:['fuel_pump','ipdm_e8','ix_e108_m15','ix_f102_m72'], path:{fuel_pump:['1','3'],ipdm_e8:['40','39'],ix_e108_m15:['28G'],ix_f102_m72:['6H']}, notes:'Relé bomba dentro IPDM (F81). Ctrl ECM 113 vía E8-40→E108·28G→F102·6H; salida E8-39 → B27. EC-710.'},
         {id:'ftt', title:'Fuel tank temperature', color:'#7e57c2',
@@ -1375,8 +1375,9 @@ const SUB_ACCENT = {
 const CONN_BASE = {
   /* —— Poder / tierras · ficha del plug ECM (EC-123) —— */
 
-  batt_feed:{group:'motor', sub:'power', name:'BATT feed · ECM 121', meta:'ECM 121 · always hot', accent:'#ef5350', shape:'tab2',
-    pins:[{id:'BATT',code:'R/W',ecm:121,rail:'12v'},{id:'fuse',code:'12V',ecm:null,rail:'12v'}]},
+  batt_feed:{group:'motor', sub:'feeds', name:'BATT · ECM 121 (always hot)', meta:'R/W · back-up · sin intermedia motor', accent:'#ef5350', shape:'note',
+    pins:[{id:'BATT',code:'R/W',ecm:121,rail:'12v',lab:'BATT'}],
+    note:'Alimentación BATT always-hot al ECM 121 (R/W). No hay ficha intermedia en el arnés motor; el tramo vive en el loom hacia F101.'},
   ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3',
     pins:[
       {id:'1',src:'BATT',srcSub:'power',code:'W',ecm:null,rail:'12v',note:'Entrada batería 12V (W) desde fusible links · PG-27.',note_en:'Battery 12V in (W) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W) · ヒュージブルリンク · PG-27。'},
@@ -1414,7 +1415,7 @@ const CONN_BASE = {
       {id:'39',src:'F81',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',note:'Salida relé bomba combustible (B/Y) → bomba pin1 / condensador · EC-710.',note_en:'Fuel pump relay output (B/Y) → pump pin1 / condenser · EC-710.',note_ja:'フューエルポンプリレー出力 (B/Y) · EC-710。'},
       {id:'40',code:'L/W',ecm:113,rail:'12v',note:'Control bobina relé bomba (L/W) → ECM 113 vía E108/M15 · M72/F102 · EC-710.',note_en:'Fuel pump relay coil control (L/W) → ECM 113 via E108/M15 · M72/F102 · EC-710.',note_ja:'フューエルポンプリレー制御 (L/W) → ECM 113 · EC-710。'},
       {id:'41',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
-      {id:'42',code:'G',ecm:3,rail:'12v',note:'VMOT control relé motor mariposa (G) → ECM 3 vía E12/F3 · EC-472.',note_en:'Throttle motor relay control VMOT (G) → ECM 3 via E12/F3 · EC-472.',note_ja:'スロットルモータリレー制御 VMOT (G) → ECM 3 · EC-472。'},
+      {id:'42',code:'G',ecm:3,rail:'12v',lab:'VMOT',note:'VMOT control relé motor mariposa (G) → ECM 3 vía E12/F3 · EC-472.',note_en:'Throttle motor relay control VMOT (G) → ECM 3 via E12/F3 · EC-472.',note_ja:'スロットルモータリレー制御 VMOT (G) → ECM 3 · EC-472。'},
       {id:'43',src:'IGN',srcSub:'power',code:'G/R',ecm:null,rail:'12v',note:'IGN ON (ruta Canada DTRL) (G/R) · LT-80 · confianza media.',note_en:'Ign ON (Canada DTRL path) (G/R) · LT-80 · medium confidence.',note_ja:'IGN ON（カナダDTRL）(G/R) · LT-80 · 中確度。'},
       {id:'44',src:'WASH',srcSub:'ipdm',code:'OR',ecm:null,rail:'12v',note:'Alimentación motor lava-parabrisas (OR) · WW-15.',note_en:'Washer motor power (OR) · WW-15.',note_ja:'ウォッシャーモータ電源 (OR) · WW-15。'}
     ],
@@ -1465,11 +1466,6 @@ const CONN_BASE = {
   ipdm_legend:{group:'motor', sub:'ipdm', name:'IPDM · Relés y fusibles', meta:'PG-26 · Layout FSM', accent:'#ef5350', shape:'ixnote',
     pins:[],
     note:'Relés (integrados): ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog (vacío). Fusibles: 71=10A 72=10A 73=20A 74=10A 75=20A 76=15A · 77=15A 78=15A 79=10A 80=20A · 81=15A 82=10A 83=10A 84=10A 85=15A 86=15A 87=15A 88=— 89=10A. 77→ECM relay · 87→throttle motor relay. Credit: FSM PG-26.'},
-  ign_sw:{group:'motor', sub:'power', name:'IGN SW · Señal llave', meta:'señal llave → ECM 109', accent:'#ef5350', shape:'tab2',
-    pins:[{id:'IGN',code:'W/B',ecm:109},{id:'PWR',code:'12V',ecm:null,rail:'12v',src:'B+',srcSub:'feeds'}]},
-  vmot:{group:'motor', sub:'power', name:'VMOT · Alim. motor mariposa', meta:'12V motor ETC tras relé · ECM 3', accent:'#029eb7', shape:'tab2',
-    pins:[{id:'VMOT',code:'G',ecm:3,rail:'12v'},{id:'relay',code:'12V',ecm:null,rail:'12v',lab:'via MOTRLY'}],
-    note:'Qué alimenta: motor de la mariposa (ETC). 12V llega después del relé ETC interno del IPDM (F87). ECM 3 = VMOT; el relé no es ficha de arnés.'},
   gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4-pin · A/B/C→ECM · D→E17 · EC-169', accent:'#66bb6a', shape:'rect4',
     pins:[
       {id:'A',code:'B',ecm:1,rail:'gnd'},
@@ -2940,7 +2936,6 @@ const TITLES_I18N = {
   ign_feeds: {en:'IGN feeds ECM 119/120', ja:'IGN供給 ECM 119/120'},
   ign_sw: {en:'IGN SW → ECM', ja:'IGN SW → ECM'},
   ecm_relay_ss: {en:'ECM relay / SSOFF', ja:'ECMリレー / SSOFF'},
-  motrly: {en:'MOTRLY monitors ETC relay (throttle motor power). ECM 104 ↔ F87 · E9-47→E108·30G→F102·12H.', ja:'MOTRLYはETCリレー監視（スロットルモータ電源）。ECM 104 ↔ F87。'},
   vmot: {en:'VMOT · throttle motor 12V (after MOTRLY)', ja:'VMOT · スロットルモータ12V（MOTRLY後）'},
 
   fp_relay: {en:'Fuel pump relay', ja:'フューエルポンプリレー'},
@@ -2991,6 +2986,7 @@ const NOTES_I18N = {
   inj_6: {en:'ECM 40 drive + common 12V.', ja:'ECM 40 + 共通12V。'},
 
   fp_relay: {en:'What it turns on: fuel pump (B27). F81 feeds coil; ECM 113 control via E8-40→E108·28G→F102·6H; out E8-39→pump. EC-710.', ja:'作動対象: フューエルポンプ（B27）。F81がコイル供給、ECM 113制御。EC-710。'},
+  motrly: {en:'MOTRLY monitors ETC relay (IPDM/F87). ECM 104 ↔ E9-47 OR → E108·30G → F102·12H SB.', ja:'MOTRLYはETCリレー監視（IPDM/F87）。ECM 104 ↔ E9-47→E108→F102。'},
   ftt: {en:'FTT → ECM 107 (GY/R) via M72/F102 · fuel level sensor unit term. 4.', ja:'FTT → ECM 107 (GY/R) · M72/F102経由。'},
     can: {en:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · also IPDM E9 48/49 · branch E108 2G/7G → ABS/DLC · nodes: combination meter (fuel level / CRUISE) + DLC.', ja:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · 経路 ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · IPDM E9 48/49 · 分岐 E108 2G/7G → ABS/DLC · ノード: コンビネーションメータ（残量/CRUISE）+ DLC。'},
   maf: {en:'MAF signal → ECM 51 (OR).', ja:'MAF信号 → ECM 51 (OR)。'},
@@ -3501,16 +3497,10 @@ const CONN_I18N = {
     ja: { name:'HO2S2 B2', meta:'後触媒 L · 信号 ECM 55' },
   },
   batt_feed: {
-    en: { name:'BATT feed', meta:'ECM 121 · always hot' },
-    ja: { name:'BATT供給', meta:'ECM 121 · 常時電源' },
-  },
-  ign_sw: {
-    en: { name:'IGN SW', meta:'key switch signal → ECM 109' },
-    ja: { name:'イグニッションSW', meta:'イグニッションSW信号 → ECM 109' },
-  },
-  vmot: {
-    en: { name:'VMOT supply', meta:'throttle motor power · ECM 3' },
-    ja: { name:'VMOT電源', meta:'スロットルモータ電源 · ECM 3' },
+    en: { name:'BATT · ECM 121 (always hot)', meta:'R/W back-up · no motor-harness intermediate',
+      note:'Always-hot BATT to ECM 121 (R/W). No intermediate ficha on the motor harness.' },
+    ja: { name:'BATT · ECM 121（常時）', meta:'R/W バックアップ · モータ側中間コネクタなし',
+      note:'ECM 121への常時BATT（R/W）。モータハーネス側の中間コネクタはない。' },
   },
 
 
