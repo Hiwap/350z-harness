@@ -1377,9 +1377,13 @@ let CIRCUITS = [];
 function buildCircuits(model){
   const base = [
     {id:'af_b1', title:'A/F Sensor 1 · Bank 1', color:'#ef6c00',
-      ecm:[2,16,35,56,75], conn:['af_b1','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF1-3'],af_b1:['3']}, notes:'Calentador del A/F Bank 1: el ECM lo controla por el pin 2; el 12V del calentador no sale del ECM. Ruta: ECM 2 · 12V R/B JB15A → E108·65G → F3·3 → sensor pin 3.'},
+      ecm:[16,35,56,75], conn:['af_b1'], notes:'Entrada A/F Bank 1. Ruta: sensor → ECM 16 / 35 / 56 / 75.'},
+    {id:'af_b1_htr', title:'A/F B1 · calentador', color:'#ef6c00',
+      ecm:[2], conn:['af_b1','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF1-3'],af_b1:['3']}, notes:'Calentador A/F Bank 1. ECM 2 controla; 12V no sale del ECM. Ruta: JB15A → E108·65G → F3·3 → sensor pin 3.'},
     {id:'af_b2', title:'A/F Sensor 1 · Bank 2', color:'#2e7d32',
-      ecm:[24,76,57,58,77], conn:['af_b2','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF2-3'],af_b2:['3']}, notes:'Calentador del A/F Bank 2: igual que B1, control por ECM 24. Ruta: ECM 24 · mismo 12V R/B JB15A → E108·65G → F3·3 → sensor pin 3.'},
+      ecm:[76,57,58,77], conn:['af_b2'], notes:'Entrada A/F Bank 2. Ruta: sensor → ECM 76 / 57 / 58 / 77.'},
+    {id:'af_b2_htr', title:'A/F B2 · calentador', color:'#2e7d32',
+      ecm:[24], conn:['af_b2','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF2-3'],af_b2:['3']}, notes:'Calentador A/F Bank 2. ECM 24 controla. Ruta: JB15A → E108·65G → F3·3 → sensor pin 3.'},
     {id:'app_5v', title:'APP · 5V', color:'#f9a825',
       ecm:[90,91], conn:['app','ix_e11_f2'], notes:'5V del pedal (APP1/APP2). Ruta: E113 → E11/F2 → ECM 90/91. Los otros 5V (47/48/49/68) se ven con el botón 5V, no al click.'},
     {id:'app_gnd', title:'APP · masas', color:'#f9a825',
@@ -1465,9 +1469,13 @@ function buildCircuits(model){
     {id:'tb', title:'ETC · cuerpo de mariposa', color:'#029eb7',
       ecm:[4,5,47,50,69,66], conn:['etc'], notes:'Cuerpo de mariposa: motor ±, TPS y su 5V/masa. Ruta: motor/TPS en ficha TB · 5V rail 47 · SNS TPS → ECM 66.'},
     {id:'ho2s_b1', title:'HO2S2 · Bank 1', color:'#8e24aa',
-      ecm:[74,25], conn:['ho2s_b1','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B1-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b1:['2']}, notes:'Sonda post-cat Bank 1: señal + calentador. Ruta: señal ECM 74 · calentador ECM 25 · 12V R/B → E108·65G → F3·3 · masa SNS 78.'},
+      ecm:[74], conn:['ho2s_b1'], notes:'Señal post-cat Bank 1. Ruta: → ECM 74. Masa SNS 78.'},
+    {id:'ho2s_b1_htr', title:'HO2S2 B1 · calentador', color:'#8e24aa',
+      ecm:[25], conn:['ho2s_b1','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B1-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b1:['2']}, notes:'Calentador HO2S Bank 1. ECM 25 · 12V R/B → E108·65G → F3·3.'},
     {id:'ho2s_b2', title:'HO2S2 · Bank 2', color:'#8e24aa',
-      ecm:[55,6], conn:['ho2s_b2','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B2-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b2:['2']}, notes:'Sonda post-cat Bank 2 (solo esta al tocar el pin 6). Ruta: señal ECM 55 · calentador ECM 6 · mismo 12V R/B → F3·3 · masa SNS 78.'},
+      ecm:[55], conn:['ho2s_b2'], notes:'Señal post-cat Bank 2. Ruta: → ECM 55. Masa SNS 78.'},
+    {id:'ho2s_b2_htr', title:'HO2S2 B2 · calentador', color:'#8e24aa',
+      ecm:[6], conn:['ho2s_b2','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B2-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b2:['2']}, notes:'Calentador HO2S Bank 2. ECM 6 · mismo 12V R/B → F3·3.'},
     {id:'evap_press', title:'EVAP · presión', color:'#7b1fa2',
       ecm:[32,48,67], conn:['evap_press','ix_f102_m72'], f102:['18H','19H','20H'], notes:'Sensor de presión EVAP (T21). Ruta: F102·18H → ECM 48 (5V) · 19H → 32 (señal) · 20H → 67 (GND).'},
     {id:'evap_purge', title:'EVAP · purga', color:'#8e24aa',
@@ -3454,7 +3462,9 @@ const TITLES_I18N = {
     ja: { name:'バックランプスイッチ', meta:'F36 · M/Tリバース · LT-183' },
   },
   af_b1: {en:'A/F Sensor 1 Bank 1', ja:'A/Fセンサ1 バンク1'},
-  af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
+  af_b1_htr: {en:'A/F B1 heater', ja:'A/F B1ヒータ'},
+  af_b2: {en:'A/F Sensor 1 Bank 2', ja:'A/Fセンサ1 バンク2'},
+  af_b2_htr: {en:'A/F B2 heater', ja:'A/F B2ヒータ'},
   app_5v: {en:'APP 5V + A/C · EVAP · PSP rails', ja:'APP 5V + A/C · EVAP · PSPレール'},
   app_gnd: {en:'APP grounds', ja:'APPアース'},
   app_sig: {en:'APP signals APS1/APS2', ja:'APP信号 APS1/APS2'},
@@ -3488,7 +3498,9 @@ const TITLES_I18N = {
   maf: {en:'MAF', ja:'MAF'},
   tb: {en:'ETC throttle body', ja:'ETCスロットルボディ'},
   ho2s_b1: {en:'HO2S2 Bank 1', ja:'HO2S2 バンク1'},
+  ho2s_b1_htr: {en:'HO2S2 B1 heater', ja:'HO2S2 B1ヒータ'},
   ho2s_b2: {en:'HO2S2 Bank 2', ja:'HO2S2 バンク2'},
+  ho2s_b2_htr: {en:'HO2S2 B2 heater', ja:'HO2S2 B2ヒータ'},
   evap_press: {en:'EVAP pressure', ja:'EVAP圧力'},
   evap_purge: {en:'EVAP purge', ja:'EVAPパージ'},
   evap_vent: {en:'EVAP canister vent', ja:'EVAPベント'},
@@ -3510,8 +3522,10 @@ const NOTES_I18N = {
   vtc_ex_b1: {en:'Exhaust VTC Bank 1 (Rev-Up) — own signal; ECM pin per FSM.', ja:'排気VTC B1（Rev-Up）— 独自信号。ECMピンはFSM参照。'},
   vtc_ex_b2: {en:'Exhaust VTC Bank 2 (Rev-Up) — own signal; ECM pin per FSM.', ja:'排気VTC B2（Rev-Up）— 独自信号。ECMピンはFSM参照。'},
   start_sig: {en:'Start signal GY/R (not starter 12V). Path: F102·23H ↔ cluster/TCM · also SC-START branch.', ja:'スタート信号 GY/R（スタータ12Vではない）。経路: F102·23H↔メータ/TCM · SC-START分岐。'},
-  af_b1: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM).', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。FSM 2005。'},
-  af_b2: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。経路は中間 E12/F3 の可能性（FSM参照）。'},
+  af_b1: {en:'A/F B1 input → ECM 16 / 35 / 56 / 75.', ja:'A/F B1入力 → ECM 16 / 35 / 56 / 75。'},
+  af_b1_htr: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM).', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。'},
+  af_b2: {en:'A/F B2 input → ECM 76 / 57 / 58 / 77.', ja:'A/F B2入力 → ECM 76 / 57 / 58 / 77。'},
+  af_b2_htr: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。'},
   app_5v: {en:'5V APP1/APP2 (90/91) via E11/F2. Shared rails 47/48/49/68 → use 5V toggle.', ja:'APP1/APP2 5V (90/91) E11/F2経由。共有レール 47/48/49/68 は 5V トグル。'},
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
   app_sig: {en:'APS1→106 · APS2→98 via intermediate E11/F2 (pedal E113→E11/F2→ECM).', ja:'APS1→106 · APS2→98（中間E11/F2経由）。'},
@@ -3548,8 +3562,10 @@ const NOTES_I18N = {
   evap_purge: {en:'F5 pin1 R/W (ECM relay 12V) · pin2 G/W → ECM 45. EC-360.', ja:'パージソレノイド → ECM 45。'},
   evap_vent: {en:'EVAP vent valve. Path: 12V E7-17 → E106/B2·13 → B43/T1·2 → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.', ja:'EVAPベント弁。経路: E7-17→E106/B2·13→B43/T1·2→T20·1 · 制御→ECM 117 · EC-367。'},
   dlc_k: {en:'ECM 85 (LG) → DLC pin 7 · CONSULT-II / GST.', ja:'ECM 85 (LG) → DLCピン7 · CONSULT-II / GST。'},
-  ho2s_b1: {en:'Signal B1→74 (OR) · heater→25 (P/B) · 12V R/B JB15A→65G→F3·3→pin2 · SNS GND 78 shared.', ja:'信号B1→74 · ヒータ→25 · 12V R/B→65G→F3·3 · SNS 78共用。'},
-  ho2s_b2: {en:'Signal B2→55 (L/B) · heater→6 (P/L) · 12V R/B same rail JB15A→65G→F3·3→pin2 · SNS GND 78 shared.', ja:'信号B2→55 · ヒータ→6 · 12V R/B→65G→F3·3 · SNS 78共用。'},
+  ho2s_b1: {en:'Signal B1 → ECM 74 (OR). SNS GND 78.', ja:'信号B1 → ECM 74 (OR)。SNS GND 78。'},
+  ho2s_b1_htr: {en:'Heater B1 → ECM 25. 12V R/B → E108·65G → F3·3.', ja:'ヒータB1 → ECM 25。12V R/B → E108·65G → F3·3。'},
+  ho2s_b2: {en:'Signal B2 → ECM 55 (L/B). SNS GND 78.', ja:'信号B2 → ECM 55 (L/B)。SNS GND 78。'},
+  ho2s_b2_htr: {en:'Heater B2 → ECM 6. Same 12V R/B → F3·3.', ja:'ヒータB2 → ECM 6。同じ12V R/B → F3·3。'},
   brake_stop: {en:'Brake signal → ECM 101 (L/OR). Stop lamp switch under pedal.', ja:'ブレーキ信号 → ECM 101 (L/OR)。ストップランプSWはペダル下。'},
   ascd_brake: {en:'ASCD brake → ECM 108 (B/R). On M/T the clutch switch is in series on the same signal path.', ja:'ASCDブレーキ → ECM 108 (B/R)。MTではクラッチSWが同信号経路に直列。'},
   ascd_steer: {en:'ASCD steering → ECM 99 (G/Y) via combination switch / clock spring (term. 14). Ground via ECM 67 (B/W) (term. 15).', ja:'ASCDステア → ECM 99 (G/Y)（コンビスイッチ/クロックスプリング端子14）。アースは ECM 67 (B/W)（端子15）。'},
@@ -4881,6 +4897,51 @@ function circuitSiblingAllowed(kind){
   if(kind === 'data') return railRelDataEnabled();
   return false;
 }
+function connIsDevice(cid){
+  const f = CONN[cid] || CONN_BASE[cid];
+  if(!f) return false;
+  const sub = f.sub;
+  return sub === 'sensors' || sub === 'actuators' || sub === 'pedals' || sub === 'ascd_dlc';
+}
+function circuitHasPowerPath(cir){
+  const ids = [...(cir.conn || []), ...Object.keys(cir.path || {})];
+  return ids.some(cid => {
+    const f = CONN[cid] || CONN_BASE[cid];
+    if(!f) return false;
+    if(f.sub === 'feeds' || f.sub === 'intermedias' || f.sub === 'ipdm') return true;
+    return false;
+  });
+}
+function powerRelatedCircuits(coreIds){
+  const core = new Set(coreIds || []);
+  const devices = new Set();
+  core.forEach(id => {
+    const cir = CIRCUITS.find(c => c.id === id);
+    (cir && cir.conn || []).forEach(cid => { if(connIsDevice(cid)) devices.add(cid); });
+  });
+  if(!devices.size) return [];
+  const extra = [];
+  CIRCUITS.forEach(cir => {
+    if(core.has(cir.id)) return;
+    if(!(cir.conn || []).some(cid => devices.has(cid))) return;
+    if(circuitHasPowerPath(cir)) extra.push(cir.id);
+  });
+  return extra;
+}
+function attachPowerPathFichas(coreIds, connSet, pathCavByConn){
+  if(!railRelPowerEnabled()) return;
+  powerRelatedCircuits(coreIds).forEach(id => {
+    const cir = CIRCUITS.find(c => c.id === id);
+    if(!cir) return;
+    (cir.conn || []).forEach(cid => connSet.add(cid));
+    if(cir.path){
+      Object.entries(cir.path).forEach(([cid, cavs]) => {
+        if(!pathCavByConn.has(cid)) pathCavByConn.set(cid, new Set());
+        (cavs || []).forEach(c => pathCavByConn.get(cid).add(String(c)));
+      });
+    }
+  });
+}
 function refreshCurrentSelection(){
   if(activeRails.size){ applyRailFilter(); return; }
   if(!selKey) return;
@@ -5360,13 +5421,14 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     cir.conn.forEach(cid=>connSet.add(cid));
     if(cir.path){
       Object.entries(cir.path).forEach(([cid, cavs])=>{
-        /* path = Alim. 12V + cavity HL only — not Selección groups (avoids pin 61 → IPDM+feeds+intermedias) */
+        /* path = Alim. 12V cavity HL — fichas join Selección only if Alim. is on */
         if(!pathCavByConn.has(cid)) pathCavByConn.set(cid, new Set());
         (cavs||[]).forEach(c => pathCavByConn.get(cid).add(String(c)));
       });
     }
     lines.push(`<div><b style="color:${cir.color}">${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
+  attachPowerPathFichas(circIds, connSet, pathCavByConn);
   /* Loom filter: drop body/rear fichas when viewing pulled engine harness */
   [...connSet].forEach(cid => { if(!connVisibleInLoom(cid)) connSet.delete(cid); });
   /* Feed card focus: keep related fichas, but ECM label/highlight = control pins only */

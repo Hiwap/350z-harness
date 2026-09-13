@@ -161,6 +161,52 @@ await clickPin(67);
 ok(await pinMarked(32), '32 still in group after clicking 67');
 ok(!(await pinMarked(70)), 'A/C 70 not added (did not switch to ac_press)');
 
+console.log('\nA/F pin 16 shows only the sensor ficha (not heater path)');
+async function hlConns() {
+  return page.evaluate(() => {
+    const ids = new Set();
+    document.querySelectorAll('.ficha.hl[data-conn], .ficha-wrap.hl[data-conn]').forEach((el) => {
+      if (el.dataset.conn) ids.add(el.dataset.conn);
+    });
+    document.querySelectorAll('.ficha.hl').forEach((el) => {
+      if (el.dataset.conn) ids.add(el.dataset.conn);
+    });
+    return [...ids].sort();
+  });
+}
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(16);
+{
+  const ids = await hlConns();
+  ok(ids.includes('af_b1'), `pin 16 includes A/F B1 (${ids.join(',')})`);
+  ok(!ids.includes('ix_e108_m15') && !ids.includes('ix_e12_f3'), `pin 16 no heater intermediates (${ids.join(',')})`);
+  ok(ids.filter((id) => !id.startsWith('feed_') && id !== 'jb_15a_ht').length === 1, `pin 16 one ficha (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = true;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+{
+  const ids = await hlConns();
+  ok(ids.includes('af_b1') && ids.includes('ix_e108_m15') && ids.includes('ix_e12_f3'), `pin 16 + Alim. heater path (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = false;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+{
+  const ids = await hlConns();
+  ok(ids.includes('af_b1') && !ids.includes('ix_e108_m15') && !ids.includes('ix_e12_f3'), `pin 16 Alim. off drops path (${ids.join(',')})`);
+}
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(2);
+{
+  const ids = await hlConns();
+  ok(ids.includes('af_b1') && ids.includes('ix_e108_m15') && ids.includes('ix_e12_f3'), `pin 2 heater path (${ids.join(',')})`);
+}
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);
