@@ -1367,11 +1367,15 @@ const SUB_ACCENT = {
   ipdm:        '#ef5350',  /* red — IPDM */
   feeds:       '#ffca28',  /* amber — rails 12V / feeds */
   sensors:     '#42a5f5',  /* blue — sensores */
-  actuators:   '#ab47bc',  /* magenta — actuadores */
+  actuators:   '#ab47bc',  /* magenta — actuadores (loose; nests override) */
   intermedias: '#78909c',  /* slate — intermedias E/F */
   pedals:      '#ff7043',  /* deep orange — pedales / freno */
   ascd_dlc:    '#26c6da',  /* cyan — ASCD / DLC / CAN */
 };
+/* Actuadores nests — ficha filet + sibling HL follow nest, not magenta sub */
+const ACT_BOBINAS = new Set(['coil1','coil2','coil3','coil4','coil5','coil6','ix_f18_f201']);
+const ACT_INYECTORES = new Set(['inj1','inj2','inj3','inj4','inj5','inj6','ix_f221_f33']);
+const NEST_ACCENT = { bobinas: '#f57f17', inyectores: '#c62828' };
 
 
 const CONN_BASE = {
@@ -1649,7 +1653,7 @@ const CONN_BASE = {
     note:'Intermedia del knock. Ruta: señal → ECM 15 · malla a SNS GND.'},
   ix_f103_f151:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4 pines · ECM 1/115/116 → masa · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Tierras del ECM a la carrocería. Ruta: ECM 1/115/116 → F103/F151 → masa.'},
-  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Bobinas Bank 1 + VTC', meta:'6 pines · solo Bank 1 · EC-691/455', accent:'#ab47bc', shape:'f18',
+  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Bobinas Bank 1 + VTC', meta:'6 pines · solo Bank 1 · EC-691/455', accent:'#f57f17', shape:'f18',
     pins:[
       {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},
       {id:'2',lab:'C3',code:'L/R',ecm:61},
@@ -2723,7 +2727,7 @@ function svgF102(cid, f){
 
 
 function renderConnSvg(cid, f){
-  f = Object.assign({}, f, { accent: accentForConn(f) });
+  f = Object.assign({}, f, { accent: accentForConn(f, cid) });
   let svg;
   switch(f.shape){
     case 'f33': svg = svgF33(cid,f); break;
@@ -3414,7 +3418,10 @@ function pathStepLabel(cid, cav, pin){
   return code ? `${bit} (${code})` : bit;
 }
 
-function accentForConn(f){
+function accentForConn(f, cid){
+  const id = cid || (f && f.id) || null;
+  if(id && ACT_BOBINAS.has(id)) return NEST_ACCENT.bobinas;
+  if(id && ACT_INYECTORES.has(id)) return NEST_ACCENT.inyectores;
   if(f && f.sub && SUB_ACCENT[f.sub]) return SUB_ACCENT[f.sub];
   return (f && f.accent) || '#546e7a';
 }
@@ -3638,7 +3645,7 @@ function makeFichaEl(id, f){
   const el=document.createElement('div');
   el.className = 'ficha' + (f.shape==='note' || f.shape==='ixnote' ? ' note-card' : '');
   el.dataset.conn=id;
-  el.style.borderColor = accentForConn(f);
+  el.style.borderColor = accentForConn(f, id);
   let extra = '';
   const noteTxt = connField(id, f, 'note');
   if(noteTxt){
@@ -3699,9 +3706,6 @@ function renderFichas(){
   const keys = SUB_ORDER.filter(k => bySub[k]);
   Object.keys(bySub).forEach(k => { if(!keys.includes(k)) keys.push(k); });
 
-  const ACT_BOBINAS = new Set(['coil1','coil2','coil3','coil4','coil5','coil6','ix_f18_f201']);
-  const ACT_INYECTORES = new Set(['inj1','inj2','inj3','inj4','inj5','inj6','ix_f221_f33']);
-
   function makeNestDetails(nestKey, labelKey, ids, accent){
     const nest = document.createElement('details');
     nest.className = 'ficha-nest';
@@ -3756,8 +3760,8 @@ function renderFichas(){
         loose.forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
         body.appendChild(grid);
       }
-      if(bobinas.length) body.appendChild(makeNestDetails('bobinas', 'nestBobinas', bobinas, '#f57f17'));
-      if(inyectores.length) body.appendChild(makeNestDetails('inyectores', 'nestInyectores', inyectores, '#c62828'));
+      if(bobinas.length) body.appendChild(makeNestDetails('bobinas', 'nestBobinas', bobinas, NEST_ACCENT.bobinas));
+      if(inyectores.length) body.appendChild(makeNestDetails('inyectores', 'nestInyectores', inyectores, NEST_ACCENT.inyectores));
       sec.appendChild(body);
     } else {
       const grid=document.createElement('div');
@@ -4526,6 +4530,16 @@ function primarySubForCircuits(circIds, focusPin=null){
   return seen[0] || null;
 }
 function hlGroupColorForCircuits(circIds, focusPin=null){
+  const circs = (circIds||[]).map(id => CIRCUITS.find(x=>x.id===id)).filter(Boolean);
+  const ordered = (focusPin!=null)
+    ? [...circs.filter(c => (c.ecm||[]).some(p => Number(p)===Number(focusPin))), ...circs.filter(c => !(c.ecm||[]).some(p => Number(p)===Number(focusPin)))]
+    : circs;
+  for(const cir of ordered){
+    for(const cid of (cir.conn||[])){
+      if(ACT_BOBINAS.has(cid)) return NEST_ACCENT.bobinas;
+      if(ACT_INYECTORES.has(cid)) return NEST_ACCENT.inyectores;
+    }
+  }
   const sub = primarySubForCircuits(circIds, focusPin);
   if(sub && SUB_ACCENT[sub]) return SUB_ACCENT[sub];
   return '#ab47bc';
