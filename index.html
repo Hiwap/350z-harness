@@ -1257,7 +1257,7 @@ function buildCircuits(model){
     {id:'ecm_relay_ss', title:'ECM relay / SSOFF', color:'#ef5350',
       ecm:[111], conn:['ecm_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], notes:'SSOFF ECM 111 ↔ IPDM E9-46 (W/B) · vía E108 69G · F102 11H (GY/L).'},
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
-      ecm:[104], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'MOTRLY ECM 104 ↔ IPDM E9-47 (OR) · vía E108 30G · F102 12H (SB). Relé mariposa (no el relé ECM/SSOFF 111).'},
+      ecm:[104], conn:['motrly_relay','ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{motrly_relay:['MOTRLY'],ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'MOTRLY ECM 104 ↔ relé mariposa IPDM (F87) · E9-47 OR → E108 30G → F102 12H SB. No es SSOFF/111 ni VMOT/3.'},
     {id:'vmot', title:'VMOT supply', color:'#ef5350',
       ecm:[3], conn:['vmot','ipdm_e8','ix_e12_f3'], notes:'VMOT ECM 3 ↔ IPDM E8-42 (G) vía E12/F3.'},
     {id:'fp_relay', title:'Fuel pump relay', color:'#ef5350',
@@ -2803,6 +2803,13 @@ const I18N = {
     f102RTip: 'R · 30H–46H · cara PG-85; sin cable',
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
   },
+  motrly_relay:{group:'motor', sub:'actuators', name:'Relé mariposa · MOTRLY', meta:'IPDM F87 15A · monitor ECM 104 · EC-472', accent:'#ef5350', shape:'tab2',
+    pins:[
+      {id:'MOTRLY',code:'OR',ecm:104,lab:'MON'},
+      {id:'coil+',code:'—',ecm:null,rail:'12v',src:'F87',srcSub:'ipdm',lab:'12V'}
+    ],
+    note:'Relé ETC/throttle motor dentro IPDM (fusible 87 = 15A). Salida/monitor MOTRLY E9-47 OR → E108·30G → F102·12H SB → ECM 104. El motor de mariposa es VMOT (pin 3), no esta línea.'},
+
   en: {
     pageSub: 'FSM reference · click ECM pin or cavity → end-to-end',
     lblModel: 'Model',
@@ -2929,6 +2936,7 @@ const TITLES_I18N = {
   ign_sw: {en:'IGN SW → ECM', ja:'IGN SW → ECM'},
   ecm_relay_ss: {en:'ECM relay / SSOFF', ja:'ECMリレー / SSOFF'},
   motrly: {en:'MOTRLY', ja:'MOTRLY'},
+  motrly_relay: {en:'Throttle motor relay · MOTRLY', ja:'スロットルモータリレー · MOTRLY'},
   vmot: {en:'VMOT supply', ja:'VMOT供給'},
 
   fp_relay: {en:'Fuel pump relay', ja:'フューエルポンプリレー'},
@@ -3362,7 +3370,7 @@ function connShortLabel(cid){
     ix_e108_m15:'E108', ix_e12_f3:'E12/F3', ix_f102_m72:'F102', ix_f221_f33:'F33',
     ix_e10_f1:'E10/F1', ix_f18_f201:'F18', ix_e11_f2:'E11/F2', ix_f14_f229:'F14',
     ix_f103_f151:'F103', ipdm_e3:'IPDM E3', ipdm_e4:'IPDM E4', ipdm_e5:'IPDM E5',
-    ipdm_e6:'IPDM E6', ipdm_e7:'IPDM E7', ipdm_e8:'IPDM E8', ipdm_e9:'IPDM E9',
+    ipdm_e6:'IPDM E6', ipdm_e7:'IPDM E7', ipdm_e8:'IPDM E8', motrly_relay:'Relé mariposa', ipdm_e9:'IPDM E9',
     af_b1:'A/F B1', af_b2:'A/F B2', ho2s_b1:'HO2S2 B1', ho2s_b2:'HO2S2 B2',
     fp_relay:'Relé bomba', fuel_pump:'Bomba comb.', backup_sw:'Back-up sw',
     evap_purge:'EVAP purga', evap_vent:'EVAP venteo', evap_press:'EVAP presión',
@@ -3493,6 +3501,12 @@ const CONN_I18N = {
       note:'IPDM-integrated relay: coil from fuse 77 (15A). SSOFF control E9-46 → E108·69G → F102·11H → ECM 111. Switched out E7-17 W/L (ECM-RLY) → coils via F3·5.' },
     ja: { name:'ECMリレー制御', meta:'IPDM F77 15A · ECM 111 SSOFF · EC-167',
       note:'IPDM内蔵リレー: コイルはヒューズ77 (15A)。SSOFF制御 E9-46 → E108·69G → F102·11H → ECM 111。出力 E7-17 W/L → F3·5。' },
+  },
+  motrly_relay: {
+    en: { name:'Throttle motor relay · MOTRLY', meta:'IPDM F87 15A · monitor ECM 104 · EC-472',
+      note:'ETC/throttle motor relay inside IPDM (fuse 87 15A). Monitor MOTRLY E9-47 OR → E108·30G → F102·12H SB → ECM 104. Throttle motor power is VMOT (pin 3).' },
+    ja: { name:'スロットルモータリレー · MOTRLY', meta:'IPDM F87 15A · モニタ ECM 104 · EC-472',
+      note:'IPDM内蔵ETCリレー（ヒューズ87 15A）。MOTRLY E9-47 → E108·30G → F102·12H → ECM 104。モータ電源はVMOT（ピン3）。' },
   },
   vmot: {
     en: { name:'VMOT supply', meta:'throttle motor power · ECM 3' },
