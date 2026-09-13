@@ -2154,11 +2154,15 @@ function rebuildIndexes(){
 const LS_LOOM = 'z33_loomView';
 const LS_MODEL_BANNER = 'z33_modelBannerOpen';
 const LOOM_BODY_EXTRA = new Set([
-  /* motor-group but not on the pulled engine harness (as on the bench) */
+  /* not on pulled engine-control harness (bench) */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
-  /* SMJ E108 stays at firewall / body side when harness is out — hide in Arnès motor */
-  'ix_e108_m15'
+  /* SMJ E108 stays at firewall / body (M15) */
+  'ix_e108_m15',
+  /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
+  'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9'
 ]);
+/* E10/F1 · E11/F2 · E12/F3 sit in the battery-tray hole (mates to control harness; REV on E10/F1) */
+const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);
 function loomView(){
   const el = document.getElementById('loomView');
   if(el && (el.value === 'motor' || el.value === 'all')) return el.value;
@@ -2168,6 +2172,7 @@ function loomView(){
 function loomOfConn(id, conf){
   const c = conf || CONN_BASE[id] || CONN[id];
   if(!c) return 'motor';
+  if(LOOM_MOTOR_KEEP.has(id)) return 'motor';
   if(c.group === 'body') return 'body';
   if(LOOM_BODY_EXTRA.has(id)) return 'body';
   return 'motor';
