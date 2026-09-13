@@ -669,6 +669,33 @@
     white-space: nowrap;
   }
 
+  .opts-hl-legend {
+    flex: 1 1 100%;
+    margin-top: 6px;
+    padding: 8px 6px 4px;
+    border-top: 1px dashed #2a3340;
+  }
+  .opts-hl-legend-title {
+    font-size: 11px; font-weight: 800; color: #cfd8dc;
+    margin-bottom: 6px;
+  }
+  .opts-hl-legend-sec {
+    font-size: 10px; font-weight: 700; color: #90a4ae;
+    margin: 6px 0 3px;
+  }
+  .opts-hl-legend-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 11px; color: #b0bec5;
+    line-height: 1.35;
+    margin: 2px 0;
+  }
+  .opts-hl-swatch {
+    flex: 0 0 12px; width: 12px; height: 12px;
+    border-radius: 3px;
+    margin-top: 2px;
+    box-shadow: 0 0 0 1px #000;
+  }
+
   .pin.rail-5v { outline: 2.5px solid #F9A825; outline-offset: 1px; }
   .pin.rail-12v { outline: 2.5px solid #C62828; outline-offset: 1px; }
   .pin.rail-gnd { outline: 2.5px solid #2E7D32; outline-offset: 1px; }
@@ -921,6 +948,10 @@
           <input type="checkbox" id="railRelData" checked />
           <span id="lblRailRelDataTxt">Data</span>
         </label>
+      </div>
+      <div class="opts-hl-legend" id="optsHlLegend">
+        <div class="opts-hl-legend-title" id="hlLegendTitle">Colores de highlight</div>
+        <div class="opts-hl-legend-body" id="hlLegendBody"></div>
       </div>
     </div>
   </details>
@@ -2922,6 +2953,14 @@ const I18N = {
     railRelTitle: 'Rail · relacionados',
     railRelGnd: 'Tierras',
     railRelData: 'Data',
+    hlLegendTitle: 'Colores de highlight',
+    hlLegSecSel: 'Selección de pin / ficha',
+    hlLegFocus: 'Foco (pin o cavidad tocada)',
+    hlLegSiblings: 'Hermanos del circuito — color del grupo o nest (sensores azul, bobinas naranja, …)',
+    hlLegSecRail: 'Botones 5V · 12V · GND (líneas)',
+    hlLegSecRel: 'Rail · relacionados',
+    hlLegRelGnd: 'Tierras relacionadas',
+    hlLegRelData: 'Data / señales relacionadas',
     nestBobinas: 'Bobinas',
     nestInyectores: 'Inyectores',
     optsSummary: 'Opciones / Options',
@@ -2977,6 +3016,14 @@ const I18N = {
     railRelTitle: 'Rail · related',
     railRelGnd: 'Grounds',
     railRelData: 'Data',
+    hlLegendTitle: 'Highlight colors',
+    hlLegSecSel: 'Pin / connector selection',
+    hlLegFocus: 'Focus (pin or cavity you clicked)',
+    hlLegSiblings: 'Circuit siblings — group or nest accent (sensors blue, coils orange, …)',
+    hlLegSecRail: '5V · 12V · GND buttons (lines)',
+    hlLegSecRel: 'Rail · related',
+    hlLegRelGnd: 'Related grounds',
+    hlLegRelData: 'Related data / signals',
     nestBobinas: 'Coils',
     nestInyectores: 'Injectors',
     optsSummary: 'Options',
@@ -3023,6 +3070,14 @@ const I18N = {
     railRelTitle: 'レール · 関連',
     railRelGnd: 'アース',
     railRelData: 'データ',
+    hlLegendTitle: 'ハイライト色',
+    hlLegSecSel: 'ピン / フィチャ選択',
+    hlLegFocus: 'フォーカス（クリックしたピン/キャビティ）',
+    hlLegSiblings: '回路の兄弟 — グループ/ネスト色（センサ青、コイル橙など）',
+    hlLegSecRail: '5V · 12V · GND（ライン別）',
+    hlLegSecRel: 'レール · 関連',
+    hlLegRelGnd: '関連アース',
+    hlLegRelData: '関連データ / 信号',
     nestBobinas: 'コイル',
     nestInyectores: 'インジェクタ',
     railActive: 'レール ON',
@@ -3194,6 +3249,32 @@ function circuitNotes(cir){
   return n[lang] || cir.notes;
 }
 
+
+function renderHlLegend(){
+  const body = document.getElementById('hlLegendBody');
+  const title = document.getElementById('hlLegendTitle');
+  if(title) title.textContent = t('hlLegendTitle');
+  if(!body) return;
+  const row = (color, label) =>
+    `<div class="opts-hl-legend-row"><span class="opts-hl-swatch" style="background:${color}"></span><span>${esc(label)}</span></div>`;
+  const sec = (label) => `<div class="opts-hl-legend-sec">${esc(label)}</div>`;
+  let html = '';
+  html += sec(t('hlLegSecSel'));
+  html += row('#ffd54f', t('hlLegFocus'));
+  html += row('#42a5f5', t('hlLegSiblings'));
+  html += sec(t('hlLegSecRail'));
+  const lineOrder = ['5v_app','5v_sns','12v_coil','12v_inj','12v_ht','12v_vb','12v_batt','12v_vmot','12v_other','gnd_pwr','gnd_sns','gnd_app'];
+  lineOrder.forEach(id => {
+    const meta = RAIL_LINE[id];
+    if(!meta) return;
+    html += row(meta.color, railLineLabel(id));
+  });
+  html += sec(t('hlLegSecRel'));
+  html += row('#66bb6a', t('hlLegRelGnd'));
+  html += row('#4fc3f7', t('hlLegRelData'));
+  body.innerHTML = html;
+}
+
 function applyLang(){
   lang = document.getElementById('lang').value || 'es';
   localStorage.setItem('z33_lang', lang);
@@ -3223,6 +3304,7 @@ function applyLang(){
   if(rrg) rrg.textContent = t('railRelGnd');
   const rrd = document.getElementById('lblRailRelDataTxt');
   if(rrd) rrd.textContent = t('railRelData');
+  renderHlLegend();
   const rg = document.getElementById('railGnd'); if(rg) rg.textContent = t('railGnd');
   const rt = document.getElementById('railToggles'); if(rt) rt.title = t('railTitle');
   const oo = document.getElementById('optOutlines'); if(oo) oo.textContent = t('optOutlines');
