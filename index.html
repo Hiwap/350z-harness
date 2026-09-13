@@ -1297,14 +1297,21 @@ function stripRailLineClasses(el){
   [...el.classList].forEach(c => { if(c.startsWith('rail-line-')) el.classList.remove(c); });
   if(el.dataset) delete el.dataset.railLine;
 }
+/* Per-line groups only when exactly one of 5V/12V/GND is ON (else too many). */
+function railLineGroupsEnabled(){
+  return typeof activeRails !== 'undefined' && activeRails && activeRails.size === 1;
+}
+const RAIL_FAMILY_COLOR = { '5v':'#F9A825', '12v':'#C62828', 'gnd':'#2E7D32' };
 function markRailPrimaryEl(el, rail, line){
   if(!el || !rail) return;
   stripRailLineClasses(el);
   el.classList.remove('dim');
   el.classList.add('hl-rail', 'rail-'+rail);
-  if(line && RAIL_LINE[line]){
+  if(railLineGroupsEnabled() && line && RAIL_LINE[line]){
     el.classList.add('rail-line-'+line);
     el.dataset.railLine = line;
+  } else {
+    delete el.dataset.railLine;
   }
 }
 
@@ -3278,11 +3285,22 @@ function renderHlLegend(){
     html += row(sibColors, t('hlLegSiblings'));
   }
   if(typeof activeRails !== 'undefined' && activeRails && activeRails.size){
-    const lineOrder = ['5v_app','5v_sns','12v_coil','12v_inj','12v_ht','12v_vb','12v_batt','12v_vmot','12v_other','gnd_pwr','gnd_sns','gnd_app'];
-    const lines = lineOrder.filter(id => RAIL_LINE[id] && activeRails.has(RAIL_LINE[id].rail));
-    if(lines.length){
-      html += sec(t('hlLegSecRail'));
+    html += sec(t('hlLegSecRail'));
+    if(railLineGroupsEnabled()){
+      const lineOrder = ['5v_app','5v_sns','12v_coil','12v_inj','12v_ht','12v_vb','12v_batt','12v_vmot','12v_other','gnd_pwr','gnd_sns','gnd_app'];
+      const lines = lineOrder.filter(id => RAIL_LINE[id] && activeRails.has(RAIL_LINE[id].rail));
       lines.forEach(id => html += row(RAIL_LINE[id].color, railLineLabel(id)));
+    } else {
+      const famLab = {
+        '5v': { es:'5V', en:'5V', ja:'5V' },
+        '12v':{ es:'12V', en:'12V', ja:'12V' },
+        'gnd':{ es:'GND', en:'GND', ja:'GND' }
+      };
+      ['5v','12v','gnd'].forEach(r=>{
+        if(!activeRails.has(r)) return;
+        const L = famLab[r] || { es:r, en:r, ja:r };
+        html += row(RAIL_FAMILY_COLOR[r] || '#888', L[lang] || L.es || r);
+      });
     }
     html += sec(t('hlLegSecRel'));
     if(railRelGndEnabled()) html += row('#66bb6a', t('hlLegRelGnd'));
