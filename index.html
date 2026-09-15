@@ -1380,11 +1380,11 @@ function buildCircuits(model){
     {id:'af_b1', title:'A/F Sensor 1 · Bank 1', color:'#ef6c00',
       ecm:[16,35,56,75], conn:['af_b1'], notes:'Entrada A/F Bank 1. Ruta: sensor → ECM 16 / 35 / 56 / 75.'},
     {id:'af_b1_htr', title:'A/F B1 · calentador', color:'#ef6c00',
-      ecm:[2], conn:['af_b1','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF1-3'],af_b1:['3']}, notes:'Calentador A/F Bank 1. ECM 2 controla; 12V no sale del ECM. Ruta: JB15A → E108·65G → F3·3 → sensor pin 3.'},
+      ecm:[2], conn:['af_b1'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF1-3'],af_b1:['3']}, notes:'Control calentador A/F B1. ECM 2 → sensor. 12V (Alim.): E108·65G → F3·3 → pin 3.'},
     {id:'af_b2', title:'A/F Sensor 1 · Bank 2', color:'#2e7d32',
       ecm:[76,57,58,77], conn:['af_b2'], notes:'Entrada A/F Bank 2. Ruta: sensor → ECM 76 / 57 / 58 / 77.'},
     {id:'af_b2_htr', title:'A/F B2 · calentador', color:'#2e7d32',
-      ecm:[24], conn:['af_b2','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF2-3'],af_b2:['3']}, notes:'Calentador A/F Bank 2. ECM 24 controla. Ruta: JB15A → E108·65G → F3·3 → sensor pin 3.'},
+      ecm:[24], conn:['af_b2'], path:{jb_15a_ht:['15A'],ix_e108_m15:['65G'],ix_e12_f3:['3'],feed_af_12v:['AF2-3'],af_b2:['3']}, notes:'Control calentador A/F B2. ECM 24 → sensor. 12V (Alim.): E108·65G → F3·3 → pin 3.'},
     {id:'app_5v', title:'APP · 5V', color:'#f9a825',
       ecm:[90,91], conn:['app','ix_e11_f2'], notes:'5V del pedal (APP1/APP2). Ruta: E113 → E11/F2 → ECM 90/91. Los otros 5V (47/48/49/68) se ven con el botón 5V, no al click.'},
     {id:'app_gnd', title:'APP · masas', color:'#f9a825',
@@ -1434,29 +1434,29 @@ function buildCircuits(model){
     {id:'ect', title:'ECT', color:'#5c6bc0',
       ecm:[73], conn:['ect'], notes:'Temperatura de refrigerante. Ruta: señal → ECM 73.'},
     {id:'coil_1', title:'Bobina 1', color:'#26a69a',
-      ecm:[62], conn:['coil1','ix_f18_f201','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 1: el ECM la dispara a masa. Ruta: ECM 62 → F18·3 · 12V común W/L (E7-17 → F3·5).'},
+      ecm:[62], conn:['coil1','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 1. Ruta: ECM 62 → F18·3. 12V (Alim.): E7-17 → F3·5.'},
     {id:'coil_2', title:'Bobina 2', color:'#26a69a',
-      ecm:[81], conn:['coil2','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 2 (Bank 2, sin F18). Ruta: ECM 81 · mismo 12V W/L (E7-17 → F3·5).'},
+      ecm:[81], conn:['coil2'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 2 (Bank 2, sin F18). 12V (Alim.): E7-17 → F3·5.'},
     {id:'coil_3', title:'Bobina 3', color:'#26a69a',
-      ecm:[61], conn:['coil3','ix_f18_f201','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 3. Ruta: ECM 61 → F18·2 · 12V común W/L (E7-17 → F3·5).'},
+      ecm:[61], conn:['coil3','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 3. Ruta: ECM 61 → F18·2. 12V (Alim.): E7-17 → F3·5.'},
     {id:'coil_4', title:'Bobina 4', color:'#26a69a',
-      ecm:[80], conn:['coil4','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 4 (Bank 2, sin F18). Ruta: ECM 80 · 12V W/L (E7-17 → F3·5).'},
+      ecm:[80], conn:['coil4'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 4. 12V (Alim.): E7-17 → F3·5.'},
     {id:'coil_5', title:'Bobina 5', color:'#26a69a',
-      ecm:[60], conn:['coil5','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 5 (F15 aparte, no pasa por F18). Ruta: ECM 60 · 12V W/L (E7-17 → F3·5).'},
+      ecm:[60], conn:['coil5'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 5 (F15, no F18). 12V (Alim.): E7-17 → F3·5.'},
     {id:'coil_6', title:'Bobina 6', color:'#26a69a',
-      ecm:[79], conn:['coil6','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 6 (Bank 2, sin F18). Ruta: ECM 79 · 12V W/L (E7-17 → F3·5).'},
+      ecm:[79], conn:['coil6'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina 6. 12V (Alim.): E7-17 → F3·5.'},
     {id:'inj_1', title:'Inyector 1', color:'#9ccc65',
-      ecm:[23], conn:['inj1','ix_f221_f33','ix_f102_m72'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 1: el ECM lo abre a masa. Ruta: ECM 23 → F33/F221 · 12V común (JB 10A → F102·17H → F33·5).'},
+      ecm:[23], conn:['inj1','ix_f221_f33'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 1. Ruta: ECM 23 → F33/F221. 12V (Alim.): JB 10A → F102·17H → F33·5.'},
     {id:'inj_2', title:'Inyector 2', color:'#9ccc65',
-      ecm:[42], conn:['inj2','ix_f221_f33','ix_f102_m72'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 2. Ruta: ECM 42 → F33/F221 · mismo 12V (JB 10A → F102·17H → F33·5).'},
+      ecm:[42], conn:['inj2','ix_f221_f33'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 2. Ruta: ECM 42 → F33/F221. 12V (Alim.): F102·17H.'},
     {id:'inj_3', title:'Inyector 3', color:'#9ccc65',
-      ecm:[22], conn:['inj3','ix_f221_f33','ix_f102_m72'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 3. Ruta: ECM 22 → F33/F221 · mismo 12V JB 10A.'},
+      ecm:[22], conn:['inj3','ix_f221_f33'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 3. Ruta: ECM 22 → F33/F221. 12V (Alim.): F102·17H.'},
     {id:'inj_4', title:'Inyector 4', color:'#9ccc65',
-      ecm:[41], conn:['inj4','ix_f221_f33','ix_f102_m72'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 4. Ruta: ECM 41 → F33/F221 · mismo 12V JB 10A.'},
+      ecm:[41], conn:['inj4','ix_f221_f33'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 4. Ruta: ECM 41 → F33/F221. 12V (Alim.): F102·17H.'},
     {id:'inj_5', title:'Inyector 5', color:'#9ccc65',
-      ecm:[21], conn:['inj5','ix_f221_f33','ix_f102_m72'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 5. Ruta: ECM 21 → F33/F221 · mismo 12V JB 10A.'},
+      ecm:[21], conn:['inj5','ix_f221_f33'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 5. Ruta: ECM 21 → F33/F221. 12V (Alim.): F102·17H.'},
     {id:'inj_6', title:'Inyector 6', color:'#9ccc65',
-      ecm:[40], conn:['inj6','ix_f221_f33','ix_f102_m72'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 6. Ruta: ECM 40 → F33/F221 · mismo 12V JB 10A.'},
+      ecm:[40], conn:['inj6','ix_f221_f33'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 6. Ruta: ECM 40 → F33/F221. 12V (Alim.): F102·17H.'},
     {id:'batt_ecm', title:'BATT · alimentación ECM 121', color:'#ef5350',
       ecm:[121], conn:['batt_feed'], path:{batt_feed:['BATT']}, notes:'Memoria del ECM: 12V siempre, aunque la llave esté off. Ruta: BATT R/W → ECM 121 (sin intermedia en el arnés motor).'},
     {id:'ign_feeds', title:'IGN · alimentación ECM 119/120', color:'#ef5350',
@@ -1486,15 +1486,19 @@ function buildCircuits(model){
     {id:'ho2s_b1', title:'HO2S2 · Bank 1', color:'#8e24aa',
       ecm:[74], conn:['ho2s_b1'], notes:'Señal post-cat Bank 1. Ruta: → ECM 74. Masa SNS 78.'},
     {id:'ho2s_b1_htr', title:'HO2S2 B1 · calentador', color:'#8e24aa',
-      ecm:[25], conn:['ho2s_b1','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B1-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b1:['2']}, notes:'Calentador HO2S Bank 1. ECM 25 · 12V R/B → E108·65G → F3·3.'},
+      ecm:[25], conn:['ho2s_b1'], notes:'Control calentador HO2S Bank 1. Ruta: ECM 25 P/B → F11·3. EC-191.'},
+    {id:'ho2s_b1_pwr', title:'HO2S2 B1 · 12V', color:'#8e24aa',
+      ecm:[], conn:['ho2s_b1','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B1-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b1:['2']}, notes:'12V calentador HO2S B1. Ruta: 15A → E108·65G → F3·3 → F11·2. EC-191.'},
     {id:'ho2s_b2', title:'HO2S2 · Bank 2', color:'#8e24aa',
       ecm:[55], conn:['ho2s_b2'], notes:'Señal post-cat Bank 2. Ruta: → ECM 55. Masa SNS 78.'},
     {id:'ho2s_b2_htr', title:'HO2S2 B2 · calentador', color:'#8e24aa',
-      ecm:[6], conn:['ho2s_b2','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B2-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b2:['2']}, notes:'Calentador HO2S Bank 2. ECM 6 · mismo 12V R/B → F3·3.'},
+      ecm:[6], conn:['ho2s_b2'], notes:'Control calentador HO2S Bank 2. Ruta: ECM 6 P/L → F12·3. EC-193.'},
+    {id:'ho2s_b2_pwr', title:'HO2S2 B2 · 12V', color:'#8e24aa',
+      ecm:[], conn:['ho2s_b2','ix_e108_m15','ix_e12_f3'], path:{jb_15a_ht:['15A'],feed_ho2s_12v:['B2-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b2:['2']}, notes:'12V calentador HO2S B2. Ruta: 15A → E108·65G → F3·3 → F12·2. EC-193.'},
     {id:'evap_press', title:'EVAP · presión', color:'#7b1fa2',
       ecm:[32,48,67], conn:['evap_press','ix_f102_m72'], f102:['18H','19H','20H'], notes:'Sensor de presión EVAP (T21). Ruta: F102·18H → ECM 48 (5V) · 19H → 32 (señal) · 20H → 67 (GND).'},
     {id:'evap_purge', title:'EVAP · purga', color:'#8e24aa',
-      ecm:[45], conn:['evap_purge','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7']}, notes:'Válvula de purga del canister. Ruta: 12V (E7-18 → F3) en F5·1 · control F5·2 → ECM 45.'},
+      ecm:[45], conn:['evap_purge'], path:{ipdm_e7:['18'],ix_e12_f3:['7']}, notes:'Control purga. Ruta: F5·2 → ECM 45. 12V (Alim.): E7-18 → F3·7 → F5·1.'},
     {id:'evap_vent', title:'EVAP · venteo', color:'#6a1b9a',
       ecm:[117], conn:['evap_vent','ix_t2_b44','ix_b1_m12','ix_f102_m72'],
       path:{evap_vent:['2'],ix_t2_b44:['9'],ix_b1_m12:['37J'],ix_f102_m72:['29H']}, f102:['29H'],
@@ -3560,8 +3564,10 @@ const TITLES_I18N = {
   tb: {en:'ETC throttle body', ja:'ETCスロットルボディ'},
   ho2s_b1: {en:'HO2S2 Bank 1', ja:'HO2S2 バンク1'},
   ho2s_b1_htr: {en:'HO2S2 B1 heater', ja:'HO2S2 B1ヒータ'},
+  ho2s_b1_pwr: {en:'HO2S2 B1 12V', ja:'HO2S2 B1 12V'},
   ho2s_b2: {en:'HO2S2 Bank 2', ja:'HO2S2 バンク2'},
   ho2s_b2_htr: {en:'HO2S2 B2 heater', ja:'HO2S2 B2ヒータ'},
+  ho2s_b2_pwr: {en:'HO2S2 B2 12V', ja:'HO2S2 B2 12V'},
   evap_press: {en:'EVAP pressure', ja:'EVAP圧力'},
   evap_purge: {en:'EVAP purge', ja:'EVAPパージ'},
   evap_vent: {en:'EVAP canister vent', ja:'EVAPベント'},
@@ -3626,9 +3632,11 @@ const NOTES_I18N = {
   evap_vent_pwr: {en:'EVAP vent 12V: E7-17 → E106/B2 → B43/T1 → T20·1. EC-371.', ja:'EVAPベント12V: E7-17 → E106/B2 → B43/T1 → T20·1。EC-371。'},
   dlc_k: {en:'ECM 85 (LG) → DLC pin 7 · CONSULT-II / GST.', ja:'ECM 85 (LG) → DLCピン7 · CONSULT-II / GST。'},
   ho2s_b1: {en:'Signal B1 → ECM 74 (OR). SNS GND 78.', ja:'信号B1 → ECM 74 (OR)。SNS GND 78。'},
-  ho2s_b1_htr: {en:'Heater B1 → ECM 25. 12V R/B → E108·65G → F3·3.', ja:'ヒータB1 → ECM 25。12V R/B → E108·65G → F3·3。'},
+  ho2s_b1_htr: {en:'Heater control B1 → F11·3. EC-191.', ja:'ヒータ制御 B1 → F11·3。EC-191。'},
+  ho2s_b1_pwr: {en:'HO2S B1 12V: 15A → E108·65G → F3·3 → F11·2. EC-191.', ja:'HO2S B1 12V: 15A → E108·65G → F3·3 → F11·2。EC-191。'},
   ho2s_b2: {en:'Signal B2 → ECM 55 (L/B). SNS GND 78.', ja:'信号B2 → ECM 55 (L/B)。SNS GND 78。'},
-  ho2s_b2_htr: {en:'Heater B2 → ECM 6. Same 12V R/B → F3·3.', ja:'ヒータB2 → ECM 6。同じ12V R/B → F3·3。'},
+  ho2s_b2_htr: {en:'Heater control B2 → F12·3. EC-193.', ja:'ヒータ制御 B2 → F12·3。EC-193。'},
+  ho2s_b2_pwr: {en:'HO2S B2 12V: 15A → E108·65G → F3·3 → F12·2. EC-193.', ja:'HO2S B2 12V: 15A → E108·65G → F3·3 → F12·2。EC-193。'},
   brake_stop: {en:'Brake signal → ECM 101 (L/OR). Stop lamp switch under pedal.', ja:'ブレーキ信号 → ECM 101 (L/OR)。ストップランプSWはペダル下。'},
   ascd_brake: {en:'ASCD brake → ECM 108 (B/R). On M/T the clutch switch is in series on the same signal path.', ja:'ASCDブレーキ → ECM 108 (B/R)。MTではクラッチSWが同信号経路に直列。'},
   ascd_steer: {en:'ASCD steering → ECM 99 (G/Y) via combination switch / clock spring (term. 14). Ground via ECM 67 (B/W) (term. 15).', ja:'ASCDステア → ECM 99 (G/Y)（コンビスイッチ/クロックスプリング端子14）。アースは ECM 67 (B/W)（端子15）。'},
@@ -5008,12 +5016,23 @@ function powerRelatedCircuits(coreIds){
   });
   return extra;
 }
+function attachAlimPathFichas(pathCavByConn, connSet){
+  if(!railRelPowerEnabled()) return;
+  pathCavByConn.forEach((_, cid) => {
+    const f = CONN[cid] || CONN_BASE[cid];
+    if(!f) return;
+    if(f.sub === 'intermedias' || f.sub === 'ipdm') connSet.add(cid);
+  });
+}
 function attachPowerPathFichas(coreIds, connSet, pathCavByConn){
   if(!railRelPowerEnabled()) return;
   powerRelatedCircuits(coreIds).forEach(id => {
     const cir = CIRCUITS.find(c => c.id === id);
     if(!cir) return;
-    (cir.conn || []).forEach(cid => connSet.add(cid));
+    (cir.conn || []).forEach(cid => {
+      const f = CONN[cid] || CONN_BASE[cid];
+      if(f && (f.sub === 'intermedias' || f.sub === 'ipdm' || f.sub === 'feeds')) connSet.add(cid);
+    });
     if(cir.path){
       Object.entries(cir.path).forEach(([cid, cavs]) => {
         if(!pathCavByConn.has(cid)) pathCavByConn.set(cid, new Set());
@@ -5509,6 +5528,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     lines.push(`<div><b style="color:${cir.color}">${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
   attachPowerPathFichas(circIds, connSet, pathCavByConn);
+  attachAlimPathFichas(pathCavByConn, connSet);
   /* Loom filter: drop body/rear fichas when viewing pulled engine harness */
   [...connSet].forEach(cid => { if(!connVisibleInLoom(cid)) connSet.delete(cid); });
   /* Feed card focus: keep related fichas, but ECM label/highlight = control pins only */
@@ -5534,10 +5554,11 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
      Shared SNS 67 on 20H must not open the panel for 66 / 70 / PSP / etc. */
   const f102Allow = f102AllowForCircuits(circIds, focusConn==='ix_f102_m72' ? focusCav : null);
   const f102Hits = f102HitsForEcm(ecmSet, focusPin, f102Allow);
+  const alimF102 = railRelPowerEnabled() && pathCavByConn.has('ix_f102_m72') && connSet.has('ix_f102_m72');
   const collapseF102 = shouldCollapseF102ForBackup(circIds, focusConn)
-    || (focusConn!=='ix_f102_m72' && !f102Hits.length);
-  /* Drop empty F102 attachment (circuit listed SMJ but no cavity maps to these ECM pins) */
-  if(!f102Hits.length && focusConn!=='ix_f102_m72') connSet.delete('ix_f102_m72');
+    || (focusConn!=='ix_f102_m72' && !f102Hits.length && !alimF102);
+  /* Drop empty F102 attachment unless Alim. 12V path uses it (e.g. inj 17H) */
+  if(!f102Hits.length && focusConn!=='ix_f102_m72' && !alimF102) connSet.delete('ix_f102_m72');
   if(f102Hits.length && !collapseF102){
     connSet.add('ix_f102_m72');
     const bits = f102Hits.map(p=>{

@@ -204,7 +204,27 @@ await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelec
 await clickPin(2);
 {
   const ids = await hlConns();
-  ok(ids.includes('af_b1') && ids.includes('ix_e108_m15') && ids.includes('ix_e12_f3'), `pin 2 heater path (${ids.join(',')})`);
+  ok(ids.includes('af_b1') && !ids.includes('ix_e12_f3'), `pin 2 heater control only (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = true;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+{
+  const ids = await hlConns();
+  ok(ids.includes('ix_e12_f3') || ids.includes('ix_e108_m15'), `pin 2 + Alim. 12V (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = false;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(2);
+{
+  const ids = await hlConns();
+  ok(ids.includes('af_b1'), `pin 2 still A/F (${ids.join(',')})`);
 }
 
 console.log('\nECM 116 opens F103 4-pin grounds (not BATT)');
@@ -243,6 +263,75 @@ await page.evaluate(() => {
 {
   const ids = await hlConns();
   ok(ids.includes('ipdm_e7') && ids.includes('ix_e106_b2'), `pin 117 + Alim. 12V path (${ids.join(',')})`);
+}
+
+console.log('\nECM 6 HO2S B2 heater control vs 12V');
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  if (pwr && pwr.checked) { pwr.checked = false; pwr.dispatchEvent(new Event('change', { bubbles: true })); }
+});
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(6);
+{
+  const ids = await hlConns();
+  ok(ids.includes('ho2s_b2'), `pin 6 includes HO2S B2 (${ids.join(',')})`);
+  ok(!ids.includes('ix_e108_m15') && !ids.includes('ix_e12_f3'), `pin 6 no 12V intermediates (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = true;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+{
+  const ids = await hlConns();
+  ok(ids.includes('ix_e12_f3') || ids.includes('ix_e108_m15'), `pin 6 + Alim. 12V path (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = false;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = false;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+
+console.log('\nInjectors/coils: F3/F102 only with Alim.');
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(21);
+{
+  const ids = await hlConns();
+  ok(ids.includes('inj5') && ids.includes('ix_f221_f33'), `pin 21 inj5+F33 (${ids.join(',')})`);
+  ok(!ids.includes('ix_e12_f3'), `pin 21 no F3 (${ids.join(',')})`);
+  ok(!(await f102Open()), 'pin 21 F102 collapsed');
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = true;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+ok(await f102Open(), 'pin 21 + Alim. opens F102 17H');
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = false;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(62);
+{
+  const ids = await hlConns();
+  ok(ids.includes('coil1'), `pin 62 coil1 (${ids.join(',')})`);
+  ok(!ids.includes('ix_e12_f3'), `pin 62 no F3 (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = true;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+{
+  const ids = await hlConns();
+  ok(ids.includes('ix_e12_f3'), `pin 62 + Alim. F3 (${ids.join(',')})`);
 }
 await page.evaluate(() => {
   const pwr = document.getElementById('railRelPower');
