@@ -1472,7 +1472,9 @@ function buildCircuits(model){
     {id:'fp_relay', title:'Control relé bomba', color:'#ef5350',
       ecm:[113], conn:['ipdm_e8','ix_e108_m15','ix_f102_m72'], path:{ipdm_e8:['40'],ix_e108_m15:['28G'],ix_f102_m72:['6H']}, notes:'Control del relé de bomba (el relé está en el IPDM). Ruta: ECM 113 → F102·6H → E108·28G → E8-40.'},
         {id:'ftt', title:'FTT · temp. tanque', color:'#7e57c2',
-      ecm:[107], conn:['fuel_tank_temp','ix_f102_m72'], notes:'Temperatura del tanque (en la unidad de nivel). Ruta: sensor de temp. → F102/M72 → ECM 107.'},
+      ecm:[107], conn:['fuel_tank_temp','ix_f102_m72','ix_b1_m12'], f102:['25H'],
+      path:{fuel_tank_temp:['4'],ix_f102_m72:['25H'],ix_b1_m12:['36J']},
+      notes:'Temp. tanque. Ruta: B27·4 → B1/M12·36J → F102·25H → ECM 107 GY/R. EC-295.'},
 {id:'dlc_k', title:'DLC · línea K (CONSULT)', color:'#7e57c2',
       ecm:[85], conn:['dlc'], notes:'Línea K del diagnóstico (CONSULT / scanner). Ruta: ECM 85 → DLC pin 7.'},
     {id:'can', title:'CAN / DLC / cluster', color:'#7e57c2',
@@ -1956,7 +1958,7 @@ const CONN_BASE = {
       {id:'33J',code:'—',ecm:null},
       {id:'34J',code:'—',ecm:null},
       {id:'35J',code:'—',ecm:null},
-      {id:'36J',code:'—',ecm:null},
+      {id:'36J',code:'PU/W',ecm:107,lab:'FTT'},
       {id:'37J',code:'G/B',ecm:117,lab:'VENT'},
       {id:'38J',code:'—',ecm:null},
       {id:'39J',code:'—',ecm:null},
@@ -2009,7 +2011,7 @@ const CONN_BASE = {
       {id:'9',lab:'5V',code:'B/OR',ecm:91,rail:'5v'},
       {id:'10',lab:'5V',code:'LG',ecm:90,rail:'5v'}
     ],
-    note:'Intermedia del pedal. Ruta: E113 → E11/F2 → ECM (5V, masas y señales APP).'},
+    note:'F2 está en el arnés motor (PG-55). Pedal E113 en cabina. Ruta APP: E113 → E11/F2 → ECM.'},
   ix_e10_f1:{group:'motor', sub:'intermedias', name:'E10 ↔ F1 · Arranque / marcha atrás / A/C', meta:'9-pin GY · START · REV Y/R · A/C · SC-13/LT-183/EC-717', accent:'#ef6c00', shape:'f1', face:'f1',
     pins:[
       {id:'1',lab:'START',code:'B/Y',ecm:null,rail:'12v',src:'E4·3',srcSub:'ipdm',circ:'starter',
@@ -2138,7 +2140,7 @@ const CONN_BASE = {
     ],
     note:'Puente motor↔carrocería (SMJ). Ruta: CAN 2G/7G · ASCD-B 3G · FPR 28G · MOTRLY 30G · STOP 38G · 12V A/F 65G · SSOFF 69G.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔carrocería', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
   note:'Puente motor↔carrocería (F102↔M72). Incluye FPR 6H · MOTRLY 12H · CAN · freno · ASCD…'},
 
   /* —— Habitáculo / pedales / ASCD —— */
@@ -2202,8 +2204,8 @@ const LOOM_BODY_EXTRA = new Set([
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
   'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9'
 ]);
-/* E10/F1 · E12/F3 battery-tray mates on control loom (REV on E10/F1). E11/F2 APP stays cabin/body. */
-const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e12_f3']); /* E11/F2 = APP cabin path → hidden in Arnès motor */
+/* Battery-tray mates on the pulled engine-control harness (PG-55: F1, F2, F3). Pedal E113 stays cabin. */
+const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);
 function loomView(){
   const el = document.getElementById('loomView');
   if(el && (el.value === 'motor' || el.value === 'all')) return el.value;
