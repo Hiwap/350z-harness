@@ -1401,7 +1401,9 @@ function buildCircuits(model){
       notes:'Luces de marcha atrás (M/T): interruptor F36. Selección: F36 + F102·22H. Alim. 12V: E7-26 → E10/F1·2 → F36 → F102·22H → faros traseros.'},
 
     {id:'gnd_ecm', title:'Tierras ECM → carrocería', color:'#66bb6a',
-      ecm:[1,115,116], conn:['gnd4','e17'], notes:'Tierras de potencia del ECM a la carrocería. Ruta: ECM 1 / 115 / 116 → F103/F151 → masa carrocería (E17).'},
+      ecm:[1,115,116], conn:['gnd4','e17'],
+      path:{gnd4:['A','B','C','D'],e17:['ring']},
+      notes:'Tierras de potencia del ECM. F103/F151 (4 pines): A→1 · B→115 · C→116 · D→E17. No hay 12V en este conector. EC-171.'},
 
     {id:'sns_gnd', title:'SNS GND · HO2S', color:'#ef6c00',
       ecm:[78], conn:[],
@@ -1481,7 +1483,13 @@ function buildCircuits(model){
     {id:'evap_purge', title:'EVAP · purga', color:'#8e24aa',
       ecm:[45], conn:['evap_purge','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7']}, notes:'Válvula de purga del canister. Ruta: 12V (E7-18 → F3) en F5·1 · control F5·2 → ECM 45.'},
     {id:'evap_vent', title:'EVAP · venteo', color:'#6a1b9a',
-      ecm:[117], conn:['evap_vent','ix_e106_b2','ix_b43_t1','ix_t2_b44','ix_b1_m12','ix_f102_m72','ipdm_e7'], path:{evap_vent:['1','2'],ix_e106_b2:['13'],ix_b43_t1:['2'],ix_t2_b44:['9'],ix_b1_m12:['37J'],ix_f102_m72:['29H'],ipdm_e7:['17']}, f102:['29H'], notes:'Válvula de venteo del canister. Ruta: 12V E7-17 → E106/B2·13 → B43/T1·2 → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.'},
+      ecm:[117], conn:['evap_vent','ix_t2_b44','ix_b1_m12','ix_f102_m72'],
+      path:{evap_vent:['2'],ix_t2_b44:['9'],ix_b1_m12:['37J'],ix_f102_m72:['29H']}, f102:['29H'],
+      notes:'Control venteo canister. Ruta: T20·2 → T2/B44·9 → B1/M12·37J → F102·29H → ECM 117. EC-372.'},
+    {id:'evap_vent_pwr', title:'EVAP venteo · 12V', color:'#6a1b9a',
+      ecm:[], conn:['evap_vent','ix_e106_b2','ix_b43_t1','ipdm_e7'],
+      path:{evap_vent:['1'],ix_e106_b2:['13'],ix_b43_t1:['2'],ipdm_e7:['17']},
+      notes:'12V de la válvula de venteo. Ruta: E7-17 → E106/B2·13 → B43/T1·2 → T20·1. EC-371.'},
     {id:'brake_stop', title:'Interruptor de freno', color:'#e53935',
       ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], path:{ix_e108_m15:['38G'],ix_f102_m72:['21H'],stop_lamp:['SIG']}, notes:'Señal de freno al ECM. Ruta: interruptor → E108·38G → F102·21H → ECM 101.'},
     {id:'ascd_brake', title:'ASCD freno (+ embrague M/T)', color:'#fb8c00',
@@ -1683,14 +1691,14 @@ const CONN_BASE = {
   ipdm_legend:{group:'motor', sub:'ipdm', name:'IPDM · Relés y fusibles', meta:'PG-26 · layout FSM', accent:'#ef5350', shape:'ixnote',
     pins:[],
     note:'Referencia rápida del IPDM: relés internos y fusibles. Clave: 77=relé ECM · 81=bomba · 87=mariposa.'},
-  gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4-pin · A/B/C→ECM · D→E17 · EC-169', accent:'#66bb6a', shape:'rect4',
+  gnd4:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4-pin · A/B/C tierras ECM · D→E17 · EC-171', accent:'#66bb6a', shape:'rect4',
     pins:[
-      {id:'A',code:'B',ecm:1,rail:'gnd'},
-      {id:'B',code:'B/W',ecm:115,rail:'gnd'},
-      {id:'C',code:'B/R',ecm:116,rail:'gnd'},
-      {id:'D',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power',lab:'E17',note:'Punto de masa E17 (carrocería).'}
+      {id:'A',code:'B',ecm:1,rail:'gnd',lab:'ECM1'},
+      {id:'B',code:'B/W',ecm:115,rail:'gnd',lab:'ECM115'},
+      {id:'C',code:'B/R',ecm:116,rail:'gnd',lab:'ECM116'},
+      {id:'D',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power',lab:'E17',note:'Masa carrocería E17. No es 12V.'}
     ],
-    note:'Tierras ECM. Ruta: A→1 · B→115 · C→116 · D→E17.'},
+    note:'4 pines de tierra, no de potencia. Ruta: A→ECM 1 · B→115 · C→116 · D→E17. EC-171.'},
   e17:{group:'motor', sub:'power', name:'Masa carrocería · E17', meta:'punto de masa E17', accent:'#66bb6a', shape:'ring',
     pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',src:'body',srcSub:'power',lab:'E17'}]},
   ecm_f101_can:{group:'motor', sub:'power', name:'ECM F101 · CAN', meta:'conector del ECM (mismo pinout que la grilla)', accent:'#7e57c2', shape:'tab2',
@@ -3504,6 +3512,7 @@ const TITLES_I18N = {
   evap_press: {en:'EVAP pressure', ja:'EVAP圧力'},
   evap_purge: {en:'EVAP purge', ja:'EVAPパージ'},
   evap_vent: {en:'EVAP canister vent', ja:'EVAPベント'},
+  evap_vent_pwr: {en:'EVAP vent 12V', ja:'EVAPベント12V'},
   dlc_k: {en:'DLC K-line (CONSULT)', ja:'DLC K線 (CONSULT)'},
   motrly: {en:'MOTRLY ECM 104 ↔ IPDM E9-47 (OR) · via E108 30G · F102 12H (SB). Throttle motor relay (not ECM/SSOFF 111).', ja:'MOTRLY ECM 104 ↔ IPDM E9-47 · E108 30G · F102 12H。スロットルモータリレー（ECM/SSOFF 111ではない）。'},
   brake_stop: {en:'Stop lamp switch', ja:'ストップランプスイッチ'},
@@ -3530,7 +3539,7 @@ const NOTES_I18N = {
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
   app_sig: {en:'APS1→106 · APS2→98 via intermediate E11/F2 (pedal E113→E11/F2→ECM).', ja:'APS1→106 · APS2→98（中間E11/F2経由）。'},
   ac_press: {en:'5V ECM 49 (B/Y) · signal ECM 70 (G/R) · GND ECM 67 B/W (shared SNS · via E10/F1). FSM EC-608.', ja:'5V ECM 49 (B/Y) · 信号 ECM 70 (G/R) · GND ECM 67 B/W（SNS共用 · E10/F1）。FSM EC-608。'},
-  gnd_ecm: {en:'FSM EC POWER SUPPLY AND GROUND CIRCUIT: ECM ground (1 / 115 / 116) → body ground via harness connectors F103, F151.', ja:'FSM EC POWER SUPPLY AND GROUND CIRCUIT：ECM ground（1 / 115 / 116）→ body ground（ハーネスコネクタ F103, F151）。'},
+  gnd_ecm: {en:'ECM grounds 1 / 115 / 116 via F103/F151 (4-pin: A/B/C → ECM, D → E17 body). No 12V on this plug. EC-171.', ja:'ECMアース 1 / 115 / 116 は F103/F151（4ピン: A/B/C→ECM、D→E17）。このコネクタに12Vはない。EC-171。'},
 
   knock: {en:'Signal ECM 15 (W) via intermediate F14/F229 · shield to SNS GND (FSM EC).', ja:'信号 ECM 15 (W) は中間F14/F229経由 · シールドはSNS GNDへ（FSM EC）。'},
   psp: {en:'5V ECM 68 (R/W) · signal ECM 12 (L/W) · GND ECM 67 B/W (shared SNS MAF/IAT/PSP/EVAP). FSM EC-401.', ja:'5V ECM 68 (R/W) · 信号 ECM 12 (L/W) · GND ECM 67 B/W（SNS共用）。FSM EC-401。'},
@@ -3560,7 +3569,8 @@ const NOTES_I18N = {
   tb: {en:'TB motor ± · TPS1/TPS2 · 5V rail 47.', ja:'TBモータ± · TPS1/TPS2 · 5Vレール47。'},
   evap_press: {en:'T21: 5V=L · SIG=W · GND=B/W. At F102: 18H PU→48 · 19H BR/W→32 · 20H B/W→67 (GND-A). EC-379.', ja:'信号 ECM 32 (F102 19H) · 5V ECM 48 (F102 18H) · GND ECM 67 B/W（SNS共用 MAF/IAT/PSP/EVAP · F102 20H）。'},
   evap_purge: {en:'F5 pin1 R/W (ECM relay 12V) · pin2 G/W → ECM 45. EC-360.', ja:'パージソレノイド → ECM 45。'},
-  evap_vent: {en:'EVAP vent valve. Path: 12V E7-17 → E106/B2·13 → B43/T1·2 → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.', ja:'EVAPベント弁。経路: E7-17→E106/B2·13→B43/T1·2→T20·1 · 制御→ECM 117 · EC-367。'},
+  evap_vent: {en:'EVAP vent control: T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117. EC-372.', ja:'EVAPベント制御: T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117。EC-372。'},
+  evap_vent_pwr: {en:'EVAP vent 12V: E7-17 → E106/B2 → B43/T1 → T20·1. EC-371.', ja:'EVAPベント12V: E7-17 → E106/B2 → B43/T1 → T20·1。EC-371。'},
   dlc_k: {en:'ECM 85 (LG) → DLC pin 7 · CONSULT-II / GST.', ja:'ECM 85 (LG) → DLCピン7 · CONSULT-II / GST。'},
   ho2s_b1: {en:'Signal B1 → ECM 74 (OR). SNS GND 78.', ja:'信号B1 → ECM 74 (OR)。SNS GND 78。'},
   ho2s_b1_htr: {en:'Heater B1 → ECM 25. 12V R/B → E108·65G → F3·3.', ja:'ヒータB1 → ECM 25。12V R/B → E108·65G → F3·3。'},
@@ -4134,10 +4144,10 @@ const CONN_I18N = {
   },
 
   gnd4: {
-    en: { name:'F103 ↔ F151 · ECM ground', meta:'ECM 1 / 115 / 116 → body ground · EC POWER SUPPLY AND GROUND',
-      note:'ECM grounds to body. Ruta: ECM 1/115/116 → F103/F151 → body ground.' },
-    ja: { name:'F103 ↔ F151 · ECMアース', meta:'ECM 1 / 115 / 116 → body ground · EC POWER SUPPLY AND GROUND',
-      note:'ECMアース→ボディ。経路: ECM 1/115/116 → F103/F151。' },
+    en: { name:'F103 ↔ F151 · ECM ground', meta:'4-pin · A/B/C → ECM 1/115/116 · D → E17 · no 12V · EC-171',
+      note:'Four ground cavities, not power. A→1 · B→115 · C→116 · D→E17.' },
+    ja: { name:'F103 ↔ F151 · ECMアース', meta:'4ピン · A/B/C→ECM 1/115/116 · D→E17 · 12Vなし · EC-171',
+      note:'4ピンはアースのみ。A→1 · B→115 · C→116 · D→E17。' },
   },
   e17: {
     en: { name:'Body ground (E17)', meta:'FSM: Body ground · ground point E17' },
@@ -5501,7 +5511,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       const isFocus = (isFocusCav || onFocusEcm);
       const gCol = accentForCav(cid, p) || hlGroupColorForCircuits(circIds, focusPin);
       const sibKind = circuitSiblingKindCav(p);
-      const sibOk = isFocus || circuitSiblingAllowed(sibKind);
+      const sibOk = isFocus || onPathFeed || circuitSiblingAllowed(sibKind);
       document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`).forEach(cav=>{
         cav.classList.remove('dim','hl','hl-end','hl-group');
         if(isFocus){ cav.classList.add('hl'); clearHlGroupElColor(cav); }

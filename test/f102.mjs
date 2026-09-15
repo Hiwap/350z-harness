@@ -207,6 +207,49 @@ await clickPin(2);
   ok(ids.includes('af_b1') && ids.includes('ix_e108_m15') && ids.includes('ix_e12_f3'), `pin 2 heater path (${ids.join(',')})`);
 }
 
+console.log('\nECM 116 opens F103 4-pin grounds (not BATT)');
+await page.evaluate(() => {
+  const g = document.getElementById('railRelGnd');
+  if (g && !g.checked) { g.checked = true; g.dispatchEvent(new Event('change', { bubbles: true })); }
+});
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(116);
+{
+  const ids = await hlConns();
+  ok(ids.includes('gnd4'), `pin 116 includes F103/gnd4 (${ids.join(',')})`);
+  ok(!ids.includes('batt_feed'), `pin 116 is not BATT feed (${ids.join(',')})`);
+  ok(await pinMarked(116), '116 marked');
+  ok(await pinMarked(1) && await pinMarked(115), '1 and 115 in the same ground pack');
+}
+
+console.log('\nECM 117 vent control vs 12V path');
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  if (pwr && pwr.checked) { pwr.checked = false; pwr.dispatchEvent(new Event('change', { bubbles: true })); }
+});
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(117);
+{
+  const ids = await hlConns();
+  ok(ids.includes('evap_vent') && ids.includes('ix_t2_b44') && ids.includes('ix_b1_m12'), `pin 117 control path (${ids.join(',')})`);
+  ok(await f102Open(), 'pin 117 opens F102 (29H)');
+  ok(!ids.includes('ipdm_e7') && !ids.includes('ix_e106_b2') && !ids.includes('ix_b43_t1'), `pin 117 no 12V intermediates (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = true;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+{
+  const ids = await hlConns();
+  ok(ids.includes('ipdm_e7') && ids.includes('ix_e106_b2'), `pin 117 + Alim. 12V path (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = false;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);
