@@ -412,6 +412,7 @@
   .conn-svg { width: auto; height: auto; max-width: 100%; display: block; margin: 0 auto 2px; }
   .cav-hit { cursor: pointer; pointer-events: all; }
   .cav-hit .cav-face { pointer-events: all; }
+  .cav-hit.cav-noclick { cursor: default; pointer-events: none; }
   .cav-hit.hl .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.hl-end .cav-face { stroke: var(--hl2) !important; stroke-width: 2.5; }
   .cav-hit.hl-group .cav-face { stroke: var(--hl-group-color, #ab47bc) !important; stroke-width: 2; }
@@ -1393,7 +1394,17 @@ function buildCircuits(model){
     {id:'ac_press', title:'A/C · presión refrigerante', color:'#ef6c00',
       ecm:[49,70,67], conn:['ac_press','ix_e10_f1'], notes:'Sensor de presión A/C: 5V, señal y masa compartida SNS. Ruta: 5V ECM 49 · señal 70 · GND 67 (vía E10/F1).'},
     {id:'starter', title:'Motor de arranque', color:'#ef5350',
-      ecm:[], conn:['ix_e10_f1','ipdm_e4'], notes:'Arranque: 12V del IPDM al motor de arranque. Ruta: E4-3 → E10/F1·1 → F9.'},
+      ecm:[], conn:['f9_starter','ix_e10_f1','ipdm_e4'],
+      path:{ipdm_e4:['3'],ix_e10_f1:['1'],f9_starter:['1']},
+      notes:'Arranque. Ruta: E4-3 B/Y → E10/F1·1 → F9·1 · SC-13.'},
+    {id:'alt_sl', title:'Alternador S/L', color:'#ffa726',
+      ecm:[], conn:['f20_alt','ix_e11_f2','ix_f102_m72'], f102:['13H'],
+      path:{f20_alt:['3','4'],ix_e11_f2:['1'],ix_f102_m72:['13H']},
+      notes:'Alternador. S: F20·4 LG/B → E11/F2·1. L: F20·3 W/R → F102·13H → cluster. SC-22.'},
+    {id:'ac_clutch', title:'A/C · embrague compresor', color:'#29b6f6',
+      ecm:[], conn:['f24_comp','ipdm_e8'],
+      path:{ipdm_e8:['33'],f24_comp:['1']},
+      notes:'Embrague A/C. Ruta: IPDM E8-33 L/Y → F24·1 · ATC-80.'},
 
     {id:'backup_lamp', title:'Luces de marcha atrás (M/T)', color:'#ffb300',
       ecm:[], conn:['backup_sw','ix_f102_m72'], f102:['22H'],
@@ -1613,17 +1624,17 @@ const CONN_BASE = {
     pins:[
       {id:'17',code:'W/L',ecm:null,rail:'12v',src:'ECM-RLY',srcSub:'ipdm',note:'Salida relé ECM (W/L): bobinas/VTC adm vía E7-17 → F3 · VTC escape (magnet retarder) · venteo EVAP vía E106/B2 → B43/T1 · EC-167 / EC-198 / EC-367.',note_en:'ECM relay out (W/L): coils via E7-17 → F3; also EVAP vent 12V via E106/B2 → B43/T1 · EC-167 / EC-367.',note_ja:'ECMリレー出力 (W/L): コイルはE7-17→F3、EVAPベントはE106/B2→B43/T1 · EC-167/EC-367。'},
       {id:'18',code:'R/W',ecm:119,rail:'12v',note:'VB alimentación ECM (R/W) → ECM 119; también ECM 120 vía E12/F3 (P) · EC-167.',note_en:'ECM VB power (R/W) → ECM 119; also ECM 120 via E12/F3 (P) · EC-167.',note_ja:'ECM VB電源 (R/W) → ECM 119; E12/F3経由で ECM 120 (P) · EC-167。'},
-      {id:'19',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'19',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'20',src:'HL·LO',srcSub:'ipdm',code:'R',ecm:null,rail:'12v',note:'Luz baja faro RH (R) → front combination lamp RH · LT-16/47.',note_en:'Headlamp low RH (R) → front combination lamp RH · LT-16/47.',note_ja:'ヘッドランプLo RH (R) · LT-16/47。'},
       {id:'21',src:'WIP·LO',srcSub:'ipdm',code:'PU',ecm:null,rail:'12v',note:'Limpia parabrisas LO (PU) → motor limpia · WW-15.',note_en:'Front wiper low (PU) → wiper motor · WW-15.',note_ja:'ワイパーLo (PU) · WW-15。'},
       {id:'22',src:'TAIL',srcSub:'ipdm',code:'R/L',ecm:null,rail:'12v',note:'Luces de posición / matrícula / cola (R/L) · LT-197.',note_en:'Parking / license / tail lamps (R/L) · LT-197.',note_ja:'車幅灯/ライセンス/テール (R/L) · LT-197。'},
-      {id:'23',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
-      {id:'24',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'23',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
+      {id:'24',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'25',src:'F89',srcSub:'feeds',code:'G/Y',ecm:null,rail:'12v',note:'Alimentación interlock embrague M/T / fusible 89 (G/Y) · SC-13.',note_en:'Clutch interlock power (M/T) / fuse 89 (G/Y) · SC-13.',note_ja:'クラッチインターロック電源 (M/T) / ヒューズ89 (G/Y) · SC-13。'},
       {id:'26',src:'F83',srcSub:'feeds',code:'G/W',ecm:null,rail:'12v',circ:'backup_lamp',note:'Feed luz marcha atrás (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fusible 83.',note_en:'Back-up lamp feed (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fuse 83.',note_ja:'バックランプ給電 (G/W) → E10/F1 cav2 → F36 · LT-183。'},
       {id:'27',src:'HL·HI',srcSub:'ipdm',code:'BR',ecm:null,rail:'12v',note:'Luz alta faro RH (BR) · LT-16/47.',note_en:'Headlamp high RH (BR) · LT-16/47.',note_ja:'ヘッドランプHi RH (BR) · LT-16/47。'},
       {id:'28',src:'HL·HI',srcSub:'ipdm',code:'R/Y',ecm:null,rail:'12v',note:'Luz alta faro LH (R/Y) · LT-16/47.',note_en:'Headlamp high LH (R/Y) · LT-16/47.',note_ja:'ヘッドランプHi LH (R/Y) · LT-16/47。'},
-      {id:'29',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'29',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'30',src:'HL·LO',srcSub:'ipdm',code:'R/B',ecm:null,rail:'12v',note:'Luz baja faro LH (R/B) · LT-16/47.',note_en:'Headlamp low LH (R/B) · LT-16/47.',note_ja:'ヘッドランプLo LH (R/B) · LT-16/47。'},
       {id:'31',src:'WIP·HI',srcSub:'ipdm',code:'L/B',ecm:null,rail:'12v',note:'Limpia parabrisas HI (L/B) · WW-15.',note_en:'Front wiper high (L/B) · WW-15.',note_ja:'ワイパーHi (L/B) · WW-15。'},
       {id:'32',src:'WIP·AS',srcSub:'ipdm',code:'L/Y',ecm:null,rail:'12v',note:'Señal auto-stop limpia (L/Y) · WW-15.',note_en:'Wiper auto-stop signal (L/Y) · WW-15.',note_ja:'ワイパーオートストップ (L/Y) · WW-15。'}
@@ -1632,14 +1643,14 @@ const CONN_BASE = {
   ipdm_e8:{group:'motor', sub:'ipdm', name:'IPDM E8 · Bomba / mariposa / A/C', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8',
     pins:[
       {id:'33',src:'A/C·RLY',srcSub:'ipdm',code:'L/Y',ecm:null,rail:'12v',note:'Salidas E8: A/C, VMOT, bomba, etc.',note_en:'A/C compressor magnet clutch (L/Y) → compressor pin1 · ATC-81.',note_ja:'A/Cマグネットクラッチ (L/Y) · ATC-81。'},
-      {id:'34',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'34',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'35',src:'HORN',srcSub:'ipdm',code:'LG',ecm:null,rail:'12v',note:'Relé bocina (E21 fusible/relé) LG · WW-56.',note_en:'Horn relay (E21 fuse/relay block) LG · WW-56.',note_ja:'ホーンリレー（E21）LG · WW-56。'},
-      {id:'36',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
-      {id:'37',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'36',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
+      {id:'37',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'38',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra de potencia IPDM → body E17 (B) · PG-27 / LT-16.',note_en:'IPDM power ground → body E17 (B) · PG-27 / LT-16.',note_ja:'IPDMパワーアース → ボディ E17 (B) · PG-27。'},
       {id:'39',src:'F81',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',note:'Salida relé bomba combustible (B/Y) → bomba pin1 / condensador · EC-710.',note_en:'Fuel pump relay output (B/Y) → pump pin1 / condenser · EC-710.',note_ja:'フューエルポンプリレー出力 (B/Y) · EC-710。'},
       {id:'40',code:'L/W',ecm:113,rail:'12v',note:'Control bobina relé bomba (L/W) → ECM 113 vía E108/M15 · M72/F102 · EC-710.',note_en:'Fuel pump relay coil control (L/W) → ECM 113 via E108/M15 · M72/F102 · EC-710.',note_ja:'フューエルポンプリレー制御 (L/W) → ECM 113 · EC-710。'},
-      {id:'41',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'41',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'42',code:'G',ecm:3,rail:'12v',lab:'VMOT',note:'VMOT control relé motor mariposa (G) → ECM 3 vía E12/F3 · EC-472.',note_en:'Throttle motor relay control VMOT (G) → ECM 3 via E12/F3 · EC-472.',note_ja:'スロットルモータリレー制御 VMOT (G) → ECM 3 · EC-472。'},
       {id:'43',src:'IGN',srcSub:'power',code:'G/R',ecm:null,rail:'12v',note:'IGN ON (ruta Canada DTRL) (G/R) · LT-80 · confianza media.',note_en:'Ign ON (Canada DTRL path) (G/R) · LT-80 · medium confidence.',note_ja:'IGN ON（カナダDTRL）(G/R) · LT-80 · 中確度。'},
       {id:'44',src:'WASH',srcSub:'ipdm',code:'OR',ecm:null,rail:'12v',note:'Alimentación motor lava-parabrisas (OR) · WW-15.',note_en:'Washer motor power (OR) · WW-15.',note_ja:'ウォッシャーモータ電源 (OR) · WW-15。'}
@@ -1647,7 +1658,7 @@ const CONN_BASE = {
     note:'IPDM E8: VMOT · bomba · A/C · bocina · masa.'},
   ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9',
     pins:[
-      {id:'45',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'45',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'46',code:'W/B',ecm:111,rail:'12v',lab:'SSOFF',note:'SSOFF auto-apagado relé ECM (W/B) → ECM 111 vía E108/M15 · M72/F102 · EC-167.',note_en:'ECM relay self shut-off SSOFF (W/B) → ECM 111 via E108/M15 · M72/F102 · EC-167.',note_ja:'ECMリレー自己遮断 SSOFF (W/B) → ECM 111 · EC-167。'},
       {id:'47',code:'OR',ecm:104,rail:'12v',lab:'MOTRLY',note:'MOTRLY alimentación relé mariposa (OR) → ECM 104 vía E108/M15 · M72/F102 · EC-472.',note_en:'Throttle motor relay power MOTRLY (OR) → ECM 104 via E108/M15 · M72/F102 · EC-472.',note_ja:'スロットルモータリレー電源 MOTRLY (OR) → ECM 104 · EC-472。'},
       {id:'48',code:'L',ecm:94,note:'CAN-H (L) → ECM 94 / bus CAN vía E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_en:'CAN-H (L) → ECM 94 / CAN bus via E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_ja:'CAN-H (L) → ECM 94 · LAN-49 / EC-509。'},
@@ -1656,12 +1667,12 @@ const CONN_BASE = {
       {id:'51',src:'HORN',srcSub:'ipdm',code:'G/B',ecm:null,note:'Control relé bocina (HORN RLY) G/B → E21 · WW-56.',note_en:'Horn relay control (HORN RLY) G/B → E21 · WW-56.',note_ja:'ホーンリレー制御 (HORN RLY) G/B → E21 · WW-56。'},
       {id:'52',src:'DEF',srcSub:'ipdm',code:'G/R',ecm:null,rail:'12v',note:'Desempañador luneta trasera (G/R) · GW-68/76.',note_en:'Rear window defogger (G/R) · GW-68/76.',note_ja:'リヤデフォッガ (G/R) · GW-68/76。'},
       {id:'53',src:'STR·EN',srcSub:'ipdm',code:'GY/R',ecm:null,rail:'12v',note:'Enable relé arranque (GY/R) · interlock embrague M/T pin2 / TCM A/T · SC-13/14.',note_en:'Starter relay enable (GY/R) · clutch interlock M/T pin2 / TCM A/T · SC-13/14.',note_ja:'スタータリレー許可 (GY/R) · SC-13/14。'},
-      {id:'54',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
-      {id:'55',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
-      {id:'56',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
-      {id:'57',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
-      {id:'58',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
-      {id:'59',code:'?',ecm:null,unknown:true,note:'—',note_en:'—',note_ja:'—'},
+      {id:'54',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
+      {id:'55',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
+      {id:'56',code:'—',ecm:null,lab:'HOOD',note:'Interruptor capó · PG-25.',note_en:'Hood switch · PG-25.',note_ja:'フードスイッチ · PG-25。'},
+      {id:'57',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
+      {id:'58',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
+      {id:'59',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'60',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra señal IPDM → body E17 (B) · PG-27 / LT-16.',note_en:'IPDM signal ground → body E17 (B) · PG-27 / LT-16.',note_ja:'IPDM信号アース → ボディ E17 (B) · PG-27。'}
     ],
     note:'IPDM E9: SSOFF · MOTRLY · CAN · masas · arranque/defog.'},
@@ -1778,6 +1789,42 @@ const CONN_BASE = {
   psp:{group:'motor', sub:'sensors', name:'PSP · Presión dirección', meta:'3-pin · 5V=68 · SIG=12 · GND=67', accent:'#00897b', shape:'tab3',
     pins:[{id:'1',code:'R/W',ecm:68,rail:'5v',lab:'5V'},{id:'2',code:'L/W',ecm:12,lab:'SIG'},{id:'3',code:'B/W',ecm:67,rail:'gnd',lab:'GND'}],
     note:'Sensor PSP. Ruta: 5V ECM 68 · señal 12 · GND 67.'},
+  f20_alt:{group:'motor', sub:'sensors', name:'F20 · Alternador S/L', meta:'GY/2 · pines 3-4 · SC-22', accent:'#ffa726', shape:'tab2',
+    pins:[
+      {id:'3',lab:'L',code:'W/R',src:'F102·13H',srcSub:'intermedias'},
+      {id:'4',lab:'S',code:'LG/B',src:'E11/F2·1',srcSub:'pedals'}
+    ],
+    note:'Alternador (cara FSM 3|4). S LG/B → E11/F2·1 · L W/R → F102·13H · SC-22.'},
+  f21_oilp:{group:'motor', sub:'sensors', name:'F21 · Presión aceite', meta:'B/3 · PG-55', accent:'#6d4c41', shape:'tab3',
+    pins:[{id:'1',code:'—',ecm:null},{id:'2',code:'—',ecm:null},{id:'3',code:'—',ecm:null}],
+    note:'Sensor presión de aceite · F21 B/3 · PG-55.'},
+  f9_starter:{group:'motor', sub:'actuators', name:'F9 · Motor arranque', meta:'GY/1 · SC-13', accent:'#ef5350', shape:'tab2',
+    pins:[{id:'1',lab:'START',code:'B/Y',ecm:null,rail:'12v',src:'E4·3',srcSub:'ipdm',circ:'starter'}],
+    note:'Arranque. Ruta: IPDM E4-3 B/Y → E10/F1·1 → F9·1 · SC-13. E203 es el perno B+.'},
+  f16_cond:{group:'motor', sub:'actuators', name:'F16 · Condensador ignición', meta:'W/2 · PG-35/55', accent:'#90a4ae', shape:'tab2',
+    pins:[{id:'1',code:'—',ecm:null},{id:'2',code:'—',ecm:null}],
+    note:'Condensador de ignición · F16 W/2 · PG-35/55.'},
+  f23_gnd:{group:'motor', sub:'power', name:'F23 · Masa motor', meta:'PG-35 · engine ground', accent:'#66bb6a', shape:'ring',
+    pins:[{id:'ring',code:'B',ecm:null,rail:'gnd',lab:'F23'}],
+    note:'Punto de masa del arnés de control motor · PG-35.'},
+  f24_comp:{group:'motor', sub:'actuators', name:'F24 · Compresor A/C', meta:'B/1 · ATC-80', accent:'#29b6f6', shape:'tab2',
+    pins:[{id:'1',lab:'CLUTCH',code:'L/Y',ecm:null,rail:'12v',src:'E8·33',srcSub:'ipdm',circ:'ac_clutch'}],
+    note:'Embrague magnético. Ruta: IPDM E8-33 L/Y → F24·1 · ATC-80.'},
+  f38_evtc_b1:{group:'motor', sub:'sensors', name:'F38 · EVT pos. B1', meta:'GY/2 · 35th *1 · PG-55', accent:'#ad1457', shape:'tab2',
+    pins:[{id:'1',code:'—',ecm:null},{id:'2',code:'—',ecm:null}],
+    note:'Sensor posición VTC escape B1 · F38 GY/2 · PG-55 *1 (35th Anniversary M/T = Rev-Up).'},
+  f42_evtc_b2:{group:'motor', sub:'sensors', name:'F42 · EVT pos. B2', meta:'GY/3 · 35th *1 · PG-55', accent:'#ad1457', shape:'tab3',
+    pins:[{id:'1',code:'—',ecm:null},{id:'2',code:'—',ecm:null},{id:'3',code:'—',ecm:null}],
+    note:'Sensor posición VTC escape B2 · F42 GY/3 · PG-55 *1 (35th Anniversary M/T = Rev-Up).'},
+  f232_eot:{group:'motor', sub:'sensors', name:'F232 · Temp. aceite', meta:'GY/2 · 35th *1 · PG-55', accent:'#6d4c41', shape:'tab2',
+    pins:[{id:'1',code:'—',ecm:null},{id:'2',code:'—',ecm:null}],
+    note:'Sensor temperatura de aceite · F232 GY/2 · PG-55 *1 (35th Anniversary M/T = Rev-Up).'},
+  f6_at:{group:'motor', sub:'actuators', name:'F6 · A/T assembly', meta:'GY/10 · con A/T · PG-55', accent:'#7e57c2', shape:'rect10',
+    pins:[
+      {id:'1',code:'—',ecm:null},{id:'2',code:'—',ecm:null},{id:'3',code:'—',ecm:null},{id:'4',code:'—',ecm:null},{id:'5',code:'—',ecm:null},
+      {id:'6',code:'—',ecm:null},{id:'7',code:'—',ecm:null},{id:'8',code:'—',ecm:null},{id:'9',code:'—',ecm:null},{id:'10',code:'—',ecm:null}
+    ],
+    note:'Conector A/T · F6 GY/10 · PG-55.'},
 
   /* —— Actuadores motor —— */
   coil1:{group:'motor', sub:'actuators', name:'Bobina 1', meta:'ECM62 Y/R · F203', accent:'#f57f17', shape:'tab3',
@@ -1820,7 +1867,7 @@ const CONN_BASE = {
   evap_vent:{group:'motor', sub:'actuators', name:'EVAP · Venteo', meta:'T20 · vent · ECM 117 · P0447/P1446', accent:'#6a1b9a', shape:'tab2',
     pins:[{id:'1',code:'W/R',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},{id:'2',code:'G',ecm:117,lab:'CTRL'}],
     note:'Válvula venteo EVAP. Ruta: 12V E7-17 (W/L) → E106/B2 → B43/T1 (W/R) → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.',},
-  ix_e106_b2:{group:'motor', sub:'intermedias', name:'E106 ↔ B2 · EVAP venteo 12V', meta:'18-pin W · H.S. B2 · pin 13 · EC-367', accent:'#90a4ae', shape:'b2', face:'b2',
+  ix_e106_b2:{group:'motor', sub:'intermedias', name:'E106 ↔ B2', meta:'18-pin W · motor↔habitáculo · PG-52/58 · EC-367 · LT-193', accent:'#90a4ae', shape:'b2', face:'b2',
     pins:[
       {id:'1',code:'—',ecm:null},
       {id:'2',code:'—',ecm:null},
@@ -1832,27 +1879,27 @@ const CONN_BASE = {
       {id:'8',code:'—',ecm:null},
       {id:'9',code:'—',ecm:null},
       {id:'10',code:'—',ecm:null},
-      {id:'11',code:'—',ecm:null},
+      {id:'11',code:'R/L',ecm:null,rail:'12v',lab:'TAIL',src:'IPDM',srcSub:'ipdm'},
       {id:'12',code:'—',ecm:null},
-      {id:'13',code:'W/L',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},
+      {id:'13',code:'W/L',ecm:null,rail:'12v',lab:'VENT+',src:'E7·17',srcSub:'ipdm'},
       {id:'14',code:'—',ecm:null},
       {id:'15',code:'—',ecm:null},
       {id:'16',code:'—',ecm:null},
       {id:'17',code:'—',ecm:null},
       {id:'18',code:'—',ecm:null}
     ],
-    note:'Intermedia E106/B2 (18 pines). 12V venteo: pin 13 (W/L) desde E7-17 → B43/T1 · EC-367.'},
-  ix_b43_t1:{group:'body', sub:'intermedias', name:'B43 ↔ T1 · EVAP venteo 12V', meta:'6-pin W · H.S. B43 · pin 2 · EC-367', accent:'#90a4ae', shape:'b43', face:'b43',
+    note:'E106/B2 (18 pines, W). FSM: 11 R/L cola (LT-193) · 13 W/L 12V venteo E7-17 (EC-367). Resto no sale en esos diagramas.'},
+  ix_b43_t1:{group:'body', sub:'intermedias', name:'B43 ↔ T1', meta:'6-pin W · cola · PG-58/63 · EC-367 · LT · BL', accent:'#90a4ae', shape:'b43', face:'b43',
     pins:[
-      {id:'1',code:'—',ecm:null},
-      {id:'2',code:'W/R',ecm:null,rail:'12v',lab:'12V',src:'E7·17',srcSub:'ipdm'},
-      {id:'3',code:'—',ecm:null},
-      {id:'4',code:'—',ecm:null},
-      {id:'5',code:'—',ecm:null},
-      {id:'6',code:'—',ecm:null}
+      {id:'1',code:'B',ecm:null,rail:'gnd',lab:'GND',src:'T14',srcSub:'power'},
+      {id:'2',code:'W/R',ecm:null,rail:'12v',lab:'VENT+',src:'E7·17',srcSub:'ipdm'},
+      {id:'3',code:'R/W',ecm:null,lab:'TURN-RH'},
+      {id:'4',code:'G/Y',ecm:null,lab:'TURN-LH'},
+      {id:'5',code:'W/L',ecm:null,lab:'F/LID'},
+      {id:'6',code:'B',ecm:null,rail:'gnd',lab:'GND',src:'T14',srcSub:'power'}
     ],
-    note:'Intermedia B43/T1 (6 pines, coupe). 12V venteo: pin 2 (W/R) → T20·1 · EC-367.'},
-  ix_t2_b44:{group:'motor', sub:'intermedias', name:'T2 ↔ B44 · EVAP venteo', meta:'16-pin W · H.S. B44 · pin 9 VENT · EC-367', accent:'#90a4ae', shape:'b44', face:'b44',
+    note:'B43/T1 (6 pines). 1/6 B masa · 2 W/R 12V venteo · 3 R/W inter. RH · 4 G/Y inter. LH · 5 W/L tapa nafta. LT-153/154/179 · BL-54 · EC-367.'},
+  ix_t2_b44:{group:'motor', sub:'intermedias', name:'T2 ↔ B44', meta:'16-pin W · cola · PG-58/63 · EC-367 · LT', accent:'#90a4ae', shape:'b44', face:'b44',
     pins:[
       {id:'1',code:'—',ecm:null},
       {id:'2',code:'—',ecm:null},
@@ -1865,13 +1912,13 @@ const CONN_BASE = {
       {id:'9',code:'G',ecm:117,lab:'VENT'},
       {id:'10',code:'—',ecm:null},
       {id:'11',code:'—',ecm:null},
-      {id:'12',code:'—',ecm:null},
-      {id:'13',code:'—',ecm:null},
-      {id:'14',code:'—',ecm:null},
+      {id:'12',code:'LG',ecm:null,lab:'BACK',src:'F102·22H',srcSub:'actuators'},
+      {id:'13',code:'R/L',ecm:null,rail:'12v',lab:'TAIL',src:'E106·11',srcSub:'intermedias'},
+      {id:'14',code:'P/L',ecm:null,lab:'STOP'},
       {id:'15',code:'—',ecm:null},
       {id:'16',code:'—',ecm:null}
     ],
-    note:'Intermedia T2/B44 (16 pines). Control venteo: pin 9 (G) → B1/M12 · EC-367.'},
+    note:'T2/B44 (16 pines). FSM: 9 G venteo ECM 117 · 12 LG marcha atrás · 13 R/L cola · 14 P/L freno. EC-367 · LT-179/182/194.'},
   ix_b1_m12:{group:'body', sub:'intermedias', name:'B1 ↔ M12 · SMJ body', meta:'SMJ 69J · PG-84 · pin 37J VENT · EC-367', accent:'#90a4ae', shape:'b1', face:'smj_j',
     pins:[
       {id:'1J',code:'—',ecm:null},
@@ -1953,7 +2000,7 @@ const CONN_BASE = {
   /* —— ix_* paths: single-purpose in their sub; multi stay in intermedias —— */
   ix_e11_f2:{group:'body', sub:'pedals', name:'E11 ↔ F2 · APP pedal', meta:'10-pin GY · E113→E11/F2→ECM · EC-523', accent:'#f9a825', shape:'rect10', face:'f2',
     pins:[
-      {id:'1',code:'—',ecm:null},
+      {id:'1',lab:'ALT-S',code:'LG/B',ecm:null,src:'F20·4',srcSub:'sensors'},
       {id:'2',lab:'GND',code:'G/R',ecm:83,rail:'gnd'},
       {id:'3',code:'G/B',ecm:98},
       {id:'4',lab:'GND',code:'G/Y',ecm:82,rail:'gnd'},
@@ -2091,7 +2138,7 @@ const CONN_BASE = {
     ],
     note:'Puente motor↔carrocería (SMJ). Ruta: CAN 2G/7G · ASCD-B 3G · FPR 28G · MOTRLY 30G · STOP 38G · 12V A/F 65G · SSOFF 69G.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔carrocería', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'—',ecm:null},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'—',ecm:null},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'—',ecm:null},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
   note:'Puente motor↔carrocería (F102↔M72). Incluye FPR 6H · MOTRLY 12H · CAN · freno · ASCD…'},
 
   /* —— Habitáculo / pedales / ASCD —— */
@@ -2180,7 +2227,8 @@ function activeConnIds(model){
   const hide = new Set(['orange_box','blue_box','ix_f102_m72','ipdm_legend','ix_f103_f151']);
   let ids = Object.keys(CONN_BASE).filter(id => !hide.has(id));
   if(model === 'de_early'){
-    ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2');
+    ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2'
+      && id !== 'f38_evtc_b1' && id !== 'f42_evtc_b2' && id !== 'f232_eot');
   }
   ids = ids.filter(id => connVisibleInLoom(id, CONN_BASE[id]));
   return ids;
@@ -2398,8 +2446,9 @@ function cavGroup(cid, pin, x, y, w, h, rx){
     : (wireLetters
         ? wireCodeSvg(wireLetters, x+w/2, codeY, 'cav-sub cav-code', true, codeSw)
         : `<text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" ${ink('#78909c')} font-size="${h<30?9:11}" font-weight="700">·</text>`);
-  const cavCls = (h < 30 ? ' cav-compact' : '') + (isUnk ? ' cav-unknown' : '');
-  return `<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr} role="button">
+  const noClick = typeof cavClickable === 'function' ? !cavClickable(cid, pin) : false;
+  const cavCls = (h < 30 ? ' cav-compact' : '') + (isUnk ? ' cav-unknown' : '') + (noClick ? ' cav-noclick' : '');
+  return `<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr}${noClick ? '' : ' role="button"'}>
     ${defs}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
@@ -3476,7 +3525,9 @@ const TITLES_I18N = {
   app_5v: {en:'APP 5V + A/C · EVAP · PSP rails', ja:'APP 5V + A/C · EVAP · PSPレール'},
   app_gnd: {en:'APP grounds', ja:'APPアース'},
   app_sig: {en:'APP signals APS1/APS2', ja:'APP信号 APS1/APS2'},
-  starter: {en:'Starter motor (B/Y)', ja:'スタータ (B/Y)'},
+  starter: {en:'Starter F9 · E4-3 → E10/F1 → F9 · SC-13', ja:'スタータ F9 · SC-13'},
+  alt_sl: {en:'Alternator S/L · F20 · SC-22', ja:'オルタネータ S/L · F20 · SC-22'},
+  ac_clutch: {en:'A/C clutch · IPDM E8-33 → F24 · ATC-80', ja:'A/Cクラッチ · E8-33 → F24 · ATC-80'},
   start_sig: {en:'Start signal (START)', ja:'スタート信号 (START)'},
   backup_lamp: {en:'Back-up / reverse lamp (M/T)', ja:'バックランプ / リバース (M/T)'},
   ac_press: {en:'A/C refrigerant pressure', ja:'A/C冷媒圧力'},
@@ -3804,7 +3855,7 @@ function makeF102PinEl(pin){
   d.innerHTML = `<span class="pn">${esc(ecmTop)}</span><small class="pw">${midHtml}</small><span class="dest${blc?' '+blc:''}">${esc(bot)}</span>`;
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
   d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}`;
-  if(hasWire){
+  if(hasWire && cavClickable('ix_f102_m72', pin)){
     d.onclick = (ev) => { ev.stopPropagation(); selectConnPin('ix_f102_m72', pin.id); };
   }
   return d;
@@ -4203,9 +4254,9 @@ const CONN_I18N = {
   vtc_ex_b2: { en:{name:'VTC exhaust B2', meta:'Rev-Up · exhaust LH'}, ja:{name:'VTC排気ソレノイド B2', meta:'Rev-Up · 排気 左'} },
   evap_purge: { en:{name:'EVAP · Purge solenoid', meta:'solenoid'}, ja:{name:'EVAP · パージソレノイド', meta:'ソレノイド'} },
   evap_vent: { en:{name:'EVAP vent', meta:'canister vent · ECM 117'}, ja:{name:'EVAPベント', meta:'キャニスタベント · ECM 117'} },
-  ix_e106_b2: { en:{name:'E106 ↔ B2 · EVAP vent 12V', meta:'18-pin · pin 13 · EC-367'}, ja:{name:'E106 ↔ B2 · EVAPベント12V', meta:'18ピン · pin13 · EC-367'} },
-  ix_b43_t1: { en:{name:'B43 ↔ T1 · EVAP vent 12V', meta:'6-pin · pin 2 · EC-367'}, ja:{name:'B43 ↔ T1 · EVAPベント12V', meta:'6ピン · pin2 · EC-367'} },
-  ix_t2_b44: { en:{name:'T2 ↔ B44 · EVAP vent', meta:'16-pin · pin 9 VENT · EC-367'}, ja:{name:'T2 ↔ B44 · EVAPベント', meta:'16ピン · pin9 · EC-367'} },
+  ix_e106_b2: { en:{name:'E106 ↔ B2', meta:'18-pin W · cabin/engine · 11 tail R/L · 13 vent 12V'}, ja:{name:'E106 ↔ B2', meta:'18ピン W · 11テール · 13ベント12V'} },
+  ix_b43_t1: { en:{name:'B43 ↔ T1', meta:'6-pin W · 1/6 GND · 2 vent+ · 3/4 turn · 5 fuel lid'}, ja:{name:'B43 ↔ T1', meta:'6ピン · 1/6 GND · 2ベント+ · 3/4ウインカ · 5給油口'} },
+  ix_t2_b44: { en:{name:'T2 ↔ B44', meta:'16-pin W · 9 vent · 12 backup · 13 tail · 14 stop'}, ja:{name:'T2 ↔ B44', meta:'16ピン · 9ベント · 12バック · 13テール · 14ストップ'} },
   ix_b1_m12: { en:{name:'B1 ↔ M12 · SMJ body', meta:'69J SMJ · pin 37J · PG-84'}, ja:{name:'B1 ↔ M12 · SMJ', meta:'69J · pin37J · PG-84'} },
   pnp: { en:{name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y'}, ja:{name:'PNP / インヒビタSW', meta:'A/T · ECM 102 BR/Y'} },
   app: {
@@ -4263,7 +4314,10 @@ function makeFichaEl(id, f){
     if(cav && wrap.contains(cav)){
       e.preventDefault();
       e.stopPropagation();
-      selectConnPin(cav.dataset.conn || id, cav.dataset.cav);
+      const cavId = cav.dataset.cav;
+      const pin = (f.pins || []).find(x => String(x.id) === String(cavId));
+      if(!cavClickable(id, pin)) return;
+      selectConnPin(cav.dataset.conn || id, cavId);
       return;
     }
     selectConn(id);
@@ -4872,6 +4926,20 @@ function cavHasWire(pin){
   const code = String(pin.code == null ? '' : pin.code).trim();
   if(!code || code === '—' || code === '-' || code === 'nc' || code === '·' || code === '?') return false;
   return true;
+}
+function pinOnKnownCircuit(cid, pin){
+  if(!pin) return false;
+  if(pin.ecm != null) return true;
+  if(pin.circ) return true;
+  const id = String(pin.id);
+  return (CIRCUITS || []).some(cir => {
+    const path = cir.path && cir.path[cid];
+    return !!(path && path.map(String).includes(id));
+  });
+}
+function cavClickable(cid, pin){
+  if(!cavHasWire(pin)) return false;
+  return pinOnKnownCircuit(cid, pin);
 }
 /** Related pin kind: 'gnd' | 'data' | null (skip empty + other power rails). */
 function railRelKindForEcm(p){
@@ -5747,6 +5815,9 @@ function selectConn(cid){
 }
 
 function selectConnPin(cid, cavId, opts){
+  const conf0 = CONN[cid] || CONN_BASE[cid];
+  const pin0 = (conf0 && conf0.pins || []).find(x => String(x.id) === String(cavId));
+  if(!cavClickable(cid, pin0)) return;
   const key = 'cav:' + String(cid) + ':' + String(cavId);
   if(!opts || !opts.keep){
     if(selKey === key){ clearSelection(); return; }
