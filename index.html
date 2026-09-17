@@ -1468,7 +1468,7 @@ function buildCircuits(model){
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
       ecm:[104], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'El ECM solo mira si el relé de la mariposa (dentro del IPDM, F87) entregó 12V; no mueve el motor él solo. Ruta: E9-47 → E108·30G → F102·12H → ECM 104.'},
     {id:'vmot', title:'VMOT · 12V motor mariposa', color:'#ef5350',
-      ecm:[3], conn:['ipdm_e8','ix_e12_f3'], path:{ipdm_e8:['42']}, notes:'12V que llega al motor de la mariposa después del relé ETC del IPDM. Ruta: E8-42 → E12/F3 → ECM 3.'},
+      ecm:[3], conn:['ipdm_e8'], path:{ipdm_e8:['42']}, notes:'12V motor mariposa tras relé ETC del IPDM. FSM: continuidad ECM 3 ↔ IPDM E8-42 (pasa E12/F3; cavidad F3 no fijada en este mapa — no inventar pin). En Completo: E8-42. En Arnès motor (IPDM oculto): ver nota · resalta ECM 3.'},
     {id:'fp_relay', title:'Control relé bomba', color:'#ef5350',
       ecm:[113], conn:['ipdm_e8','ix_e108_m15','ix_f102_m72'], path:{ipdm_e8:['40'],ix_e108_m15:['28G'],ix_f102_m72:['6H']}, notes:'Control del relé de bomba (el relé está en el IPDM). Ruta: ECM 113 → F102·6H → E108·28G → E8-40.'},
         {id:'ftt', title:'FTT · temp. tanque', color:'#7e57c2',
@@ -1476,7 +1476,7 @@ function buildCircuits(model){
       path:{fuel_tank_temp:['4'],ix_f102_m72:['25H'],ix_b1_m12:['36J']},
       notes:'Temp. tanque. Ruta: B27·4 → B1/M12·36J → F102·25H → ECM 107 GY/R. EC-295.'},
 {id:'dlc_k', title:'DLC · línea K (CONSULT)', color:'#7e57c2',
-      ecm:[85], conn:['dlc'], notes:'Línea K del diagnóstico (CONSULT / scanner). Ruta: ECM 85 → DLC pin 7.'},
+      ecm:[85], conn:['dlc'], notes:'Línea K (CONSULT / GST). FSM EC: ECM 85 (LG) → DLC pin 7. F102 no lista cavidad ecm:85 en este mapa (no inventar). Completo: DLC. Arnès motor: DLC es carrocería (oculto); resalta ECM 85.'},
     {id:'can', title:'CAN / DLC / cluster', color:'#7e57c2',
       ecm:[86,94], conn:['ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','comb_meter'], notes:'Red CAN del auto (diagnóstico, cluster, ABS…). Ruta: ECM 94/86 → F102·26H/27H → DLC 6/14 · también E9 48/49 y rama E108 2G/7G.'},
     {id:'maf', title:'MAF', color:'#fb8c00',
@@ -2201,8 +2201,14 @@ let connToCirc = {};
 function rebuildIndexes(){
   pinToCirc = {}; connToCirc = {};
   CIRCUITS.forEach(cir => {
-    cir.ecm.forEach(p => { (pinToCirc[p]=pinToCirc[p]||[]).push(cir.id); });
-    cir.conn.forEach(cid => { (connToCirc[cid]=connToCirc[cid]||[]).push(cir.id); });
+    cir.ecm.forEach(p => {
+      const arr = (pinToCirc[p]=pinToCirc[p]||[]);
+      if(!arr.includes(cir.id)) arr.push(cir.id);
+    });
+    cir.conn.forEach(cid => {
+      const arr = (connToCirc[cid]=connToCirc[cid]||[]);
+      if(!arr.includes(cir.id)) arr.push(cir.id);
+    });
   });
 }
 
@@ -3385,7 +3391,8 @@ const I18N = {
     clear: 'Limpiar',
     fichasTitle: 'Fichas',
     selTopTitle: 'Grupos seleccionados',
-    selTopGroups: 'grupos',
+    selTopFichas: {es:'seleccionados', en:'selected', ja:'選択'},
+  selTopGroups: 'grupos',
     selTopLines: 'líneas',
     selTopSub: 'selección arriba · grupos completos abajo',
     footer: 'Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio. Colores y pinouts según FSM EC/PG 2005 VQ35DE salvo donde se indique variante.',
@@ -3642,7 +3649,7 @@ const NOTES_I18N = {
   evap_purge: {en:'F5 pin1 R/W (ECM relay 12V) · pin2 G/W → ECM 45. EC-360.', ja:'パージソレノイド → ECM 45。'},
   evap_vent: {en:'EVAP vent control: T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117. EC-372.', ja:'EVAPベント制御: T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117。EC-372。'},
   evap_vent_pwr: {en:'EVAP vent 12V: E7-17 → E106/B2 → B43/T1 → T20·1. EC-371.', ja:'EVAPベント12V: E7-17 → E106/B2 → B43/T1 → T20·1。EC-371。'},
-  dlc_k: {en:'ECM 85 (LG) → DLC pin 7 · CONSULT-II / GST.', ja:'ECM 85 (LG) → DLCピン7 · CONSULT-II / GST。'},
+  dlc_k: {en:'ECM 85 (LG) → DLC pin 7 · CONSULT-II / GST. No F102 cavity for ecm:85 in this map (FSM lists DLC).', ja:'ECM 85 (LG) → DLCピン7 · CONSULT-II / GST。本マップのF102に ecm:85 キャビティなし。'},
   ho2s_b1: {en:'Signal B1 → ECM 74 (OR). SNS GND 78.', ja:'信号B1 → ECM 74 (OR)。SNS GND 78。'},
   ho2s_b1_htr: {en:'Heater control B1 → F11·3. EC-191.', ja:'ヒータ制御 B1 → F11·3。EC-191。'},
   ho2s_b1_pwr: {en:'HO2S B1 12V: 15A → E108·65G → F3·3 → F11·2. EC-191.', ja:'HO2S B1 12V: 15A → E108·65G → F3·3 → F11·2。EC-191。'},
@@ -4472,31 +4479,38 @@ function collapseIdleEnabled(){
 }
 
 function applyCollapseIdleSubs(connIds){
-  // Reopen anything we auto-collapsed on the previous pick, then collapse idle again
-  restoreCollapsedSubs();
-  if(!collapseIdleEnabled()) return;
+  /* Decide open/closed from current selection (do not restore-first — that raced with revealConns reopen). */
+  if(!collapseIdleEnabled()){
+    restoreCollapsedSubs();
+    return;
+  }
   const set = new Set((connIds||[]).filter(Boolean));
-  if(!set.size) return;
+  if(!set.size){
+    restoreCollapsedSubs();
+    return;
+  }
+  const connOf = (el) => el && el.dataset && el.dataset.conn;
+  const hasHit = (root) => [...root.querySelectorAll('.ficha[data-conn], .ficha-wrap[data-conn]')].some(f => set.has(connOf(f)));
   document.querySelectorAll('#fichas details.ficha-sec:not(.sel-top)').forEach(sec=>{
-    const hit = [...sec.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
+    const hit = hasHit(sec);
     if(hit){
       if(!sec.open) sec.open = true;
-      /* Idle nests (Bobinas vs Inyectores) must collapse too — same sub, different nest */
+      delete sec.dataset.wasOpen;
+      /* Idle nests (Bobinas vs Inyectores) must collapse — same sub, different nest */
       sec.querySelectorAll('details.ficha-nest').forEach(nest=>{
-        const nestHit = [...nest.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
+        const nestHit = hasHit(nest);
         if(nestHit){
           if(!nest.open) nest.open = true;
-        } else if(nest.open){
-          nest.dataset.wasOpen = '1';
-          nest.open = false;
+          delete nest.dataset.wasOpen;
+        } else {
+          if(nest.open) nest.dataset.wasOpen = '1';
+          nest.open = false; /* force-close even if something reopened */
         }
       });
       return;
     }
-    if(sec.open){
-      sec.dataset.wasOpen = '1';
-      sec.open = false;
-    }
+    if(sec.open) sec.dataset.wasOpen = '1';
+    sec.open = false;
   });
 }
 
@@ -4729,34 +4743,75 @@ function updateSelectedTop(connIds){
   });
   const names = bucketKeys.map(s => selectedBucketLabel(s));
   const nBuckets = bucketKeys.length;
-  /* Seleccionados only when 2+ distinct groups. Same-sub picks stay in-group, promoted first. */
-  if(nBuckets < 2) return;
+  /* Seleccionados when 2+ distinct groups OR 2+ fichas in the same sub (e.g. VTC + F18). */
+  if(nBuckets < 2 && ids.length < 2) return;
 
   const top = document.createElement('details');
   top.id = 'selTop';
   top.className = 'ficha-sec sel-top';
   top.open = true;
   const sum = document.createElement('summary');
-  sum.innerHTML = `${esc(String(nBuckets) + ' ' + t('selTopGroups'))}<span>${esc(names.join(', '))}</span>`;
+  if(nBuckets >= 2){
+    sum.innerHTML = `${esc(String(nBuckets) + ' ' + t('selTopGroups'))}<span>${esc(names.join(', '))}</span>`;
+  } else {
+    const subLab = names[0] || '';
+    sum.innerHTML = `${esc(String(ids.length) + ' ' + (t('selTopFichas') || 'seleccionados'))}<span>${esc(subLab)}</span>`;
+  }
   top.appendChild(sum);
   const body = document.createElement('div');
   body.className = 'fichas-body';
-  const grid = document.createElement('div');
-  grid.className = 'fichas-grid';
-  const ordered = ids.slice().sort((a,b)=>{
-    const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
-    const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
-    const ia = sa<0?999:sa, ib = sb<0?999:sb;
-    if(ia!==ib) return ia-ib;
-    return String(CONN[a].name).localeCompare(String(CONN[b].name));
-  });
-  ordered.forEach(id=>{
+
+  /* Same-sub actuators with bobinas/inyectores: nest inside selTop for clarity */
+  const bob = ids.filter(id => ACT_BOBINAS.has(id));
+  const iny = ids.filter(id => ACT_INYECTORES.has(id));
+  const rest = ids.filter(id => !ACT_BOBINAS.has(id) && !ACT_INYECTORES.has(id));
+  const useNests = nBuckets < 2 && bucketKeys[0]==='actuators' && (bob.length + iny.length) >= 1 && ids.length >= 2 && (bob.length && iny.length || bob.length>=2 || iny.length>=2 || (bob.length|iny.length) && rest.length);
+
+  function appendFicha(grid, id){
     const el = makeFichaEl(id, CONN[id]);
     el.classList.add('hl');
     el.classList.remove('dim');
     grid.appendChild(el);
-  });
-  body.appendChild(grid);
+  }
+  function appendNest(key, labelKey, list, accent){
+    if(!list.length) return;
+    const nest = document.createElement('details');
+    nest.className = 'ficha-nest sel-line';
+    nest.open = true;
+    nest.dataset.nest = key;
+    const nsum = document.createElement('summary');
+    nsum.innerHTML = `<span class="sub-label">${esc(t(labelKey))}</span>`;
+    if(accent) nsum.style.borderLeft = '3px solid ' + accent;
+    nest.appendChild(nsum);
+    const ngrid = document.createElement('div');
+    ngrid.className = 'fichas-grid';
+    list.slice().sort((a,b)=>String(CONN[a].name).localeCompare(String(CONN[b].name))).forEach(id => appendFicha(ngrid, id));
+    nest.appendChild(ngrid);
+    body.appendChild(nest);
+  }
+
+  if(useNests){
+    if(rest.length){
+      const grid = document.createElement('div');
+      grid.className = 'fichas-grid';
+      rest.slice().sort((a,b)=>String(CONN[a].name).localeCompare(String(CONN[b].name))).forEach(id => appendFicha(grid, id));
+      body.appendChild(grid);
+    }
+    appendNest('bobinas', 'nestBobinas', bob, NEST_ACCENT.bobinas);
+    appendNest('inyectores', 'nestInyectores', iny, NEST_ACCENT.inyectores);
+  } else {
+    const grid = document.createElement('div');
+    grid.className = 'fichas-grid';
+    const ordered = ids.slice().sort((a,b)=>{
+      const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
+      const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
+      const ia = sa<0?999:sa, ib = sb<0?999:sb;
+      if(ia!==ib) return ia-ib;
+      return String(CONN[a].name).localeCompare(String(CONN[b].name));
+    });
+    ordered.forEach(id => appendFicha(grid, id));
+    body.appendChild(grid);
+  }
   top.appendChild(body);
   root.insertBefore(top, root.firstChild);
 }
@@ -4808,12 +4863,16 @@ function revealConns(connIds, opts){
   promoteSelectedInGroups(ids);
   syncF102PanelForSelection(ids, { collapseF102 });
   if(collapseF102) setF102PanelOpen(false);
-  document.querySelectorAll('#fichas .ficha.hl').forEach(f=>{
+  /* Open only nests/secs that own a selected conn id (not every stale .hl) */
+  ids.forEach(cid=>{
+    const f = document.querySelector(`.ficha-wrap[data-conn="${CSS.escape(cid)}"]`) || document.querySelector(`.ficha[data-conn="${CSS.escape(cid)}"]`);
+    if(!f) return;
     const nest = f.closest('details.ficha-nest');
-    if(nest) nest.open = true;
+    if(nest && !nest.classList.contains('sel-line')) nest.open = true;
     const sec = f.closest('details.ficha-sec');
-    if(sec) sec.open = true;
+    if(sec && !sec.classList.contains('sel-top')) sec.open = true;
   });
+  applyCollapseIdleSubs(ids); /* last word after any reopen */
   const top = document.getElementById('selTop');
   if(top) top.open = true;
   scrollFichasToSelection(first);
@@ -5347,7 +5406,8 @@ function formatSelPinsLabel(tmpl, items){
 function updateF102SelPins(cavsOrNull){
   const el = document.getElementById('f102SelPins');
   if(!el) return;
-  const domSel = '#f102Blocks .pin.hl, #f102Blocks .pin.hl-group, #f102Blocks .pin.hl-end, #f102Blocks .pin.hl-rail, #f102Blocks .pin.hl-rail-rel-gnd, #f102Blocks .pin.hl-rail-rel-data';
+  /* Same as ECM label: focus (hl/hl-end/rails) only — not hl-group siblings */
+  const domSel = '#f102Blocks .pin.hl, #f102Blocks .pin.hl-end, #f102Blocks .pin.hl-rail, #f102Blocks .pin.hl-rail-rel-gnd, #f102Blocks .pin.hl-rail-rel-data';
   let items = [];
   if(cavsOrNull === 0){
     items = [];
@@ -5392,7 +5452,8 @@ function updateF102SelPins(cavsOrNull){
 function updateEcmSelCount(nOrPins){
   const el = document.getElementById('ecmSelCount');
   if(!el) return;
-  const domSel = '#blocks .pin.hl, #blocks .pin.hl-group, #blocks .pin.hl-end, #blocks .pin.hl-rail, #blocks .pin.hl-rail-rel-gnd, #blocks .pin.hl-rail-rel-data';
+  /* Label shows focus (hl / hl-end / rails) only — hl-group siblings stay visual, not in count text */
+  const domSel = '#blocks .pin.hl, #blocks .pin.hl-end, #blocks .pin.hl-rail, #blocks .pin.hl-rail-rel-gnd, #blocks .pin.hl-rail-rel-data';
   let items = [];
   if(nOrPins === 0 || (typeof nOrPins === 'number' && nOrPins < 1)){
     items = [];
@@ -5400,7 +5461,9 @@ function updateEcmSelCount(nOrPins){
     const want = [...new Set([...nOrPins].map(Number).filter(x=>!isNaN(x)))];
     want.forEach(n=>{
       const p = document.querySelector(`#blocks .pin[data-pin="${n}"]`);
-      if(!p || !(p.classList.contains('hl') || p.classList.contains('hl-group') || p.classList.contains('hl-end') || p.classList.contains('hl-rail') || p.classList.contains('hl-rail-rel-gnd') || p.classList.contains('hl-rail-rel-data'))) return;
+      if(!p) { items.push({id: n, kind: 'hl'}); return; }
+      if(p.classList.contains('hl-group') && !(p.classList.contains('hl') || p.classList.contains('hl-end') || p.classList.contains('hl-rail'))) return; /* sibling outline only */
+      if(!(p.classList.contains('hl') || p.classList.contains('hl-end') || p.classList.contains('hl-rail') || p.classList.contains('hl-rail-rel-gnd') || p.classList.contains('hl-rail-rel-data'))) return;
       const kind = selKindFromEl(p);
       if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
       items.push({id: n, kind});
@@ -5516,7 +5579,8 @@ function clearHlGroupElColor(el){
 }
 
 function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
-  lastCircIds = (circIds || []).slice();
+  circIds = [...new Set((circIds||[]).filter(Boolean))];
+  lastCircIds = circIds.slice();
   activeRails.clear(); updateRailButtons();
   clearHL();
   if(!circIds.length){ const info=document.getElementById('info'); info.dataset.locked='1'; info.textContent=t('noCirc'); clearHlGroupColor(); return; }
@@ -5524,6 +5588,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   setHlGroupColor(hlGroupColorForCircuits(circIds, focusPin));
   const ecmSet=new Set(); const connSet=new Set();
   const lines=[];
+  const seenCircLine = new Set();
   const pathCavByConn = new Map(); /* cid -> Set(cavId) — feeds sin pin ECM (F3-5, E7-17, rail…) */
   circIds.forEach(id=>{
     const cir=CIRCUITS.find(x=>x.id===id);
@@ -5537,6 +5602,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
         (cavs||[]).forEach(c => pathCavByConn.get(cid).add(String(c)));
       });
     }
+    if(seenCircLine.has(cir.id)) return;
+    seenCircLine.add(cir.id);
     lines.push(`<div><b style="color:${cir.color}">${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
   attachPowerPathFichas(circIds, connSet, pathCavByConn);
@@ -5594,7 +5661,12 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       applyHlGroupEl(el, accentForEcmPin(p) || hlGroupColorForCircuits(circIds, focusPin));
     }
   });
-  updateEcmSelCount(ecmSet);
+  /* Label = focus pin only; siblings keep hl-group outline without cluttering ECM: N · … */
+  if(focusPin!=null) updateEcmSelCount([focusPin]);
+  else updateEcmSelCount([...ecmSet].filter(p=>{
+    const el=document.querySelector(`#blocks .pin[data-pin="${p}"]`);
+    return el && (el.classList.contains('hl') || el.classList.contains('hl-end'));
+  }));
   connSet.forEach(cid=>{
     markFichaHL(cid, true);
     if(cid === 'ix_f102_m72' && !collapseF102){
