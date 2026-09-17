@@ -6,14 +6,19 @@ Open the [GitHub Pages](https://hiwap.github.io/350z-harness/) site from this re
 
 Not a substitute for the official service manual.
 
+Privacy-friendly visit counts via [GoatCounter](https://350z-harness.goatcounter.com).
+
 ## Print pack
-2-page landscape PDF
+2-page landscape PDF. Language comes from the map `I18N` in `index.html` (`--lang` only selects the pack).
 
 ```bash
-python3 make_print_pack.py
+python3 make_print_pack.py              # English (default)
+python3 make_print_pack.py --lang es
+python3 make_print_pack.py --lang ja
 ```
 
-Needs `pin_colors.json` beside the script and `reportlab` (`pip install reportlab`).
+Needs `index.html` (I18N + pin data) beside the script and `reportlab` (`pip install reportlab`). Node is used once at startup to load map I18N.
+
 
 ## Tests
 
@@ -48,10 +53,10 @@ Referencia interactiva pin ECM ↔ conector para VQ35DE (2003–2006), basada en
 
 Abrí el sitio de [GitHub Pages](https://hiwap.github.io/350z-harness/) de este repo, o abrí `index.html` en local.
 
-PDF de 2 páginas (landscape) 
+PDF de 2 páginas (landscape). Idioma = `I18N` del mapa (`--lang` solo elige el pack).
 
 ```bash
-python3 make_print_pack.py
+python3 make_print_pack.py --lang es
 ```
 
 No sustituye el manual de servicio oficial.
@@ -62,10 +67,10 @@ VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラク�
 
 このリポジトリの [GitHub Pages](https://hiwap.github.io/350z-harness/) を開くか、ローカルで `index.html` を開いてください。
 
-**日本語:** 2ページの横向きPDF
+**日本語:** 2ページの横向きPDF。文言は地図の `I18N`（`--lang` はパック選択のみ）。
 
 ```bash
-python3 make_print_pack.py
+python3 make_print_pack.py --lang ja
 ```
 
 公式サービスマニュアルの代用ではありません。
