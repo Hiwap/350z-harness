@@ -20,7 +20,7 @@ Needs `pin_colors.json` beside the script and `reportlab` (`pip install reportla
 
 **日本語:** 2ページの横向きPDF — 1ページ目カバー+EC-123、2ページ目モーター側フィチャ。`python3 make_print_pack.py` で再生成。
 
-## Tests (no CI / no Actions)
+## Tests
 
 ```bash
 npm install          # once — puppeteer-core for browser suites
