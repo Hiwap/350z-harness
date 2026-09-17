@@ -45,6 +45,9 @@ ECM_BLUE = HexColor("#1565C0")
 MUTED = HexColor("#555555")
 LIGHT_GRAY = HexColor("#BDBDBD")
 PATH_BG = HexColor("#FAFAFA")
+# Uniform cavity size across all fichas (print ≈ web fixed pin cells)
+CAV_STD_W = 24.0
+CAV_STD_H = 24.0
 
 # Match web SUB_ACCENT (group outline on fichas)
 GRP = {
@@ -363,14 +366,13 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     # ---- AF6: FSM top 5-3-1 / bot 6-4-2 · Invertida mirrors each row ----
     if face == "af6" and all(k in by for k in ("1", "2", "3", "4", "5", "6")):
         order = [_row(["5", "3", "1"]), _row(["6", "4", "2"])]
-        # Prefer taller cavities (bench readability for A/F)
-        ch = face_h / 2
-        cw = min(face_w / 3, ch * 1.15)
+        cw, ch = CAV_STD_W, CAV_STD_H
         ox = face_x + max(0, (face_w - 3 * cw) / 2)
+        oy = face_y + max(0, (face_h - 2 * ch) / 2)
         for ri, row in enumerate(order):
             for ci, key in enumerate(row):
                 lab, col, note = _pin_disp(by[key])
-                draw_cavity(ox + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note, fs=4.6)
+                draw_cavity(ox + ci * cw, oy + (1 - ri) * ch, cw, ch, lab, col, note, fs=4.2)
         return
 
     # ---- E113 APP FSM face: top 3-2-1 / bot 6-5-4 · Invertida mirrors ----
@@ -401,16 +403,15 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     if face == "rect6" and len(pins) >= 6:
         top = _row(pins[:3])
         bot = _row(pins[3:6])
-        # ETC etc. — taller cavities like A/F
-        ch = face_h / 2
-        cw = min(face_w / 3, ch * 1.15)
+        cw, ch = CAV_STD_W, CAV_STD_H
         ox = face_x + max(0, (face_w - 3 * cw) / 2)
+        oy = face_y + max(0, (face_h - 2 * ch) / 2)
         for ci, p in enumerate(top):
             lab, col, note = _pin_disp(p)
-            draw_cavity(ox + ci * cw, face_y + ch, cw, ch, lab, col, note, fs=4.6)
+            draw_cavity(ox + ci * cw, oy + ch, cw, ch, lab, col, note, fs=4.2)
         for ci, p in enumerate(bot):
             lab, col, note = _pin_disp(p)
-            draw_cavity(ox + ci * cw, face_y, cw, ch, lab, col, note, fs=4.6)
+            draw_cavity(ox + ci * cw, oy, cw, ch, lab, col, note, fs=4.2)
         return
 
     # ---- F3 (mapa svgF3): top 1-2-3-4 / bot 5-6-7-8 · fixed cavity size ----
@@ -418,8 +419,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         ids_ok = all(str(i) in by for i in range(1, 9))
         if ids_ok:
             # Fixed pin size (same-ish as other fichas); center grid in card
-            cw = min(26.0, face_w / 4.2)
-            ch = min(26.0, face_h / 2.15)
+            cw, ch = CAV_STD_W, CAV_STD_H
             grid_w, grid_h = 4 * cw, 2 * ch
             ox = face_x + max(0, (face_w - grid_w) / 2)
             oy = face_y + max(0, (face_h - grid_h) / 2)
@@ -438,8 +438,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     if face == "f1" or shape == "f1":
         ids_ok = all(str(i) in by for i in range(1, 10))
         if ids_ok:
-            cw = min(24.0, face_w / 5.4)
-            ch = min(24.0, face_h / 2.15)
+            cw, ch = CAV_STD_W, CAV_STD_H
             # layout width: 1 + gap + 4
             grid_w = cw + 4 * cw + cw * 0.15
             grid_h = 2 * ch
@@ -465,8 +464,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         n = min(4, len(pins))
         ordered = _row(pins[:n])
         # fixed-ish pin size, center in card
-        cw = min(26.0, face_w / max(n, 1))
-        ch = min(26.0, face_h)
+        cw, ch = CAV_STD_W, CAV_STD_H
         ox = face_x + max(0, (face_w - n * cw) / 2)
         oy = face_y + max(0, (face_h - ch) / 2)
         for i, p in enumerate(ordered):
@@ -558,8 +556,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         return
     ordered = _row(pins)
     cols = len(ordered)
-    cw = min(26.0, face_w / max(cols, 1))
-    ch = min(26.0, face_h)
+    cw, ch = CAV_STD_W, CAV_STD_H
     ox = face_x + max(0, (face_w - cols * cw) / 2)
     oy = face_y + max(0, (face_h - ch) / 2)
     for i, pin in enumerate(ordered):
@@ -924,9 +921,9 @@ y_top = H - HEADER_H
 avail = y_top - BOTTOM
 label_h = 11
 # PATH rows: AF, knock+sens, ETC+VTC, coil, inj, jointsA, jointsB
-# AF + ETC rows taller so 6-pin faces (A/F, ETC) get bigger cavities
-weights = [1.15, 0.78, 0.85, 0.48, 0.48, 0.42, 1.05]
-gap_v = 1.8
+# Balanced rows — pin cavities use CAV_STD_* (not stretched to card)
+weights = [0.95, 0.85, 0.70, 0.52, 0.52, 0.48, 1.15]
+gap_v = 2.0
 n_gaps = len(weights) - 1
 n_labels = 3  # AF, Knock, joints (+ act/coil/inj without banners)
 card_budget = avail - n_labels * label_h - n_gaps * gap_v
@@ -939,7 +936,7 @@ y = y_top
 section_label(ML, y - 9, usable_w,
               "PATH A/F + HO2S  ·  sensores → E12⟷F3 (heaters / poder) → ECM  ·  heaters ECM 2 / 24")
 y -= label_h
-cw_af = min(250, usable_w * 0.34)
+cw_af = 210
 cw_ho = (usable_w - 2 * cw_af - GAP) / 2
 ficha(ML, y - ch_af, cw_af, ch_af, "A/F Sens 1 B1",
       [("1", "LG/B", "16"), ("2", "P/B", "75"), ("3", "12V", "fuse"),
