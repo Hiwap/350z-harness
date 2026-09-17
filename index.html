@@ -1572,8 +1572,8 @@ const GROUP_SHORT = {
 
 const GROUP_I18N = {
   motor: {
-    es: {title:'Arnés motor', sub:'sensores · actuadores · intermedias E/F · poder / grounds'},
-    en: {title:'Arnés motor', sub:'sensors · actuators · intermediate E/F · power / grounds'},
+    es: {title:'Arnés motor', sub:'sensores · bobinas · inyectores · actuadores · intermedias E/F · poder / grounds'},
+    en: {title:'Arnés motor', sub:'sensors · coils · injectors · actuators · intermediate E/F · power / grounds'},
     ja: {title:'エンジンハーネス', sub:'センサ · アクチュエータ · 中間E/F · 電源/アース'},
   },
   body: {
@@ -1588,6 +1588,8 @@ const SUB_I18N = {
   ipdm:        {es:'IPDM', en:'IPDM', ja:'IPDM'},
   feeds:       {es:'Alimentación / sin ECM', en:'Feeds (non-ECM)', ja:'電源フィード（ECM外）'},
   sensors:     {es:'Sensores', en:'Sensors', ja:'センサ'},
+  bobinas:     {es:'Bobinas', en:'Coils', ja:'コイル'},
+  inyectores:  {es:'Inyectores', en:'Injectors', ja:'インジェクタ'},
   actuators:   {es:'Actuadores', en:'Actuators', ja:'アクチュエータ'},
   intermedias: {es:'Paths multi E/F', en:'Multi E/F paths', ja:'複数経路 E/F'},
   pedals:      {es:'Pedales / frenos', en:'Pedals / brakes', ja:'ペダル / ブレーキ'},
@@ -1595,7 +1597,7 @@ const SUB_I18N = {
   other:       {es:'Otros', en:'Other', ja:'その他'},
 };
 
-const SUB_ORDER = ['power','ipdm','feeds','sensors','actuators','intermedias','pedals','ascd_dlc'];
+const SUB_ORDER = ['power','ipdm','feeds','sensors','bobinas','inyectores','actuators','intermedias','pedals','ascd_dlc'];
 
 /** One border color per subcategory (ficha groups). */
 const SUB_ACCENT = {
@@ -1603,12 +1605,14 @@ const SUB_ACCENT = {
   ipdm:        '#ef5350',  /* red — IPDM */
   feeds:       '#ffca28',  /* amber — rails 12V / feeds */
   sensors:     '#42a5f5',  /* blue — sensores */
-  actuators:   '#ab47bc',  /* magenta — actuadores (loose; nests override) */
+  bobinas:     '#f57f17',  /* orange — coils */
+  inyectores:  '#c62828',  /* red — injectors */
+  actuators:   '#ab47bc',  /* magenta — other actuators */
   intermedias: '#78909c',  /* slate — intermedias E/F */
   pedals:      '#ff7043',  /* deep orange — pedales / freno */
   ascd_dlc:    '#26c6da',  /* cyan — ASCD / DLC / CAN */
 };
-/* Actuadores nests — ficha filet + sibling HL follow nest, not magenta sub */
+/* Bobinas / Inyectores — filet + sibling HL follow group accent */
 const ACT_BOBINAS = new Set(['coil1','coil2','coil3','coil4','coil5','coil6','ix_f18_f201']);
 const ACT_INYECTORES = new Set(['inj1','inj2','inj3','inj4','inj5','inj6','ix_f221_f33']);
 const NEST_ACCENT = { bobinas: '#f57f17', inyectores: '#c62828' };
@@ -1848,17 +1852,17 @@ const CONN_BASE = {
     note:'F6 GY/10 TCM (A/T). 1/2 R/W BATT · 5/10 B F23 · 6 Y/R IGN · 9 GY/R relé arranque E9-53 · AT-186/114.'},
 
   /* —— Actuadores motor —— */
-  coil1:{group:'motor', sub:'actuators', name:'Bobina 1', meta:'ECM62 Y/R · F203', accent:'#f57f17', shape:'tab3',
+  coil1:{group:'motor', sub:'bobinas', name:'Bobina 1', meta:'ECM62 Y/R · F203', accent:'#f57f17', shape:'tab3',
     pins:[{id:'1',lab:'SIG',code:'Y/R',ecm:62},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}]},
-  coil2:{group:'motor', sub:'actuators', name:'Bobina 2', meta:'ECM81 G/B · F27', accent:'#1b5e20', shape:'tab3',
+  coil2:{group:'motor', sub:'bobinas', name:'Bobina 2', meta:'ECM81 G/B · F27', accent:'#1b5e20', shape:'tab3',
     pins:[{id:'1',lab:'SIG',code:'G/B',ecm:81},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}]},
-  coil3:{group:'motor', sub:'actuators', name:'Bobina 3', meta:'ECM61 L/R · F202', accent:'#0d47a1', shape:'tab3',
+  coil3:{group:'motor', sub:'bobinas', name:'Bobina 3', meta:'ECM61 L/R · F202', accent:'#0d47a1', shape:'tab3',
     pins:[{id:'1',lab:'SIG',code:'L/R',ecm:61},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}]},
-  coil4:{group:'motor', sub:'actuators', name:'Bobina 4', meta:'ECM80 GY · F28', accent:'#455a64', shape:'tab3',
+  coil4:{group:'motor', sub:'bobinas', name:'Bobina 4', meta:'ECM80 GY · F28', accent:'#455a64', shape:'tab3',
     pins:[{id:'1',lab:'SIG',code:'GY',ecm:80},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}]},
-  coil5:{group:'motor', sub:'actuators', name:'Bobina 5', meta:'ECM60 PU/W · F15 · aparte', accent:'#6a1b9a', shape:'tab3',
+  coil5:{group:'motor', sub:'bobinas', name:'Bobina 5', meta:'ECM60 PU/W · F15 · aparte', accent:'#6a1b9a', shape:'tab3',
     pins:[{id:'1',lab:'SIG',code:'PU/W',ecm:60},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}]},
-  coil6:{group:'motor', sub:'actuators', name:'Bobina 6', meta:'ECM79 GY/R · F29', accent:'#00838f', shape:'tab3',
+  coil6:{group:'motor', sub:'bobinas', name:'Bobina 6', meta:'ECM79 GY/R · F29', accent:'#00838f', shape:'tab3',
     pins:[{id:'1',lab:'SIG',code:'GY/R',ecm:79},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}]},
   backup_sw:{group:'motor', sub:'actuators', name:'Marcha atrás · interruptor', meta:'F36 · M/T · LT-183 · 2 pines', accent:'#ffb300', shape:'tab2',
     pins:[
@@ -1866,12 +1870,12 @@ const CONN_BASE = {
       {id:'2',lab:'OUT',code:'OR',ecm:null,rail:'12v',src:'F36',srcSub:'actuators',circ:'backup_lamp',note:'→ F102 22H → luces reversa T10/T18'}
     ],
     note:'Switch de marcha atrás (M/T). Ruta: E7-26 → F1·2 → F36 → F102·22H → luces (12V en Alim.).'},
-  inj1:{group:'motor', sub:'actuators', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/B',ecm:23},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj2:{group:'motor', sub:'actuators', name:'Inyector 2', meta:'ECM42 B/R', accent:'#37474f', shape:'tab2', pins:[{id:'ECM',code:'B/R',ecm:42},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj3:{group:'motor', sub:'actuators', name:'Inyector 3', meta:'ECM22 R/Y', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/Y',ecm:22},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj4:{group:'motor', sub:'actuators', name:'Inyector 4', meta:'ECM41 W/B', accent:'#9e9e9e', shape:'tab2', pins:[{id:'ECM',code:'W/B',ecm:41},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj5:{group:'motor', sub:'actuators', name:'Inyector 5', meta:'ECM21 SB', accent:'#0277bd', shape:'tab2', pins:[{id:'ECM',code:'SB',ecm:21},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj6:{group:'motor', sub:'actuators', name:'Inyector 6', meta:'ECM40 LG', accent:'#558b2f', shape:'tab2', pins:[{id:'ECM',code:'LG',ecm:40},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
+  inj1:{group:'motor', sub:'inyectores', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/B',ecm:23},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
+  inj2:{group:'motor', sub:'inyectores', name:'Inyector 2', meta:'ECM42 B/R', accent:'#37474f', shape:'tab2', pins:[{id:'ECM',code:'B/R',ecm:42},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
+  inj3:{group:'motor', sub:'inyectores', name:'Inyector 3', meta:'ECM22 R/Y', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/Y',ecm:22},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
+  inj4:{group:'motor', sub:'inyectores', name:'Inyector 4', meta:'ECM41 W/B', accent:'#9e9e9e', shape:'tab2', pins:[{id:'ECM',code:'W/B',ecm:41},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
+  inj5:{group:'motor', sub:'inyectores', name:'Inyector 5', meta:'ECM21 SB', accent:'#0277bd', shape:'tab2', pins:[{id:'ECM',code:'SB',ecm:21},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
+  inj6:{group:'motor', sub:'inyectores', name:'Inyector 6', meta:'ECM40 LG', accent:'#558b2f', shape:'tab2', pins:[{id:'ECM',code:'LG',ecm:40},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
   vtc_b1:{group:'motor', sub:'actuators', name:'VTC admisión B1', meta:'F204 · vía F18/F201 · ECM11', accent:'#d81b60', shape:'tab2',
     pins:[{id:'1',lab:'SIG',code:'P',ecm:11},{id:'2',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}]},
   vtc_b2:{group:'motor', sub:'actuators', name:'VTC admisión B2', meta:'Bank2 solo · ECM10 · sin F18', accent:'#d81b60', shape:'tab2',
@@ -2063,7 +2067,7 @@ const CONN_BASE = {
     note:'Intermedia del knock. Ruta: señal → ECM 15 · malla a SNS GND.'},
   ix_f103_f151:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4 pines · ECM 1/115/116 → masa · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Tierras del ECM a la carrocería. Ruta: ECM 1/115/116 → F103/F151 → masa.'},
-  ix_f18_f201:{group:'motor', sub:'actuators', name:'F18 ↔ F201 · Bobinas Bank 1 + VTC', meta:'6 pines · solo Bank 1 · EC-691/455', accent:'#f57f17', shape:'f18',
+  ix_f18_f201:{group:'motor', sub:'bobinas', name:'F18 ↔ F201 · Bobinas Bank 1 + VTC', meta:'6 pines · solo Bank 1 · EC-691/455', accent:'#f57f17', shape:'f18',
     pins:[
       {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},
       {id:'2',lab:'C3',code:'L/R',ecm:61},
@@ -2073,7 +2077,7 @@ const CONN_BASE = {
       {id:'6',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}
     ],
     note:'Empalme Bank 1 (bobinas 1/3 + VTC). Ruta: cav2→bobina3 · cav3→bobina1 · cav4→VTC B1 · cav5/6 12V desde E7-17→F3·5. Bank 2 y bobina 5 no pasan por acá.'},
-  ix_f221_f33:{group:'motor', sub:'actuators', name:'F33 ↔ F221 · Empalme inyectores', meta:'8-pin · frente del collector · no es F18', accent:'#9ccc65', shape:'f33',
+  ix_f221_f33:{group:'motor', sub:'inyectores', name:'F33 ↔ F221 · Empalme inyectores', meta:'8-pin · frente del collector · no es F18', accent:'#9ccc65', shape:'f33',
     pins:[
       {id:'1',lab:'I5',code:'SB',ecm:21},
       {id:'2',lab:'I3',code:'R/Y',ecm:22},
@@ -4434,27 +4438,7 @@ function renderFichas(){
     sum.style.borderLeft = '3px solid ' + subCol;
     sec.appendChild(sum);
 
-    if(sk === 'actuators'){
-      const body = document.createElement('div');
-      body.className = 'fichas-body';
-      const loose = [];
-      const bobinas = [];
-      const inyectores = [];
-      bySub[sk].forEach(id => {
-        if(ACT_BOBINAS.has(id)) bobinas.push(id);
-        else if(ACT_INYECTORES.has(id)) inyectores.push(id);
-        else loose.push(id);
-      });
-      if(loose.length){
-        const grid = document.createElement('div');
-        grid.className = 'fichas-grid';
-        loose.forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
-        body.appendChild(grid);
-      }
-      if(bobinas.length) body.appendChild(makeNestDetails('bobinas', 'nestBobinas', bobinas, NEST_ACCENT.bobinas));
-      if(inyectores.length) body.appendChild(makeNestDetails('inyectores', 'nestInyectores', inyectores, NEST_ACCENT.inyectores));
-      sec.appendChild(body);
-    } else {
+    {
       const grid=document.createElement('div');
       grid.className='fichas-grid';
       if(sk === 'ipdm') appendIpdmFichas(grid, bySub[sk]);
@@ -4764,57 +4748,24 @@ function updateSelectedTop(connIds){
   const body = document.createElement('div');
   body.className = 'fichas-body';
 
-  /* Same-sub actuators with bobinas/inyectores: nest inside selTop for clarity */
-  const bob = ids.filter(id => ACT_BOBINAS.has(id));
-  const iny = ids.filter(id => ACT_INYECTORES.has(id));
-  const rest = ids.filter(id => !ACT_BOBINAS.has(id) && !ACT_INYECTORES.has(id));
-  const useNests = nBuckets < 2 && bucketKeys[0]==='actuators' && (bob.length + iny.length) >= 1 && ids.length >= 2 && (bob.length && iny.length || bob.length>=2 || iny.length>=2 || (bob.length|iny.length) && rest.length);
-
   function appendFicha(grid, id){
     const el = makeFichaEl(id, CONN[id]);
     el.classList.add('hl');
     el.classList.remove('dim');
     grid.appendChild(el);
   }
-  function appendNest(key, labelKey, list, accent){
-    if(!list.length) return;
-    const nest = document.createElement('details');
-    nest.className = 'ficha-nest sel-line';
-    nest.open = true;
-    nest.dataset.nest = key;
-    const nsum = document.createElement('summary');
-    nsum.innerHTML = `<span class="sub-label">${esc(t(labelKey))}</span>`;
-    if(accent) nsum.style.borderLeft = '3px solid ' + accent;
-    nest.appendChild(nsum);
-    const ngrid = document.createElement('div');
-    ngrid.className = 'fichas-grid';
-    list.slice().sort((a,b)=>String(CONN[a].name).localeCompare(String(CONN[b].name))).forEach(id => appendFicha(ngrid, id));
-    nest.appendChild(ngrid);
-    body.appendChild(nest);
-  }
 
-  if(useNests){
-    if(rest.length){
-      const grid = document.createElement('div');
-      grid.className = 'fichas-grid';
-      rest.slice().sort((a,b)=>String(CONN[a].name).localeCompare(String(CONN[b].name))).forEach(id => appendFicha(grid, id));
-      body.appendChild(grid);
-    }
-    appendNest('bobinas', 'nestBobinas', bob, NEST_ACCENT.bobinas);
-    appendNest('inyectores', 'nestInyectores', iny, NEST_ACCENT.inyectores);
-  } else {
-    const grid = document.createElement('div');
-    grid.className = 'fichas-grid';
-    const ordered = ids.slice().sort((a,b)=>{
-      const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
-      const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
-      const ia = sa<0?999:sa, ib = sb<0?999:sb;
-      if(ia!==ib) return ia-ib;
-      return String(CONN[a].name).localeCompare(String(CONN[b].name));
-    });
-    ordered.forEach(id => appendFicha(grid, id));
-    body.appendChild(grid);
-  }
+  const grid = document.createElement('div');
+  grid.className = 'fichas-grid';
+  const ordered = ids.slice().sort((a,b)=>{
+    const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
+    const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
+    const ia = sa<0?999:sa, ib = sb<0?999:sb;
+    if(ia!==ib) return ia-ib;
+    return String(CONN[a].name).localeCompare(String(CONN[b].name));
+  });
+  ordered.forEach(id => appendFicha(grid, id));
+  body.appendChild(grid);
   top.appendChild(body);
   root.insertBefore(top, root.firstChild);
 }
