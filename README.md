@@ -55,9 +55,10 @@ VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラク�
 
 このリポジトリの [GitHub Pages](https://hiwap.github.io/350z-harness/) を開くか、ローカルで `index.html` を開いてください。
 
+公式サービスマニュアルの代用ではありません。
+
 ## Credits
 
 Built with [Grok](https://grok.com/) — Grok Bot and Grok Build.
 
 
-公式サービスマニュアルの代用ではありません。
