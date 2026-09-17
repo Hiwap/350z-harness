@@ -41,7 +41,7 @@ npm run test:f102
 
 Chrome/Edge required for `ui-lang` and `f102`. Set `HARNESS_SKIP_BROWSER=1` to skip them.
 
---
+---
 
 ## Español
 
@@ -58,6 +58,8 @@ VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラク�
 このリポジトリの [GitHub Pages](https://hiwap.github.io/350z-harness/) を開くか、ローカルで `index.html` を開いてください。
 
 公式サービスマニュアルの代用ではありません。
+
+---
 
 ## Credits
 
