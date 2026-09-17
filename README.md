@@ -1,4 +1,4 @@
-# Nissan 350Z · OEM harness / ficha viewer
+# Nissan 350Z · OEM harness viewer
 
 Interactive ECM pin ↔ connector reference for VQ35DE (2003–2006), based on FSM / NicoClub diagrams.
 
