@@ -24,6 +24,14 @@ VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラク�
 
 公式サービスマニュアルの代用ではありません。
 
+## Credits
+
+**English:** Built with [Grok](https://grok.com) — **Grok Bot** and **Grok Build**. Credit where credit’s due.
+
+**Español:** Hecho con [Grok](https://grok.com) — **Grok Bot** y **Grok Build**. Créditos donde corresponde.
+
+**日本語:** [Grok](https://grok.com) の **Grok Bot** と **Grok Build** で作成。クレジットは正当に。
+
 ---
 
 ## Print pack (Arnès motor)

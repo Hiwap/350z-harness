@@ -7,6 +7,7 @@ Fichas agrupadas por PATH al destino final (motor loom only — sin habitáculo 
 """
 import json
 import os
+import re
 from reportlab.lib.pagesizes import landscape, letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor, black, white
@@ -259,9 +260,9 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         c.setFont("Helvetica-Bold", 6.5)
         c.drawCentredString(x + w / 2, y + h - 12, title[:18])
         if subtitle:
-            c.setFont("Helvetica", 4.2)
+            c.setFont("Helvetica", 4.0 if w >= 120 else 3.6)
             c.setFillColor(MUTED)
-            c.drawCentredString(x + w / 2, y + h - 22, subtitle[:26])
+            c.drawCentredString(x + w / 2, y + h - 22, subtitle[:40 if w >= 120 else 28])
         ordered = _row(list(pins))
         n = max(1, len(ordered))
         cw = (w - 10) / n
@@ -532,8 +533,119 @@ def ecm_chip_row(x, y, w, h, pins_codes):
 
 
 
-# Pin data shared (motor loom)
-KNOCK_PINS = [("SIG", "W", "15"), ("GND", "B", "116")]
+
+# ---- Live CONN pins from interactive map HTML (source of truth) ----
+def _find_map_html():
+    """Primary HTML candidates for CONN connector objects."""
+    candidates = [
+        os.path.join(_ROOT, "350Z_harness_interactive.html"),
+        os.path.join(_ROOT, "index.html"),
+        "/workspace/350Z_harness_interactive.html",
+        "/workspace/350z-harness-pages/index.html",
+    ]
+    for p in candidates:
+        if os.path.isfile(p):
+            return p
+    return None
+
+
+def _brace_block(text, start_brace):
+    """Return slice of balanced {...} starting at start_brace index."""
+    depth = 0
+    i = start_brace
+    n = len(text)
+    while i < n:
+        ch = text[i]
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start_brace:i + 1]
+        i += 1
+    return ""
+
+
+def extract_conn(conn_id, html=None):
+    """Parse CONN[conn_id] from map HTML → (pins, subtitle).
+
+    pins: list of (lab, code, note) for ficha() / draw_mate_pair().
+      lab  = pin.lab or pin.id
+      code = pin.code or '—'
+      note = ecm as str, else src, else 'nc'
+    Does not invent pins; empty cavities keep code '—'.
+    """
+    if html is None:
+        html = _MAP_HTML
+    if not html:
+        return [], ""
+    m = re.search(rf"(?:^|,|\{{)\s*{re.escape(conn_id)}\s*:\s*\{{", html)
+    if not m:
+        return [], ""
+    block = _brace_block(html, m.end() - 1)
+    if not block:
+        return [], ""
+
+    meta_m = re.search(r"meta\s*:\s*'([^']*)'", block)
+    name_m = re.search(r"name\s*:\s*'([^']*)'", block)
+    subtitle = ""
+    if meta_m:
+        parts = [p.strip() for p in meta_m.group(1).split("·")]
+        subtitle = " · ".join(parts[:3])[:42]
+    elif name_m:
+        subtitle = name_m.group(1)[:42]
+
+    pins_m = re.search(r"pins\s*:\s*\[(.*?)\]", block, re.DOTALL)
+    if not pins_m:
+        return [], subtitle
+
+    def _field(obj, key):
+        mm = re.search(rf"{key}\s*:\s*'([^']*)'", obj)
+        if mm:
+            return mm.group(1)
+        mm = re.search(rf"{key}\s*:\s*(\d+|null)", obj)
+        if mm:
+            return mm.group(1)
+        return None
+
+    pins = []
+    for pm in re.finditer(r"\{([^{}]+)\}", pins_m.group(1)):
+        obj = pm.group(1)
+        pid = _field(obj, "id")
+        lab = _field(obj, "lab") or pid or "?"
+        code = _field(obj, "code")
+        if code is None:
+            code = "—"
+        ecm = _field(obj, "ecm")
+        src = _field(obj, "src")
+        if ecm and ecm != "null":
+            note = str(ecm)
+        elif src:
+            note = src
+        else:
+            note = "nc"
+        pins.append((lab, code, note))
+    return pins, subtitle
+
+
+_MAP_PATH = _find_map_html()
+_MAP_HTML = ""
+if _MAP_PATH:
+    with open(_MAP_PATH, encoding="utf-8", errors="replace") as _mf:
+        _MAP_HTML = _mf.read()
+    print("CONN source:", _MAP_PATH)
+
+# Pin data from map (motor loom intermediates)
+E12_F3_PINS, E12_F3_SUB = extract_conn("ix_e12_f3")
+E10_F1_PINS, E10_F1_SUB = extract_conn("ix_e10_f1")
+KNOCK_PINS, _KNOCK_SUB = extract_conn("ix_f14_f229")
+if not KNOCK_PINS:
+    KNOCK_PINS = [("SIG", "W", "15"), ("GND", "B", "116")]
+if not E12_F3_SUB:
+    E12_F3_SUB = "8-pin GY · VB 119/120 · IGN"
+if not E10_F1_SUB:
+    E10_F1_SUB = "9-pin GY · START · REV Y/R"
+
 
 # ========== PAGE 1: cover banner + EC-123 (motor) — NO IPDM ==========
 FOOT_Y = 8
@@ -638,14 +750,14 @@ c.setFillColor(black)
 y_top = H - HEADER_H
 avail = y_top - BOTTOM
 label_h = 11
-# PATH rows: 5V ETC, AF, knock+sens, act, coil, inj, joints
-weights = [0.78, 1.05, 1.00, 0.55, 0.62, 0.62, 0.95]
+# PATH rows: 5V ETC, AF, knock+sens, act, coil, inj, jointsA, jointsB (mates tall)
+weights = [0.68, 0.90, 0.85, 0.48, 0.52, 0.52, 0.50, 1.25]
 gap_v = 2.0
 n_gaps = len(weights) - 1
 n_labels = 4  # 5V, AF, Knock, joints (+ act/coil/inj without separate banners to save height)
 card_budget = avail - n_labels * label_h - n_gaps * gap_v
 chs = [card_budget * w / sum(weights) for w in weights]
-(ch_5v, ch_af, ch_ks, ch_act, ch_coil, ch_inj, ch_j) = chs
+(ch_5v, ch_af, ch_ks, ch_act, ch_coil, ch_inj, ch_ja, ch_jb) = chs
 
 y = y_top
 
@@ -758,51 +870,44 @@ for cyl, pin, code in injs:
     xx += cw_c + GAP
 y -= ch_inj + gap_v
 
-# --- Motor joints ---
+# --- Motor joints (2 rows: grounds/noise | E12⟷F3 + E10⟷F1 mates from map) ---
 section_label(ML, y - 9, usable_w,
               "Joints motor  ·  F103/gnd4 → E17  ·  Ign condenser  ·  SNS GND  ·  E12⟷F3  ·  E10⟷F1 (battery tray)")
 y -= label_h
-# layout: F103 | E17 | condenser | SNS GND | E12⟷F3 mate | E10/F1 note
-w_f103 = usable_w * 0.16
-w_e17 = usable_w * 0.10
-w_cond = usable_w * 0.12
-w_sns = usable_w * 0.14
-w_e12 = usable_w * 0.28
-w_e10 = usable_w - (w_f103 + w_e17 + w_cond + w_sns + w_e12 + 5 * GAP)
 
-ficha(ML, y - ch_j, w_f103, ch_j, "F103 gnd4",
+# Row A: F103 | E17 | condenser | SNS GND
+w4 = (usable_w - 3 * GAP) / 4
+ficha(ML, y - ch_ja, w4, ch_ja, "F103 gnd4",
       [("A", "B", "1"), ("B", "B/W", "115"), ("C", "B/R", "116"), ("D", "B", "E17")],
       "rect4", subtitle="1/115/116 → E17", accent=GRP["power"])
-ficha(ML + w_f103 + GAP, y - ch_j, w_e17, ch_j, "E17 body",
+ficha(ML + w4 + GAP, y - ch_ja, w4, ch_ja, "E17 body",
       [("ring", "B", "gnd")],
       "ring", qty="masa", accent=GRP["power"])
-ficha(ML + w_f103 + w_e17 + 2 * GAP, y - ch_j, w_cond, ch_j, "Ign condenser",
+ficha(ML + 2 * (w4 + GAP), y - ch_ja, w4, ch_ja, "Ign condenser",
       [("~2µF", "—", "cyl3")],
       "tab2", subtitle="noise · near cyl3", accent=GRP["actuators"])
-ficha(ML + w_f103 + w_e17 + w_cond + 3 * GAP, y - ch_j, w_sns, ch_j, "SNS GND",
+ficha(ML + 3 * (w4 + GAP), y - ch_ja, w4, ch_ja, "SNS GND",
       [("66", "B", "66"), ("67", "B", "67"), ("78", "B", "78")],
       "tab3", subtitle="sensor grounds", accent=GRP["power"])
-draw_mate_pair(ML + w_f103 + w_e17 + w_cond + w_sns + 4 * GAP, y - ch_j, w_e12, ch_j,
-               {"title": "E12", "pins": [], "shape": "ixnote",
-                "subtitle": "A/F+poder / coil·inj 12V", "accent": GRP["intermedias"],
+y -= ch_ja + gap_v
+
+# Row B: full E12⟷F3 + E10⟷F1 mate pairs (pins from live map HTML)
+w_mate = (usable_w - GAP) / 2
+draw_mate_pair(ML, y - ch_jb, w_mate, ch_jb,
+               {"title": "E12", "pins": E12_F3_PINS, "shape": "box",
+                "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
                 "face_inv": False},
-               {"title": "F3", "pins": [], "shape": "ixnote",
-                "subtitle": "mate E12 · heaters rail", "accent": GRP["intermedias"],
+               {"title": "F3", "pins": E12_F3_PINS, "shape": "box",
+                "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
                 "face_inv": False})
-# E10⟷F1 compact note card
-xx_e10 = ML + w_f103 + w_e17 + w_cond + w_sns + w_e12 + 5 * GAP
-card_shell(xx_e10, y - ch_j, w_e10, ch_j, accent=GRP["intermedias"], radius=3)
-c.setFillColor(TITLE_BLACK)
-c.setFont("Helvetica-Bold", 5.5)
-c.drawCentredString(xx_e10 + w_e10 / 2, y - 11, "E10 ⟷ F1")
-c.setFont("Helvetica", 4.0)
-c.setFillColor(MUTED)
-c.drawCentredString(xx_e10 + w_e10 / 2, y - 22, "battery tray")
-c.drawCentredString(xx_e10 + w_e10 / 2, y - 32, "starter / BATT path")
-c.setFillColor(ECM_BLUE)
-c.setFont("Helvetica", 3.8)
-c.drawCentredString(xx_e10 + w_e10 / 2, y - ch_j + 8, "si aplica · FSM")
-c.setFillColor(black)
+draw_mate_pair(ML + w_mate + GAP, y - ch_jb, w_mate, ch_jb,
+               {"title": "E10", "pins": E10_F1_PINS, "shape": "box",
+                "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
+                "face_inv": False},
+               {"title": "F1", "pins": E10_F1_PINS, "shape": "box",
+                "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
+                "face_inv": False})
+y -= ch_jb
 
 c.setFont("Helvetica", 4.8)
 c.setFillColor(MUTED)
