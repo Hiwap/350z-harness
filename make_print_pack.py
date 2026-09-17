@@ -19,10 +19,10 @@ PREVIEW_DIR = os.environ.get("PRINT_PACK_PREVIEW", os.path.join(_ROOT, "pdf_prev
 W, H = landscape(letter)
 c = canvas.Canvas(OUT, pagesize=landscape(letter))
 
-_PIN_JSON = os.path.join(_ROOT, "pin_colors.json")
-if not os.path.exists(_PIN_JSON):
-    _PIN_JSON = "/workspace/pin_colors.json"
-PIN_COL = {int(k): v for k, v in json.load(open(_PIN_JSON)).items()}
+# Wire colors / rails filled from map HTML after load (fallback: pin_colors.json)
+PIN_COL = {}
+PIN_RAIL = {}
+PIN_CAN = {}
 OC = {
     "B": HexColor("#000000"), "W": HexColor("#757575"), "R": HexColor("#D50000"),
     "G": HexColor("#1B5E20"), "L": HexColor("#0D47A1"), "Y": HexColor("#F57F17"),
@@ -97,25 +97,51 @@ def draw_wire_code(cx, cy, code, fs):
         xx += c.stringWidth(s, "Helvetica-Bold", fs)
 
 
+def ecm_bottom_label(pin):
+    """Match web ECM dest line: rail GND/12V/5V, CAN C/H·C/L, else blank."""
+    rail = PIN_RAIL.get(pin)
+    if rail == "gnd":
+        return "GND"
+    if rail == "12v":
+        return "12V"
+    if rail == "5v":
+        return "5V"
+    can = PIN_CAN.get(pin)
+    if can:
+        return can
+    return ""
+
+
 def draw_pin(x, y, w, h, pin):
-    """ECM cell like web: pin nº (top) + colored wire code (bottom). No name/short-code."""
+    """ECM cell like web: pin nº · wire code · rail/CAN bottom (when present)."""
     code = PIN_COL.get(pin, "")
+    bot = ecm_bottom_label(pin)
     is_bench = pin in BENCH
     c.setFillColor(white)
     c.setStrokeColor(HexColor("#B71C1C") if is_bench else oc(code) if code else LIGHT_GRAY)
     c.setLineWidth(2.2 if (code or is_bench) else 0.5)
     c.roundRect(x, y, w, h, 2, fill=1, stroke=1)
     if code and "/" in code:
-        # secondary color tick on right edge (web dual-tone cue)
         c.setStrokeColor(oc(code.split("/")[1]))
         c.setLineWidth(1.4)
         c.line(x + w - 2.2, y + 2.5, x + w - 2.2, y + h - 2.5)
-    fs_pin = max(6.5, min(10.5, h * 0.40))
-    fs_code = max(4.0, min(6.8, h * 0.28))
+    has_bot = bool(bot)
+    fs_pin = max(5.5, min(9.5, h * (0.32 if has_bot else 0.40)))
+    fs_code = max(3.6, min(6.2, h * (0.22 if has_bot else 0.28)))
+    fs_bot = max(3.4, min(5.8, h * 0.20))
     c.setFillColor(HexColor("#212121"))
     c.setFont("Helvetica-Bold", fs_pin)
-    c.drawCentredString(x + w / 2, y + h * 0.55, str(pin))
-    draw_wire_code(x + w / 2, y + max(2.2, h * 0.12), code if code else "·", fs_code)
+    c.drawCentredString(x + w / 2, y + h * (0.62 if has_bot else 0.55), str(pin))
+    draw_wire_code(x + w / 2, y + h * (0.34 if has_bot else 0.12), code if code else "·", fs_code)
+    if has_bot:
+        if bot in ("GND", "12V", "5V"):
+            c.setFillColor(lab_fill(bot))
+        elif bot.startswith("C/"):
+            c.setFillColor(HexColor("#6A1B9A"))
+        else:
+            c.setFillColor(MUTED)
+        c.setFont("Helvetica-Bold", fs_bot)
+        c.drawCentredString(x + w / 2, y + max(2.0, h * 0.06), bot)
 
 
 def draw_empty(x, y, w, h):
@@ -221,10 +247,22 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         labs = list(labs)
         return list(reversed(labs)) if use_inv else labs
     def _pin_disp(p):
-        """Normalize (id,code,note[,disp]) → (disp_lab, code, note) for draw_cavity."""
+        """Normalize (id,code,note[,disp]) → (disp_lab, code, note) for draw_cavity.
+        Applies web-style bottom labels for rails / SIG on 3-tuples too."""
         if len(p) >= 4:
             return (p[3], p[1], p[2])
-        return (p[0], p[1], p[2])
+        lab, code, note = p[0], p[1], p[2]
+        lu = str(lab).upper()
+        if lu in ("GND", "12V", "5V"):
+            return (lu, code, note)
+        if lu == "SIG":
+            # note often holds ECM #
+            if note and str(note).isdigit():
+                return (str(note) + "S", code, note)
+            return ("S", code, note)
+        if lu in ("SH",) and note and str(note).isdigit():
+            return ("GND", code, note)  # knock shield
+        return (lab, code, note)
     by = {str(p[0]): p for p in pins}
 
     # ---- RING (E17 body ground) ----
@@ -683,15 +721,52 @@ def extract_conn(conn_id, html=None):
             code = "—"
         ecm = _field(obj, "ecm")
         src = _field(obj, "src")
+        rail = _field(obj, "rail")
         if ecm and ecm != "null":
             note = str(ecm)
         elif src:
             note = src
         else:
             note = "nc"
-        # id first so face layouts (f3/f1) key by cavity number; disp_lab for 3rd line
-        pins.append((str(pid or lab), code, note, str(lab)))
+        # Bottom line matches web cavBottomLabel
+        lab_u = str(lab).upper()
+        id_u = str(pid or "").upper()
+        if rail == "gnd":
+            disp = "GND"
+        elif rail == "12v":
+            disp = "12V"
+        elif rail == "5v":
+            disp = "5V"
+        elif lab_u == "SIG" or id_u == "SIG":
+            if ecm and ecm != "null":
+                disp = str(ecm) + "S"
+            elif pid and id_u != "SIG":
+                disp = str(pid) + "S"
+            else:
+                disp = "S"
+        else:
+            disp = str(lab)
+        pins.append((str(pid or lab), code, note, disp))
     return pins, subtitle
+
+
+def _extract_js_object(html, name):
+    m = re.search(rf"const {name} = (\{{.*?\}});", html, re.DOTALL)
+    if not m:
+        return {}
+    raw = m.group(1)
+    # JS object → JSON-ish: quote keys, keep string values
+    raw = re.sub(r"([\{\,]\s*)(\d+)\s*:", r'\1"\2":', raw)
+    raw = raw.replace("'", '"')
+    try:
+        return json.loads(raw)
+    except Exception:
+        out = {}
+        for km in re.finditer(r"(\d+)\s*:\s*'([^']*)'", raw):
+            out[km.group(1)] = km.group(2)
+        for km in re.finditer(r'(\d+)\s*:\s*"([^"]*)"', raw):
+            out[km.group(1)] = km.group(2)
+        return out
 
 
 _MAP_PATH = _find_map_html()
@@ -700,6 +775,25 @@ if _MAP_PATH:
     with open(_MAP_PATH, encoding="utf-8", errors="replace") as _mf:
         _MAP_HTML = _mf.read()
     print("CONN source:", _MAP_PATH)
+    _pc = _extract_js_object(_MAP_HTML, "PIN_COL")
+    _pr = _extract_js_object(_MAP_HTML, "PIN_RAIL")
+    _pcan = _extract_js_object(_MAP_HTML, "PIN_CAN")
+    if _pc:
+        PIN_COL = {int(k): v for k, v in _pc.items()}
+        print("PIN_COL from map:", len(PIN_COL))
+    if _pr:
+        PIN_RAIL = {int(k): v for k, v in _pr.items()}
+        print("PIN_RAIL from map:", len(PIN_RAIL))
+    if _pcan:
+        PIN_CAN = {int(k): v for k, v in _pcan.items()}
+        print("PIN_CAN from map:", PIN_CAN)
+
+if not PIN_COL:
+    _PIN_JSON = os.path.join(_ROOT, "pin_colors.json")
+    if not os.path.exists(_PIN_JSON):
+        _PIN_JSON = "/workspace/pin_colors.json"
+    PIN_COL = {int(k): v for k, v in json.load(open(_PIN_JSON)).items()}
+    print("PIN_COL fallback json:", len(PIN_COL))
 
 # Pin data from map (motor loom intermediates)
 E12_F3_PINS, E12_F3_SUB = extract_conn("ix_e12_f3")
