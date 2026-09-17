@@ -363,11 +363,14 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     # ---- AF6: FSM top 5-3-1 / bot 6-4-2 · Invertida mirrors each row ----
     if face == "af6" and all(k in by for k in ("1", "2", "3", "4", "5", "6")):
         order = [_row(["5", "3", "1"]), _row(["6", "4", "2"])]
-        cw, ch = face_w / 3, face_h / 2
+        # Prefer taller cavities (bench readability for A/F)
+        ch = face_h / 2
+        cw = min(face_w / 3, ch * 1.15)
+        ox = face_x + max(0, (face_w - 3 * cw) / 2)
         for ri, row in enumerate(order):
             for ci, key in enumerate(row):
                 lab, col, note = _pin_disp(by[key])
-                draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note)
+                draw_cavity(ox + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note, fs=4.6)
         return
 
     # ---- E113 APP FSM face: top 3-2-1 / bot 6-5-4 · Invertida mirrors ----
@@ -398,13 +401,16 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     if face == "rect6" and len(pins) >= 6:
         top = _row(pins[:3])
         bot = _row(pins[3:6])
-        cw, ch = face_w / 3, face_h / 2
+        # ETC etc. — taller cavities like A/F
+        ch = face_h / 2
+        cw = min(face_w / 3, ch * 1.15)
+        ox = face_x + max(0, (face_w - 3 * cw) / 2)
         for ci, p in enumerate(top):
             lab, col, note = _pin_disp(p)
-            draw_cavity(face_x + ci * cw, face_y + ch, cw, ch, lab, col, note)
+            draw_cavity(ox + ci * cw, face_y + ch, cw, ch, lab, col, note, fs=4.6)
         for ci, p in enumerate(bot):
             lab, col, note = _pin_disp(p)
-            draw_cavity(face_x + ci * cw, face_y, cw, ch, lab, col, note)
+            draw_cavity(ox + ci * cw, face_y, cw, ch, lab, col, note, fs=4.6)
         return
 
     # ---- F3 (mapa svgF3): top 1-2-3-4 / bot 5-6-7-8 · fixed cavity size ----
@@ -918,8 +924,9 @@ y_top = H - HEADER_H
 avail = y_top - BOTTOM
 label_h = 11
 # PATH rows: AF, knock+sens, ETC+VTC, coil, inj, jointsA, jointsB
-weights = [0.95, 0.90, 0.62, 0.55, 0.55, 0.50, 1.20]
-gap_v = 2.0
+# AF + ETC rows taller so 6-pin faces (A/F, ETC) get bigger cavities
+weights = [1.15, 0.78, 0.85, 0.48, 0.48, 0.42, 1.05]
+gap_v = 1.8
 n_gaps = len(weights) - 1
 n_labels = 3  # AF, Knock, joints (+ act/coil/inj without banners)
 card_budget = avail - n_labels * label_h - n_gaps * gap_v
@@ -932,7 +939,7 @@ y = y_top
 section_label(ML, y - 9, usable_w,
               "PATH A/F + HO2S  ·  sensores → E12⟷F3 (heaters / poder) → ECM  ·  heaters ECM 2 / 24")
 y -= label_h
-cw_af = 210
+cw_af = min(250, usable_w * 0.34)
 cw_ho = (usable_w - 2 * cw_af - GAP) / 2
 ficha(ML, y - ch_af, cw_af, ch_af, "A/F Sens 1 B1",
       [("1", "LG/B", "16"), ("2", "P/B", "75"), ("3", "12V", "fuse"),
