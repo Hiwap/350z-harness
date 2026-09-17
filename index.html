@@ -2329,14 +2329,22 @@ function isPseudoWireCode(code){
 function cavBottomLabel(pin){
   const rail = cavRailOf(pin);
   const lab = pin && pin.lab != null ? String(pin.lab).trim() : '';
+  const idStr = pin && pin.id != null ? String(pin.id).trim() : '';
   /* Rail pins: 3rd line always GND / 12V / 5V; destination (ECM#, E17, MOTRLY…) stays on top via cavTopLabel. */
   if(rail === 'gnd') return 'GND';
   if(rail === '12v') return '12V';
   if(rail === '5v') return '5V';
   const can = cavCanOf(pin);
   if(can) return can;
+  /* Signal pins: 3rd line = pin# + S (e.g. 15S), not the word SIG. */
+  const isSig = lab.toUpperCase() === 'SIG' || idStr.toUpperCase() === 'SIG';
+  if(isSig){
+    if(pin && pin.ecm != null) return String(pin.ecm) + 'S';
+    if(idStr && idStr.toUpperCase() !== 'SIG') return idStr + 'S';
+    return 'S';
+  }
   if(lab && !isPseudoWireCode(lab)) return lab;
-  return String(pin && pin.id != null ? pin.id : '');
+  return idStr;
 }
 /** Mid wire letters — never repeat 12V/5V/GND placeholders. */
 function cavWireCode(pin){
