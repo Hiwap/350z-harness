@@ -2328,6 +2328,7 @@ function isPseudoWireCode(code){
 /** Bottom line: rail / CAN tag when known, else cavity id. */
 function cavBottomLabel(pin){
   const rail = cavRailOf(pin);
+  const lab = pin && pin.lab != null ? String(pin.lab).trim() : '';
   /* Rail pins: 3rd line always GND / 12V / 5V; destination (ECM#, E17, MOTRLY…) stays on top via cavTopLabel. */
   if(rail === 'gnd') return 'GND';
   if(rail === '12v') return '12V';
