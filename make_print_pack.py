@@ -811,7 +811,7 @@ if not E10_F1_SUB:
 FOOT_Y = 8
 
 # Cover band (was page 1) — kept visible so it is clearly merged, not deleted
-cover_h = 52
+cover_h = 46
 c.setFillColor(PATH_BG)
 c.setStrokeColor(SHELL)
 c.setLineWidth(1.2)
@@ -861,13 +861,13 @@ b2 = [[113, 112, 111, 110, 109, 108, 107, 106], [105, 104, 103, 102, 101, 100, 9
 b3 = [list(range(6, 25)), list(range(25, 44)), list(range(44, 63)), list(range(63, 82))]
 b4 = [[5, 4], [None, 3], [2, 1]]
 
-gap_pin = 1.4
+gap_pin = 1.5
 gap_blk = 6.5
-# ECM under cover band
-ph = 27.5
+# ECM under cover band — a bit taller (room left on page)
+ph = 33.0
 usable_w = W - 28
 pw = (usable_w - 3 * gap_blk) / 32 - gap_pin
-pw = max(14.5, min(pw, ph * 1.15))
+pw = max(15.5, min(pw, ph * 1.12))
 
 grid_top = ly - 8
 x = 14
