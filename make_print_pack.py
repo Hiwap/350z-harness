@@ -214,12 +214,17 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     Connector card: group-colored outline (web SUB_ACCENT). Optional amber outer ring for 5V.
     Wire color only on cavity stroke + codes. Invertida L/R on faces.
     """
-    face = face or (shape if shape in ("af6", "rect6", "f2", "rect10", "e113", "f102", "smj_h") else None)
+    face = face or (shape if shape in ("af6", "rect6", "f2", "rect10", "e113", "f102", "smj_h", "f3", "f1") else None)
     # face_inv=None → global FACE_INV; False = keep FSM H.S. (intermedias)
     use_inv = FACE_INV if face_inv is None else face_inv
     def _row(labs):
         labs = list(labs)
         return list(reversed(labs)) if use_inv else labs
+    def _pin_disp(p):
+        """Normalize (id,code,note[,disp]) → (disp_lab, code, note) for draw_cavity."""
+        if len(p) >= 4:
+            return (p[3], p[1], p[2])
+        return (p[0], p[1], p[2])
     by = {str(p[0]): p for p in pins}
 
     # ---- RING (E17 body ground) ----
@@ -267,7 +272,8 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         n = max(1, len(ordered))
         cw = (w - 10) / n
         ch = h - 28
-        for i, (lab, col, note) in enumerate(ordered):
+        for i, p in enumerate(ordered):
+            lab, col, note = _pin_disp(p)
             draw_cavity(x + 5 + i * cw, y + 4, cw, ch, lab, col, note)
         return
 
@@ -321,8 +327,8 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         order = [_row(["5", "3", "1"]), _row(["6", "4", "2"])]
         cw, ch = face_w / 3, face_h / 2
         for ri, row in enumerate(order):
-            for ci, lab in enumerate(row):
-                lab, col, note = by[lab]
+            for ci, key in enumerate(row):
+                lab, col, note = _pin_disp(by[key])
                 draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note)
         return
 
@@ -331,8 +337,8 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         order = [_row(["3", "2", "1"]), _row(["6", "5", "4"])]
         cw, ch = face_w / 3, face_h / 2
         for ri, row in enumerate(order):
-            for ci, lab in enumerate(row):
-                lab, col, note = by[lab]
+            for ci, key in enumerate(row):
+                lab, col, note = _pin_disp(by[key])
                 draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note)
         return
 
@@ -346,7 +352,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
             for ci, num in enumerate(row):
                 if num not in by_num:
                     continue
-                lab, col, note = by_num[num]
+                lab, col, note = _pin_disp(by_num[num])
                 draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note, fs=3.4)
         return
 
@@ -355,19 +361,73 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         top = _row(pins[:3])
         bot = _row(pins[3:6])
         cw, ch = face_w / 3, face_h / 2
-        for ci, (lab, col, note) in enumerate(top):
+        for ci, p in enumerate(top):
+            lab, col, note = _pin_disp(p)
             draw_cavity(face_x + ci * cw, face_y + ch, cw, ch, lab, col, note)
-        for ci, (lab, col, note) in enumerate(bot):
+        for ci, p in enumerate(bot):
+            lab, col, note = _pin_disp(p)
             draw_cavity(face_x + ci * cw, face_y, cw, ch, lab, col, note)
         return
+
+    # ---- F3 (mapa svgF3): top 1-2-3-4 / bot 5-6-7-8 · fixed cavity size ----
+    if face == "f3" or shape == "f3":
+        ids_ok = all(str(i) in by for i in range(1, 9))
+        if ids_ok:
+            # Fixed pin size (same-ish as other fichas); center grid in card
+            cw = min(26.0, face_w / 4.2)
+            ch = min(26.0, face_h / 2.15)
+            grid_w, grid_h = 4 * cw, 2 * ch
+            ox = face_x + max(0, (face_w - grid_w) / 2)
+            oy = face_y + max(0, (face_h - grid_h) / 2)
+            top, bot = ["1", "2", "3", "4"], ["5", "6", "7", "8"]
+            if use_inv:
+                top, bot = list(reversed(top)), list(reversed(bot))
+            for ci, pid in enumerate(top):
+                lab, col, note = _pin_disp(by[pid])
+                draw_cavity(ox + ci * cw, oy + ch, cw, ch, lab, col, note, fs=4.2)
+            for ci, pid in enumerate(bot):
+                lab, col, note = _pin_disp(by[pid])
+                draw_cavity(ox + ci * cw, oy, cw, ch, lab, col, note, fs=4.2)
+            return
+
+    # ---- F1 (mapa svgF1): pin1 left mid · top 2-3-4-5 · bot 6-7-8-9 · fixed cavity ----
+    if face == "f1" or shape == "f1":
+        ids_ok = all(str(i) in by for i in range(1, 10))
+        if ids_ok:
+            cw = min(24.0, face_w / 5.4)
+            ch = min(24.0, face_h / 2.15)
+            # layout width: 1 + gap + 4
+            grid_w = cw + 4 * cw + cw * 0.15
+            grid_h = 2 * ch
+            ox = face_x + max(0, (face_w - grid_w) / 2)
+            oy = face_y + max(0, (face_h - grid_h) / 2)
+            top, bot = ["2", "3", "4", "5"], ["6", "7", "8", "9"]
+            if use_inv:
+                top, bot = list(reversed(top)), list(reversed(bot))
+            # pin 1 left, vertically centered between rows
+            lab, col, note = _pin_disp(by["1"])
+            draw_cavity(ox, oy + ch * 0.5, cw, ch, lab, col, note, fs=4.0)
+            gx = ox + cw + cw * 0.15
+            for ci, pid in enumerate(top):
+                lab, col, note = _pin_disp(by[pid])
+                draw_cavity(gx + ci * cw, oy + ch, cw, ch, lab, col, note, fs=4.0)
+            for ci, pid in enumerate(bot):
+                lab, col, note = _pin_disp(by[pid])
+                draw_cavity(gx + ci * cw, oy, cw, ch, lab, col, note, fs=4.0)
+            return
 
     # ---- RECT4 · Invertida ----
     if shape == "rect4":
         n = min(4, len(pins))
         ordered = _row(pins[:n])
-        cw = face_w / max(n, 1)
-        for i, (lab, col, note) in enumerate(ordered):
-            draw_cavity(face_x + i * cw, face_y, cw, face_h, lab, col, note, fs=3.6)
+        # fixed-ish pin size, center in card
+        cw = min(26.0, face_w / max(n, 1))
+        ch = min(26.0, face_h)
+        ox = face_x + max(0, (face_w - n * cw) / 2)
+        oy = face_y + max(0, (face_h - ch) / 2)
+        for i, p in enumerate(ordered):
+            lab, col, note = _pin_disp(p)
+            draw_cavity(ox + i * cw, oy, cw, ch, lab, col, note, fs=4.0)
         return
 
     # ---- F102 SMJ · PG-85 H.S. (ENGINE CONTROL HARNESS, white) · no Invertida ----
@@ -393,8 +453,8 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
                 px = bx + ci * cw
                 py = face_y + ch
                 if lab in verified:
-                    _, col, note = verified[lab]
-                    draw_cavity(px, py, cw, ch, lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)))
+                    dlab, col, note = _pin_disp(verified[lab])
+                    draw_cavity(px, py, cw, ch, dlab if dlab != lab else lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)))
                 else:
                     c.setFillColor(white)
                     c.setStrokeColor(HexColor("#E0E0E0"))
@@ -409,8 +469,8 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
                 px = bx + ci * cw
                 py = face_y
                 if lab in verified:
-                    _, col, note = verified[lab]
-                    draw_cavity(px, py, cw, ch, lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)))
+                    dlab, col, note = _pin_disp(verified[lab])
+                    draw_cavity(px, py, cw, ch, dlab if dlab != lab else lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)))
                 else:
                     c.setFillColor(white)
                     c.setStrokeColor(HexColor("#E0E0E0"))
@@ -448,16 +508,20 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         c.setFillColor(black)
         return
 
-    # ---- IPDM / TAB2 / TAB3 / default row · Invertida ----
+    # ---- IPDM / TAB2 / TAB3 / default row · Invertida · fixed-ish pin size ----
     n = len(pins)
     if n == 0:
         return
     ordered = _row(pins)
     cols = len(ordered)
-    cw = face_w / cols
-    for i, (lab, col, note) in enumerate(ordered):
-        draw_cavity(face_x + i * cw, face_y, cw, face_h, lab, col, note,
-                    fs=4.0 if shape == "ipdm" else None)
+    cw = min(26.0, face_w / max(cols, 1))
+    ch = min(26.0, face_h)
+    ox = face_x + max(0, (face_w - cols * cw) / 2)
+    oy = face_y + max(0, (face_h - ch) / 2)
+    for i, pin in enumerate(ordered):
+        lab, col, note = _pin_disp(pin)
+        draw_cavity(ox + i * cw, oy, cw, ch, lab, col, note,
+                    fs=4.0 if shape == "ipdm" else 4.2)
 
 
 def section_label(x, y, w, text):
@@ -569,10 +633,11 @@ def _brace_block(text, start_brace):
 def extract_conn(conn_id, html=None):
     """Parse CONN[conn_id] from map HTML → (pins, subtitle).
 
-    pins: list of (lab, code, note) for ficha() / draw_mate_pair().
-      lab  = pin.lab or pin.id
+    pins: list of (id, code, note, disp_lab) for ficha() / draw_mate_pair().
+      id   = pin.id (cavity key for face grids)
       code = pin.code or '—'
       note = ecm as str, else src, else 'nc'
+      disp_lab = pin.lab or id (bottom line on cavity)
     Does not invent pins; empty cavities keep code '—'.
     """
     if html is None:
@@ -624,7 +689,8 @@ def extract_conn(conn_id, html=None):
             note = src
         else:
             note = "nc"
-        pins.append((lab, code, note))
+        # id first so face layouts (f3/f1) key by cavity number; disp_lab for 3rd line
+        pins.append((str(pid or lab), code, note, str(lab)))
     return pins, subtitle
 
 
@@ -895,17 +961,17 @@ y -= ch_ja + gap_v
 # Row B: full E12⟷F3 + E10⟷F1 mate pairs (pins from live map HTML)
 w_mate = (usable_w - GAP) / 2
 draw_mate_pair(ML, y - ch_jb, w_mate, ch_jb,
-               {"title": "E12", "pins": E12_F3_PINS, "shape": "box",
+               {"title": "E12", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
                 "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
                 "face_inv": False},
-               {"title": "F3", "pins": E12_F3_PINS, "shape": "box",
+               {"title": "F3", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
                 "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
                 "face_inv": False})
 draw_mate_pair(ML + w_mate + GAP, y - ch_jb, w_mate, ch_jb,
-               {"title": "E10", "pins": E10_F1_PINS, "shape": "box",
+               {"title": "E10", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
                 "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
                 "face_inv": False},
-               {"title": "F1", "pins": E10_F1_PINS, "shape": "box",
+               {"title": "F1", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
                 "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
                 "face_inv": False})
 y -= ch_jb
