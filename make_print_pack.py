@@ -917,28 +917,16 @@ c.setFillColor(black)
 y_top = H - HEADER_H
 avail = y_top - BOTTOM
 label_h = 11
-# PATH rows: 5V ETC, AF, knock+sens, act, coil, inj, jointsA, jointsB (mates tall)
-weights = [0.68, 0.90, 0.85, 0.48, 0.52, 0.52, 0.50, 1.25]
+# PATH rows: AF, knock+sens, ETC+VTC, coil, inj, jointsA, jointsB
+weights = [0.95, 0.90, 0.62, 0.55, 0.55, 0.50, 1.20]
 gap_v = 2.0
 n_gaps = len(weights) - 1
-n_labels = 4  # 5V, AF, Knock, joints (+ act/coil/inj without separate banners to save height)
+n_labels = 3  # AF, Knock, joints (+ act/coil/inj without banners)
 card_budget = avail - n_labels * label_h - n_gaps * gap_v
 chs = [card_budget * w / sum(weights) for w in weights]
-(ch_5v, ch_af, ch_ks, ch_act, ch_coil, ch_inj, ch_ja, ch_jb) = chs
+(ch_af, ch_ks, ch_act, ch_coil, ch_inj, ch_ja, ch_jb) = chs
 
 y = y_top
-
-# --- PATH 5V motor (ETC) ---
-section_label(ML, y - 9, usable_w,
-              "PATH 5V motor  ·  ETC throttle (DBW)  ·  5V=47 · SNS TPS→66")
-y -= label_h
-w_etc = min(320, usable_w * 0.42)
-ficha(ML, y - ch_5v, w_etc, ch_5v, "ETC throttle",
-      [("M+", "L/Y", "5"), ("M-", "L/B", "4"), ("5V", "W/R", "47"),
-       ("T1", "G", "50"), ("T2", "Y", "69"), ("GND", "B", "SNS")],
-      "rect6", face="rect6", subtitle="DBW · 5V=47 · motor ± · TPS",
-      accent=GRP["sensors"], rail_5v=True)
-y -= ch_5v + gap_v
 
 # --- A/F path ---
 section_label(ML, y - 9, usable_w,
@@ -1000,12 +988,17 @@ for title, pins, sh, sub in items_s:
     xx += w6 + GAP
 y -= ch_ks + gap_v
 
-# --- Actuators (VTC only) ---
-cw_a = (usable_w - GAP) / 2
-ficha(ML, y - ch_act, cw_a, ch_act, "VTC B1",
+# --- ETC + VTC (same row — no full-width lone ETC) ---
+cw3 = (usable_w - 2 * GAP) / 3
+ficha(ML, y - ch_act, cw3, ch_act, "ETC throttle",
+      [("M+", "L/Y", "5"), ("M-", "L/B", "4"), ("5V", "W/R", "47"),
+       ("T1", "G", "50"), ("T2", "Y", "69"), ("GND", "B", "SNS")],
+      "rect6", face="rect6", subtitle="DBW · 5V=47 · TPS",
+      accent=GRP["sensors"], rail_5v=True)
+ficha(ML + cw3 + GAP, y - ch_act, cw3, ch_act, "VTC B1",
       [("ECM", "P", "11"), ("12V", "R", "ign")], "tab2", subtitle="intake cam RH · →ECM 11",
       accent=GRP["actuators"])
-ficha(ML + cw_a + GAP, y - ch_act, cw_a, ch_act, "VTC B2",
+ficha(ML + 2 * (cw3 + GAP), y - ch_act, cw3, ch_act, "VTC B2",
       [("ECM", "W/G", "10"), ("12V", "R", "ign")], "tab2", subtitle="intake cam LH · →ECM 10",
       accent=GRP["actuators"])
 y -= ch_act + gap_v
