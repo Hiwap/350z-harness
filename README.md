@@ -8,7 +8,7 @@ Not a substitute for the official service manual.
 
 ## Print pack (Arnès motor)
 
-**English:** 2-page landscape PDF (English UI) — page 1 cover + EC-123 + ECM rails + F102, page 2 motor fichas. Regenerate:
+2-page landscape PDF (English UI) — page 1 cover + EC-123 + ECM rails + F102, page 2 motor fichas. Regenerate:
 
 ```bash
 python3 make_print_pack.py
