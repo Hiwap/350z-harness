@@ -26,6 +26,20 @@ VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラク�
 
 ---
 
+## Print pack (Arnès motor)
+
+**English:** 2-page landscape PDF — page 1 cover + EC-123, page 2 motor fichas. Regenerate:
+
+```bash
+python3 make_print_pack.py
+```
+
+Needs `pin_colors.json` beside the script and `reportlab` (`pip install reportlab`).
+
+**Español:** PDF de 2 páginas (landscape) — pág. 1 portada + EC-123, pág. 2 fichas del arnés de motor. Regenerar con `python3 make_print_pack.py`.
+
+**日本語:** 2ページの横向きPDF — 1ページ目カバー+EC-123、2ページ目モーター側フィチャ。`python3 make_print_pack.py` で再生成。
+
 ## Tests (no CI / no Actions)
 
 ```bash

@@ -1,0 +1,852 @@
+#!/usr/bin/env python3
+"""Paquete imprimible Arnès motor: pág1 cover+EC-123, pág2 fichas motor (sin checklist).
+Fondos blancos. Cards = outline por grupo (web) · 5V = anillo ámbar extra (sin lock-tab / silueta shell).
+Color cable = solo contorno de cavidad + código escrito.
+Caras Invertida (bancada): espejo L/R en ECM e intermedias motor (F-series mates).
+Fichas agrupadas por PATH al destino final (motor loom only — sin habitáculo / IPDM room).
+"""
+import json
+import os
+from reportlab.lib.pagesizes import landscape, letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.colors import HexColor, black, white
+from reportlab.lib.utils import ImageReader
+
+_ROOT = os.path.dirname(os.path.abspath(__file__))
+OUT = os.environ.get("PRINT_PACK_OUT", os.path.join(_ROOT, "350Z_2005_PRINT_PACK.pdf"))
+PREVIEW_DIR = os.environ.get("PRINT_PACK_PREVIEW", os.path.join(_ROOT, "pdf_preview"))
+W, H = landscape(letter)
+c = canvas.Canvas(OUT, pagesize=landscape(letter))
+
+_PIN_JSON = os.path.join(_ROOT, "pin_colors.json")
+if not os.path.exists(_PIN_JSON):
+    _PIN_JSON = "/workspace/pin_colors.json"
+PIN_COL = {int(k): v for k, v in json.load(open(_PIN_JSON)).items()}
+OC = {
+    "B": HexColor("#000000"), "W": HexColor("#757575"), "R": HexColor("#D50000"),
+    "G": HexColor("#1B5E20"), "L": HexColor("#0D47A1"), "Y": HexColor("#F57F17"),
+    "OR": HexColor("#E65100"), "P": HexColor("#880E4F"), "PU": HexColor("#4A148C"),
+    "GY": HexColor("#424242"), "BR": HexColor("#3E2723"), "SB": HexColor("#01579B"),
+    "LG": HexColor("#33691E"), "?": HexColor("#616161"), "12V": HexColor("#C62828"),
+    "SNS": HexColor("#546E7A"), "—": HexColor("#9E9E9E"),
+}
+BENCH = {90, 91, 82, 83, 13, 2, 47, 48, 49}
+
+FACE_INV = True  # Invertida (bancada): espejo L/R en TODAS las caras (ECM + intermedias)
+FACE_ORIENT_LABEL = "Invertida (bancada) · espejo L/R de cara FSM H.S. · ECM + intermedias motor"
+
+SHELL = black
+LAB_5V = HexColor("#F9A825")
+LAB_12V = HexColor("#C62828")
+LAB_GND = HexColor("#2E7D32")
+TITLE_BLACK = black
+ECM_BLUE = HexColor("#1565C0")
+MUTED = HexColor("#555555")
+LIGHT_GRAY = HexColor("#BDBDBD")
+PATH_BG = HexColor("#FAFAFA")
+
+# Match web SUB_ACCENT (group outline on fichas)
+GRP = {
+    "power": HexColor("#66bb6a"),
+    "feeds": HexColor("#ff8a65"),
+    "sensors": HexColor("#42a5f5"),
+    "actuators": HexColor("#7e57c2"),
+    "intermedias": HexColor("#90a4ae"),
+    "pedals": HexColor("#ffa726"),
+    "ascd": HexColor("#26c6da"),
+    "dlc": HexColor("#ab47bc"),
+}
+
+
+def oc(code):
+    if not code or code == "?":
+        return OC["?"]
+    if code == "12V":
+        return OC["12V"]
+    if code == "—":
+        return OC["—"]
+    return OC.get(code.split("/")[0], OC["?"])
+
+
+def draw_wire_code(cx, cy, code, fs):
+    """Wire code like web .pw: each letter color + black halo for contrast."""
+    if not code:
+        code = "·"
+    parts = code.split("/") if "/" in code else [code]
+    # measure total width
+    c.setFont("Helvetica-Bold", fs)
+    segs = []
+    for i, part in enumerate(parts):
+        if i:
+            segs.append(("/", HexColor("#455A64")))
+        segs.append((part, oc(part)))
+    total = sum(c.stringWidth(s, "Helvetica-Bold", fs) for s, _ in segs)
+    x = cx - total / 2
+    # black halo (8-dir) then colored glyph
+    for dx, dy in ((-0.55,0),(0.55,0),(0,-0.55),(0,0.55),(-0.4,-0.4),(0.4,-0.4),(-0.4,0.4),(0.4,0.4)):
+        xx = x
+        for s, _col in segs:
+            c.setFillColor(black)
+            c.drawString(xx + dx, cy + dy, s)
+            xx += c.stringWidth(s, "Helvetica-Bold", fs)
+    xx = x
+    for s, col in segs:
+        c.setFillColor(col)
+        c.drawString(xx, cy, s)
+        xx += c.stringWidth(s, "Helvetica-Bold", fs)
+
+
+def draw_pin(x, y, w, h, pin):
+    """ECM cell like web: pin nº (top) + colored wire code (bottom). No name/short-code."""
+    code = PIN_COL.get(pin, "")
+    is_bench = pin in BENCH
+    c.setFillColor(white)
+    c.setStrokeColor(HexColor("#B71C1C") if is_bench else oc(code) if code else LIGHT_GRAY)
+    c.setLineWidth(2.2 if (code or is_bench) else 0.5)
+    c.roundRect(x, y, w, h, 2, fill=1, stroke=1)
+    if code and "/" in code:
+        # secondary color tick on right edge (web dual-tone cue)
+        c.setStrokeColor(oc(code.split("/")[1]))
+        c.setLineWidth(1.4)
+        c.line(x + w - 2.2, y + 2.5, x + w - 2.2, y + h - 2.5)
+    fs_pin = max(6.5, min(10.5, h * 0.40))
+    fs_code = max(4.0, min(6.8, h * 0.28))
+    c.setFillColor(HexColor("#212121"))
+    c.setFont("Helvetica-Bold", fs_pin)
+    c.drawCentredString(x + w / 2, y + h * 0.55, str(pin))
+    draw_wire_code(x + w / 2, y + max(2.2, h * 0.12), code if code else "·", fs_code)
+
+
+def draw_empty(x, y, w, h):
+    c.setFillColor(white)
+    c.setStrokeColor(HexColor("#E0E0E0"))
+    c.setLineWidth(0.5)
+    c.setDash(1, 1)
+    c.roundRect(x, y, w, h, 1, fill=1, stroke=1)
+    c.setDash()
+
+
+def draw_block(x0, y_top, rows, pw, ph, gap=1.6):
+    for ri, row in enumerate(rows):
+        y = y_top - ri * (ph + gap)
+        for ci, pin in enumerate(row):
+            x = x0 + ci * (pw + gap)
+            if pin is None:
+                draw_empty(x, y, pw, ph)
+            else:
+                draw_pin(x, y, pw, ph, pin)
+
+
+def ecm_label(note):
+    if note is None or note == "":
+        return "—"
+    s = str(note)
+    if s.isdigit():
+        return "→" + s
+    if s.startswith("→"):
+        return s
+    return s
+
+
+def lab_fill(lab):
+    raw = str(lab).strip()
+    u = raw.upper()
+    if u == "5V":
+        return LAB_5V
+    if u == "12V":
+        return LAB_12V
+    # GND / gnd / SNS / SH / tierra → green
+    if u in ("GND", "SNS", "SH", "TIERRA") or "TIERRA" in u or u.startswith("GND"):
+        return LAB_GND
+    return TITLE_BLACK
+
+
+def draw_cavity(px, py, cw, ch, lab, col, note, fs=None):
+    """Cavity: white fill · wire-color contour stroke only · codes as text."""
+    if fs is None:
+        fs = max(4.0, min(7.2, min(ch * 0.26, cw * 0.22)))
+    pad = 1.0 if min(cw, ch) < 28 else 1.4
+    c.setFillColor(white)
+    stroke = oc(col) if col and col not in ("", "—", "nc") else LIGHT_GRAY
+    c.setStrokeColor(stroke)
+    c.setLineWidth(1.9 if ch >= 28 else 1.55)
+    c.roundRect(px + pad, py + pad, cw - 2 * pad, ch - 2 * pad, min(2.4, ch * 0.12), fill=1, stroke=1)
+    if col and "/" in col:
+        c.setStrokeColor(oc(col.split("/")[1]))
+        c.setLineWidth(1.35)
+        c.line(px + cw - 3.8, py + 2.5, px + cw - 3.8, py + ch - 2.5)
+    # Order matches web fichas: ECM # (top) · wire code · cavity id (bottom)
+    c.setFillColor(ECM_BLUE)
+    c.setFont("Helvetica-Bold", max(3.4, fs - 0.5))
+    c.drawCentredString(px + cw / 2, py + ch * 0.68, ecm_label(note)[:8])
+    c.setFillColor(black)
+    c.setFont("Helvetica-Bold", max(3.4, fs - 0.7))
+    c.drawCentredString(px + cw / 2, py + ch * 0.40, str(col)[:8])
+    c.setFillColor(lab_fill(lab))
+    c.setFont("Helvetica", max(3.2, fs - 0.9))
+    c.drawCentredString(px + cw / 2, py + max(2.4, ch * 0.08), str(lab)[:6])
+    c.setFillColor(black)
+
+
+def row_labs(labs):
+    """Invertida (bancada): mirror each face row L↔R. Applies to ECM faces AND intermedias."""
+    labs = list(labs)
+    return list(reversed(labs)) if FACE_INV else labs
+
+
+def card_shell(x, y, w, h, accent=None, rail_5v=False, radius=3.5):
+    """White card; group-colored outline. Optional outer amber ring for 5V paths."""
+    stroke = accent if accent is not None else SHELL
+    c.setFillColor(white)
+    if rail_5v:
+        c.setStrokeColor(LAB_5V)
+        c.setLineWidth(2.7)
+        c.roundRect(x - 1.6, y - 1.6, w + 3.2, h + 3.2, radius + 1.2, fill=0, stroke=1)
+    c.setStrokeColor(stroke)
+    c.setLineWidth(1.7)
+    c.roundRect(x, y, w, h, radius, fill=1, stroke=1)
+
+
+
+def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None, subtitle="", rail_5v=False, face_inv=None):
+    """
+    Connector card: group-colored outline (web SUB_ACCENT). Optional amber outer ring for 5V.
+    Wire color only on cavity stroke + codes. Invertida L/R on faces.
+    """
+    face = face or (shape if shape in ("af6", "rect6", "f2", "rect10", "e113", "f102", "smj_h") else None)
+    # face_inv=None → global FACE_INV; False = keep FSM H.S. (intermedias)
+    use_inv = FACE_INV if face_inv is None else face_inv
+    def _row(labs):
+        labs = list(labs)
+        return list(reversed(labs)) if use_inv else labs
+    by = {str(p[0]): p for p in pins}
+
+    # ---- RING (E17 body ground) ----
+    if shape == "ring":
+        card_shell(x, y, w, h, accent=accent or GRP["power"], rail_5v=rail_5v, radius=4)
+        c.setFillColor(TITLE_BLACK)
+        c.setFont("Helvetica-Bold", 6.5)
+        c.drawCentredString(x + w / 2, y + h - 12, title[:16])
+        if qty:
+            c.setFont("Helvetica", 4.5)
+            c.setFillColor(MUTED)
+            c.drawCentredString(x + w / 2, y + h - 22, qty)
+        lab, col, note = pins[0] if pins else ("ring", "B", "")
+        cx, cy, r = x + w / 2, y + h * 0.40, min(w, h) * 0.22
+        c.setStrokeColor(SHELL)
+        c.setLineWidth(1.8)
+        c.setFillColor(white)
+        c.circle(cx, cy, r + 6, fill=1, stroke=1)
+        c.setStrokeColor(oc(col))
+        c.setLineWidth(1.8)
+        c.setFillColor(white)
+        c.circle(cx, cy, r * 0.55, fill=1, stroke=1)
+        c.setFillColor(lab_fill(lab))
+        c.setFont("Helvetica-Bold", 5.5)
+        c.drawCentredString(cx, cy - 1.5, str(lab)[:5])
+        c.setFillColor(black)
+        c.setFont("Helvetica", 4.5)
+        c.drawCentredString(cx, y + 12, col)
+        c.setFillColor(ECM_BLUE)
+        c.setFont("Helvetica", 4.2)
+        c.drawCentredString(cx, y + 5, ecm_label(note))
+        return
+
+    # ---- BOX (joint packs) ----
+    if shape == "box":
+        card_shell(x, y, w, h, accent=accent or GRP["sensors"], rail_5v=rail_5v, radius=3)
+        c.setFillColor(TITLE_BLACK)
+        c.setFont("Helvetica-Bold", 6.5)
+        c.drawCentredString(x + w / 2, y + h - 12, title[:18])
+        if subtitle:
+            c.setFont("Helvetica", 4.2)
+            c.setFillColor(MUTED)
+            c.drawCentredString(x + w / 2, y + h - 22, subtitle[:26])
+        ordered = _row(list(pins))
+        n = max(1, len(ordered))
+        cw = (w - 10) / n
+        ch = h - 28
+        for i, (lab, col, note) in enumerate(ordered):
+            draw_cavity(x + 5 + i * cw, y + 4, cw, ch, lab, col, note)
+        return
+
+    # ---- IXNOTE (unknown intermediate half) ----
+    if shape == "ixnote":
+        card_shell(x, y, w, h, accent=accent or GRP["intermedias"], rail_5v=rail_5v, radius=3)
+        c.setFillColor(TITLE_BLACK)
+        c.setFont("Helvetica-Bold", 5.8)
+        c.drawCentredString(x + w / 2, y + h - 11, title[:20])
+        c.setFillColor(ECM_BLUE)
+        c.setFont("Helvetica-Bold", 4.6)
+        # subtitle = plain-language job; fallback if empty
+        job = (subtitle or "empalme intermedio").strip()
+        # wrap up to 2 lines
+        line1 = job[:28]
+        line2 = job[28:56] if len(job) > 28 else ""
+        c.drawCentredString(x + w / 2, y + h * (0.48 if line2 else 0.40), line1)
+        if line2:
+            c.setFont("Helvetica", 4.0)
+            c.setFillColor(MUTED)
+            c.drawCentredString(x + w / 2, y + h * 0.28, line2)
+        else:
+            c.setFillColor(MUTED)
+            c.setFont("Helvetica", 3.8)
+            c.drawCentredString(x + w / 2, y + h * 0.18, "par mate")
+        return
+
+    # Plain card shell — group outline (+ optional 5V amber ring)
+    card_shell(x, y, w, h, accent=accent, rail_5v=rail_5v, radius=3.5)
+
+    c.setFillColor(TITLE_BLACK)
+    title_fs = 7.0 if w >= 140 else (6.0 if w >= 90 else 5.0)
+    c.setFont("Helvetica-Bold", title_fs)
+    t = title if not qty else f"{title} {qty}"
+    c.drawCentredString(x + w / 2, y + h - 11, t[:22])
+    if subtitle:
+        c.setFont("Helvetica", 4.0 if w >= 90 else 3.4)
+        c.setFillColor(MUTED)
+        c.drawCentredString(x + w / 2, y + h - 19, subtitle[:28])
+        title_band = 22
+    else:
+        title_band = 14
+
+    face_x = x + 3.5
+    face_y = y + 2.5
+    face_w = w - 7
+    face_h = h - title_band - 3
+
+    # ---- AF6: FSM top 5-3-1 / bot 6-4-2 · Invertida mirrors each row ----
+    if face == "af6" and all(k in by for k in ("1", "2", "3", "4", "5", "6")):
+        order = [_row(["5", "3", "1"]), _row(["6", "4", "2"])]
+        cw, ch = face_w / 3, face_h / 2
+        for ri, row in enumerate(order):
+            for ci, lab in enumerate(row):
+                lab, col, note = by[lab]
+                draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note)
+        return
+
+    # ---- E113 APP FSM face: top 3-2-1 / bot 6-5-4 · Invertida mirrors ----
+    if face == "e113" and all(k in by for k in ("1", "2", "3", "4", "5", "6")):
+        order = [_row(["3", "2", "1"]), _row(["6", "5", "4"])]
+        cw, ch = face_w / 3, face_h / 2
+        for ri, row in enumerate(order):
+            for ci, lab in enumerate(row):
+                lab, col, note = by[lab]
+                draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note)
+        return
+
+    # ---- F2 / E11 10-pin: always FSM H.S. top 1-5 / bot 6-10 (NO Invertida — intermedias)
+    # pins listed in cavity order 1..10; first field = DISPLAY label (may be 5V/GND)
+    if face == "f2" or shape == "rect10":
+        by_num = {str(i + 1): pins[i] for i in range(min(10, len(pins)))}
+        order = [["1", "2", "3", "4", "5"], ["6", "7", "8", "9", "10"]]
+        cw, ch = face_w / 5, face_h / 2
+        for ri, row in enumerate(order):
+            for ci, num in enumerate(row):
+                if num not in by_num:
+                    continue
+                lab, col, note = by_num[num]
+                draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note, fs=3.4)
+        return
+
+    # ---- RECT6: top 1-2-3 / bot 4-5-6 · Invertida ----
+    if face == "rect6" and len(pins) >= 6:
+        top = _row(pins[:3])
+        bot = _row(pins[3:6])
+        cw, ch = face_w / 3, face_h / 2
+        for ci, (lab, col, note) in enumerate(top):
+            draw_cavity(face_x + ci * cw, face_y + ch, cw, ch, lab, col, note)
+        for ci, (lab, col, note) in enumerate(bot):
+            draw_cavity(face_x + ci * cw, face_y, cw, ch, lab, col, note)
+        return
+
+    # ---- RECT4 · Invertida ----
+    if shape == "rect4":
+        n = min(4, len(pins))
+        ordered = _row(pins[:n])
+        cw = face_w / max(n, 1)
+        for i, (lab, col, note) in enumerate(ordered):
+            draw_cavity(face_x + i * cw, face_y, cw, face_h, lab, col, note, fs=3.6)
+        return
+
+    # ---- F102 SMJ · PG-85 H.S. (ENGINE CONTROL HARNESS, white) · no Invertida ----
+    # L 1–10 · M 11–29 as grids; R 30H–46H = one tall empty stub (like web).
+    if face in ("f102", "smj_h") or shape in ("f102", "smj_h"):
+        blocks = [
+            (["1H", "2H", "3H", "4H", "5H"], ["6H", "7H", "8H", "9H", "10H"]),
+            (["11H", "12H", "13H", "14H", "15H", "16H", "17H", "18H", "19H", "20H"],
+             ["21H", "22H", "23H", "24H", "25H", "26H", "27H", "28H", "29H"]),
+        ]
+        verified = {str(p[0]): p for p in pins}
+        stub_cols = 1.15  # compact R stub width in cavity units (web ~18px)
+        lm_cols = sum(max(len(top), len(bot)) for top, bot in blocks)
+        n_gaps = len(blocks)  # L|M + M|R
+        gap_frac = 0.35
+        unit = face_w / (lm_cols + stub_cols + n_gaps * gap_frac)
+        cw = unit
+        ch = face_h / 2
+        bx = face_x
+        for bi, (top, bot) in enumerate(blocks):
+            cols = max(len(top), len(bot))
+            for ci, lab in enumerate(top):
+                px = bx + ci * cw
+                py = face_y + ch
+                if lab in verified:
+                    _, col, note = verified[lab]
+                    draw_cavity(px, py, cw, ch, lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)))
+                else:
+                    c.setFillColor(white)
+                    c.setStrokeColor(HexColor("#E0E0E0"))
+                    c.setLineWidth(0.4)
+                    c.roundRect(px + 0.6, py + 0.6, cw - 1.2, ch - 1.2, 0.8, fill=1, stroke=1)
+                    c.setFillColor(LIGHT_GRAY)
+                    c.setFont("Helvetica", max(2.6, min(3.6, cw * 0.22)))
+                    c.drawCentredString(px + cw / 2, py + ch * 0.55, lab)
+                    c.setFillColor(HexColor("#BDBDBD"))
+                    c.circle(px + cw / 2, py + ch * 0.28, max(0.6, min(1.2, cw * 0.08)), fill=1, stroke=0)
+            for ci, lab in enumerate(bot):
+                px = bx + ci * cw
+                py = face_y
+                if lab in verified:
+                    _, col, note = verified[lab]
+                    draw_cavity(px, py, cw, ch, lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)))
+                else:
+                    c.setFillColor(white)
+                    c.setStrokeColor(HexColor("#E0E0E0"))
+                    c.setLineWidth(0.4)
+                    c.roundRect(px + 0.6, py + 0.6, cw - 1.2, ch - 1.2, 0.8, fill=1, stroke=1)
+                    c.setFillColor(LIGHT_GRAY)
+                    c.setFont("Helvetica", max(2.6, min(3.6, cw * 0.22)))
+                    c.drawCentredString(px + cw / 2, py + ch * 0.55, lab)
+                    c.setFillColor(HexColor("#BDBDBD"))
+                    c.circle(px + cw / 2, py + ch * 0.28, max(0.6, min(1.2, cw * 0.08)), fill=1, stroke=0)
+            # separator after L and after M
+            sx = bx + cols * cw + unit * gap_frac * 0.5
+            c.setStrokeColor(HexColor("#90A4AE"))
+            c.setLineWidth(0.7)
+            c.line(sx, face_y + 1, sx, face_y + face_h - 1)
+            bx += cols * cw + unit * gap_frac
+        # R stub: one tall empty cavity 30H / — / 46H
+        stub_w = stub_cols * unit
+        c.setFillColor(HexColor("#F5F7FA"))
+        c.setStrokeColor(HexColor("#78909C"))
+        c.setLineWidth(1.0)
+        c.setDash(2, 1.5)
+        c.roundRect(bx + 0.4, face_y + 0.4, stub_w - 0.8, face_h - 0.8, 2.0, fill=1, stroke=1)
+        c.setDash()
+        c.setFillColor(HexColor("#607D8B"))
+        c.setFont("Helvetica-Bold", max(3.2, min(5.0, stub_w * 0.45)))
+        c.drawCentredString(bx + stub_w / 2, face_y + face_h - 8, "30H")
+        c.setFont("Helvetica-Bold", max(5.0, min(8.0, stub_w * 0.7)))
+        c.drawCentredString(bx + stub_w / 2, face_y + face_h / 2 - 2, "—")
+        c.setFont("Helvetica-Bold", max(3.2, min(5.0, stub_w * 0.45)))
+        c.drawCentredString(bx + stub_w / 2, face_y + 3.5, "46H")
+        c.setFillColor(MUTED)
+        c.setFont("Helvetica", 3.2)
+        c.drawString(face_x + 1, face_y + face_h - 3.2, "PG-85 H.S. · R stub 30H–46H vacías")
+        c.setFillColor(black)
+        return
+
+    # ---- IPDM / TAB2 / TAB3 / default row · Invertida ----
+    n = len(pins)
+    if n == 0:
+        return
+    ordered = _row(pins)
+    cols = len(ordered)
+    cw = face_w / cols
+    for i, (lab, col, note) in enumerate(ordered):
+        draw_cavity(face_x + i * cw, face_y, cw, face_h, lab, col, note,
+                    fs=4.0 if shape == "ipdm" else None)
+
+
+def section_label(x, y, w, text):
+    """Path / group banner — titles black."""
+    c.setFillColor(PATH_BG)
+    c.setStrokeColor(SHELL)
+    c.setLineWidth(0.9)
+    c.roundRect(x, y - 1, w, 12, 2, fill=1, stroke=1)
+    c.setFillColor(TITLE_BLACK)
+    c.setFont("Helvetica-Bold", 6.3)
+    c.drawString(x + 5, y + 2.2, text)
+    c.setFillColor(black)
+
+
+def path_frame(x, y, w, h):
+    """Light dashed outer frame around a path group."""
+    c.setStrokeColor(HexColor("#757575"))
+    c.setLineWidth(0.65)
+    c.setDash(1.4, 1.1)
+    c.roundRect(x - 1.2, y - 1.2, w + 2.4, h + 2.4, 2.5, fill=0, stroke=1)
+    c.setDash()
+
+
+def draw_mate_pair(x, y, w, h, left, right, gap=2.5):
+    """Mating pair side-by-side; each face uses Invertida via ficha()."""
+    half_w = (w - gap) / 2
+    c.setStrokeColor(HexColor("#616161"))
+    c.setLineWidth(0.65)
+    c.setDash(1.2, 1.0)
+    c.roundRect(x - 1.0, y - 1.0, w + 2.0, h + 2.0, 2.5, fill=0, stroke=1)
+    c.setDash()
+    ficha(x, y, half_w, h, left["title"], left.get("pins", []),
+          left.get("shape", "ixnote"), face=left.get("face"),
+          subtitle=left.get("subtitle", ""), qty=left.get("qty", ""),
+          accent=left.get("accent"), rail_5v=left.get("rail_5v", False),
+          face_inv=left.get("face_inv"))
+    ficha(x + half_w + gap, y, half_w, h, right["title"], right.get("pins", []),
+          right.get("shape", "ixnote"), face=right.get("face"),
+          subtitle=right.get("subtitle", ""), qty=right.get("qty", ""),
+          accent=right.get("accent"), rail_5v=right.get("rail_5v", False),
+          face_inv=right.get("face_inv"))
+    c.setFillColor(HexColor("#424242"))
+    c.setFont("Helvetica-Bold", 6)
+    c.drawCentredString(x + half_w + gap / 2, y + h / 2 - 2, "⟷")
+
+
+def ecm_chip_row(x, y, w, h, pins_codes):
+    """Compact ECM destination chips inside a path group."""
+    c.setFillColor(white)
+    c.setStrokeColor(SHELL)
+    c.setLineWidth(1.2)
+    c.roundRect(x, y, w, h, 3, fill=1, stroke=1)
+    c.setFillColor(TITLE_BLACK)
+    c.setFont("Helvetica-Bold", 5.5)
+    c.drawCentredString(x + w / 2, y + h - 10, "→ ECM")
+    n = max(1, len(pins_codes))
+    cw = (w - 8) / n
+    ch = h - 16
+    for i, (pin, code) in enumerate(pins_codes):
+        px = x + 4 + i * cw
+        py = y + 3
+        stroke = oc(code) if code else LIGHT_GRAY
+        c.setFillColor(white)
+        c.setStrokeColor(stroke)
+        c.setLineWidth(1.4)
+        c.roundRect(px + 0.8, py + 0.8, cw - 1.6, ch - 1.6, 1.5, fill=1, stroke=1)
+        c.setFillColor(black)
+        c.setFont("Helvetica-Bold", max(4.0, min(6.5, ch * 0.35)))
+        c.drawCentredString(px + cw / 2, py + ch * 0.52, str(pin))
+        c.setFont("Helvetica", max(3.0, min(4.5, ch * 0.22)))
+        c.setFillColor(MUTED)
+        c.drawCentredString(px + cw / 2, py + 2.5, str(code)[:6])
+
+
+
+# Pin data shared (motor loom)
+KNOCK_PINS = [("SIG", "W", "15"), ("GND", "B", "116")]
+
+# ========== PAGE 1: cover banner + EC-123 (motor) — NO IPDM ==========
+FOOT_Y = 8
+
+c.setFillColor(black)
+c.setFont("Helvetica-Bold", 11)
+c.drawCentredString(W / 2, H - 11, "2005 Nissan 350Z VQ35DE — Arnès motor / Engine harness")
+c.setFont("Helvetica", 6.2)
+c.setFillColor(MUTED)
+c.drawCentredString(W / 2, H - 21,
+                    "Motor loom on the bench · EC-123 + fichas  ·  2 páginas  ·  FSM EC 2005 · OEM · not a service manual")
+c.setFillColor(black)
+c.setFont("Helvetica-Bold", 8.5)
+c.drawCentredString(W / 2, H - 34, "1 · EC-123 INVERTIDA — MEC61-510")
+c.setFont("Helvetica", 5.0)
+c.setFillColor(MUTED)
+c.drawCentredString(W / 2, H - 43, "nº pin arriba · código abajo · borde = cable · rojo = bancada · Invertida L/R · sin APP / IPDM / body")
+c.setFillColor(HexColor("#B71C1C"))
+c.setFont("Helvetica-Bold", 5.6)
+c.drawCentredString(W / 2, H - 52, "ARRIBA | 121 a la IZQUIERDA")
+c.setFillColor(black)
+c.setFont("Helvetica-Bold", 5.0)
+c.drawString(14, H - 61, "PALANCA")
+c.drawRightString(W - 14, H - 61, "PALANCA")
+
+lx = 14
+ly = H - 70
+for code, name in [("B", "negro"), ("W", "blanco"), ("R", "rojo"), ("G", "verde"), ("L", "azul"),
+                   ("Y", "amarillo"), ("OR", "naranja"), ("P", "rosa"), ("PU", "violeta"),
+                   ("GY", "gris"), ("BR", "marron"), ("SB", "celeste"), ("LG", "v.claro")]:
+    c.setFillColor(white)
+    c.setStrokeColor(oc(code))
+    c.setLineWidth(1.5)
+    c.rect(lx, ly, 8, 6, fill=1, stroke=1)
+    c.setFillColor(black)
+    c.setFont("Helvetica", 4.2)
+    c.drawString(lx + 10, ly + 1.0, f"{code}={name}")
+    lx += 58
+
+b1 = [[121, 120, 119], [None, 118, 117], [116, 115, 114]]
+b2 = [[113, 112, 111, 110, 109, 108, 107, 106], [105, 104, 103, 102, 101, 100, 99, 98],
+      [97, 96, 95, 94, 93, 92, 91, 90], [89, 88, 87, 86, 85, 84, 83, 82]]
+b3 = [list(range(6, 25)), list(range(25, 44)), list(range(44, 63)), list(range(63, 82))]
+b4 = [[5, 4], [None, 3], [2, 1]]
+
+gap_pin = 1.5
+gap_blk = 7
+# ECM under cover banner — still large, leaves foot room
+ph = 30.0
+usable_w = W - 28
+pw = (usable_w - 3 * gap_blk) / 32 - gap_pin
+pw = max(14.5, min(pw, ph * 1.15))
+
+grid_top = ly - 8
+x = 14
+y0 = grid_top
+draw_block(x, y0, b1, pw, ph, gap_pin)
+c.setFont("Helvetica-Bold", 6.0)
+c.setFillColor(black)
+c.drawCentredString(x + 1.5 * (pw + gap_pin), y0 - 3 * (ph + gap_pin) - 6, "114–121")
+x += 3 * (pw + gap_pin) + gap_blk
+draw_block(x, y0, b2, pw, ph, gap_pin)
+c.drawCentredString(x + 4 * (pw + gap_pin), y0 - 4 * (ph + gap_pin) - 6, "82–113")
+x += 8 * (pw + gap_pin) + gap_blk
+draw_block(x, y0, b3, pw, ph, gap_pin)
+c.drawCentredString(x + 9.5 * (pw + gap_pin), y0 - 4 * (ph + gap_pin) - 6, "6–81")
+x += 19 * (pw + gap_pin) + gap_blk
+draw_block(x, y0, b4, pw, ph, gap_pin)
+c.drawCentredString(x + (pw + gap_pin), y0 - 3 * (ph + gap_pin) - 6, "1–5")
+
+ecm_bottom = y0 - 4 * (ph + gap_pin) - 10
+c.setFont("Helvetica", 5.4)
+c.setFillColor(HexColor("#222"))
+c.drawString(14, ecm_bottom,
+             "Motor rails · BATT 121=R/W · IGN 119=R/W 120=P · GND 1=B 115=B/W 116=B/R · KNK 15 · CKP 13 · CAN 86/94 · coils/inj · AFh 2/24")
+c.setFont("Helvetica", 4.8)
+c.setFillColor(MUTED)
+c.drawString(14, ecm_bottom - 12,
+             "Arnès motor view — IPDM / body / APP pedal loom omitted (use Completo map for habitáculo + IPDM room)")
+c.setFont("Helvetica", 4.6)
+c.drawString(10, 4, "Pág 1/2 · cover + EC-123 · Arnès motor · sin IPDM")
+c.setFillColor(black)
+c.showPage()
+
+
+# ========== FICHAS POR PATH — motor loom dense page ==========
+ML, MR = 5, 5
+usable_w = W - ML - MR
+GAP = 2.4
+BOTTOM = 10
+HEADER_H = 24
+
+c.setFont("Helvetica-Bold", 8.5)
+c.drawCentredString(W / 2, H - 9,
+                    "2 · Fichas Arnès motor · sensor → intermedia F → ECM · outline grupo · 5V ámbar · Invertida")
+c.setFont("Helvetica", 5.0)
+c.setFillColor(MUTED)
+c.drawCentredString(W / 2, H - 18,
+                    "cavidad: id · color · →ECM · 5V=anillo ámbar · 12V rojo / GND verde · sin APP / F102 / IPDM / body")
+c.setFillColor(black)
+
+y_top = H - HEADER_H
+avail = y_top - BOTTOM
+label_h = 11
+# PATH rows: 5V ETC, AF, knock+sens, act, coil, inj, joints
+weights = [0.78, 1.05, 1.00, 0.55, 0.62, 0.62, 0.95]
+gap_v = 2.0
+n_gaps = len(weights) - 1
+n_labels = 4  # 5V, AF, Knock, joints (+ act/coil/inj without separate banners to save height)
+card_budget = avail - n_labels * label_h - n_gaps * gap_v
+chs = [card_budget * w / sum(weights) for w in weights]
+(ch_5v, ch_af, ch_ks, ch_act, ch_coil, ch_inj, ch_j) = chs
+
+y = y_top
+
+# --- PATH 5V motor (ETC) ---
+section_label(ML, y - 9, usable_w,
+              "PATH 5V motor  ·  ETC throttle (DBW)  ·  5V=47 · SNS TPS→66  ·  (APP pedal / EVAP / A/C / PSP omitidos)")
+y -= label_h
+path_frame(ML, y - ch_5v, usable_w, ch_5v)
+w_etc = min(280, usable_w * 0.55)
+ficha(ML + 2, y - ch_5v + 2, w_etc - 2, ch_5v - 4, "ETC throttle",
+      [("M+", "L/Y", "5"), ("M-", "L/B", "4"), ("5V", "W/R", "47"),
+       ("T1", "G", "50"), ("T2", "Y", "69"), ("GND", "B", "SNS")],
+      "rect6", face="rect6", subtitle="DBW · 5V=47 · motor ± · TPS",
+      accent=GRP["sensors"], rail_5v=True)
+c.setFont("Helvetica", 5.0)
+c.setFillColor(MUTED)
+c.drawString(ML + w_etc + 10, y - ch_5v / 2 - 2,
+             "Nota: PATH APP (E113→E11/F2) y sensores body 5V no están en Arnès motor.")
+c.setFillColor(black)
+y -= ch_5v + gap_v
+
+# --- A/F path ---
+section_label(ML, y - 9, usable_w,
+              "PATH A/F + HO2S  ·  sensores → E12⟷F3 (heaters / poder) → ECM  ·  heaters ECM 2 / 24")
+y -= label_h
+cw_af = 210
+cw_ho = (usable_w - 2 * cw_af - GAP) / 2
+ficha(ML, y - ch_af, cw_af, ch_af, "A/F Sens 1 B1",
+      [("1", "LG/B", "16"), ("2", "P/B", "75"), ("3", "12V", "fuse"),
+       ("4", "GY/R", "2"), ("5", "L/W", "35"), ("6", "W/L", "56")],
+      "af6", face="af6", subtitle="FSM · pass/RH · Inv", accent=GRP["sensors"])
+ficha(ML + cw_af + GAP, y - ch_af, cw_af, ch_af, "A/F Sens 1 B2",
+      [("1", "LG", "76"), ("2", "P", "77"), ("3", "12V", "fuse"),
+       ("4", "G/Y", "24"), ("5", "L/B", "55"), ("6", "W", "58")],
+      "af6", face="af6", subtitle="FSM · driver/LH · Inv", accent=GRP["sensors"])
+ficha(ML + 2 * (cw_af + GAP), y - ch_af, cw_ho, ch_af, "HO2S2 B1",
+      [("htr", "P/B", "25"), ("12V", "12V", "fuse")],
+      "tab2", subtitle="post-cat RH", accent=GRP["sensors"])
+ficha(ML + 2 * (cw_af + GAP) + cw_ho + GAP, y - ch_af, cw_ho, ch_af, "HO2S2 B2",
+      [("htr", "P/L", "6"), ("12V", "12V", "fuse")],
+      "tab2", subtitle="post-cat LH", accent=GRP["sensors"])
+c.setFont("Helvetica", 4.2)
+c.setFillColor(MUTED)
+c.drawRightString(ML + usable_w - 2, y - ch_af + 5,
+                  "A/F heaters / coil·inj 12V rail: E12⟷F3 (mate en joints abajo)")
+c.setFillColor(black)
+y -= ch_af + gap_v
+
+# --- Knock path + other motor sensors ---
+section_label(ML, y - 9, usable_w,
+              "PATH Knock  ·  sensor → F14/F229 → ECM 15 / GND 116   ·   otros sensores motor (directo → ECM)")
+y -= label_h
+w_kn = 140
+w_rest = usable_w - w_kn - GAP
+path_frame(ML, y - ch_ks, w_kn, ch_ks)
+kn_sens_w = 46
+kn_mate_w = w_kn - kn_sens_w - 3
+ficha(ML + 1, y - ch_ks + 1, kn_sens_w - 1, ch_ks - 2, "Knock",
+      [("SIG", "W", "15"), ("GND", "B", "116")],
+      "tab2", subtitle="→F14", accent=GRP["sensors"])
+draw_mate_pair(ML + kn_sens_w + 1, y - ch_ks + 1, kn_mate_w - 1, ch_ks - 2,
+               {"title": "F14", "pins": KNOCK_PINS, "shape": "tab2", "subtitle": "FSM H.S. · GND",
+                "accent": GRP["intermedias"], "face_inv": False},
+               {"title": "F229", "pins": KNOCK_PINS, "shape": "tab2", "subtitle": "FSM H.S. · GND",
+                "accent": GRP["intermedias"], "face_inv": False})
+
+w6 = (w_rest - 5 * GAP) / 6
+items_s = [
+    ("MAF", [("12V", "R", "pwr"), ("GND", "B", "gnd"), ("SIG", "OR", "51")], "tab3", "→ECM 51"),
+    ("CKP POS", [("PWR", "R/W", "12V"), ("SIG", "W/L", "13"), ("GND", "B", "gnd")], "tab3", "→ECM 13"),
+    ("CMP B1", [("SIG", "R", "33"), ("GND", "B", "gnd")], "tab2", "cam RH"),
+    ("CMP B2", [("SIG", "R/L", "14"), ("GND", "B", "gnd")], "tab2", "cam LH"),
+    ("ECT", [("SIG", "BR/Y", "73"), ("GND", "B", "SNS")], "tab2", "coolant"),
+    ("IAT", [("SIG", "Y/G", "34"), ("GND", "B", "SNS")], "tab2", "intake air"),
+]
+xx = ML + w_kn + GAP
+for title, pins, sh, sub in items_s:
+    ficha(xx, y - ch_ks, w6, ch_ks, title, pins, sh, subtitle=sub, accent=GRP["sensors"])
+    xx += w6 + GAP
+y -= ch_ks + gap_v
+
+# --- Actuators (VTC only) ---
+cw_a = (usable_w - GAP) / 2
+ficha(ML, y - ch_act, cw_a, ch_act, "VTC B1",
+      [("ECM", "P", "11"), ("12V", "R", "ign")], "tab2", subtitle="intake cam RH · →ECM 11",
+      accent=GRP["actuators"])
+ficha(ML + cw_a + GAP, y - ch_act, cw_a, ch_act, "VTC B2",
+      [("ECM", "W/G", "10"), ("12V", "R", "ign")], "tab2", subtitle="intake cam LH · →ECM 10",
+      accent=GRP["actuators"])
+y -= ch_act + gap_v
+
+# --- Coils ---
+coils = [(1, 62, "Y/R"), (2, 81, "G/B"), (3, 61, "L/R"), (4, 80, "GY"), (5, 60, "PU/W"), (6, 79, "GY/R")]
+cw_c = (usable_w - 5 * GAP) / 6
+xx = ML
+for cyl, pin, code in coils:
+    ficha(xx, y - ch_coil, cw_c, ch_coil, f"Coil {cyl}",
+          [("ECM", code, str(pin)), ("12V", "R", "ign")],
+          "tab2", subtitle=f"→ECM {pin}", accent=GRP["actuators"])
+    xx += cw_c + GAP
+y -= ch_coil + gap_v
+
+# --- Injectors ---
+injs = [(1, 23, "R/B"), (2, 42, "B/R"), (3, 22, "R/Y"), (4, 41, "W/B"), (5, 21, "SB"), (6, 40, "LG")]
+xx = ML
+for cyl, pin, code in injs:
+    ficha(xx, y - ch_inj, cw_c, ch_inj, f"Inj {cyl}",
+          [("ECM", code, str(pin)), ("12V", "R", "ign")],
+          "tab2", subtitle=f"→ECM {pin}", accent=GRP["actuators"])
+    xx += cw_c + GAP
+y -= ch_inj + gap_v
+
+# --- Motor joints ---
+section_label(ML, y - 9, usable_w,
+              "Joints motor  ·  F103/gnd4 → E17  ·  Ign condenser  ·  SNS GND  ·  E12⟷F3  ·  E10⟷F1 (battery tray)")
+y -= label_h
+# layout: F103 | E17 | condenser | SNS GND | E12⟷F3 mate | E10/F1 note
+w_f103 = usable_w * 0.16
+w_e17 = usable_w * 0.10
+w_cond = usable_w * 0.12
+w_sns = usable_w * 0.14
+w_e12 = usable_w * 0.28
+w_e10 = usable_w - (w_f103 + w_e17 + w_cond + w_sns + w_e12 + 5 * GAP)
+
+ficha(ML, y - ch_j, w_f103, ch_j, "F103 gnd4",
+      [("A", "B", "1"), ("B", "B/W", "115"), ("C", "B/R", "116"), ("D", "B", "E17")],
+      "rect4", subtitle="1/115/116 → E17", accent=GRP["power"])
+ficha(ML + w_f103 + GAP, y - ch_j, w_e17, ch_j, "E17 body",
+      [("ring", "B", "gnd")],
+      "ring", qty="masa", accent=GRP["power"])
+ficha(ML + w_f103 + w_e17 + 2 * GAP, y - ch_j, w_cond, ch_j, "Ign condenser",
+      [("~2µF", "—", "cyl3")],
+      "tab2", subtitle="noise · near cyl3", accent=GRP["actuators"])
+ficha(ML + w_f103 + w_e17 + w_cond + 3 * GAP, y - ch_j, w_sns, ch_j, "SNS GND",
+      [("66", "B", "66"), ("67", "B", "67"), ("78", "B", "78")],
+      "tab3", subtitle="sensor grounds", accent=GRP["power"])
+draw_mate_pair(ML + w_f103 + w_e17 + w_cond + w_sns + 4 * GAP, y - ch_j, w_e12, ch_j,
+               {"title": "E12", "pins": [], "shape": "ixnote",
+                "subtitle": "A/F+poder / coil·inj 12V", "accent": GRP["intermedias"],
+                "face_inv": False},
+               {"title": "F3", "pins": [], "shape": "ixnote",
+                "subtitle": "mate E12 · heaters rail", "accent": GRP["intermedias"],
+                "face_inv": False})
+# E10⟷F1 compact note card
+xx_e10 = ML + w_f103 + w_e17 + w_cond + w_sns + w_e12 + 5 * GAP
+card_shell(xx_e10, y - ch_j, w_e10, ch_j, accent=GRP["intermedias"], radius=3)
+c.setFillColor(TITLE_BLACK)
+c.setFont("Helvetica-Bold", 5.5)
+c.drawCentredString(xx_e10 + w_e10 / 2, y - 11, "E10 ⟷ F1")
+c.setFont("Helvetica", 4.0)
+c.setFillColor(MUTED)
+c.drawCentredString(xx_e10 + w_e10 / 2, y - 22, "battery tray")
+c.drawCentredString(xx_e10 + w_e10 / 2, y - 32, "starter / BATT path")
+c.setFillColor(ECM_BLUE)
+c.setFont("Helvetica", 3.8)
+c.drawCentredString(xx_e10 + w_e10 / 2, y - ch_j + 8, "si aplica · FSM")
+c.setFillColor(black)
+
+c.setFont("Helvetica", 4.8)
+c.setFillColor(MUTED)
+c.drawString(ML, 3,
+             f"Pág 2/2 · Arnès motor fichas · sin F102/CAN/DLC · {FACE_ORIENT_LABEL[:36]}")
+c.setFillColor(black)
+
+
+c.save()
+print("Wrote", OUT)
+
+# --- Preview PNGs ---
+os.makedirs(PREVIEW_DIR, exist_ok=True)
+for stale in ("fichas_page_A.png", "fichas_page_B.png", "intermedias_page.png",
+              "print_p-5.png", "print_p5.png",
+              "ecm_ipdm_page.png", "ipdm_fsm_page.png"):
+    p = os.path.join(PREVIEW_DIR, stale)
+    if os.path.exists(p):
+        os.remove(p)
+try:
+    from pdf2image import convert_from_path
+    pages = convert_from_path(OUT, dpi=120)
+    for i, im in enumerate(pages, 1):
+        path = f"{PREVIEW_DIR}/print_p-{i}.png"
+        im.save(path, "PNG")
+        print("Preview", path, im.size)
+    if len(pages) >= 2:
+        pages[0].save(f"{PREVIEW_DIR}/ec123_page.png", "PNG")
+        print("EC-123 preview", f"{PREVIEW_DIR}/ec123_page.png", pages[0].size)
+        fp = f"{PREVIEW_DIR}/fichas_page.png"
+        pages[1].save(fp, "PNG")
+        print("Fichas/paths preview", fp, pages[1].size)
+    print("pages", len(pages))
+except Exception as e:
+    print("pdf2image failed:", e)
+    import subprocess
+    import shutil
+    subprocess.check_call(
+        ["pdftoppm", "-png", "-r", "120", OUT, f"{PREVIEW_DIR}/print_p"]
+    )
+    p1 = f"{PREVIEW_DIR}/print_p-1.png"
+    p2 = f"{PREVIEW_DIR}/print_p-2.png"
+    if os.path.exists(p1):
+        shutil.copy(p1, f"{PREVIEW_DIR}/ec123_page.png")
+    if os.path.exists(p2):
+        shutil.copy(p2, f"{PREVIEW_DIR}/fichas_page.png")
+    print("pdftoppm ok", sorted(os.listdir(PREVIEW_DIR)))
