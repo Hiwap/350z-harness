@@ -41,6 +41,10 @@ npm run test:f102
 
 Chrome/Edge required for `ui-lang` and `f102`. Set `HARNESS_SKIP_BROWSER=1` to skip them.
 
+## Credits
+
+Built with [Grok](https://grok.com/) — Grok Bot and Grok Build.
+
 ---
 
 ## Español
@@ -59,10 +63,5 @@ VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラク�
 
 公式サービスマニュアルの代用ではありません。
 
----
-
-## Credits
-
-Built with [Grok](https://grok.com/) — Grok Bot and Grok Build.
 
 
