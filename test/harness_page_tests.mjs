@@ -1,0 +1,163 @@
+#!/usr/bin/env node
+/**
+ * Pre-ship tests for 350Z harness interactive HTML.
+ * Deterministic assertions + unit tests for pure helpers (Grok Build style).
+ * Must exit 0 before Pages push / EzePC copy.
+ *
+ * From repo clone:  node test/harness_page_tests.mjs
+ * Optional HTML:    node test/harness_page_tests.mjs path/to/index.html
+ */
+import fs from 'fs';
+import path from 'path';
+import { spawnSync } from 'child_process';
+import vm from 'vm';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, '..');
+const HTML_CANDIDATES = [
+  process.argv[2],
+  path.join(ROOT, 'index.html'),
+  path.join(ROOT, '350Z_harness_interactive.html'),
+  '/workspace/350Z_harness_interactive.html',
+].filter(Boolean);
+const HTML = HTML_CANDIDATES.find((p) => fs.existsSync(p));
+if (!HTML) {
+  console.error('HTML not found. Tried:', HTML_CANDIDATES.join(', '));
+  process.exit(1);
+}
+const html = fs.readFileSync(HTML, 'utf8');
+const failures = [];
+const passes = [];
+
+function ok(name, cond, detail = '') {
+  if (cond) {
+    passes.push(name);
+    console.log(`PASS  ${name}${detail ? ' — ' + detail : ''}`);
+  } else {
+    failures.push(name);
+    console.error(`FAIL  ${name}${detail ? ' — ' + detail : ''}`);
+  }
+}
+
+function extractScript(h) {
+  const m = h.match(/<script>([\s\S]*?)<\/script>/);
+  if (!m) throw new Error('no <script> block');
+  return m[1];
+}
+
+function extractFunction(src, name) {
+  const re = new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`);
+  const m = src.match(re);
+  if (!m) throw new Error('missing function ' + name);
+  return m[0];
+}
+
+function extractConstObject(src, name) {
+  const re = new RegExp(`const ${name} = \\{[\\s\\S]*?\\n\\};`);
+  const m = src.match(re);
+  if (!m) throw new Error('missing const ' + name);
+  return m[0];
+}
+
+const script = extractScript(html);
+const tmp = path.join(process.env.TMPDIR || '/tmp', 'harness_page_tests_main.js');
+fs.writeFileSync(tmp, script);
+const chk = spawnSync(process.execPath, ['--check', tmp], { encoding: 'utf8' });
+ok('node --check extracted script', chk.status === 0, chk.stderr?.trim() || 'syntax ok');
+
+ok('bobinas/inyectores in SUB_ORDER',
+  /SUB_ORDER = \[[^\]]*'bobinas'[^\]]*'inyectores'/.test(html));
+ok('coil1 sub bobinas', /coil1:\{group:'motor', sub:'bobinas'/.test(html));
+ok('inj1 sub inyectores', /inj1:\{group:'motor', sub:'inyectores'/.test(html));
+ok('F102 4H K-line EC-742', /\{id:'4H',code:'LG',ecm:85,lab:'K'\}/.test(html));
+ok('dlc_k includes F102 path',
+  /id:'dlc_k'[\s\S]*?ix_f102_m72[\s\S]*?4H/.test(html));
+ok('path feed uses primary hl (not Tierras-gated hl-group)',
+  /if\(onPathFeed\) return \{cls:'hl'\};/.test(html));
+ok('knock shield displays GND',
+  /knock:\{[\s\S]*?lab:'GND'/.test(html) && /ix_f14_f229:\{[\s\S]*?lab:'GND'/.test(html));
+ok('cavBottomLabel defines lab before use',
+  /function cavBottomLabel\(pin\)\{\s*const rail = cavRailOf\(pin\);\s*const lab = /.test(html));
+ok('cavBottomLabel rail always GND/12V/5V',
+  /if\(rail === 'gnd'\) return 'GND';\s*if\(rail === '12v'\) return '12V';\s*if\(rail === '5v'\) return '5V';/.test(html));
+ok('cavBottomLabel SIG uses pin+S suffix',
+  /=== 'SIG'|toUpperCase\(\) === 'SIG'/.test(html) && /\+ 'S'|\+"S"|\+'S'/.test(html));
+
+const helperSrc = [
+  extractConstObject(script, 'PIN_RAIL'),
+  extractConstObject(script, 'PIN_CAN'),
+  extractFunction(script, 'isPseudoWireCode'),
+  extractFunction(script, 'cavDisplayLab'),
+  extractFunction(script, 'cavRailOf'),
+  extractFunction(script, 'cavCanOf'),
+  extractFunction(script, 'cavBottomLabel'),
+  extractFunction(script, 'cavTopLabel'),
+].join('\n');
+
+const sandbox = { console };
+vm.createContext(sandbox);
+vm.runInContext(helperSrc, sandbox);
+
+function unit(name, fn) {
+  try {
+    const r = fn();
+    ok(name, r === true || r === undefined, r === false ? 'assertion false' : '');
+  } catch (e) {
+    ok(name, false, e.message);
+  }
+}
+unit('unit: gnd rail → GND even if lab ECM116', () =>
+  sandbox.cavBottomLabel({ rail: 'gnd', lab: 'ECM116', code: 'B/R', ecm: 116 }) === 'GND');
+unit('unit: 12v rail → 12V even if lab MOTRLY', () =>
+  sandbox.cavBottomLabel({ rail: '12v', lab: 'MOTRLY', code: 'SB' }) === '12V');
+unit('unit: 5v rail → 5V', () =>
+  sandbox.cavBottomLabel({ rail: '5v', lab: '5V', code: 'PU' }) === '5V');
+unit('unit: SIG bottom is pin+S', () =>
+  sandbox.cavBottomLabel({ lab: 'SIG', code: 'W', ecm: 15 }) === '15S');
+unit('unit: SIG by id alone is pin+S', () =>
+  sandbox.cavBottomLabel({ id: 'SIG', code: 'OR', ecm: 51 }) === '51S');
+unit('unit: SIG without ecm uses cavity id+S', () =>
+  sandbox.cavBottomLabel({ id: '2', lab: 'SIG', code: 'G' }) === '2S');
+unit('unit: top label prefers ecm number', () =>
+  sandbox.cavTopLabel({ ecm: 116, lab: 'ECM116', rail: 'gnd' }) === '116');
+unit('unit: top label falls back to src', () =>
+  sandbox.cavTopLabel({ ecm: null, src: 'E17', lab: 'E17', rail: 'gnd' }) === 'E17');
+unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
+  sandbox.cavBottomLabel({ code: 'L', ecm: 94 });
+  return true;
+});
+
+function runNested(label, scriptPath, args = []) {
+  if (!fs.existsSync(scriptPath)) {
+    ok(label + ' present', false, 'missing ' + scriptPath);
+    return;
+  }
+  const env = { ...process.env };
+  const localNm = path.join(ROOT, 'node_modules');
+  if (fs.existsSync(localNm)) {
+    env.NODE_PATH = [localNm, env.NODE_PATH].filter(Boolean).join(path.delimiter);
+  }
+  const v = spawnSync(process.execPath, [scriptPath, ...args], { encoding: 'utf8', env });
+  ok(label + ' exit 0', v.status === 0,
+    v.status === 0 ? 'ok' : (v.stdout + '\n' + v.stderr).slice(-500));
+}
+
+runNested('verify_harness_bugs.mjs', path.join(__dirname, 'verify_harness_bugs.mjs'), [HTML]);
+runNested('i18n.mjs', path.join(__dirname, 'i18n.mjs'));
+
+const skipBrowser = process.env.HARNESS_SKIP_BROWSER === '1';
+if (skipBrowser) {
+  ok('browser suites (f102/ui-lang)', true, 'skipped HARNESS_SKIP_BROWSER=1');
+} else {
+  runNested('ui-lang.mjs', path.join(__dirname, 'ui-lang.mjs'));
+  runNested('f102.mjs', path.join(__dirname, 'f102.mjs'));
+}
+
+console.log('---');
+console.log(`${passes.length} passed, ${failures.length} failed`);
+if (failures.length) {
+  console.error('FAILED:', failures.join(', '));
+  process.exit(1);
+}
+console.log('ALL PAGE TESTS PASSED');

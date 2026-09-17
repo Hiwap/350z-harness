@@ -1,0 +1,32 @@
+{
+  "name": "350z-harness-pages",
+  "version": "1.0.0",
+  "description": "Interactive ECM pin \u2194 connector reference for VQ35DE (2003\u20132006), based on FSM / NicoClub diagrams.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node test/harness_page_tests.mjs",
+    "test:static": "HARNESS_SKIP_BROWSER=1 node test/harness_page_tests.mjs",
+    "test:i18n": "node test/i18n.mjs",
+    "test:ui": "node test/ui-lang.mjs",
+    "test:f102": "node test/f102.mjs",
+    "test:browser": "node test/ui-lang.mjs && node test/f102.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hiwap/350z-harness.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hiwap/350z-harness/issues"
+  },
+  "homepage": "https://github.com/Hiwap/350z-harness#readme",
+  "devDependencies": {
+    "puppeteer-core": "^24.43.1"
+  },
+  "type": "module"
+}

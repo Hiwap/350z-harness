@@ -10,17 +10,24 @@ function loadPuppeteer() {
   const candidates = [
     path.join(root, 'node_modules/puppeteer-core'),
     path.join(process.env.TEMP || '/tmp', 'z33-verify/node_modules/puppeteer-core'),
+    '/tmp/z33-verify/node_modules/puppeteer-core',
   ];
+  const errs = [];
   for (const dir of candidates) {
-    try { return require(dir); } catch { /* next */ }
+    try { return require(dir); } catch (e) { errs.push(dir + ': ' + e.message); }
   }
-  throw new Error('puppeteer-core not found');
+  try { return require('puppeteer-core'); } catch (e) { errs.push('resolve: ' + e.message); }
+  throw new Error('puppeteer-core not found\n' + errs.join('\n'));
 }
 function findChrome() {
   const candidates = [
     process.env.CHROME_PATH,
     'C:/Program Files/Google/Chrome/Application/chrome.exe',
     'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
   ].filter(Boolean);
   for (const p of candidates) {
     if (fs.existsSync(p)) return p;
