@@ -2328,16 +2328,10 @@ function isPseudoWireCode(code){
 /** Bottom line: rail / CAN tag when known, else cavity id. */
 function cavBottomLabel(pin){
   const rail = cavRailOf(pin);
-  const lab = pin && pin.lab != null ? String(pin.lab).trim() : '';
-  /* Named signal beats generic rail tag (MOTRLY / SSOFF / FPR… not just “12V”). */
-  const named = lab && !isPseudoWireCode(lab) && lab !== '12V' && lab !== '5V' && lab !== 'GND';
-  /* Ground that names a body point (E17, D105…) — show that, not generic GND */
-  if(rail === 'gnd'){
-    if(named || (lab && lab !== 'GND' && lab !== 'SNS' && lab !== 'SH' && !isPseudoWireCode(lab))) return lab;
-    return 'GND';
-  }
-  if(rail === '12v') return named ? lab : '12V';
-  if(rail === '5v') return named ? lab : '5V';
+  /* Rail pins: 3rd line always GND / 12V / 5V; destination (ECM#, E17, MOTRLY…) stays on top via cavTopLabel. */
+  if(rail === 'gnd') return 'GND';
+  if(rail === '12v') return '12V';
+  if(rail === '5v') return '5V';
   const can = cavCanOf(pin);
   if(can) return can;
   if(lab && !isPseudoWireCode(lab)) return lab;
@@ -5719,7 +5713,8 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
     /* Exact ECM match = yellow hl first (path list must not force purple hl-group). */
     if(p.ecm!=null && p.ecm!=='' && focusPin!=null && Number(p.ecm)===Number(focusPin)) return {cls:'hl'};
     const onPathFeed = pathCavByConn && pathCavByConn.has(cid) && pathCavByConn.get(cid).has(String(pid));
-    if(onPathFeed) return {cls:'hl-group'};
+    /* Explicit circuit.path cavities (E17 ring, F3·5, …) — always primary hl, not Tierras-gated hl-group */
+    if(onPathFeed) return {cls:'hl'};
     if(p.ecm==null || p.ecm==='') return false;
     const e = Number(p.ecm);
     const onPath = ecmSet && (ecmSet.has(e) || ecmSet.has(String(e)) || ecmSet.has(Number(e)));
