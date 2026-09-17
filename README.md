@@ -1,18 +1,10 @@
 # Nissan 350Z · OEM harness / ficha viewer
 
-## English
-
 Interactive ECM pin ↔ connector reference for VQ35DE (2003–2006), based on FSM / NicoClub diagrams.
 
 Open the [GitHub Pages](https://hiwap.github.io/350z-harness/) site from this repo, or open `index.html` locally.
 
 Not a substitute for the official service manual.
-
-## Credits
-
-Built with [Grok](https://grok.com/) — Grok Bot and Grok Build.
-
----
 
 ## Print pack (Arnès motor)
 
@@ -62,5 +54,10 @@ No sustituye el manual de servicio oficial.
 VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラクティブ参照です。FSM / NicoClub の配線図に基づきます。
 
 このリポジトリの [GitHub Pages](https://hiwap.github.io/350z-harness/) を開くか、ローカルで `index.html` を開いてください。
+
+## Credits
+
+Built with [Grok](https://grok.com/) — Grok Bot and Grok Build.
+
 
 公式サービスマニュアルの代用ではありません。
