@@ -8,17 +8,13 @@ Not a substitute for the official service manual.
 
 ## Print pack (Arnès motor)
 
-2-page landscape PDF (English UI) — page 1 cover + EC-123 + ECM rails + F102, page 2 motor fichas. Regenerate:
+2-page landscape PDF (English UI) Regenerate:
 
 ```bash
 python3 make_print_pack.py
 ```
 
 Needs `pin_colors.json` beside the script and `reportlab` (`pip install reportlab`).
-
-**Español:** PDF de 2 páginas (landscape) — pág. 1 portada + EC-123, pág. 2 fichas del arnés de motor. Regenerar con `python3 make_print_pack.py`.
-
-**日本語:** 2ページの横向きPDF — 1ページ目カバー+EC-123、2ページ目モーター側フィチャ。`python3 make_print_pack.py` で再生成。
 
 ## Tests
 
@@ -53,6 +49,12 @@ Referencia interactiva pin ECM ↔ conector para VQ35DE (2003–2006), basada en
 
 Abrí el sitio de [GitHub Pages](https://hiwap.github.io/350z-harness/) de este repo, o abrí `index.html` en local.
 
+PDF de 2 páginas (landscape) 
+
+```bash
+python3 make_print_pack.py
+```
+
 No sustituye el manual de servicio oficial.
 
 ## 日本語
@@ -60,6 +62,12 @@ No sustituye el manual de servicio oficial.
 VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラクティブ参照です。FSM / NicoClub の配線図に基づきます。
 
 このリポジトリの [GitHub Pages](https://hiwap.github.io/350z-harness/) を開くか、ローカルで `index.html` を開いてください。
+
+**日本語:** 2ページの横向きPDF
+
+```bash
+python3 make_print_pack.py
+```
 
 公式サービスマニュアルの代用ではありません。
 
