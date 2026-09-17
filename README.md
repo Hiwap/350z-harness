@@ -8,7 +8,7 @@ Not a substitute for the official service manual.
 
 ## Print pack (Arnès motor)
 
-2-page landscape PDF (English UI)
+2-page landscape PDF
 
 ```bash
 python3 make_print_pack.py
