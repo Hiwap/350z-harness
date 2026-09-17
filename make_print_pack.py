@@ -647,32 +647,42 @@ if not E10_F1_SUB:
     E10_F1_SUB = "9-pin GY · START · REV Y/R"
 
 
-# ========== PAGE 1: cover banner + EC-123 (motor) — NO IPDM ==========
+# ========== PAGE 1: cover (top band) + EC-123 (rest) — combined ==========
 FOOT_Y = 8
 
+# Cover band (was page 1) — kept visible so it is clearly merged, not deleted
+cover_h = 52
+c.setFillColor(PATH_BG)
+c.setStrokeColor(SHELL)
+c.setLineWidth(1.2)
+c.roundRect(10, H - cover_h - 6, W - 20, cover_h, 5, fill=1, stroke=1)
 c.setFillColor(black)
-c.setFont("Helvetica-Bold", 11)
-c.drawCentredString(W / 2, H - 11, "2005 Nissan 350Z VQ35DE — Arnès motor / Engine harness")
-c.setFont("Helvetica", 6.2)
+c.setFont("Helvetica-Bold", 13)
+c.drawCentredString(W / 2, H - 20, "2005 Nissan 350Z VQ35DE — Arnès motor / Engine harness print pack")
+c.setFont("Helvetica", 7.5)
 c.setFillColor(MUTED)
-c.drawCentredString(W / 2, H - 21,
-                    "Motor loom on the bench · EC-123 + fichas  ·  2 páginas  ·  FSM EC 2005 · OEM · not a service manual")
+c.drawCentredString(W / 2, H - 34, "Motor-control loom on the bench (F-series) · ECM MEC61-510 · 2 páginas: EC-123 + fichas")
 c.setFillColor(black)
-c.setFont("Helvetica-Bold", 8.5)
-c.drawCentredString(W / 2, H - 34, "1 · EC-123 INVERTIDA — MEC61-510")
+c.setFont("Helvetica", 6.5)
+c.drawCentredString(W / 2, H - 46, "Card · color = contorno · 5V ámbar / 12V rojo / GND verde · Invertida L/R · FSM EC 2005 · OEM · not a service manual")
+
+# EC-123 title under cover band
+y_ecm_title = H - cover_h - 18
+c.setFont("Helvetica-Bold", 9)
+c.drawCentredString(W / 2, y_ecm_title, "1 · EC-123 INVERTIDA — MEC61-510  ·  (misma hoja que la portada)")
 c.setFont("Helvetica", 5.0)
 c.setFillColor(MUTED)
-c.drawCentredString(W / 2, H - 43, "nº pin arriba · código abajo · borde = cable · rojo = bancada · Invertida L/R · sin APP / IPDM / body")
+c.drawCentredString(W / 2, y_ecm_title - 10, "nº pin arriba · código abajo · borde = cable · rojo = bancada · Invertida L/R")
 c.setFillColor(HexColor("#B71C1C"))
-c.setFont("Helvetica-Bold", 5.6)
-c.drawCentredString(W / 2, H - 52, "ARRIBA | 121 a la IZQUIERDA")
+c.setFont("Helvetica-Bold", 5.5)
+c.drawCentredString(W / 2, y_ecm_title - 20, "ARRIBA | 121 a la IZQUIERDA")
 c.setFillColor(black)
 c.setFont("Helvetica-Bold", 5.0)
-c.drawString(14, H - 61, "PALANCA")
-c.drawRightString(W - 14, H - 61, "PALANCA")
+c.drawString(14, y_ecm_title - 30, "PALANCA")
+c.drawRightString(W - 14, y_ecm_title - 30, "PALANCA")
 
 lx = 14
-ly = H - 70
+ly = y_ecm_title - 40
 for code, name in [("B", "negro"), ("W", "blanco"), ("R", "rojo"), ("G", "verde"), ("L", "azul"),
                    ("Y", "amarillo"), ("OR", "naranja"), ("P", "rosa"), ("PU", "violeta"),
                    ("GY", "gris"), ("BR", "marron"), ("SB", "celeste"), ("LG", "v.claro")]:
@@ -691,10 +701,10 @@ b2 = [[113, 112, 111, 110, 109, 108, 107, 106], [105, 104, 103, 102, 101, 100, 9
 b3 = [list(range(6, 25)), list(range(25, 44)), list(range(44, 63)), list(range(63, 82))]
 b4 = [[5, 4], [None, 3], [2, 1]]
 
-gap_pin = 1.5
-gap_blk = 7
-# ECM under cover banner — still large, leaves foot room
-ph = 30.0
+gap_pin = 1.4
+gap_blk = 6.5
+# ECM under cover band
+ph = 27.5
 usable_w = W - 28
 pw = (usable_w - 3 * gap_blk) / 32 - gap_pin
 pw = max(14.5, min(pw, ph * 1.15))
@@ -721,12 +731,9 @@ c.setFont("Helvetica", 5.4)
 c.setFillColor(HexColor("#222"))
 c.drawString(14, ecm_bottom,
              "Motor rails · BATT 121=R/W · IGN 119=R/W 120=P · GND 1=B 115=B/W 116=B/R · KNK 15 · CKP 13 · CAN 86/94 · coils/inj · AFh 2/24")
-c.setFont("Helvetica", 4.8)
-c.setFillColor(MUTED)
-c.drawString(14, ecm_bottom - 12,
-             "Arnès motor view — IPDM / body / APP pedal loom omitted (use Completo map for habitáculo + IPDM room)")
 c.setFont("Helvetica", 4.6)
-c.drawString(10, 4, "Pág 1/2 · cover + EC-123 · Arnès motor · sin IPDM")
+c.setFillColor(MUTED)
+c.drawString(10, 4, "Pág 1/2 · portada + EC-123 combinadas · Arnès motor")
 c.setFillColor(black)
 c.showPage()
 
@@ -744,7 +751,7 @@ c.drawCentredString(W / 2, H - 9,
 c.setFont("Helvetica", 5.0)
 c.setFillColor(MUTED)
 c.drawCentredString(W / 2, H - 18,
-                    "cavidad: id · color · →ECM · 5V=anillo ámbar · 12V rojo / GND verde · sin APP / F102 / IPDM / body")
+                    "cavidad: id · color · →ECM · 5V=anillo ámbar · 12V rojo / GND verde")
 c.setFillColor(black)
 
 y_top = H - HEADER_H
@@ -763,20 +770,14 @@ y = y_top
 
 # --- PATH 5V motor (ETC) ---
 section_label(ML, y - 9, usable_w,
-              "PATH 5V motor  ·  ETC throttle (DBW)  ·  5V=47 · SNS TPS→66  ·  (APP pedal / EVAP / A/C / PSP omitidos)")
+              "PATH 5V motor  ·  ETC throttle (DBW)  ·  5V=47 · SNS TPS→66")
 y -= label_h
-path_frame(ML, y - ch_5v, usable_w, ch_5v)
-w_etc = min(280, usable_w * 0.55)
-ficha(ML + 2, y - ch_5v + 2, w_etc - 2, ch_5v - 4, "ETC throttle",
+w_etc = min(320, usable_w * 0.42)
+ficha(ML, y - ch_5v, w_etc, ch_5v, "ETC throttle",
       [("M+", "L/Y", "5"), ("M-", "L/B", "4"), ("5V", "W/R", "47"),
        ("T1", "G", "50"), ("T2", "Y", "69"), ("GND", "B", "SNS")],
       "rect6", face="rect6", subtitle="DBW · 5V=47 · motor ± · TPS",
       accent=GRP["sensors"], rail_5v=True)
-c.setFont("Helvetica", 5.0)
-c.setFillColor(MUTED)
-c.drawString(ML + w_etc + 10, y - ch_5v / 2 - 2,
-             "Nota: PATH APP (E113→E11/F2) y sensores body 5V no están en Arnès motor.")
-c.setFillColor(black)
 y -= ch_5v + gap_v
 
 # --- A/F path ---
