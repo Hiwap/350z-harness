@@ -238,6 +238,76 @@ def card_shell(x, y, w, h, accent=None, rail_5v=False, radius=3.5):
 
 
 
+
+def cav_fit(face_w, face_h, cols, rows=1):
+    """Uniform pin size, shrink only if the card is too small."""
+    cw = min(CAV_STD_W, face_w / max(cols, 1))
+    ch = min(CAV_STD_H, face_h / max(rows, 1))
+    # keep roughly square
+    side = min(cw, ch)
+    return side, side
+
+
+def split_ficha_title(title):
+    title = (title or "").strip()
+    if "·" in title:
+        a, b = title.split("·", 1)
+        return a.strip(), b.strip()
+    m = re.match(r"^([EF]\d+\w*)\s+(.+)$", title)
+    if m:
+        return m.group(1), m.group(2)
+    m = re.match(r"^(Coil|Bobina|Inj|Iny)\s*(\d+)\b(.*)$", title, re.I)
+    if m:
+        kind = "Bob" if m.group(1).lower().startswith(("c", "b")) else "Iny"
+        return f"{kind}{m.group(2)}", (m.group(3) or "").strip()
+    m = re.match(r"^(VTC|ETC|MAF|CKP|CMP|ECT|IAT|Knock|HO2S|A/F|SNS|F\d+|E\d+)\b(.*)$", title, re.I)
+    if m:
+        return m.group(1), (m.group(2) or "").strip(" ·")
+    return title, ""
+
+
+def draw_ficha_header(x, y, w, h, title, subtitle="", accent=None, qty=""):
+    """Accent title band: big code + name — easy ID with loom in hand."""
+    code, name = split_ficha_title(title)
+    band_h = 16 if w >= 80 else 14
+    if subtitle and w >= 100:
+        band_h = 18
+    accent = accent or HexColor("#90a4ae")
+    try:
+        r, g, b = accent.red, accent.green, accent.blue
+    except Exception:
+        r, g, b = 0.56, 0.64, 0.68
+    tint = HexColor("#%02x%02x%02x" % (
+        int(r * 255 * 0.25 + 255 * 0.75),
+        int(g * 255 * 0.25 + 255 * 0.75),
+        int(b * 255 * 0.25 + 255 * 0.75)))
+    c.setFillColor(tint)
+    c.rect(x + 1.0, y + h - band_h - 0.5, w - 2.0, band_h, fill=1, stroke=0)
+    c.setFillColor(accent)
+    c.rect(x + 1.0, y + h - band_h - 0.5, 3.0, band_h, fill=1, stroke=0)
+    c.setFillColor(TITLE_BLACK)
+    code_fs = min(9.0, max(6.0, w * 0.09))
+    c.setFont("Helvetica-Bold", code_fs)
+    c.drawString(x + 6.5, y + h - band_h + (band_h * 0.38 if not (name and subtitle and w >= 100) else band_h * 0.52), code[:12])
+    c.setFillColor(MUTED)
+    name_fs = min(5.2, max(3.6, w * 0.042))
+    c.setFont("Helvetica", name_fs)
+    if name and subtitle and w >= 100:
+        c.drawString(x + 6.5, y + h - band_h + 2.8, name[:26])
+        c.setFont("Helvetica", max(3.2, name_fs - 0.5))
+        c.drawRightString(x + w - 3.5, y + h - band_h + 2.8, subtitle[:20])
+    elif name:
+        c.drawRightString(x + w - 3.5, y + h - band_h + (band_h * 0.38), name[:22])
+    elif subtitle:
+        c.drawRightString(x + w - 3.5, y + h - band_h + (band_h * 0.38), subtitle[:22])
+    if qty:
+        c.setFont("Helvetica-Bold", 4.2)
+        c.setFillColor(accent)
+        c.drawRightString(x + w - 3.5, y + h - 3.5, str(qty)[:8])
+    c.setFillColor(black)
+    return band_h
+
+
 def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None, subtitle="", rail_5v=False, face_inv=None):
     """
     Connector card: group-colored outline (web SUB_ACCENT). Optional amber outer ring for 5V.
@@ -271,13 +341,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     # ---- RING (E17 body ground) ----
     if shape == "ring":
         card_shell(x, y, w, h, accent=accent or GRP["power"], rail_5v=rail_5v, radius=4)
-        c.setFillColor(TITLE_BLACK)
-        c.setFont("Helvetica-Bold", 6.5)
-        c.drawCentredString(x + w / 2, y + h - 12, title[:16])
-        if qty:
-            c.setFont("Helvetica", 4.5)
-            c.setFillColor(MUTED)
-            c.drawCentredString(x + w / 2, y + h - 22, qty)
+        draw_ficha_header(x, y, w, h, title, subtitle or qty, accent or GRP["power"], qty)
         lab, col, note = pins[0] if pins else ("ring", "B", "")
         cx, cy, r = x + w / 2, y + h * 0.40, min(w, h) * 0.22
         c.setStrokeColor(SHELL)
@@ -344,35 +408,23 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
 
     # Plain card shell — group outline (+ optional 5V amber ring)
     card_shell(x, y, w, h, accent=accent, rail_5v=rail_5v, radius=3.5)
-
-    c.setFillColor(TITLE_BLACK)
-    title_fs = 7.0 if w >= 140 else (6.0 if w >= 90 else 5.0)
-    c.setFont("Helvetica-Bold", title_fs)
-    t = title if not qty else f"{title} {qty}"
-    c.drawCentredString(x + w / 2, y + h - 11, t[:22])
-    if subtitle:
-        c.setFont("Helvetica", 4.0 if w >= 90 else 3.4)
-        c.setFillColor(MUTED)
-        c.drawCentredString(x + w / 2, y + h - 19, subtitle[:28])
-        title_band = 22
-    else:
-        title_band = 14
+    title_band = draw_ficha_header(x, y, w, h, title, subtitle, accent, qty)
 
     face_x = x + 3.5
     face_y = y + 2.5
     face_w = w - 7
-    face_h = h - title_band - 3
+    face_h = max(18, h - title_band - 3)
 
     # ---- AF6: FSM top 5-3-1 / bot 6-4-2 · Invertida mirrors each row ----
     if face == "af6" and all(k in by for k in ("1", "2", "3", "4", "5", "6")):
         order = [_row(["5", "3", "1"]), _row(["6", "4", "2"])]
-        cw, ch = CAV_STD_W, CAV_STD_H
+        cw, ch = cav_fit(face_w, face_h, 3, 2)
         ox = face_x + max(0, (face_w - 3 * cw) / 2)
         oy = face_y + max(0, (face_h - 2 * ch) / 2)
         for ri, row in enumerate(order):
             for ci, key in enumerate(row):
                 lab, col, note = _pin_disp(by[key])
-                draw_cavity(ox + ci * cw, oy + (1 - ri) * ch, cw, ch, lab, col, note, fs=4.2)
+                draw_cavity(ox + ci * cw, oy + (1 - ri) * ch, cw, ch, lab, col, note, fs=4.0)
         return
 
     # ---- E113 APP FSM face: top 3-2-1 / bot 6-5-4 · Invertida mirrors ----
@@ -403,15 +455,15 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     if face == "rect6" and len(pins) >= 6:
         top = _row(pins[:3])
         bot = _row(pins[3:6])
-        cw, ch = CAV_STD_W, CAV_STD_H
+        cw, ch = cav_fit(face_w, face_h, 3, 2)
         ox = face_x + max(0, (face_w - 3 * cw) / 2)
         oy = face_y + max(0, (face_h - 2 * ch) / 2)
         for ci, p in enumerate(top):
             lab, col, note = _pin_disp(p)
-            draw_cavity(ox + ci * cw, oy + ch, cw, ch, lab, col, note, fs=4.2)
+            draw_cavity(ox + ci * cw, oy + ch, cw, ch, lab, col, note, fs=4.0)
         for ci, p in enumerate(bot):
             lab, col, note = _pin_disp(p)
-            draw_cavity(ox + ci * cw, oy, cw, ch, lab, col, note, fs=4.2)
+            draw_cavity(ox + ci * cw, oy, cw, ch, lab, col, note, fs=4.0)
         return
 
     # ---- F3 (mapa svgF3): top 1-2-3-4 / bot 5-6-7-8 · fixed cavity size ----
@@ -419,7 +471,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         ids_ok = all(str(i) in by for i in range(1, 9))
         if ids_ok:
             # Fixed pin size (same-ish as other fichas); center grid in card
-            cw, ch = CAV_STD_W, CAV_STD_H
+            cw, ch = cav_fit(face_w, face_h, 4, 2)
             grid_w, grid_h = 4 * cw, 2 * ch
             ox = face_x + max(0, (face_w - grid_w) / 2)
             oy = face_y + max(0, (face_h - grid_h) / 2)
@@ -438,7 +490,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     if face == "f1" or shape == "f1":
         ids_ok = all(str(i) in by for i in range(1, 10))
         if ids_ok:
-            cw, ch = CAV_STD_W, CAV_STD_H
+            cw, ch = cav_fit(face_w, face_h, 5.2, 2)
             # layout width: 1 + gap + 4
             grid_w = cw + 4 * cw + cw * 0.15
             grid_h = 2 * ch
@@ -464,7 +516,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         n = min(4, len(pins))
         ordered = _row(pins[:n])
         # fixed-ish pin size, center in card
-        cw, ch = CAV_STD_W, CAV_STD_H
+        cw, ch = cav_fit(face_w, face_h, n, 1)
         ox = face_x + max(0, (face_w - n * cw) / 2)
         oy = face_y + max(0, (face_h - ch) / 2)
         for i, p in enumerate(ordered):
@@ -556,13 +608,13 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         return
     ordered = _row(pins)
     cols = len(ordered)
-    cw, ch = CAV_STD_W, CAV_STD_H
+    cw, ch = cav_fit(face_w, face_h, cols, 1)
     ox = face_x + max(0, (face_w - cols * cw) / 2)
     oy = face_y + max(0, (face_h - ch) / 2)
     for i, pin in enumerate(ordered):
         lab, col, note = _pin_disp(pin)
         draw_cavity(ox + i * cw, oy, cw, ch, lab, col, note,
-                    fs=4.0 if shape == "ipdm" else 4.2)
+                    fs=4.0 if shape == "ipdm" else 4.0)
 
 
 def section_label(x, y, w, text):
@@ -938,18 +990,18 @@ section_label(ML, y - 9, usable_w,
 y -= label_h
 cw_af = 210
 cw_ho = (usable_w - 2 * cw_af - GAP) / 2
-ficha(ML, y - ch_af, cw_af, ch_af, "A/F Sens 1 B1",
+ficha(ML, y - ch_af, cw_af, ch_af, "A/F B1 · sensor",
       [("1", "LG/B", "16"), ("2", "P/B", "75"), ("3", "12V", "fuse"),
        ("4", "GY/R", "2"), ("5", "L/W", "35"), ("6", "W/L", "56")],
       "af6", face="af6", subtitle="FSM · pass/RH · Inv", accent=GRP["sensors"])
-ficha(ML + cw_af + GAP, y - ch_af, cw_af, ch_af, "A/F Sens 1 B2",
+ficha(ML + cw_af + GAP, y - ch_af, cw_af, ch_af, "A/F B2 · sensor",
       [("1", "LG", "76"), ("2", "P", "77"), ("3", "12V", "fuse"),
        ("4", "G/Y", "24"), ("5", "L/B", "55"), ("6", "W", "58")],
       "af6", face="af6", subtitle="FSM · driver/LH · Inv", accent=GRP["sensors"])
-ficha(ML + 2 * (cw_af + GAP), y - ch_af, cw_ho, ch_af, "HO2S2 B1",
+ficha(ML + 2 * (cw_af + GAP), y - ch_af, cw_ho, ch_af, "F11 · HO2S B1",
       [("htr", "P/B", "25"), ("12V", "12V", "fuse")],
       "tab2", subtitle="post-cat RH", accent=GRP["sensors"])
-ficha(ML + 2 * (cw_af + GAP) + cw_ho + GAP, y - ch_af, cw_ho, ch_af, "HO2S2 B2",
+ficha(ML + 2 * (cw_af + GAP) + cw_ho + GAP, y - ch_af, cw_ho, ch_af, "F12 · HO2S B2",
       [("htr", "P/L", "6"), ("12V", "12V", "fuse")],
       "tab2", subtitle="post-cat LH", accent=GRP["sensors"])
 c.setFont("Helvetica", 4.2)
@@ -963,28 +1015,29 @@ y -= ch_af + gap_v
 section_label(ML, y - 9, usable_w,
               "PATH Knock  ·  sensor → F14/F229 → ECM 15 / GND 116   ·   otros sensores motor (directo → ECM)")
 y -= label_h
-w_kn = 140
+# Wider knock strip so 2-pin cards fit CAV_STD (was overflowing at ~46pt wide)
+w_kn = min(220, usable_w * 0.38)
 w_rest = usable_w - w_kn - GAP
 path_frame(ML, y - ch_ks, w_kn, ch_ks)
-kn_sens_w = 46
+kn_sens_w = w_kn * 0.30
 kn_mate_w = w_kn - kn_sens_w - 3
-ficha(ML + 1, y - ch_ks + 1, kn_sens_w - 1, ch_ks - 2, "Knock",
+ficha(ML + 1, y - ch_ks + 1, kn_sens_w - 1, ch_ks - 2, "Knock · sensor",
       [("SIG", "W", "15"), ("GND", "B", "116")],
       "tab2", subtitle="→F14", accent=GRP["sensors"])
 draw_mate_pair(ML + kn_sens_w + 1, y - ch_ks + 1, kn_mate_w - 1, ch_ks - 2,
-               {"title": "F14", "pins": KNOCK_PINS, "shape": "tab2", "subtitle": "FSM H.S. · GND",
+               {"title": "F14 · knock", "pins": KNOCK_PINS, "shape": "tab2", "subtitle": "mate · GND",
                 "accent": GRP["intermedias"], "face_inv": False},
-               {"title": "F229", "pins": KNOCK_PINS, "shape": "tab2", "subtitle": "FSM H.S. · GND",
+               {"title": "F229 · knock", "pins": KNOCK_PINS, "shape": "tab2", "subtitle": "mate · GND",
                 "accent": GRP["intermedias"], "face_inv": False})
 
 w6 = (w_rest - 5 * GAP) / 6
 items_s = [
-    ("MAF", [("12V", "R", "pwr"), ("GND", "B", "gnd"), ("SIG", "OR", "51")], "tab3", "→ECM 51"),
-    ("CKP POS", [("PWR", "R/W", "12V"), ("SIG", "W/L", "13"), ("GND", "B", "gnd")], "tab3", "→ECM 13"),
-    ("CMP B1", [("SIG", "R", "33"), ("GND", "B", "gnd")], "tab2", "cam RH"),
-    ("CMP B2", [("SIG", "R/L", "14"), ("GND", "B", "gnd")], "tab2", "cam LH"),
-    ("ECT", [("SIG", "BR/Y", "73"), ("GND", "B", "SNS")], "tab2", "coolant"),
-    ("IAT", [("SIG", "Y/G", "34"), ("GND", "B", "SNS")], "tab2", "intake air"),
+    ("F25 · MAF", [("12V", "R", "pwr"), ("GND", "B", "gnd"), ("SIG", "OR", "51")], "tab3", "→ECM 51"),
+    ("F10 · CKP", [("PWR", "R/W", "12V"), ("SIG", "W/L", "13"), ("GND", "B", "gnd")], "tab3", "→ECM 13"),
+    ("CMP B1 · leva", [("SIG", "R", "33"), ("GND", "B", "gnd")], "tab2", "cam RH"),
+    ("CMP B2 · leva", [("SIG", "R/L", "14"), ("GND", "B", "gnd")], "tab2", "cam LH"),
+    ("ECT · temp", [("SIG", "BR/Y", "73"), ("GND", "B", "SNS")], "tab2", "coolant"),
+    ("IAT · adm", [("SIG", "Y/G", "34"), ("GND", "B", "SNS")], "tab2", "intake air"),
 ]
 xx = ML + w_kn + GAP
 for title, pins, sh, sub in items_s:
@@ -994,15 +1047,15 @@ y -= ch_ks + gap_v
 
 # --- ETC + VTC (same row — no full-width lone ETC) ---
 cw3 = (usable_w - 2 * GAP) / 3
-ficha(ML, y - ch_act, cw3, ch_act, "ETC throttle",
+ficha(ML, y - ch_act, cw3, ch_act, "ETC · mariposa",
       [("M+", "L/Y", "5"), ("M-", "L/B", "4"), ("5V", "W/R", "47"),
        ("T1", "G", "50"), ("T2", "Y", "69"), ("GND", "B", "SNS")],
       "rect6", face="rect6", subtitle="DBW · 5V=47 · TPS",
       accent=GRP["sensors"], rail_5v=True)
-ficha(ML + cw3 + GAP, y - ch_act, cw3, ch_act, "VTC B1",
+ficha(ML + cw3 + GAP, y - ch_act, cw3, ch_act, "VTC B1 · adm",
       [("ECM", "P", "11"), ("12V", "R", "ign")], "tab2", subtitle="intake cam RH · →ECM 11",
       accent=GRP["actuators"])
-ficha(ML + 2 * (cw3 + GAP), y - ch_act, cw3, ch_act, "VTC B2",
+ficha(ML + 2 * (cw3 + GAP), y - ch_act, cw3, ch_act, "VTC B2 · adm",
       [("ECM", "W/G", "10"), ("12V", "R", "ign")], "tab2", subtitle="intake cam LH · →ECM 10",
       accent=GRP["actuators"])
 y -= ch_act + gap_v
@@ -1035,16 +1088,16 @@ y -= label_h
 
 # Row A: F103 | E17 | condenser | SNS GND
 w4 = (usable_w - 3 * GAP) / 4
-ficha(ML, y - ch_ja, w4, ch_ja, "F103 gnd4",
+ficha(ML, y - ch_ja, w4, ch_ja, "F103 · tierras",
       [("A", "B", "1"), ("B", "B/W", "115"), ("C", "B/R", "116"), ("D", "B", "E17")],
       "rect4", subtitle="1/115/116 → E17", accent=GRP["power"])
-ficha(ML + w4 + GAP, y - ch_ja, w4, ch_ja, "E17 body",
+ficha(ML + w4 + GAP, y - ch_ja, w4, ch_ja, "E17 · masa",
       [("ring", "B", "gnd")],
       "ring", qty="masa", accent=GRP["power"])
-ficha(ML + 2 * (w4 + GAP), y - ch_ja, w4, ch_ja, "Ign condenser",
+ficha(ML + 2 * (w4 + GAP), y - ch_ja, w4, ch_ja, "F16 · condensador",
       [("~2µF", "—", "cyl3")],
       "tab2", subtitle="noise · near cyl3", accent=GRP["actuators"])
-ficha(ML + 3 * (w4 + GAP), y - ch_ja, w4, ch_ja, "SNS GND",
+ficha(ML + 3 * (w4 + GAP), y - ch_ja, w4, ch_ja, "SNS · tierras",
       [("66", "B", "66"), ("67", "B", "67"), ("78", "B", "78")],
       "tab3", subtitle="sensor grounds", accent=GRP["power"])
 y -= ch_ja + gap_v
@@ -1052,17 +1105,17 @@ y -= ch_ja + gap_v
 # Row B: full E12⟷F3 + E10⟷F1 mate pairs (pins from live map HTML)
 w_mate = (usable_w - GAP) / 2
 draw_mate_pair(ML, y - ch_jb, w_mate, ch_jb,
-               {"title": "E12", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
+               {"title": "E12 · poder", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
                 "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
                 "face_inv": False},
-               {"title": "F3", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
+               {"title": "F3 · poder", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
                 "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
                 "face_inv": False})
 draw_mate_pair(ML + w_mate + GAP, y - ch_jb, w_mate, ch_jb,
-               {"title": "E10", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
+               {"title": "E10 · bandeja", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
                 "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
                 "face_inv": False},
-               {"title": "F1", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
+               {"title": "F1 · bandeja", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
                 "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
                 "face_inv": False})
 y -= ch_jb
