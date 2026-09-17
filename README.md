@@ -6,8 +6,7 @@ Open the [GitHub Pages](https://hiwap.github.io/350z-harness/) site from this re
 
 Not a substitute for the official service manual.
 
-## Print pack (Arnès motor)
-
+## Print pack
 2-page landscape PDF
 
 ```bash
