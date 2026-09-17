@@ -26,17 +26,13 @@ VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラク�
 
 ## Credits
 
-**English:** Built with [Grok](https://grok.com) — **Grok Bot** and **Grok Build**. Credit where credit’s due.
-
-**Español:** Hecho con [Grok](https://grok.com) — **Grok Bot** y **Grok Build**. Créditos donde corresponde.
-
-**日本語:** [Grok](https://grok.com) の **Grok Bot** と **Grok Build** で作成。クレジットは正当に。
+Built with [Grok](https://grok.com/) — Grok Bot and Grok Build.
 
 ---
 
 ## Print pack (Arnès motor)
 
-**English:** 2-page landscape PDF — page 1 cover + EC-123, page 2 motor fichas. Regenerate:
+**English:** 2-page landscape PDF (English UI) — page 1 cover + EC-123 + ECM rails + F102, page 2 motor fichas. Regenerate:
 
 ```bash
 python3 make_print_pack.py

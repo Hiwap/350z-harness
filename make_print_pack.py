@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Paquete imprimible Arnès motor: pág1 cover+EC-123, pág2 fichas motor (sin checklist).
-Fondos blancos. Cards = outline por grupo (web) · 5V = anillo ámbar extra (sin lock-tab / silueta shell).
+"""Engine harness print pack: p1 cover+EC-123+rails+F102, p2 motor fichas.
+White backgrounds. Cards = group outline (web) · 5V = amber outer ring.
 Color cable = solo contorno de cavidad + código escrito.
 Caras Invertida (bancada): espejo L/R en ECM e intermedias motor (F-series mates).
-Fichas agrupadas por PATH al destino final (motor loom only — sin habitáculo / IPDM room).
+Fichas grouped by PATH to final destination (motor loom only — no cabin / IPDM room).
 """
 import json
 import os
@@ -33,8 +33,8 @@ OC = {
 }
 BENCH = {90, 91, 82, 83, 13, 2, 47, 48, 49}
 
-FACE_INV = True  # Invertida (bancada): espejo L/R en TODAS las caras (ECM + intermedias)
-FACE_ORIENT_LABEL = "Invertida (bancada) · espejo L/R de cara FSM H.S. · ECM + intermedias motor"
+FACE_INV = True  # Inverted (bench): L/R mirror on ALL faces (ECM + intermediates)
+FACE_ORIENT_LABEL = "Inverted (bench) · L/R mirror of FSM H.S. face · ECM + motor intermediates"
 
 SHELL = black
 LAB_5V = HexColor("#F9A825")
@@ -873,28 +873,28 @@ c.setLineWidth(1.2)
 c.roundRect(10, H - cover_h - 6, W - 20, cover_h, 5, fill=1, stroke=1)
 c.setFillColor(black)
 c.setFont("Helvetica-Bold", 13)
-c.drawCentredString(W / 2, H - 20, "2005 Nissan 350Z VQ35DE — Arnès motor / Engine harness print pack")
+c.drawCentredString(W / 2, H - 20, "2005 Nissan 350Z VQ35DE — Engine harness print pack")
 c.setFont("Helvetica", 7.5)
 c.setFillColor(MUTED)
 c.drawCentredString(W / 2, H - 34, "Motor-control loom on the bench (F-series) · ECM MEC61-510 · 2 páginas: EC-123 + fichas")
 c.setFillColor(black)
 c.setFont("Helvetica", 6.5)
-c.drawCentredString(W / 2, H - 46, "Card · color = contorno · 5V ámbar / 12V rojo / GND verde · Invertida L/R · FSM EC 2005 · OEM · not a service manual")
+c.drawCentredString(W / 2, H - 46, "Card · color = outline · 5V amber / 12V red / GND green · Inverted L/R · FSM EC 2005 · OEM · not a service manual")
 
 # EC-123 title under cover band
 y_ecm_title = H - cover_h - 18
 c.setFont("Helvetica-Bold", 9)
-c.drawCentredString(W / 2, y_ecm_title, "1 · EC-123 INVERTIDA — MEC61-510  ·  (misma hoja que la portada)")
+c.drawCentredString(W / 2, y_ecm_title, "1 · EC-123 INVERTED — MEC61-510  ·  (same sheet as cover)")
 c.setFont("Helvetica", 5.0)
 c.setFillColor(MUTED)
-c.drawCentredString(W / 2, y_ecm_title - 10, "nº pin arriba · código abajo · borde = cable · rojo = bancada · Invertida L/R")
+c.drawCentredString(W / 2, y_ecm_title - 10, "pin # top · wire code bottom · border = wire · red = bench · Inverted L/R")
 c.setFillColor(HexColor("#B71C1C"))
 c.setFont("Helvetica-Bold", 5.5)
-c.drawCentredString(W / 2, y_ecm_title - 20, "ARRIBA | 121 a la IZQUIERDA")
+c.drawCentredString(W / 2, y_ecm_title - 20, "TOP | 121 on the LEFT")
 c.setFillColor(black)
 c.setFont("Helvetica-Bold", 5.0)
-c.drawString(14, y_ecm_title - 30, "PALANCA")
-c.drawRightString(W - 14, y_ecm_title - 30, "PALANCA")
+c.drawString(14, y_ecm_title - 30, "LEVER")
+c.drawRightString(W - 14, y_ecm_title - 30, "LEVER")
 
 lx = 14
 ly = y_ecm_title - 40
@@ -942,13 +942,60 @@ draw_block(x, y0, b4, pw, ph, gap_pin)
 c.drawCentredString(x + (pw + gap_pin), y0 - 3 * (ph + gap_pin) - 6, "1–5")
 
 ecm_bottom = y0 - 4 * (ph + gap_pin) - 10
-c.setFont("Helvetica", 5.4)
-c.setFillColor(HexColor("#222"))
-c.drawString(14, ecm_bottom,
-             "Motor rails · BATT 121=R/W · IGN 119=R/W 120=P · GND 1=B 115=B/W 116=B/R · KNK 15 · CKP 13 · CAN 86/94 · coils/inj · AFh 2/24")
+
+# --- RIELS ECM: named legend (12V / 5V / tierras) — bench ID under the face ---
+rail_top = ecm_bottom - 2
+rail_h = 58
+rail_x, rail_w = 14, W - 28
+c.setFillColor(HexColor("#FAFAFA"))
+c.setStrokeColor(HexColor("#90A4AE"))
+c.setLineWidth(1.0)
+c.roundRect(rail_x, rail_top - rail_h, rail_w, rail_h, 4, fill=1, stroke=1)
+# Title band
+c.setFillColor(HexColor("#ECEFF1"))
+c.rect(rail_x + 1, rail_top - 14, rail_w - 2, 13, fill=1, stroke=0)
+c.setFillColor(HexColor("#37474F"))
+c.setFont("Helvetica-Bold", 8.5)
+c.drawString(rail_x + 6, rail_top - 10.5, "ECM RAILS  ·  lines leaving the module (engine harness)")
+c.setFont("Helvetica", 5.0)
+c.setFillColor(MUTED)
+c.drawRightString(rail_x + rail_w - 6, rail_top - 10, "pin border = wire color · FSM EC-123")
+
+def _rail_row(y, accent, title, body, fs_body=5.6):
+    c.setFillColor(accent)
+    c.roundRect(rail_x + 5, y - 1, 3.2, 11, 1, fill=1, stroke=0)
+    c.setFillColor(TITLE_BLACK)
+    c.setFont("Helvetica-Bold", 6.5)
+    c.drawString(rail_x + 12, y + 1.5, title)
+    c.setFont("Helvetica", fs_body)
+    c.setFillColor(HexColor("#222"))
+    c.drawString(rail_x + 78, y + 1.5, body)
+
+_rail_row(rail_top - 26, HexColor("#C62828"), "12V",
+          "BATT 121=R/W · IGN 119=R/W · IGN 120=P · VMOT 3 (IPDM E8·42)  →  coil/inj feeds / ECM power")
+_rail_row(rail_top - 39, HexColor("#F9A825"), "5V",
+          "47 TPS/ETC · 48 EVAP · 49 A/C press · 68 PSP · 90 APP1 · 91 APP2   (separate rails, not one shared 5V)")
+_rail_row(rail_top - 52, HexColor("#2E7D32"), "GND",
+          "ECM 1=B · 115=B/W · 116=B/R (→F103/E17)  ·  SNS 66/67/78/82/83  ·  signals: KNK15 · CKP13 · CAN 86/94 · AFh 2/24")
+
+# --- F102 SMJ under rails (motor face of control harness ↔ body) ---
+F102_PINS, F102_SUB = extract_conn("ix_f102_m72")
+f102_top = rail_top - rail_h - 8
+f102_h = max(78, f102_top - 18)
+c.setFont("Helvetica-Bold", 7.5)
+c.setFillColor(TITLE_BLACK)
+c.drawString(14, f102_top + 2, "F102 · SMJ  (ENGINE CONTROL HARNESS · PG-85)  ·  not inverted  ·  motor face of harness")
+c.setFont("Helvetica", 4.8)
+c.setFillColor(MUTED)
+c.drawRightString(W - 14, f102_top + 2, (F102_SUB or "PG-85 H.S.") + f" · {len(F102_PINS)} cavities")
+ficha(14, f102_top - f102_h, W - 28, f102_h - 2, "F102 · SMJ",
+      F102_PINS, shape="f102", face="f102",
+      subtitle="control harness ↔ body · 1H–29H + stub 30H–46H",
+      accent=GRP["intermedias"], face_inv=False)
+
 c.setFont("Helvetica", 4.6)
 c.setFillColor(MUTED)
-c.drawString(10, 4, "Pág 1/2 · portada + EC-123 combinadas · Arnès motor")
+c.drawString(10, 4, "Page 1/2 · cover + EC-123 + rails + F102 · engine harness")
 c.setFillColor(black)
 c.showPage()
 
@@ -962,11 +1009,11 @@ HEADER_H = 24
 
 c.setFont("Helvetica-Bold", 8.5)
 c.drawCentredString(W / 2, H - 9,
-                    "2 · Fichas Arnès motor · sensor → intermedia F → ECM · outline grupo · 5V ámbar · Invertida")
+                    "2 · Motor fichas · sensor → intermediate F → ECM · group outline · 5V amber · Inverted")
 c.setFont("Helvetica", 5.0)
 c.setFillColor(MUTED)
 c.drawCentredString(W / 2, H - 18,
-                    "cavidad: id · color · →ECM · 5V=anillo ámbar · 12V rojo / GND verde")
+                    "cavity: id · color · →ECM · 5V=amber ring · 12V red / GND green")
 c.setFillColor(black)
 
 y_top = H - HEADER_H
@@ -986,7 +1033,7 @@ y = y_top
 
 # --- A/F path ---
 section_label(ML, y - 9, usable_w,
-              "PATH A/F + HO2S  ·  sensores → E12⟷F3 (heaters / poder) → ECM  ·  heaters ECM 2 / 24")
+              "PATH A/F + HO2S  ·  sensors → E12⟷F3 (heaters / power) → ECM  ·  heaters ECM 2 / 24")
 y -= label_h
 cw_af = 210
 cw_ho = (usable_w - 2 * cw_af - GAP) / 2
@@ -1013,7 +1060,7 @@ y -= ch_af + gap_v
 
 # --- Knock path + other motor sensors ---
 section_label(ML, y - 9, usable_w,
-              "PATH Knock  ·  sensor → F14/F229 → ECM 15 / GND 116   ·   otros sensores motor (directo → ECM)")
+              "PATH Knock  ·  sensor → F14/F229 → ECM 15 / GND 116   ·   other motor sensors (direct → ECM)")
 y -= label_h
 # Wider knock strip so 2-pin cards fit CAV_STD (was overflowing at ~46pt wide)
 w_kn = min(220, usable_w * 0.38)
@@ -1034,10 +1081,10 @@ w6 = (w_rest - 5 * GAP) / 6
 items_s = [
     ("F25 · MAF", [("12V", "R", "pwr"), ("GND", "B", "gnd"), ("SIG", "OR", "51")], "tab3", "→ECM 51"),
     ("F10 · CKP", [("PWR", "R/W", "12V"), ("SIG", "W/L", "13"), ("GND", "B", "gnd")], "tab3", "→ECM 13"),
-    ("CMP B1 · leva", [("SIG", "R", "33"), ("GND", "B", "gnd")], "tab2", "cam RH"),
-    ("CMP B2 · leva", [("SIG", "R/L", "14"), ("GND", "B", "gnd")], "tab2", "cam LH"),
-    ("ECT · temp", [("SIG", "BR/Y", "73"), ("GND", "B", "SNS")], "tab2", "coolant"),
-    ("IAT · adm", [("SIG", "Y/G", "34"), ("GND", "B", "SNS")], "tab2", "intake air"),
+    ("CMP B1 · cam", [("SIG", "R", "33"), ("GND", "B", "gnd")], "tab2", "cam RH"),
+    ("CMP B2 · cam", [("SIG", "R/L", "14"), ("GND", "B", "gnd")], "tab2", "cam LH"),
+    ("ECT · coolant", [("SIG", "BR/Y", "73"), ("GND", "B", "SNS")], "tab2", "coolant"),
+    ("IAT · intake", [("SIG", "Y/G", "34"), ("GND", "B", "SNS")], "tab2", "intake air"),
 ]
 xx = ML + w_kn + GAP
 for title, pins, sh, sub in items_s:
@@ -1047,15 +1094,15 @@ y -= ch_ks + gap_v
 
 # --- ETC + VTC (same row — no full-width lone ETC) ---
 cw3 = (usable_w - 2 * GAP) / 3
-ficha(ML, y - ch_act, cw3, ch_act, "ETC · mariposa",
+ficha(ML, y - ch_act, cw3, ch_act, "ETC · throttle",
       [("M+", "L/Y", "5"), ("M-", "L/B", "4"), ("5V", "W/R", "47"),
        ("T1", "G", "50"), ("T2", "Y", "69"), ("GND", "B", "SNS")],
       "rect6", face="rect6", subtitle="DBW · 5V=47 · TPS",
       accent=GRP["sensors"], rail_5v=True)
-ficha(ML + cw3 + GAP, y - ch_act, cw3, ch_act, "VTC B1 · adm",
+ficha(ML + cw3 + GAP, y - ch_act, cw3, ch_act, "VTC B1 · intake",
       [("ECM", "P", "11"), ("12V", "R", "ign")], "tab2", subtitle="intake cam RH · →ECM 11",
       accent=GRP["actuators"])
-ficha(ML + 2 * (cw3 + GAP), y - ch_act, cw3, ch_act, "VTC B2 · adm",
+ficha(ML + 2 * (cw3 + GAP), y - ch_act, cw3, ch_act, "VTC B2 · intake",
       [("ECM", "W/G", "10"), ("12V", "R", "ign")], "tab2", subtitle="intake cam LH · →ECM 10",
       accent=GRP["actuators"])
 y -= ch_act + gap_v
@@ -1083,21 +1130,21 @@ y -= ch_inj + gap_v
 
 # --- Motor joints (2 rows: grounds/noise | E12⟷F3 + E10⟷F1 mates from map) ---
 section_label(ML, y - 9, usable_w,
-              "Joints motor  ·  F103/gnd4 → E17  ·  Ign condenser  ·  SNS GND  ·  E12⟷F3  ·  E10⟷F1 (battery tray)")
+              "Motor joints  ·  F103/gnd4 → E17  ·  Ign condenser  ·  SNS GND  ·  E12⟷F3  ·  E10⟷F1 (battery tray)")
 y -= label_h
 
 # Row A: F103 | E17 | condenser | SNS GND
 w4 = (usable_w - 3 * GAP) / 4
-ficha(ML, y - ch_ja, w4, ch_ja, "F103 · tierras",
+ficha(ML, y - ch_ja, w4, ch_ja, "F103 · grounds",
       [("A", "B", "1"), ("B", "B/W", "115"), ("C", "B/R", "116"), ("D", "B", "E17")],
       "rect4", subtitle="1/115/116 → E17", accent=GRP["power"])
-ficha(ML + w4 + GAP, y - ch_ja, w4, ch_ja, "E17 · masa",
+ficha(ML + w4 + GAP, y - ch_ja, w4, ch_ja, "E17 · body ground",
       [("ring", "B", "gnd")],
-      "ring", qty="masa", accent=GRP["power"])
-ficha(ML + 2 * (w4 + GAP), y - ch_ja, w4, ch_ja, "F16 · condensador",
+      "ring", qty="body", accent=GRP["power"])
+ficha(ML + 2 * (w4 + GAP), y - ch_ja, w4, ch_ja, "F16 · condenser",
       [("~2µF", "—", "cyl3")],
       "tab2", subtitle="noise · near cyl3", accent=GRP["actuators"])
-ficha(ML + 3 * (w4 + GAP), y - ch_ja, w4, ch_ja, "SNS · tierras",
+ficha(ML + 3 * (w4 + GAP), y - ch_ja, w4, ch_ja, "SNS · grounds",
       [("66", "B", "66"), ("67", "B", "67"), ("78", "B", "78")],
       "tab3", subtitle="sensor grounds", accent=GRP["power"])
 y -= ch_ja + gap_v
@@ -1105,17 +1152,17 @@ y -= ch_ja + gap_v
 # Row B: full E12⟷F3 + E10⟷F1 mate pairs (pins from live map HTML)
 w_mate = (usable_w - GAP) / 2
 draw_mate_pair(ML, y - ch_jb, w_mate, ch_jb,
-               {"title": "E12 · poder", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
+               {"title": "E12 · power", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
                 "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
                 "face_inv": False},
-               {"title": "F3 · poder", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
+               {"title": "F3 · power", "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
                 "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
                 "face_inv": False})
 draw_mate_pair(ML + w_mate + GAP, y - ch_jb, w_mate, ch_jb,
-               {"title": "E10 · bandeja", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
+               {"title": "E10 · tray", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
                 "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
                 "face_inv": False},
-               {"title": "F1 · bandeja", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
+               {"title": "F1 · tray", "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
                 "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
                 "face_inv": False})
 y -= ch_jb
@@ -1123,7 +1170,7 @@ y -= ch_jb
 c.setFont("Helvetica", 4.8)
 c.setFillColor(MUTED)
 c.drawString(ML, 3,
-             f"Pág 2/2 · Arnès motor fichas · sin F102/CAN/DLC · {FACE_ORIENT_LABEL[:36]}")
+             f"Page 2/2 · motor fichas · F102 on page 1 · no CAN/DLC · {FACE_ORIENT_LABEL[:36]}")
 c.setFillColor(black)
 
 
