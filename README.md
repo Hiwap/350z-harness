@@ -8,22 +8,6 @@ Open the [GitHub Pages](https://hiwap.github.io/350z-harness/) site from this re
 
 Not a substitute for the official service manual.
 
-## Español
-
-Referencia interactiva pin ECM ↔ conector para VQ35DE (2003–2006), basada en diagramas FSM / NicoClub.
-
-Abrí el sitio de [GitHub Pages](https://hiwap.github.io/350z-harness/) de este repo, o abrí `index.html` en local.
-
-No sustituye el manual de servicio oficial.
-
-## 日本語
-
-VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラクティブ参照です。FSM / NicoClub の配線図に基づきます。
-
-このリポジトリの [GitHub Pages](https://hiwap.github.io/350z-harness/) を開くか、ローカルで `index.html` を開いてください。
-
-公式サービスマニュアルの代用ではありません。
-
 ## Credits
 
 Built with [Grok](https://grok.com/) — Grok Bot and Grok Build.
@@ -64,3 +48,19 @@ npm run test:f102
 | `test/f102.mjs` | live F102 / selection / Alim. behavior via Puppeteer |
 
 Chrome/Edge required for `ui-lang` and `f102`. Set `HARNESS_SKIP_BROWSER=1` to skip them.
+
+## Español
+
+Referencia interactiva pin ECM ↔ conector para VQ35DE (2003–2006), basada en diagramas FSM / NicoClub.
+
+Abrí el sitio de [GitHub Pages](https://hiwap.github.io/350z-harness/) de este repo, o abrí `index.html` en local.
+
+No sustituye el manual de servicio oficial.
+
+## 日本語
+
+VQ35DE（2003–2006）向けの、ECMピン ↔ コネクタのインタラクティブ参照です。FSM / NicoClub の配線図に基づきます。
+
+このリポジトリの [GitHub Pages](https://hiwap.github.io/350z-harness/) を開くか、ローカルで `index.html` を開いてください。
+
+公式サービスマニュアルの代用ではありません。
