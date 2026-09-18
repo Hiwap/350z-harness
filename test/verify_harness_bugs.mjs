@@ -92,6 +92,24 @@ ok('updateSelectedTop allows ≥2 fichas same sub',
 }
 
 {
+  const block = circuitBlock('batt_ecm');
+  ok('batt_ecm circuit found', !!block);
+  if (block) {
+    ok('batt_ecm.conn includes F102 and E108',
+      /ix_f102_m72/.test(block) && /ix_e108_m15/.test(block));
+    ok('batt_ecm path has F102 5H and E108 68G',
+      /5H/.test(block) && /68G/.test(block));
+    ok('batt_ecm notes cite EC-441', /EC-441/.test(block));
+    ok('batt_ecm does not use fake batt_feed', !/batt_feed/.test(block));
+  }
+  ok('F102 5H is R/W ecm 121 BATT',
+    /\{id:'5H',code:'R\/W',ecm:121,lab:'BATT',rail:'12v'/.test(html));
+  ok('E108 68G is R/W ecm 121 BATT',
+    /\{id:'68G',code:'R\/W',ecm:121,lab:'BATT',rail:'12v'/.test(html));
+  ok('fake batt_feed CONN removed', !/\nbatt_feed:\{/.test(html));
+}
+
+{
   const block = circuitBlock('vmot');
   ok('vmot circuit found', !!block);
   if (block) {

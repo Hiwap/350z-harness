@@ -3,3 +3,4 @@ node_modules/
 
 # local agent sync (Jefesito / Grok Build / Electronics — do not commit)
 agent-sync.json
+pdf_preview/

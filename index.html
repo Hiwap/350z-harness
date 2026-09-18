@@ -1280,7 +1280,6 @@ function railLineOfCav(cid, pin){
     if(cid === 'ipdm_e7' && id === '17') return '12v_coil';
     if(cid === 'ipdm_e7' && id === '18') return '12v_vb';
     if(cid === 'ipdm_e8' && (id === '40' || id === '48')) return '12v_vmot'; /* rough */
-    if(cid === 'batt_feed' || id === 'BATT') return '12v_batt';
     if(pin.ecm === 119 || pin.ecm === 120) return '12v_vb';
     if(pin.ecm === 121) return '12v_batt';
     if(pin.ecm === 3) return '12v_vmot';
@@ -1458,7 +1457,9 @@ function buildCircuits(model){
     {id:'inj_6', title:'Inyector 6', color:'#9ccc65',
       ecm:[40], conn:['inj6','ix_f221_f33'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 6. Ruta: ECM 40 → F33/F221. 12V (Alim.): F102·17H.'},
     {id:'batt_ecm', title:'BATT · alimentación ECM 121', color:'#ef5350',
-      ecm:[121], conn:['batt_feed'], path:{batt_feed:['BATT']}, notes:'Memoria del ECM: 12V siempre, aunque la llave esté off. Ruta: BATT R/W → ECM 121 (sin intermedia en el arnés motor).'},
+      ecm:[121], conn:['ix_f102_m72','ix_e108_m15'], f102:['5H'],
+      path:{ix_f102_m72:['5H'], ix_e108_m15:['68G']},
+      notes:'Memoria del ECM: 12V siempre, aunque la llave esté off. Ruta: BATT → fusible 15A → E108·68G → F102·5H → ECM 121 (EC-441).'},
     {id:'ign_feeds', title:'IGN · alimentación ECM 119/120', color:'#ef5350',
       ecm:[119,120], conn:['ix_e12_f3','ipdm_e7'], notes:'Alimentación con llave ON para el ECM (VB). Ruta: E7-18 → F3·7 → ECM 119 · F3·4 → ECM 120.'},
     {id:'ign_sw', title:'IGN SW · señal llave → ECM', color:'#ef5350',
@@ -1623,9 +1624,6 @@ const NEST_ACCENT = { bobinas: '#f57f17', inyectores: '#c62828' };
 const CONN_BASE = {
   /* —— Poder / tierras · ficha del plug ECM (EC-123) —— */
 
-  batt_feed:{group:'motor', sub:'feeds', name:'BATT · ECM 121 (siempre con batería)', meta:'R/W · memoria · sin intermedia motor', accent:'#ef5350', shape:'note',
-    pins:[{id:'BATT',code:'R/W',ecm:121,rail:'12v',lab:'BATT'}],
-    note:'12V siempre al ECM (memoria). Ruta: BATT → ECM 121.'},
   ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3',
     pins:[
       {id:'1',src:'BATT',srcSub:'power',code:'W',ecm:null,rail:'12v',note:'Entrada de batería al IPDM.',note_en:'Battery 12V in (W) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W) · ヒュージブルリンク · PG-27。'},
@@ -2160,13 +2158,13 @@ const CONN_BASE = {
       {id:'65G',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'JB·15A',srcSub:'feeds'},
       {id:'66G',code:'—',ecm:null},
       {id:'67G',code:'—',ecm:null},
-      {id:'68G',code:'—',ecm:null},
+      {id:'68G',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.'},
       {id:'69G',code:'W/B',ecm:111,lab:'SSOFF'}
     ],
-    note:'Puente motor↔carrocería (SMJ). Ruta: CAN 2G/7G · ASCD-B 3G · FPR 28G · MOTRLY 30G · STOP 38G · 12V A/F 65G · SSOFF 69G.'},
+    note:'Puente motor↔carrocería (SMJ). Ruta: CAN 2G/7G · ASCD-B 3G · FPR 28G · MOTRLY 30G · STOP 38G · 12V A/F 65G · BATT 68G (ECM 121) · SSOFF 69G.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔carrocería', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
-  note:'Puente motor↔carrocería (F102↔M72). Incluye FPR 6H · MOTRLY 12H · CAN · freno · ASCD…'},
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.'},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+  note:'Puente motor↔carrocería (F102↔M72). Incluye BATT 5H (ECM 121) · FPR 6H · MOTRLY 12H · CAN · freno · ASCD…'},
 
   /* —— Habitáculo / pedales / ASCD —— */
   pnp:{group:'body', sub:'pedals', name:'PNP / Inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
@@ -4402,13 +4400,13 @@ const CONN_I18N = {
   },
   ix_e108_m15: {
     en: { name:'E108 ↔ M15 · SMJ engine room↔body', meta:'SMJ 69G · PG-84 · E108 H.S.',
-      note:'SMJ E108 (engine room) ↔ M15 (main). Confirmed: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 65G A/F+HO2S 12V (R/B) · 69G SSOFF (111). Other cavities empty (not guessed). Face PG-84 H.S. E108.' },
+      note:'SMJ E108 (engine room) ↔ M15 (main). Confirmed: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 65G A/F+HO2S 12V (R/B) · 68G BATT (121) · 69G SSOFF (111). Other cavities empty (not guessed). Face PG-84 H.S. E108.' },
     ja: { name:'E108 ↔ M15 · SMJ エンジンルーム↔ボディ', meta:'SMJ 69G · PG-84 · E108 H.S.',
-      note:'SMJ E108（エンジンルーム）↔ M15（メイン）。確認済: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 69G SSOFF (111)。他は空（推測なし）。面 PG-84 H.S. E108。' },
+      note:'SMJ E108（エンジンルーム）↔ M15（メイン）。確認済: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 65G A/F+HO2S 12V (R/B) · 68G BATT (121) · 69G SSOFF (111)。他は空（推測なし）。面 PG-84 H.S. E108。' },
   },
   ix_f102_m72: {
-    en: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'SMJ bridge engine↔body · 13 wired cavities.' },
-    ja: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'SMJブリッジ エンジン↔ボディ · 配線キャビティ13。' },
+    en: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'SMJ bridge engine↔body · includes BATT 5H (ECM 121) · FPR 6H · MOTRLY 12H · CAN · brake · ASCD…' },
+    ja: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'SMJブリッジ エンジン↔ボディ · BATT 5H (ECM 121) · FPR 6H · MOTRLY 12H · CAN · ブレーキ · ASCD…' },
   },
 
   ecm_f101_can: {
@@ -4438,14 +4436,6 @@ const CONN_I18N = {
     en: { name:'HO2S2 B2', meta:'post-cat L · signal ECM 55' },
     ja: { name:'HO2S2 B2', meta:'後触媒 L · 信号 ECM 55' },
   },
-  batt_feed: {
-    en: { name:'BATT · ECM 121 (always hot)', meta:'R/W back-up · no motor-harness intermediate',
-      note:'Always-hot BATT to ECM 121 (R/W). No intermediate ficha on the motor harness.' },
-    ja: { name:'BATT · ECM 121（常時）', meta:'R/W バックアップ · モータ側中間コネクタなし',
-      note:'ECM 121への常時BATT（R/W）。モータハーネス側の中間コネクタはない。' },
-  },
-
-
   coil1: { en:{name:'Coil 1', meta:'ECM62 Y/R'}, ja:{name:'コイル1', meta:'ECM62 Y/R'} },
   coil2: { en:{name:'Coil 2', meta:'ECM81 G/B'}, ja:{name:'コイル2', meta:'ECM81 G/B'} },
   coil3: { en:{name:'Coil 3', meta:'ECM61 L/R'}, ja:{name:'コイル3', meta:'ECM61 L/R'} },
