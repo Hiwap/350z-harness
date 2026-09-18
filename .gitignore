@@ -1,2 +1,5 @@
 node_modules/
 .DS_Store
+
+# local agent sync (Jefesito / Grok Build / Electronics — do not commit)
+agent-sync.json
