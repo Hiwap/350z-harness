@@ -148,6 +148,54 @@ ok('rail-focus helpers present (stay in rail on re-click)',
     const absent = uniq.filter((s) => !fs.existsSync(path.join(ROOT, s)));
     ok('CONN_FACE image files exist', absent.length === 0, absent.length ? absent.join(',') : `${uniq.length} unique`);
     ok('no empty CONN_FACE placeholders', keys.length > 0 && uniq.length > 0);
+
+    /* Pin-count lock: CONN/CONN_BASE.pins.length must match expected for mapped faces. */
+    const EXPECTED_FACE_PINS = {
+      etc: 6,
+      inj1: 2, inj2: 2, inj3: 2, inj4: 2, inj5: 2, inj6: 2,
+      coil1: 3, coil2: 3, coil3: 3, coil4: 3, coil5: 3, coil6: 3,
+      maf: 3, /* CONN models 12V/GND/SIG (tab3); physical shell may show more cavities */
+      ckp: 3,
+      cmp_b1: 2, cmp_b2: 2, /* SIG+GND in CONN; face photo may show 3-cavity shell */
+      knock: 2,
+      ect: 2,
+      ho2s_b1: 4, ho2s_b2: 4,
+      /* Round-2 ids — only asserted when present in CONN_FACE */
+      ix_e10_f1: 9, ix_e12_f3: 8, ix_e11_f2: 10,
+      af_b1: 6, af_b2: 6,
+      psp: 3,
+    };
+    function expectedFacePins(id) {
+      if (Object.prototype.hasOwnProperty.call(EXPECTED_FACE_PINS, id)) return EXPECTED_FACE_PINS[id];
+      if (/^inj\d+$/.test(id)) return 2;
+      if (/^coil\d+$/.test(id)) return 3;
+      if (/^af_/.test(id)) return 6;
+      if (/^ho2s_/.test(id)) return 4;
+      if (/^cmp_/.test(id)) return 2;
+      return null;
+    }
+    function connPinCount(id) {
+      const re = new RegExp('\\n  ' + id + ':\\{[\\s\\S]*?pins:\\[([\\s\\S]*?)\\]');
+      const m = baseBlock[1].match(re);
+      if (!m) return null;
+      return [...m[1].matchAll(/[{]id:/g)].length;
+    }
+    const pinMismatches = [];
+    const pinChecked = [];
+    for (const id of keys) {
+      const exp = expectedFacePins(id);
+      if (exp == null) continue;
+      const got = connPinCount(id);
+      if (got == null) {
+        pinMismatches.push(id + ': missing CONN pins');
+        continue;
+      }
+      pinChecked.push(id + '=' + got);
+      if (got !== exp) pinMismatches.push(id + ': got ' + got + ' expected ' + exp);
+    }
+    ok('CONN_FACE pin counts match EXPECTED_FACE_PINS',
+      pinMismatches.length === 0,
+      pinMismatches.length ? pinMismatches.join('; ') : pinChecked.join(', '));
   }
 }
 

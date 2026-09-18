@@ -346,6 +346,81 @@ await page.evaluate(() => {
   pwr.dispatchEvent(new Event('change', { bubbles: true }));
 });
 
+
+console.log('\nBrowser rail stay-in-selection (click hl-rail stays in rail mode)');
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+/* Prefer 5V — several ECM pins tagged PIN_RAIL 5v with clear hl-rail. */
+await page.click('#rail5v');
+await page.waitForFunction(() => {
+  const btn = document.getElementById('rail5v');
+  return btn && btn.classList.contains('on')
+    && typeof activeRails !== 'undefined' && activeRails.has('5v')
+    && document.querySelectorAll('#blocks .pin.hl-rail').length >= 2;
+});
+{
+  const before = await page.evaluate(() => ({
+    activeRails: typeof activeRails !== 'undefined' ? activeRails.size : 0,
+    hlRail: document.querySelectorAll('#blocks .pin.hl-rail').length,
+    railOn: document.getElementById('rail5v')?.classList.contains('on') || false,
+    railPins: [...document.querySelectorAll('#blocks .pin.hl-rail')].map((el) => el.dataset.pin),
+  }));
+  ok(before.activeRails > 0, `5V rail active (activeRails=${before.activeRails})`);
+  ok(before.hlRail >= 2, `≥2 hl-rail pins after 5V filter (${before.hlRail})`);
+  ok(before.railOn, 'rail5v button .on');
+  const pinA = before.railPins[0];
+  const pinB = before.railPins.find((p) => p !== pinA);
+  ok(!!pinA && !!pinB, `two distinct rail pins ${pinA} / ${pinB}`);
+
+  await page.click(`#blocks .pin[data-pin="${pinA}"]`);
+  await page.waitForFunction((n) => {
+    const el = document.querySelector(`#blocks .pin[data-pin="${n}"]`);
+    return el && el.classList.contains('hl');
+  }, {}, pinA);
+
+  const after1 = await page.evaluate((n) => ({
+    activeRails: typeof activeRails !== 'undefined' ? activeRails.size : 0,
+    has5v: typeof activeRails !== 'undefined' && activeRails.has('5v'),
+    hlRail: document.querySelectorAll('#blocks .pin.hl-rail').length,
+    focusHl: document.querySelector(`#blocks .pin[data-pin="${n}"]`)?.classList.contains('hl') || false,
+    focusStillRail: document.querySelector(`#blocks .pin[data-pin="${n}"]`)?.classList.contains('hl-rail') || false,
+    railOn: document.getElementById('rail5v')?.classList.contains('on') || false,
+    railMode: document.getElementById('info')?.dataset.railMode === '1',
+  }), pinA);
+  ok(after1.activeRails > 0 && after1.has5v, `after click ${pinA}: activeRails still set (${after1.activeRails}, has5v=${after1.has5v})`);
+  ok(after1.hlRail >= 2, `after click ${pinA}: multiple .pin.hl-rail still present (${after1.hlRail})`);
+  ok(after1.focusHl, `after click ${pinA}: focus pin has .hl (yellow)`);
+  ok(after1.railOn, `after click ${pinA}: rail5v still .on`);
+  ok(after1.railMode || after1.focusStillRail, `after click ${pinA}: still rail mode (railMode=${after1.railMode}, focusStillRail=${after1.focusStillRail})`);
+
+  await page.click(`#blocks .pin[data-pin="${pinB}"]`);
+  await page.waitForFunction((n) => {
+    const el = document.querySelector(`#blocks .pin[data-pin="${n}"]`);
+    return el && el.classList.contains('hl');
+  }, {}, pinB);
+
+  const after2 = await page.evaluate((a, b) => ({
+    activeRails: typeof activeRails !== 'undefined' ? activeRails.size : 0,
+    has5v: typeof activeRails !== 'undefined' && activeRails.has('5v'),
+    hlRail: document.querySelectorAll('#blocks .pin.hl-rail').length,
+    focusB: document.querySelector(`#blocks .pin[data-pin="${b}"]`)?.classList.contains('hl') || false,
+    aStillYellow: document.querySelector(`#blocks .pin[data-pin="${a}"]`)?.classList.contains('hl') || false,
+    railOn: document.getElementById('rail5v')?.classList.contains('on') || false,
+  }), pinA, pinB);
+  ok(after2.activeRails > 0 && after2.has5v, `after click ${pinB}: activeRails still set (${after2.activeRails})`);
+  ok(after2.hlRail >= 2, `after click ${pinB}: multiple .pin.hl-rail still present (${after2.hlRail})`);
+  ok(after2.focusB, `after click ${pinB}: focus moved (pin ${pinB} has .hl)`);
+  ok(!after2.aStillYellow, `after click ${pinB}: previous focus ${pinA} no longer sole yellow (.hl=${after2.aStillYellow})`);
+  ok(after2.railOn, `after click ${pinB}: rail5v still .on`);
+}
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+/* turn 5V off so later suites are not affected if this file gains more tests */
+await page.evaluate(() => {
+  if (typeof activeRails !== 'undefined' && activeRails.has('5v')) {
+    const btn = document.getElementById('rail5v');
+    if (btn) btn.click();
+  }
+});
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);
