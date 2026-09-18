@@ -56,6 +56,49 @@ ok('evap_press in LOOM_BODY_EXTRA',
 ok('evap_press CONN exists', /\n  evap_press:\{/.test(html));
 
 {
+  // Arnès motor view (skill + FSM PG-54): no JB fusibles / IPDM / E108 / APP E11/F2
+  const loomOnly = html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0];
+  const keepOnly = html.match(/const LOOM_MOTOR_KEEP = new Set\(\[[\s\S]*?\]\);/)[0];
+  ok('LOOM_BODY_EXTRA has jb_10a_inj', /'jb_10a_inj'/.test(loomOnly));
+  ok('LOOM_BODY_EXTRA has jb_15a_ht', /'jb_15a_ht'/.test(loomOnly));
+  ok('LOOM_BODY_EXTRA has ix_e11_f2', /'ix_e11_f2'/.test(loomOnly));
+  ok('LOOM_BODY_EXTRA has ipdm_e7', /'ipdm_e7'/.test(loomOnly));
+  ok('LOOM_BODY_EXTRA has ix_e108_m15', /'ix_e108_m15'/.test(loomOnly));
+  ok('LOOM_BODY_EXTRA has feed_af_12v (JB/E108 heater origin)', /'feed_af_12v'/.test(loomOnly));
+  ok('LOOM_BODY_EXTRA has feed_ho2s_12v', /'feed_ho2s_12v'/.test(loomOnly));
+  ok('LOOM_MOTOR_KEEP is E10/F1 + E12/F3 only (no E11/F2)',
+    /'ix_e10_f1'/.test(keepOnly) && /'ix_e12_f3'/.test(keepOnly) && !/'ix_e11_f2'/.test(keepOnly));
+  ok('LOOM_MOTOR_KEEP must not include ix_e11_f2',
+    !/'ix_e11_f2'/.test(keepOnly));
+
+  const groups = {};
+  for (const m of html.matchAll(/\n  ([a-z0-9_]+):\{group:'([^']+)'/g)) groups[m[1]] = m[2];
+  const ctx = { result: {}, Set, groups };
+  vm.createContext(ctx);
+  vm.runInContext(
+    loomOnly + '\n' + keepOnly + `;
+      function loomOfConn(id){
+        if (LOOM_MOTOR_KEEP.has(id)) return 'motor';
+        if (groups[id] === 'body') return 'body';
+        if (LOOM_BODY_EXTRA.has(id)) return 'body';
+        return 'motor';
+      }
+      const mustHide = ['jb_10a_inj','jb_15a_ht','ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9','ipdm_legend','ix_e108_m15','ix_e11_f2','feed_af_12v','feed_ho2s_12v','evap_press','fuel_pump'];
+      const mustKeep = ['ix_e10_f1','ix_e12_f3','maf','ckp','coil1','inj1','gnd4','feed_ckp_maf_12v','feed_inj_coil_12v','ix_f18_f201'];
+      result.badHide = mustHide.filter(id => loomOfConn(id) !== 'body');
+      result.badKeep = mustKeep.filter(id => loomOfConn(id) !== 'motor');
+    `,
+    ctx
+  );
+  ok('motor loom hides jb_*/ipdm_e*/E108/E11/F2/heater-fuse feeds',
+    ctx.result.badHide.length === 0, JSON.stringify(ctx.result.badHide));
+  ok('motor loom keeps tray mates + sensors/coils + harness 12V feeds',
+    ctx.result.badKeep.length === 0, JSON.stringify(ctx.result.badKeep));
+}
+
+
+
+{
   const fn = html.match(/function updateEcmSelCount\([\s\S]*?\nfunction /)[0];
   const domLine = fn.match(/const domSel = '([^']+)'/);
   ok('updateEcmSelCount DOM sel excludes hl-group',

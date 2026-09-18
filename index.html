@@ -2297,17 +2297,25 @@ function rebuildIndexes(){
 const LS_LOOM = 'z33_loomView';
 const LS_MODEL_BANNER = 'z33_modelBannerOpen';
 const LOOM_BODY_EXTRA = new Set([
-  /* not on pulled engine-control harness (bench) */
+  /* not on pulled engine-control harness (bench) — skill motor-view + FSM PG-54 vs PG-26/50/51 */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
   /* T21 on EVAP canister (EC-376), not engine control harness (PG-54) */
   'evap_press',
   /* SMJ E108 stays at firewall / body (M15) */
   'ix_e108_m15',
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
-  'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9'
+  'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9',
+  'ipdm_legend',
+  /* Cabin Fuse Block M4 note fichas — not on pulled F-series loom (skill: hide JB fusibles) */
+  'jb_10a_inj', 'jb_15a_ht',
+  /* Heater 12V feed notes originate at JB/E108 — hide with fuse-block view */
+  'feed_af_12v', 'feed_ho2s_12v',
+  /* E11/F2 APP path: F2 on motor loom (PG-55) but skill hides APP in motor-view */
+  'ix_e11_f2'
 ]);
-/* Battery-tray mates on the pulled engine-control harness (PG-55: F1, F2, F3). Pedal E113 stays cabin. */
-const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);
+/* Battery-tray mates on pulled engine-control harness (PG-55: F1, F3).
+   F2/APP hidden via LOOM_BODY_EXTRA (skill). Keep harness-side feed_ckp_maf_12v + feed_inj_coil_12v. */
+const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e12_f3']);
 function loomView(){
   const el = document.getElementById('loomView');
   if(el && (el.value === 'motor' || el.value === 'all')) return el.value;
