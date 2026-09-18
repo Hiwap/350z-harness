@@ -400,45 +400,6 @@
   .ficha.dim { opacity: 0.25; }
   .ficha.hl { border-color: var(--hl); box-shadow: 0 0 0 2px rgba(255,213,79,.35); opacity: 1 !important; }
   .ficha h3 { margin: 0 0 2px; font-size: 12px; color: #f1f3f5; }
-  .ficha-title-row {
-    display: flex; align-items: center; gap: 6px; margin: 0 0 2px;
-  }
-  .ficha-title-row h3 { margin: 0; flex: 1 1 auto; min-width: 0; }
-  .ficha-face-btn {
-    flex: 0 0 auto; width: 22px; height: 22px; padding: 0;
-    display: inline-flex; align-items: center; justify-content: center;
-    border: 1px solid #4a5568; border-radius: 6px; background: #1a2030;
-    color: #c5cad3; cursor: pointer; line-height: 0;
-  }
-  .ficha-face-btn:hover, .ficha-face-btn:focus-visible {
-    border-color: var(--accent, #4fc3f7); color: #fff; outline: none;
-  }
-  .ficha-face-btn svg { width: 14px; height: 14px; pointer-events: none; }
-  #faceLightbox {
-    position: fixed; inset: 0; z-index: 9999;
-    display: none; align-items: center; justify-content: center;
-    background: rgba(0,0,0,.72); padding: 16px;
-  }
-  #faceLightbox.open { display: flex; }
-  #faceLightbox .face-lb-panel {
-    position: relative; max-width: min(920px, 96vw); max-height: 92vh;
-    background: #12161d; border: 1px solid #37474f; border-radius: 12px;
-    padding: 12px 12px 10px; box-shadow: 0 12px 40px rgba(0,0,0,.45);
-    display: flex; flex-direction: column; gap: 8px; align-items: center;
-  }
-  #faceLightbox .face-lb-img {
-    max-width: 100%; max-height: min(78vh, 720px); object-fit: contain;
-    border-radius: 8px; background: #0a0c10;
-  }
-  #faceLightbox .face-lb-src {
-    margin: 0; font-size: 11px; color: #8b93a3; text-align: center;
-  }
-  #faceLightbox .face-lb-close {
-    position: absolute; top: 8px; right: 8px; width: 28px; height: 28px;
-    border: 1px solid #4a5568; border-radius: 6px; background: #1a2030;
-    color: #e8eaed; cursor: pointer; font-size: 16px; line-height: 1;
-  }
-  #faceLightbox .face-lb-close:hover { border-color: var(--accent); }
   .ficha .meta, .ficha .note-body, .ficha .note-pins { display: none; font-size: 11px; color: #d0d5dd; margin-bottom: 6px; }
   .ficha.hl .meta, .ficha.hl .note-body, .ficha.hl .note-pins { display: block; }
   #fichas { display: flex; flex-direction: column; gap: 10px; }
@@ -757,14 +718,6 @@
   .cav-hit.hl-rail.rail-line-gnd_pwr .cav-face { stroke: #2E7D32 !important; }
   .cav-hit.hl-rail.rail-line-gnd_sns .cav-face { stroke: #66bb6a !important; }
   .cav-hit.hl-rail.rail-line-gnd_app .cav-face { stroke: #a5d6a7 !important; }
-
-  /* Yellow selection focus beats rail-family / rail-line outline when both apply */
-  .pin.hl.hl-rail, .pin.hl.rail-5v, .pin.hl.rail-12v, .pin.hl.rail-gnd {
-    outline: 3px solid var(--hl); outline-offset: 1px;
-    box-shadow: 0 0 0 1px #000, 0 0 12px rgba(255,213,79,.55);
-    opacity: 1 !important; z-index: 3;
-  }
-  .cav-hit.hl.hl-rail .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.dim { opacity: 0.22 !important; }
   .conn-svg .corner-pin {
     fill: #90a4ae; font-size: 6px; font-weight: 800;
@@ -1327,6 +1280,7 @@ function railLineOfCav(cid, pin){
     if(cid === 'ipdm_e7' && id === '17') return '12v_coil';
     if(cid === 'ipdm_e7' && id === '18') return '12v_vb';
     if(cid === 'ipdm_e8' && (id === '40' || id === '48')) return '12v_vmot'; /* rough */
+    if(cid === 'batt_feed' || id === 'BATT') return '12v_batt';
     if(pin.ecm === 119 || pin.ecm === 120) return '12v_vb';
     if(pin.ecm === 121) return '12v_batt';
     if(pin.ecm === 3) return '12v_vmot';
@@ -1504,11 +1458,13 @@ function buildCircuits(model){
     {id:'inj_6', title:'Inyector 6', color:'#9ccc65',
       ecm:[40], conn:['inj6','ix_f221_f33'], path:{jb_10a_inj:['10A'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 6. Ruta: ECM 40 → F33/F221. 12V (Alim.): F102·17H.'},
     {id:'batt_ecm', title:'BATT · alimentación ECM 121', color:'#ef5350',
-      ecm:[121], conn:['ix_f102_m72','ix_e108_m15'], f102:['5H'],
-      path:{ix_f102_m72:['5H'], ix_e108_m15:['68G']},
-      notes:'Memoria del ECM: 12V siempre, aunque la llave esté off. Ruta: BATT → fusible 15A → E108·68G → F102·5H → ECM 121 (EC-441).'},
-    {id:'ign_feeds', title:'IGN · alimentación ECM 119/120', color:'#ef5350',
-      ecm:[119,120], conn:['ix_e12_f3','ipdm_e7'], notes:'Alimentación con llave ON para el ECM (VB). Ruta: E7-18 → F3·7 → ECM 119 · F3·4 → ECM 120.'},
+      ecm:[121], conn:['batt_feed'], path:{batt_feed:['BATT']}, notes:'Memoria del ECM: 12V siempre, aunque la llave esté off. Ruta: BATT R/W → ECM 121 (sin intermedia en el arnés motor).'},
+    {id:'ign_vb_119', title:'IGN · VB ECM 119', color:'#ef5350',
+      ecm:[119], conn:['ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7']},
+      notes:'VB ECM 119 (R/W). Ruta: F3·7 → ECM 119. 12V (Alim.): E7-18. EC-167. No comparte circuito con ECM 120 (P / F3·4).'},
+    {id:'ign_vb_120', title:'IGN · VB ECM 120', color:'#ef5350',
+      ecm:[120], conn:['ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['4']},
+      notes:'VB ECM 120 (P). Ruta: F3·4 → ECM 120. 12V (Alim.): E7-18. EC-167. No comparte circuito con ECM 119 (R/W / F3·7).'},
     {id:'ign_sw', title:'IGN SW · señal llave → ECM', color:'#ef5350',
       ecm:[109], conn:['ix_f102_m72'], path:{ix_f102_m72:['17H']}, notes:'Señal de llave en ON al ECM (no es el 12V de potencia). Ruta: interruptor → F102·17H → ECM 109.'},
     {id:'ecm_relay_ss', title:'SSOFF · control relé ECM', color:'#ef5350',
@@ -1671,6 +1627,9 @@ const NEST_ACCENT = { bobinas: '#f57f17', inyectores: '#c62828' };
 const CONN_BASE = {
   /* —— Poder / tierras · ficha del plug ECM (EC-123) —— */
 
+  batt_feed:{group:'motor', sub:'feeds', name:'BATT · ECM 121 (siempre con batería)', meta:'R/W · memoria · sin intermedia motor', accent:'#ef5350', shape:'note',
+    pins:[{id:'BATT',code:'R/W',ecm:121,rail:'12v',lab:'BATT'}],
+    note:'12V siempre al ECM (memoria). Ruta: BATT → ECM 121.'},
   ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3',
     pins:[
       {id:'1',src:'BATT',srcSub:'power',code:'W',ecm:null,rail:'12v',note:'Entrada de batería al IPDM.',note_en:'Battery 12V in (W) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W) · ヒュージブルリンク · PG-27。'},
@@ -2205,13 +2164,13 @@ const CONN_BASE = {
       {id:'65G',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'JB·15A',srcSub:'feeds'},
       {id:'66G',code:'—',ecm:null},
       {id:'67G',code:'—',ecm:null},
-      {id:'68G',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.'},
+      {id:'68G',code:'—',ecm:null},
       {id:'69G',code:'W/B',ecm:111,lab:'SSOFF'}
     ],
-    note:'Puente motor↔carrocería (SMJ). Ruta: CAN 2G/7G · ASCD-B 3G · FPR 28G · MOTRLY 30G · STOP 38G · 12V A/F 65G · BATT 68G (ECM 121) · SSOFF 69G.'},
+    note:'Puente motor↔carrocería (SMJ). Ruta: CAN 2G/7G · ASCD-B 3G · FPR 28G · MOTRLY 30G · STOP 38G · 12V A/F 65G · SSOFF 69G.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔carrocería', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.'},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
-  note:'Puente motor↔carrocería (F102↔M72). Incluye BATT 5H (ECM 121) · FPR 6H · MOTRLY 12H · CAN · freno · ASCD…'},
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'—',ecm:null},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+  note:'Puente motor↔carrocería (F102↔M72). Incluye FPR 6H · MOTRLY 12H · CAN · freno · ASCD…'},
 
   /* —— Habitáculo / pedales / ASCD —— */
   pnp:{group:'body', sub:'pedals', name:'PNP / Inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
@@ -2249,32 +2208,6 @@ const CONN_BASE = {
 };
 
 let CONN = {};
-
-/** Floating connector-face photos (deduped under faces/). Only mapped ids get a title icon. */
-const CONN_FACE = {
-  etc: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
-  inj1: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj2: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj3: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj4: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj5: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj6: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  coil1: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil2: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil3: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil4: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil5: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil6: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  maf: { src: 'faces/maf.webp', source: 'Wiring Specialties' },
-  ckp: { src: 'faces/ckp.webp', source: 'Wiring Specialties' },
-  cmp_b1: { src: 'faces/cmp.webp', source: 'Wiring Specialties' },
-  cmp_b2: { src: 'faces/cmp.webp', source: 'Wiring Specialties' },
-  knock: { src: 'faces/knock.webp', source: 'Wiring Specialties' },
-  ect: { src: 'faces/ect.webp', source: 'Wiring Specialties' },
-  ho2s_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
-  ho2s_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
-};
-
 let pinToCirc = {};
 let connToCirc = {};
 
@@ -2297,25 +2230,17 @@ function rebuildIndexes(){
 const LS_LOOM = 'z33_loomView';
 const LS_MODEL_BANNER = 'z33_modelBannerOpen';
 const LOOM_BODY_EXTRA = new Set([
-  /* not on pulled engine-control harness (bench) — skill motor-view + FSM PG-54 vs PG-26/50/51 */
+  /* not on pulled engine-control harness (bench) */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
   /* T21 on EVAP canister (EC-376), not engine control harness (PG-54) */
   'evap_press',
   /* SMJ E108 stays at firewall / body (M15) */
   'ix_e108_m15',
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
-  'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9',
-  'ipdm_legend',
-  /* Cabin Fuse Block M4 note fichas — not on pulled F-series loom (skill: hide JB fusibles) */
-  'jb_10a_inj', 'jb_15a_ht',
-  /* Heater 12V feed notes originate at JB/E108 — hide with fuse-block view */
-  'feed_af_12v', 'feed_ho2s_12v',
-  /* E11/F2 APP path: F2 on motor loom (PG-55) but skill hides APP in motor-view */
-  'ix_e11_f2'
+  'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9'
 ]);
-/* Battery-tray mates on pulled engine-control harness (PG-55: F1, F3).
-   F2/APP hidden via LOOM_BODY_EXTRA (skill). Keep harness-side feed_ckp_maf_12v + feed_inj_coil_12v. */
-const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e12_f3']);
+/* Battery-tray mates on the pulled engine-control harness (PG-55: F1, F2, F3). Pedal E113 stays cabin. */
+const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);
 function loomView(){
   const el = document.getElementById('loomView');
   if(el && (el.value === 'motor' || el.value === 'all')) return el.value;
@@ -3481,9 +3406,6 @@ const I18N = {
     searchPh: 'Buscar: 101, ASCD, APP, stop, CAN…',
     clear: 'Limpiar',
     fichasTitle: 'Fichas',
-    facePhotoLabel: 'Foto:',
-    facePhotoOpen: 'Ver foto del conector',
-    facePhotoClose: 'Cerrar foto',
     selTopTitle: 'Grupos seleccionados',
     selTopFichas: 'seleccionados',
     selTopGroups: 'grupos',
@@ -3621,9 +3543,6 @@ const I18N = {
     searchPh: 'Search: 101, ASCD, APP, stop, CAN…',
     clear: 'Clear',
     fichasTitle: 'Connectors',
-    facePhotoLabel: 'Photo:',
-    facePhotoOpen: 'View connector photo',
-    facePhotoClose: 'Close photo',
     selTopTitle: 'Selected groups',
     selTopFichas: 'selected',
     selTopGroups: 'groups',
@@ -3761,9 +3680,6 @@ const I18N = {
     searchPh: '検索: 101, ASCD, APP, stop, CAN…',
     clear: 'クリア',
     fichasTitle: 'コネクタ',
-    facePhotoLabel: '写真:',
-    facePhotoOpen: 'コネクタ写真を見る',
-    facePhotoClose: '写真を閉じる',
     selTopTitle: '選択グループ',
     selTopFichas: '選択',
     selTopGroups: 'グループ',
@@ -3901,7 +3817,8 @@ const TITLES_I18N = {
   inj_1: {en:'Injector 1', ja:'インジェクタ1'}, inj_2: {en:'Injector 2', ja:'インジェクタ2'}, inj_3: {en:'Injector 3', ja:'インジェクタ3'},
   inj_4: {en:'Injector 4', ja:'インジェクタ4'}, inj_5: {en:'Injector 5', ja:'インジェクタ5'}, inj_6: {en:'Injector 6', ja:'インジェクタ6'},
   batt_ecm: {en:'BATT feed ECM', ja:'BATT供給 ECM'},
-  ign_feeds: {en:'IGN feeds ECM 119/120', ja:'IGN供給 ECM 119/120'},
+  ign_vb_119: {en:'IGN · VB ECM 119', ja:'IGN · VB ECM 119'},
+  ign_vb_120: {en:'IGN · VB ECM 120', ja:'IGN · VB ECM 120'},
   ign_sw: {en:'IGN SW → ECM', ja:'IGN SW → ECM'},
   ecm_relay_ss: {en:'ECM relay / SSOFF', ja:'ECMリレー / SSOFF'},
   vmot: {en:'VMOT · throttle motor 12V (after MOTRLY)', ja:'VMOT · スロットルモータ12V（MOTRLY後）'},
@@ -3968,6 +3885,8 @@ const NOTES_I18N = {
   inj_4: {en:'ECM 41 drive + common 12V.', ja:'ECM 41 + 共通12V。'},
   inj_5: {en:'ECM 21 drive + common 12V.', ja:'ECM 21 + 共通12V。'},
   inj_6: {en:'ECM 40 drive + common 12V.', ja:'ECM 40 + 共通12V。'},
+  ign_vb_119: {en:'VB ECM 119 (R/W). Path: F3·7 → ECM 119. 12V (Power): E7-18. EC-167. Not the same circuit as ECM 120 (P / F3·4).', ja:'VB ECM 119 (R/W)。経路: F3·7→ECM 119。12V（電源）: E7-18。EC-167。ECM 120（P / F3·4）とは別回路。'},
+  ign_vb_120: {en:'VB ECM 120 (P). Path: F3·4 → ECM 120. 12V (Power): E7-18. EC-167. Not the same circuit as ECM 119 (R/W / F3·7).', ja:'VB ECM 120 (P)。経路: F3·4→ECM 120。12V（電源）: E7-18。EC-167。ECM 119（R/W / F3·7）とは別回路。'},
 
   fp_relay: {en:'Fuel-pump relay control (relay inside IPDM). Ruta: ECM 113 → F102·6H → E108·28G → E8-40.', ja:'フューエルポンプリレー制御（IPDM内）。経路: ECM 113→F102·6H→E108·28G→E8-40。'},
   motrly: {en:'ECM only monitors that the IPDM throttle relay (F87) supplied 12V. Ruta: E9-47 → E108·30G → F102·12H → ECM 104.', ja:'ECMはスロットルリレー(F87)の12V供給を監視。経路: E9-47→E108→F102→ECM 104。'},
@@ -4490,13 +4409,13 @@ const CONN_I18N = {
   },
   ix_e108_m15: {
     en: { name:'E108 ↔ M15 · SMJ engine room↔body', meta:'SMJ 69G · PG-84 · E108 H.S.',
-      note:'SMJ E108 (engine room) ↔ M15 (main). Confirmed: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 65G A/F+HO2S 12V (R/B) · 68G BATT (121) · 69G SSOFF (111). Other cavities empty (not guessed). Face PG-84 H.S. E108.' },
+      note:'SMJ E108 (engine room) ↔ M15 (main). Confirmed: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 65G A/F+HO2S 12V (R/B) · 69G SSOFF (111). Other cavities empty (not guessed). Face PG-84 H.S. E108.' },
     ja: { name:'E108 ↔ M15 · SMJ エンジンルーム↔ボディ', meta:'SMJ 69G · PG-84 · E108 H.S.',
-      note:'SMJ E108（エンジンルーム）↔ M15（メイン）。確認済: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 65G A/F+HO2S 12V (R/B) · 68G BATT (121) · 69G SSOFF (111)。他は空（推測なし）。面 PG-84 H.S. E108。' },
+      note:'SMJ E108（エンジンルーム）↔ M15（メイン）。確認済: 2G/7G CAN-H/L · 3G ASCD-B (108) · 28G FPR (113) · 30G MOTRLY (104) · 38G STOP (101) · 69G SSOFF (111)。他は空（推測なし）。面 PG-84 H.S. E108。' },
   },
   ix_f102_m72: {
-    en: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'SMJ bridge engine↔body · includes BATT 5H (ECM 121) · FPR 6H · MOTRLY 12H · CAN · brake · ASCD…' },
-    ja: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'SMJブリッジ エンジン↔ボディ · BATT 5H (ECM 121) · FPR 6H · MOTRLY 12H · CAN · ブレーキ · ASCD…' },
+    en: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'SMJ bridge engine↔body · 13 wired cavities.' },
+    ja: { name:'F102 ↔ M72', meta:'SMJ · PG-85', note:'SMJブリッジ エンジン↔ボディ · 配線キャビティ13。' },
   },
 
   ecm_f101_can: {
@@ -4526,6 +4445,14 @@ const CONN_I18N = {
     en: { name:'HO2S2 B2', meta:'post-cat L · signal ECM 55' },
     ja: { name:'HO2S2 B2', meta:'後触媒 L · 信号 ECM 55' },
   },
+  batt_feed: {
+    en: { name:'BATT · ECM 121 (always hot)', meta:'R/W back-up · no motor-harness intermediate',
+      note:'Always-hot BATT to ECM 121 (R/W). No intermediate ficha on the motor harness.' },
+    ja: { name:'BATT · ECM 121（常時）', meta:'R/W バックアップ · モータ側中間コネクタなし',
+      note:'ECM 121への常時BATT（R/W）。モータハーネス側の中間コネクタはない。' },
+  },
+
+
   coil1: { en:{name:'Coil 1', meta:'ECM62 Y/R'}, ja:{name:'コイル1', meta:'ECM62 Y/R'} },
   coil2: { en:{name:'Coil 2', meta:'ECM81 G/B'}, ja:{name:'コイル2', meta:'ECM81 G/B'} },
   coil3: { en:{name:'Coil 3', meta:'ECM61 L/R'}, ja:{name:'コイル3', meta:'ECM61 L/R'} },
@@ -4643,69 +4570,6 @@ function connField(id, f, field){
   return (tr && tr[field]) || base;
 }
 
-
-let _faceLbPrevFocus = null;
-function ensureFaceLightbox(){
-  let root = document.getElementById('faceLightbox');
-  if(root) return root;
-  root = document.createElement('div');
-  root.id = 'faceLightbox';
-  root.setAttribute('role', 'dialog');
-  root.setAttribute('aria-modal', 'true');
-  root.innerHTML = `<div class="face-lb-panel" tabindex="-1">
-    <button type="button" class="face-lb-close" aria-label="">×</button>
-    <img class="face-lb-img" alt="" />
-    <p class="face-lb-src" hidden></p>
-  </div>`;
-  document.body.appendChild(root);
-  root.addEventListener('click', e=>{
-    if(e.target === root) closeFaceLightbox();
-  });
-  root.querySelector('.face-lb-close').addEventListener('click', e=>{
-    e.stopPropagation();
-    closeFaceLightbox();
-  });
-  document.addEventListener('keydown', e=>{
-    if(e.key === 'Escape' && root.classList.contains('open')){
-      e.preventDefault();
-      closeFaceLightbox();
-    }
-  });
-  return root;
-}
-function openFaceLightbox(cid){
-  const face = CONN_FACE && CONN_FACE[cid];
-  if(!face || !face.src) return;
-  const root = ensureFaceLightbox();
-  const img = root.querySelector('.face-lb-img');
-  const srcEl = root.querySelector('.face-lb-src');
-  const closeBtn = root.querySelector('.face-lb-close');
-  img.src = face.src;
-  img.alt = (CONN[cid] && connField(cid, CONN[cid], 'name')) || cid;
-  closeBtn.setAttribute('aria-label', t('facePhotoClose'));
-  if(face.source){
-    srcEl.hidden = false;
-    srcEl.textContent = t('facePhotoLabel') + ' ' + face.source;
-  } else {
-    srcEl.hidden = true;
-    srcEl.textContent = '';
-  }
-  _faceLbPrevFocus = document.activeElement;
-  root.classList.add('open');
-  closeBtn.focus();
-}
-function closeFaceLightbox(){
-  const root = document.getElementById('faceLightbox');
-  if(!root) return;
-  root.classList.remove('open');
-  const img = root.querySelector('.face-lb-img');
-  if(img) img.removeAttribute('src');
-  if(_faceLbPrevFocus && _faceLbPrevFocus.focus){
-    try { _faceLbPrevFocus.focus(); } catch(_){}
-  }
-  _faceLbPrevFocus = null;
-}
-
 function makeFichaEl(id, f){
   const wrap=document.createElement('div');
   wrap.className = 'ficha-wrap';
@@ -4721,20 +4585,9 @@ function makeFichaEl(id, f){
   if(noteTxt){
     extra = `<div class="note-body">${esc(noteTxt)}</div>`;
   }
-  const face = (typeof CONN_FACE !== 'undefined') ? CONN_FACE[id] : null;
-  const faceBtn = face
-    ? `<button type="button" class="ficha-face-btn" data-face-conn="${esc(id)}" aria-label="${esc(t('facePhotoOpen'))}" title="${esc(t('facePhotoOpen'))}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>`
-    : '';
-  el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
+  el.innerHTML = `<h3>${esc(connField(id, f, 'name'))}</h3><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
   wrap.addEventListener('click', e=>{
-    const faceBtnEl = e.target.closest && e.target.closest('.ficha-face-btn');
-    if(faceBtnEl && wrap.contains(faceBtnEl)){
-      e.preventDefault();
-      e.stopPropagation();
-      openFaceLightbox(faceBtnEl.dataset.faceConn || id);
-      return;
-    }
     const cav = e.target.closest && e.target.closest('.cav-hit');
     if(cav && wrap.contains(cav)){
       e.preventDefault();
@@ -5456,20 +5309,7 @@ function attachPowerPathFichas(coreIds, connSet, pathCavByConn){
   });
 }
 function refreshCurrentSelection(){
-  if(activeRails.size){
-    const key = selKey;
-    if(key && key.startsWith('pin:')){
-      focusRailSelection(Number(key.slice(4)));
-    } else if(key && key.startsWith('cav:')){
-      const rest = key.slice(4);
-      const i = rest.indexOf(':');
-      if(i >= 0) focusRailSelection(selFocusPin, rest.slice(0, i), rest.slice(i + 1));
-      else applyRailFilter();
-    } else {
-      applyRailFilter();
-    }
-    return;
-  }
+  if(activeRails.size){ applyRailFilter(); return; }
   if(!selKey) return;
   const key = selKey;
   if(key.startsWith('pin:')){
@@ -5493,7 +5333,7 @@ function markRailRelEl(el, kind){
   el.classList.add(kind === 'gnd' ? 'hl-rail-rel-gnd' : 'hl-rail-rel-data');
 }
 
-function applyRailFilter(opts){
+function applyRailFilter(){
   updateRailButtons();
   if(!activeRails.size){
     clearHL();
@@ -5504,13 +5344,6 @@ function applyRailFilter(opts){
       info.textContent = t('infoEmpty');
     }
     return;
-  }
-
-  /* Do not mix circuit-selection retarget with rail mode */
-  lastCircIds = [];
-  if(!opts || !opts.focusing){
-    selKey = null;
-    selFocusPin = null;
   }
 
   const railEcm = new Set();
@@ -5668,77 +5501,6 @@ function applyRailFilter(opts){
   info.dataset.railMode = '1';
   info.innerHTML = `<div>${pills}<b>${esc(t('railActive'))}</b> — ${esc(t('railActiveHint'))}</div>` +
     (linePills ? `<div style="margin-top:4px;color:var(--muted)">${linePills}</div>` : '');
-}
-
-/** ECM pin belongs to an active 5V/12V/GND rail filter. */
-function ecmPinOnActiveRail(n){
-  if(!activeRails || !activeRails.size) return false;
-  const r = PIN_RAIL[n] || PIN_RAIL[Number(n)] || null;
-  if(r && activeRails.has(r)) return true;
-  const el = ecmPinEl(n);
-  return !!(el && el.classList.contains('hl-rail'));
-}
-/** Cavity is primary on an active rail (PIN_RAIL ecm, bare 5V/12V feed, or hl-rail). */
-function cavIsActiveRailPrimary(cid, pin){
-  if(!activeRails || !activeRails.size || !pin) return false;
-  const rEcm = (pin.ecm!=null && pin.ecm!=='') ? (PIN_RAIL[Number(pin.ecm)] || null) : null;
-  if(rEcm && activeRails.has(rEcm)) return true;
-  if((pin.ecm==null || pin.ecm==='') && pin.rail && activeRails.has(pin.rail) && pin.rail !== 'gnd') return true;
-  const el = cavSelEl(cid, pin.id);
-  return !!(el && el.classList.contains('hl-rail'));
-}
-/** Yellow focus on top of rail highlights (does not leave rail mode). */
-function paintRailYellowFocus(focusPin, focusConn, focusCav){
-  const n = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
-  if(n!=null){
-    const el = ecmPinEl(n);
-    if(el){ el.classList.remove('dim'); el.classList.add('hl'); }
-    if(!focusConn){
-      document.querySelectorAll('.cav-hit').forEach(cav=>{
-        const cid = cav.dataset.conn; const pid = cav.dataset.cav;
-        const conf = CONN[cid] || CONN_BASE[cid];
-        const p = (conf && conf.pins || []).find(x => String(x.id)===String(pid));
-        if(p && p.ecm!=null && Number(p.ecm)===n){
-          cav.classList.remove('dim'); cav.classList.add('hl');
-        }
-      });
-      document.querySelectorAll(`#f102Blocks .pin[data-ecm="${n}"]`).forEach(fp=>{
-        fp.classList.remove('dim'); fp.classList.add('hl');
-      });
-    }
-  }
-  if(focusConn && focusCav != null){
-    document.querySelectorAll(`.cav-hit[data-conn="${CSS.escape(String(focusConn))}"][data-cav="${CSS.escape(String(focusCav))}"]`).forEach(cav=>{
-      cav.classList.remove('dim'); cav.classList.add('hl');
-    });
-    if(focusConn === 'ix_f102_m72'){
-      const fp = f102PinEl(focusCav);
-      if(fp){ fp.classList.remove('dim'); fp.classList.add('hl'); }
-    }
-    if(n!=null){
-      const el = ecmPinEl(n);
-      if(el){ el.classList.remove('dim'); el.classList.add('hl'); }
-    }
-  }
-  if(n!=null) updateEcmSelCount([n]);
-  else updateEcmSelCount();
-  updateF102SelPins();
-}
-/**
- * Stay in rail mode: re-apply rail filter, yellow-focus pin/cavity, set selKey
- * so a second click clears via clearSelection. Never calls selectCircuits.
- */
-function focusRailSelection(focusPin, focusConn, focusCav){
-  applyRailFilter({ focusing: true });
-  paintRailYellowFocus(focusPin, focusConn, focusCav);
-  const n = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
-  if(focusConn && focusCav != null){
-    selKey = 'cav:' + focusConn + ':' + focusCav;
-    selFocusPin = n;
-  } else if(n != null){
-    selKey = 'pin:' + String(n);
-    selFocusPin = n;
-  }
 }
 
 function toggleRail(rail){
@@ -6242,11 +6004,6 @@ function selectPin(p, opts){
       clearSelection();
       return;
     }
-    /* Rail filter ON + pin is on that rail → stay in rail mode (do not selectCircuits). */
-    if(activeRails.size && ecmPinOnActiveRail(n)){
-      focusRailSelection(n);
-      return;
-    }
     if(selKey && lastCircIds.length && ecmPinIsMarked(n)){
       retargetSelection(n);
       return;
@@ -6368,12 +6125,6 @@ function selectConnPin(cid, cavId, opts){
   const key = 'cav:' + String(cid) + ':' + String(cavId);
   if(!opts || !opts.keep){
     if(selKey === key){ clearSelection(); return; }
-    /* Rail filter ON + cavity primary on that rail → stay in rail mode. */
-    if(activeRails.size && cavIsActiveRailPrimary(cid, pin0)){
-      const ecmN = pin0 && pin0.ecm != null ? Number(pin0.ecm) : null;
-      focusRailSelection(ecmN, cid, cavId);
-      return;
-    }
     if(selKey && lastCircIds.length && selMarkOn(cavSelEl(cid, cavId))){
       const conf0 = CONN[cid] || CONN_BASE[cid];
       const pin0 = (conf0 && conf0.pins || []).find(x => String(x.id) === String(cavId));

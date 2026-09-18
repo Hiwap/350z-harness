@@ -304,6 +304,39 @@ await page.evaluate(() => {
   pwr.dispatchEvent(new Event('change', { bubbles: true }));
 });
 
+console.log('\nVB 119/120 are separate wires (not one IGN feed)');
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  if (pwr && pwr.checked) { pwr.checked = false; pwr.dispatchEvent(new Event('change', { bubbles: true })); }
+});
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(119);
+ok(await pinMarked(119), 'pin 119 marked');
+ok(!(await pinMarked(120)), 'pin 120 not grouped with 119');
+{
+  const ids = await hlConns();
+  ok(ids.includes('ix_e12_f3'), `pin 119 includes F3 (${ids.join(',')})`);
+  ok(!ids.includes('ipdm_e7'), `pin 119 no IPDM E7 without Alim. (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = true;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+{
+  const ids = await hlConns();
+  ok(ids.includes('ipdm_e7'), `pin 119 + Alim. E7-18 (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const pwr = document.getElementById('railRelPower');
+  pwr.checked = false;
+  pwr.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(120);
+ok(await pinMarked(120), 'pin 120 marked');
+ok(!(await pinMarked(119)), 'pin 119 not grouped with 120');
+
 console.log('\nInjectors/coils: F3/F102 only with Alim.');
 await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
 await clickPin(21);
