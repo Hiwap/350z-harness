@@ -6,6 +6,8 @@ Open the [GitHub Pages](https://hiwap.github.io/350z-harness/) site from this re
 
 Not a substitute for the official service manual.
 
+Interim vendor faces under `faces/` are for connector ID only; replace with loom photos when available.
+
 Privacy-friendly visit counts via [GoatCounter](https://350z-harness.goatcounter.com).
 
 ## Print pack

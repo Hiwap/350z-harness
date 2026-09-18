@@ -133,6 +133,26 @@ ok('rail-focus helpers present (stay in rail on re-click)',
   /function focusRailSelection\(/.test(html) && /function ecmPinOnActiveRail\(/.test(html));
 
 {
+  /* CONN_FACE ⊆ CONN_BASE keys; referenced face files exist on disk */
+  const faceBlock = html.match(/const CONN_FACE = \{([\s\S]*?)\n\};/);
+  ok('CONN_FACE block present', !!faceBlock);
+  if (faceBlock) {
+    const keys = [...faceBlock[1].matchAll(/^\s*([A-Za-z0-9_]+)\s*:/gm)].map((m) => m[1]);
+    const baseBlock = html.match(/const CONN_BASE = \{([\s\S]*?)\n\};\s*\nlet CONN/);
+    ok('CONN_BASE extractable for face check', !!baseBlock);
+    const baseKeys = new Set([...baseBlock[1].matchAll(/^\s*([A-Za-z0-9_]+)\s*:\{/gm)].map((m) => m[1]));
+    const missing = keys.filter((k) => !baseKeys.has(k));
+    ok('CONN_FACE keys ⊆ CONN_BASE', missing.length === 0, missing.length ? missing.join(',') : `${keys.length} keys`);
+    const srcs = [...faceBlock[1].matchAll(/src:\s*'([^']+)'/g)].map((m) => m[1]);
+    const uniq = [...new Set(srcs)];
+    const absent = uniq.filter((s) => !fs.existsSync(path.join(ROOT, s)));
+    ok('CONN_FACE image files exist', absent.length === 0, absent.length ? absent.join(',') : `${uniq.length} unique`);
+    ok('no empty CONN_FACE placeholders', keys.length > 0 && uniq.length > 0);
+  }
+}
+
+
+{
   /* PIN_RAIL is const — probe via in-VM eval, not box.PIN_RAIL */
   const src = [
     extractConstObject(script, 'PIN_RAIL'),

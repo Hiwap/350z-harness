@@ -400,6 +400,45 @@
   .ficha.dim { opacity: 0.25; }
   .ficha.hl { border-color: var(--hl); box-shadow: 0 0 0 2px rgba(255,213,79,.35); opacity: 1 !important; }
   .ficha h3 { margin: 0 0 2px; font-size: 12px; color: #f1f3f5; }
+  .ficha-title-row {
+    display: flex; align-items: center; gap: 6px; margin: 0 0 2px;
+  }
+  .ficha-title-row h3 { margin: 0; flex: 1 1 auto; min-width: 0; }
+  .ficha-face-btn {
+    flex: 0 0 auto; width: 22px; height: 22px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid #4a5568; border-radius: 6px; background: #1a2030;
+    color: #c5cad3; cursor: pointer; line-height: 0;
+  }
+  .ficha-face-btn:hover, .ficha-face-btn:focus-visible {
+    border-color: var(--accent, #4fc3f7); color: #fff; outline: none;
+  }
+  .ficha-face-btn svg { width: 14px; height: 14px; pointer-events: none; }
+  #faceLightbox {
+    position: fixed; inset: 0; z-index: 9999;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.72); padding: 16px;
+  }
+  #faceLightbox.open { display: flex; }
+  #faceLightbox .face-lb-panel {
+    position: relative; max-width: min(920px, 96vw); max-height: 92vh;
+    background: #12161d; border: 1px solid #37474f; border-radius: 12px;
+    padding: 12px 12px 10px; box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    display: flex; flex-direction: column; gap: 8px; align-items: center;
+  }
+  #faceLightbox .face-lb-img {
+    max-width: 100%; max-height: min(78vh, 720px); object-fit: contain;
+    border-radius: 8px; background: #0a0c10;
+  }
+  #faceLightbox .face-lb-src {
+    margin: 0; font-size: 11px; color: #8b93a3; text-align: center;
+  }
+  #faceLightbox .face-lb-close {
+    position: absolute; top: 8px; right: 8px; width: 28px; height: 28px;
+    border: 1px solid #4a5568; border-radius: 6px; background: #1a2030;
+    color: #e8eaed; cursor: pointer; font-size: 16px; line-height: 1;
+  }
+  #faceLightbox .face-lb-close:hover { border-color: var(--accent); }
   .ficha .meta, .ficha .note-body, .ficha .note-pins { display: none; font-size: 11px; color: #d0d5dd; margin-bottom: 6px; }
   .ficha.hl .meta, .ficha.hl .note-body, .ficha.hl .note-pins { display: block; }
   #fichas { display: flex; flex-direction: column; gap: 10px; }
@@ -2210,6 +2249,32 @@ const CONN_BASE = {
 };
 
 let CONN = {};
+
+/** Floating connector-face photos (deduped under faces/). Only mapped ids get a title icon. */
+const CONN_FACE = {
+  etc: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
+  inj1: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
+  inj2: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
+  inj3: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
+  inj4: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
+  inj5: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
+  inj6: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
+  coil1: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
+  coil2: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
+  coil3: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
+  coil4: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
+  coil5: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
+  coil6: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
+  maf: { src: 'faces/maf.webp', source: 'Wiring Specialties' },
+  ckp: { src: 'faces/ckp.webp', source: 'Wiring Specialties' },
+  cmp_b1: { src: 'faces/cmp.webp', source: 'Wiring Specialties' },
+  cmp_b2: { src: 'faces/cmp.webp', source: 'Wiring Specialties' },
+  knock: { src: 'faces/knock.webp', source: 'Wiring Specialties' },
+  ect: { src: 'faces/ect.webp', source: 'Wiring Specialties' },
+  ho2s_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
+  ho2s_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
+};
+
 let pinToCirc = {};
 let connToCirc = {};
 
@@ -3408,6 +3473,9 @@ const I18N = {
     searchPh: 'Buscar: 101, ASCD, APP, stop, CAN…',
     clear: 'Limpiar',
     fichasTitle: 'Fichas',
+    facePhotoLabel: 'Foto:',
+    facePhotoOpen: 'Ver foto del conector',
+    facePhotoClose: 'Cerrar foto',
     selTopTitle: 'Grupos seleccionados',
     selTopFichas: 'seleccionados',
     selTopGroups: 'grupos',
@@ -3545,6 +3613,9 @@ const I18N = {
     searchPh: 'Search: 101, ASCD, APP, stop, CAN…',
     clear: 'Clear',
     fichasTitle: 'Connectors',
+    facePhotoLabel: 'Photo:',
+    facePhotoOpen: 'View connector photo',
+    facePhotoClose: 'Close photo',
     selTopTitle: 'Selected groups',
     selTopFichas: 'selected',
     selTopGroups: 'groups',
@@ -3682,6 +3753,9 @@ const I18N = {
     searchPh: '検索: 101, ASCD, APP, stop, CAN…',
     clear: 'クリア',
     fichasTitle: 'コネクタ',
+    facePhotoLabel: '写真:',
+    facePhotoOpen: 'コネクタ写真を見る',
+    facePhotoClose: '写真を閉じる',
     selTopTitle: '選択グループ',
     selTopFichas: '選択',
     selTopGroups: 'グループ',
@@ -4561,6 +4635,69 @@ function connField(id, f, field){
   return (tr && tr[field]) || base;
 }
 
+
+let _faceLbPrevFocus = null;
+function ensureFaceLightbox(){
+  let root = document.getElementById('faceLightbox');
+  if(root) return root;
+  root = document.createElement('div');
+  root.id = 'faceLightbox';
+  root.setAttribute('role', 'dialog');
+  root.setAttribute('aria-modal', 'true');
+  root.innerHTML = `<div class="face-lb-panel" tabindex="-1">
+    <button type="button" class="face-lb-close" aria-label="">×</button>
+    <img class="face-lb-img" alt="" />
+    <p class="face-lb-src" hidden></p>
+  </div>`;
+  document.body.appendChild(root);
+  root.addEventListener('click', e=>{
+    if(e.target === root) closeFaceLightbox();
+  });
+  root.querySelector('.face-lb-close').addEventListener('click', e=>{
+    e.stopPropagation();
+    closeFaceLightbox();
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape' && root.classList.contains('open')){
+      e.preventDefault();
+      closeFaceLightbox();
+    }
+  });
+  return root;
+}
+function openFaceLightbox(cid){
+  const face = CONN_FACE && CONN_FACE[cid];
+  if(!face || !face.src) return;
+  const root = ensureFaceLightbox();
+  const img = root.querySelector('.face-lb-img');
+  const srcEl = root.querySelector('.face-lb-src');
+  const closeBtn = root.querySelector('.face-lb-close');
+  img.src = face.src;
+  img.alt = (CONN[cid] && connField(cid, CONN[cid], 'name')) || cid;
+  closeBtn.setAttribute('aria-label', t('facePhotoClose'));
+  if(face.source){
+    srcEl.hidden = false;
+    srcEl.textContent = t('facePhotoLabel') + ' ' + face.source;
+  } else {
+    srcEl.hidden = true;
+    srcEl.textContent = '';
+  }
+  _faceLbPrevFocus = document.activeElement;
+  root.classList.add('open');
+  closeBtn.focus();
+}
+function closeFaceLightbox(){
+  const root = document.getElementById('faceLightbox');
+  if(!root) return;
+  root.classList.remove('open');
+  const img = root.querySelector('.face-lb-img');
+  if(img) img.removeAttribute('src');
+  if(_faceLbPrevFocus && _faceLbPrevFocus.focus){
+    try { _faceLbPrevFocus.focus(); } catch(_){}
+  }
+  _faceLbPrevFocus = null;
+}
+
 function makeFichaEl(id, f){
   const wrap=document.createElement('div');
   wrap.className = 'ficha-wrap';
@@ -4576,9 +4713,20 @@ function makeFichaEl(id, f){
   if(noteTxt){
     extra = `<div class="note-body">${esc(noteTxt)}</div>`;
   }
-  el.innerHTML = `<h3>${esc(connField(id, f, 'name'))}</h3><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
+  const face = (typeof CONN_FACE !== 'undefined') ? CONN_FACE[id] : null;
+  const faceBtn = face
+    ? `<button type="button" class="ficha-face-btn" data-face-conn="${esc(id)}" aria-label="${esc(t('facePhotoOpen'))}" title="${esc(t('facePhotoOpen'))}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>`
+    : '';
+  el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
   wrap.addEventListener('click', e=>{
+    const faceBtnEl = e.target.closest && e.target.closest('.ficha-face-btn');
+    if(faceBtnEl && wrap.contains(faceBtnEl)){
+      e.preventDefault();
+      e.stopPropagation();
+      openFaceLightbox(faceBtnEl.dataset.faceConn || id);
+      return;
+    }
     const cav = e.target.closest && e.target.closest('.cav-hit');
     if(cav && wrap.contains(cav)){
       e.preventDefault();
