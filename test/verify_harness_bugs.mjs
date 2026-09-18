@@ -172,6 +172,35 @@ ok('actuators render no longer nests bobinas under actuators',
   }
 }
 
+
+{
+  /* Regression: rail filter ON + click rail-highlighted pin must NOT exit to selectCircuits.
+     Expected: focusRailSelection → applyRailFilter({focusing}) + yellow hl; selKey set for re-clear.
+     Cleared lastCircIds on rail enter so selMarkOn(hl-rail) cannot retarget oddly. */
+  ok('focusRailSelection helper exists',
+    /function focusRailSelection\(focusPin, focusConn, focusCav\)/.test(html));
+  ok('ecmPinOnActiveRail helper exists',
+    /function ecmPinOnActiveRail\(n\)/.test(html));
+  ok('cavIsActiveRailPrimary helper exists',
+    /function cavIsActiveRailPrimary\(cid, pin\)/.test(html));
+  ok('applyRailFilter clears lastCircIds in rail mode',
+    /function applyRailFilter\(opts\)\{[\s\S]*?lastCircIds = \[\];/.test(html));
+  ok('applyRailFilter clears stale selKey unless focusing',
+    /if\(!opts \|\| !opts\.focusing\)\{\s*selKey = null;\s*selFocusPin = null;/.test(html));
+  ok('selectPin stays in rail mode for active-rail pins',
+    /if\(activeRails\.size && ecmPinOnActiveRail\(n\)\)\{\s*focusRailSelection\(n\);\s*return;/.test(html));
+  ok('selectConnPin stays in rail mode for rail-primary cavities',
+    /if\(activeRails\.size && cavIsActiveRailPrimary\(cid, pin0\)\)\{[\s\S]*?focusRailSelection\(ecmN, cid, cavId\);/.test(html));
+  ok('focusRailSelection does not call selectCircuits', (() => {
+    const m = html.match(/function focusRailSelection\([\s\S]*?\nfunction /);
+    return m && !/selectCircuits/.test(m[0]);
+  })());
+  ok('yellow focus CSS beats rail outline',
+    /Yellow selection focus beats rail-family/.test(html) &&
+    /\.pin\.hl\.hl-rail/.test(html) &&
+    /\.cav-hit\.hl\.hl-rail \.cav-face/.test(html));
+}
+
 console.log('\n---');
 console.log(`${passes.length} passed, ${failures.length} failed`);
 if (failures.length) {

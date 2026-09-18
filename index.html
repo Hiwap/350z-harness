@@ -718,6 +718,14 @@
   .cav-hit.hl-rail.rail-line-gnd_pwr .cav-face { stroke: #2E7D32 !important; }
   .cav-hit.hl-rail.rail-line-gnd_sns .cav-face { stroke: #66bb6a !important; }
   .cav-hit.hl-rail.rail-line-gnd_app .cav-face { stroke: #a5d6a7 !important; }
+
+  /* Yellow selection focus beats rail-family / rail-line outline when both apply */
+  .pin.hl.hl-rail, .pin.hl.rail-5v, .pin.hl.rail-12v, .pin.hl.rail-gnd {
+    outline: 3px solid var(--hl); outline-offset: 1px;
+    box-shadow: 0 0 0 1px #000, 0 0 12px rgba(255,213,79,.55);
+    opacity: 1 !important; z-index: 3;
+  }
+  .cav-hit.hl.hl-rail .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .cav-hit.dim { opacity: 0.22 !important; }
   .conn-svg .corner-pin {
     fill: #90a4ae; font-size: 6px; font-weight: 800;
@@ -5292,7 +5300,20 @@ function attachPowerPathFichas(coreIds, connSet, pathCavByConn){
   });
 }
 function refreshCurrentSelection(){
-  if(activeRails.size){ applyRailFilter(); return; }
+  if(activeRails.size){
+    const key = selKey;
+    if(key && key.startsWith('pin:')){
+      focusRailSelection(Number(key.slice(4)));
+    } else if(key && key.startsWith('cav:')){
+      const rest = key.slice(4);
+      const i = rest.indexOf(':');
+      if(i >= 0) focusRailSelection(selFocusPin, rest.slice(0, i), rest.slice(i + 1));
+      else applyRailFilter();
+    } else {
+      applyRailFilter();
+    }
+    return;
+  }
   if(!selKey) return;
   const key = selKey;
   if(key.startsWith('pin:')){
@@ -5316,7 +5337,7 @@ function markRailRelEl(el, kind){
   el.classList.add(kind === 'gnd' ? 'hl-rail-rel-gnd' : 'hl-rail-rel-data');
 }
 
-function applyRailFilter(){
+function applyRailFilter(opts){
   updateRailButtons();
   if(!activeRails.size){
     clearHL();
@@ -5327,6 +5348,13 @@ function applyRailFilter(){
       info.textContent = t('infoEmpty');
     }
     return;
+  }
+
+  /* Do not mix circuit-selection retarget with rail mode */
+  lastCircIds = [];
+  if(!opts || !opts.focusing){
+    selKey = null;
+    selFocusPin = null;
   }
 
   const railEcm = new Set();
@@ -5484,6 +5512,77 @@ function applyRailFilter(){
   info.dataset.railMode = '1';
   info.innerHTML = `<div>${pills}<b>${esc(t('railActive'))}</b> — ${esc(t('railActiveHint'))}</div>` +
     (linePills ? `<div style="margin-top:4px;color:var(--muted)">${linePills}</div>` : '');
+}
+
+/** ECM pin belongs to an active 5V/12V/GND rail filter. */
+function ecmPinOnActiveRail(n){
+  if(!activeRails || !activeRails.size) return false;
+  const r = PIN_RAIL[n] || PIN_RAIL[Number(n)] || null;
+  if(r && activeRails.has(r)) return true;
+  const el = ecmPinEl(n);
+  return !!(el && el.classList.contains('hl-rail'));
+}
+/** Cavity is primary on an active rail (PIN_RAIL ecm, bare 5V/12V feed, or hl-rail). */
+function cavIsActiveRailPrimary(cid, pin){
+  if(!activeRails || !activeRails.size || !pin) return false;
+  const rEcm = (pin.ecm!=null && pin.ecm!=='') ? (PIN_RAIL[Number(pin.ecm)] || null) : null;
+  if(rEcm && activeRails.has(rEcm)) return true;
+  if((pin.ecm==null || pin.ecm==='') && pin.rail && activeRails.has(pin.rail) && pin.rail !== 'gnd') return true;
+  const el = cavSelEl(cid, pin.id);
+  return !!(el && el.classList.contains('hl-rail'));
+}
+/** Yellow focus on top of rail highlights (does not leave rail mode). */
+function paintRailYellowFocus(focusPin, focusConn, focusCav){
+  const n = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
+  if(n!=null){
+    const el = ecmPinEl(n);
+    if(el){ el.classList.remove('dim'); el.classList.add('hl'); }
+    if(!focusConn){
+      document.querySelectorAll('.cav-hit').forEach(cav=>{
+        const cid = cav.dataset.conn; const pid = cav.dataset.cav;
+        const conf = CONN[cid] || CONN_BASE[cid];
+        const p = (conf && conf.pins || []).find(x => String(x.id)===String(pid));
+        if(p && p.ecm!=null && Number(p.ecm)===n){
+          cav.classList.remove('dim'); cav.classList.add('hl');
+        }
+      });
+      document.querySelectorAll(`#f102Blocks .pin[data-ecm="${n}"]`).forEach(fp=>{
+        fp.classList.remove('dim'); fp.classList.add('hl');
+      });
+    }
+  }
+  if(focusConn && focusCav != null){
+    document.querySelectorAll(`.cav-hit[data-conn="${CSS.escape(String(focusConn))}"][data-cav="${CSS.escape(String(focusCav))}"]`).forEach(cav=>{
+      cav.classList.remove('dim'); cav.classList.add('hl');
+    });
+    if(focusConn === 'ix_f102_m72'){
+      const fp = f102PinEl(focusCav);
+      if(fp){ fp.classList.remove('dim'); fp.classList.add('hl'); }
+    }
+    if(n!=null){
+      const el = ecmPinEl(n);
+      if(el){ el.classList.remove('dim'); el.classList.add('hl'); }
+    }
+  }
+  if(n!=null) updateEcmSelCount([n]);
+  else updateEcmSelCount();
+  updateF102SelPins();
+}
+/**
+ * Stay in rail mode: re-apply rail filter, yellow-focus pin/cavity, set selKey
+ * so a second click clears via clearSelection. Never calls selectCircuits.
+ */
+function focusRailSelection(focusPin, focusConn, focusCav){
+  applyRailFilter({ focusing: true });
+  paintRailYellowFocus(focusPin, focusConn, focusCav);
+  const n = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
+  if(focusConn && focusCav != null){
+    selKey = 'cav:' + focusConn + ':' + focusCav;
+    selFocusPin = n;
+  } else if(n != null){
+    selKey = 'pin:' + String(n);
+    selFocusPin = n;
+  }
 }
 
 function toggleRail(rail){
@@ -5987,6 +6086,11 @@ function selectPin(p, opts){
       clearSelection();
       return;
     }
+    /* Rail filter ON + pin is on that rail → stay in rail mode (do not selectCircuits). */
+    if(activeRails.size && ecmPinOnActiveRail(n)){
+      focusRailSelection(n);
+      return;
+    }
     if(selKey && lastCircIds.length && ecmPinIsMarked(n)){
       retargetSelection(n);
       return;
@@ -6108,6 +6212,12 @@ function selectConnPin(cid, cavId, opts){
   const key = 'cav:' + String(cid) + ':' + String(cavId);
   if(!opts || !opts.keep){
     if(selKey === key){ clearSelection(); return; }
+    /* Rail filter ON + cavity primary on that rail → stay in rail mode. */
+    if(activeRails.size && cavIsActiveRailPrimary(cid, pin0)){
+      const ecmN = pin0 && pin0.ecm != null ? Number(pin0.ecm) : null;
+      focusRailSelection(ecmN, cid, cavId);
+      return;
+    }
     if(selKey && lastCircIds.length && selMarkOn(cavSelEl(cid, cavId))){
       const conf0 = CONN[cid] || CONN_BASE[cid];
       const pin0 = (conf0 && conf0.pins || []).find(x => String(x.id) === String(cavId));

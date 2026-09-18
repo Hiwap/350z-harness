@@ -128,6 +128,63 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
   return true;
 });
 
+
+ok('rail-focus helpers present (stay in rail on re-click)',
+  /function focusRailSelection\(/.test(html) && /function ecmPinOnActiveRail\(/.test(html));
+
+{
+  /* PIN_RAIL is const — probe via in-VM eval, not box.PIN_RAIL */
+  const src = [
+    extractConstObject(script, 'PIN_RAIL'),
+    'var activeRails = new Set();',
+    'function ecmPinEl(){ return null; }',
+    'function cavSelEl(){ return null; }',
+    extractFunction(script, 'ecmPinOnActiveRail'),
+    extractFunction(script, 'cavIsActiveRailPrimary'),
+    `var __railProbe = (function(){
+      const five = Object.entries(PIN_RAIL).filter(([,r]) => r === '5v').map(([p]) => Number(p));
+      let orphan = 9999;
+      while (PIN_RAIL[orphan] != null) orphan++;
+      return { sample5: five[0], orphan };
+    })();`,
+  ].join('\n');
+  const box = {};
+  vm.createContext(box);
+  vm.runInContext(src, box);
+  const sample5 = box.__railProbe.sample5;
+  const orphan = box.__railProbe.orphan;
+  unit('unit: ecmPinOnActiveRail false when rails empty', () => {
+    box.activeRails.clear();
+    return box.ecmPinOnActiveRail(sample5) === false;
+  });
+  unit('unit: ecmPinOnActiveRail true for PIN_RAIL pin on active rail', () => {
+    box.activeRails.clear();
+    box.activeRails.add('5v');
+    return box.ecmPinOnActiveRail(sample5) === true;
+  });
+  unit('unit: ecmPinOnActiveRail false for orphan pin with 5v filter', () => {
+    box.activeRails.clear();
+    box.activeRails.add('5v');
+    return box.ecmPinOnActiveRail(orphan) === false;
+  });
+  unit('unit: cavIsActiveRailPrimary bare 5v feed', () => {
+    box.activeRails.clear();
+    box.activeRails.add('5v');
+    return box.cavIsActiveRailPrimary('feed', { id: '1', ecm: null, rail: '5v' }) === true;
+  });
+  unit('unit: cavIsActiveRailPrimary bare gnd feed not primary', () => {
+    box.activeRails.clear();
+    box.activeRails.add('gnd');
+    return box.cavIsActiveRailPrimary('feed', { id: '1', ecm: null, rail: 'gnd' }) === false;
+  });
+  unit('unit: cavIsActiveRailPrimary ecm on active rail', () => {
+    box.activeRails.clear();
+    box.activeRails.add('5v');
+    return box.cavIsActiveRailPrimary('s', { id: '2', ecm: sample5 }) === true;
+  });
+}
+
+
 function runNested(label, scriptPath, args = []) {
   if (!fs.existsSync(scriptPath)) {
     ok(label + ' present', false, 'missing ' + scriptPath);
