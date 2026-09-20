@@ -14,7 +14,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | knock.webp | Wiring Specialties | knock | VQ35DE Knock Sensor Connector |
 | ect.webp | Wiring Specialties | ect | VQ35/VQ37 Coolant Temperature |
 | ho2s.webp | Wiring Specialties | af_b1, af_b2 | VQ35 Oxygen Sensor (6-pin face; used for A/F) |
-| oil.webp | Wiring Specialties | f21_oilp | VQ35DE Oil Pressure Connector 3-pin |
+| oil.webp | Wiring Specialties | f21_oilp, psp | VQ35DE Oil Pressure Connector 3-pin (same B/3 shell as F19 PSP · PG-55) |
 | vtc.webp | Wiring Specialties | vtc_b1, vtc_b2 | VQ35DE VVT Connector |
 | f1.webp | Wiring Specialties | ix_e10_f1 | VQ35 F1 Connector 9 pin |
 | f2.webp | Wiring Specialties | ix_e11_f2 | VQ35DE F2 Connector 10 Pin |
@@ -35,7 +35,7 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_f11.webp | EC-191 | ho2s_b1 (F11) |
 | fsm_f12.webp | EC-193 | ho2s_b2 (F12) |
 | fsm_f5.webp | EC-360 | evap_purge (F5) |
-| fsm_f19.webp | EC-426 | psp (F19) |
+| fsm_f19.webp | EC-426 | (file only — PSP uses oil.webp; same 3-pin B as F21) |
 | fsm_f9.webp | SC-13 | f9_starter (F9 · E203 in the same FSM box) |
 | fsm_f16.webp | EC-689 | f16_cond (F16) |
 | fsm_f40.webp | EC-198 | vtc_ex_b1 (F40 · 4-cavity face) |
