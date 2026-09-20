@@ -1812,10 +1812,26 @@ const CONN_BASE = {
     note:'12V compartido E7-18 (R/W) vía F3: CKP F10·1 · MAF F25·2 · EC-323 / EC-207. Señales: CKP→13 · MAF→51.',},
 
   /* —— Sensores motor —— */
-  af_b1:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 1', meta:'6 pines · Bank 1', accent:'#ef6c00', shape:'af6',
-    pins:[{id:'1',code:'LG/B',ecm:16,lab:'SIG'},{id:'2',code:'P/B',ecm:75,lab:'SIG'},{id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'},{id:'4',code:'GY/R',ecm:2,lab:'HTR'},{id:'5',code:'L/W',ecm:35,lab:'SIG'},{id:'6',code:'W/L',ecm:56,lab:'SIG'}]},
-  af_b2:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 2', meta:'6 pines · Bank 2', accent:'#2e7d32', shape:'af6',
-    pins:[{id:'1',code:'LG',ecm:76,lab:'SIG'},{id:'2',code:'P',ecm:77,lab:'SIG'},{id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'},{id:'4',code:'G/Y',ecm:24,lab:'HTR'},{id:'5',code:'L',ecm:57,lab:'SIG'},{id:'6',code:'W',ecm:58,lab:'SIG'}]},
+  af_b1:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 1', meta:'6 pines · F22 · EC-434/529', accent:'#ef6c00', shape:'af6',
+    pins:[
+      {id:'1',code:'LG/B',ecm:16,lab:'UN'},
+      {id:'2',code:'P/B',ecm:75,lab:'IA'},
+      {id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'},
+      {id:'4',code:'GY/R',ecm:2,lab:'HTR'},
+      {id:'5',code:'L/W',ecm:35,lab:'VM'},
+      {id:'6',code:'W/L',ecm:56,lab:'IP'}
+    ],
+    note:'A/F B1 (F22). FSM: 1 UN→16 · 2 IA→75 · 3 12V · 4 HTR→2 · 5 VM→35 · 6 IP→56 · EC-434/529.'},
+  af_b2:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 2', meta:'6 pines · F26 · EC-434/529', accent:'#2e7d32', shape:'af6',
+    pins:[
+      {id:'1',code:'LG',ecm:76,lab:'UN'},
+      {id:'2',code:'P',ecm:77,lab:'IA'},
+      {id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'},
+      {id:'4',code:'G/Y',ecm:24,lab:'HTR'},
+      {id:'5',code:'L',ecm:57,lab:'VM'},
+      {id:'6',code:'W',ecm:58,lab:'IP'}
+    ],
+    note:'A/F B2 (F26). FSM: 1 UN→76 · 2 IA→77 · 3 12V · 4 HTR→24 · 5 VM→57 · 6 IP→58.'},
   ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 1 (post-cat)', meta:'F11 · 4 pines · EC-191', accent:'#8e24aa', shape:'tab4',
     pins:[
       {id:'1',lab:'SIG',code:'OR',ecm:74},
@@ -3998,9 +4014,9 @@ const NOTES_I18N = {
   vtc_ex_b1: {en:'Exhaust VTC Bank 1 (Rev-Up) — own signal; ECM pin per FSM.', ja:'排気VTC B1（Rev-Up）— 独自信号。ECMピンはFSM参照。'},
   vtc_ex_b2: {en:'Exhaust VTC Bank 2 (Rev-Up) — own signal; ECM pin per FSM.', ja:'排気VTC B2（Rev-Up）— 独自信号。ECMピンはFSM参照。'},
   start_sig: {en:'Start signal GY/R (not starter 12V). Path: F102·23H ↔ cluster/TCM · also SC-START branch.', ja:'スタート信号 GY/R（スタータ12Vではない）。経路: F102·23H↔メータ/TCM · SC-START分岐。'},
-  af_b1: {en:'A/F B1 input → ECM 16 / 35 / 56 / 75.', ja:'A/F B1入力 → ECM 16 / 35 / 56 / 75。'},
+  af_b1: {en:'A/F B1. Path: UN→16 · IA→75 · VM→35 · IP→56.', ja:'A/F B1。経路: UN→16 · IA→75 · VM→35 · IP→56。'},
   af_b1_htr: {en:'Heater B1 → ECM 2 (GY/R). Pin 3 = fused 12V (not ECM).', ja:'ヒータB1 → ECM 2 (GY/R)。ピン3 = ヒューズ12V（ECM外）。'},
-  af_b2: {en:'A/F B2 input → ECM 76 / 57 / 58 / 77.', ja:'A/F B2入力 → ECM 76 / 57 / 58 / 77。'},
+  af_b2: {en:'A/F B2. Path: UN→76 · IA→77 · VM→57 · IP→58.', ja:'A/F B2。経路: UN→76 · IA→77 · VM→57 · IP→58。'},
   af_b2_htr: {en:'Heater B2 → ECM 24 (G/Y). Pin 3 = fused 12V (not ECM).', ja:'ヒータ B2 → ECM 24 (G/Y)。ピン3 = ヒューズ12V（ECM外）。'},
   app_5v: {en:'5V APP1/APP2 (90/91) via E11/F2. Shared rails 47/48/49/68 → use 5V toggle.', ja:'APP1/APP2 5V (90/91) E11/F2経由。共有レール 47/48/49/68 は 5V トグル。'},
   app_gnd: {en:'APP grounds → ECM 82/83 via intermediate E11/F2.', ja:'APPアース → ECM 82/83（中間E11/F2経由）。'},
@@ -4696,8 +4712,8 @@ const CONN_I18N = {
     ja: { name:'CKP/MAF 12V（ハーネス）', meta:'センサ電源 · ECM外',
       note:'エンジンハーネスの CKP/MAF コネクタへ12V（ECMピンではない）。信号: CKP→13, MAF→51。アースはFSM参照。' },
   },
-  af_b1: { en:{name:'A/F Sensor 1 B1', meta:'6-pin · Bank 1 · FSM A/F face'}, ja:{name:'A/Fセンサ1 バンク1', meta:'6ピン · バンク1 · FSM面'} },
-  af_b2: { en:{name:'A/F Sensor 1 B2', meta:'6-pin · Bank 2 · FSM A/F face'}, ja:{name:'A/Fセンサ1 バンク2', meta:'6ピン · バンク2 · FSM面'} },
+  af_b1: { en:{name:'A/F Sensor 1 B1', meta:'6-pin · F22 · EC-434/529', note:'A/F B1 (F22). FSM: 1 UN→16 · 2 IA→75 · 3 12V · 4 HTR→2 · 5 VM→35 · 6 IP→56 · EC-434/529.'}, ja:{name:'A/Fセンサ1 バンク1', meta:'6ピン · F22 · EC-434/529', note:'A/F B1 (F22)。FSM: 1 UN→16 · 2 IA→75 · 3 12V · 4 HTR→2 · 5 VM→35 · 6 IP→56。'} },
+  af_b2: { en:{name:'A/F Sensor 1 B2', meta:'6-pin · F26 · EC-434/529', note:'A/F B2 (F26). FSM: 1 UN→76 · 2 IA→77 · 3 12V · 4 HTR→24 · 5 VM→57 · 6 IP→58.'}, ja:{name:'A/Fセンサ1 バンク2', meta:'6ピン · F26 · EC-434/529', note:'A/F B2 (F26)。FSM: 1 UN→76 · 2 IA→77 · 3 12V · 4 HTR→24 · 5 VM→57 · 6 IP→58。'} },
   maf: { en:{name:'MAF · Mass air flow', meta:'intake', note:'MAF. Path: 12V E7-18 (R/W) → F3 → F25·2 · GND F25·3 → ECM 67 · signal F25·4 → ECM 51 · EC-207.'}, ja:{name:'MAF · エアフロ', meta:'吸気', note:'MAF。経路: 12V E7-18 → F3 → F25·2 · GND→67 · 信号→51 · EC-207。'} },
   knock: {
     en: { name:'Knock sensor', meta:'2-pin · via intermediate F14/F229',
