@@ -1,45 +1,45 @@
 350Z — Fichas a fotografiar (arnés motor)
 ========================================
-Solo lo que falta foto tuya. Cara real del conector (color, lock, cavidades).
+Cara real del conector en TU mazo (color, lock, cavidades).
 Nombre sugerido: faces/<id>.webp
+Las fotos de producto en faces/ son interinas (Wiring Specialties / EFI / Ballenger).
 
-PRIORIDAD — intermedias / ECM
------------------------------
+PRIORIDAD — intermedias / ECM (sin foto de producto usable)
+-----------------------------------------------------------
 1. gnd4            F103 ↔ F151 · Tierras ECM (4 pines)
 2. ecm_f101_can    ECM F101 · Cara del conector ECM
-3. ix_e108_m15     E108 · SMJ 69G (no reusar foto F102)
+3. ix_e108_m15     E108 · SMJ 69G (no reusar f102.webp)
+4. ix_f18_f201     F18 ↔ F201 · Bobinas B1 + VTC (hay 6-pin genérico; mejor foto del mazo)
+5. ix_f221_f33     F33 ↔ F221 · Empalme inyectores (hay 8-pin genérico; mejor foto del mazo)
 
-Ya hay foto de producto (interina): F1, F2, F3, F102, F14/F229, F18, F33.
+YA HAY FOTO DE PRODUCTO (interina — no hace falta sacar ahora)
+--------------------------------------------------------------
+etc, inj1–6, coil1–6, maf, ckp, cmp_b1, cmp_b2, knock, ect,
+af_b1, af_b2, f21_oilp, vtc_b1, vtc_b2, backup_sw, f20_alt,
+ix_e10_f1 (F1), ix_e11_f2 (F2), ix_e12_f3 (F3), e12 (macho, faces/e12.webp),
+ix_f102_m72 (F102), ix_f14_f229 (sub-arnés knock)
 
-DESPUÉS — sensores / actuadores
--------------------------------
-10. af_b1 / af_b2   A/F Sensor1 B1 y B2 (una foto si son iguales)
-11. vtc_b1          VTC admisión Bank1
-12. vtc_b2          VTC admisión Bank2
-13. vtc_ex_b1       VTC escape B1 (solo si tu motor lo tiene)
-14. vtc_ex_b2       VTC escape B2 (solo si aplica)
-15. evap_purge      EVAP · Purga
-16. iat             IAT solo si es conector aparte del MAF
-17. ac_press        A/C presión refrigerante
-18. psp             PSP dirección
-19. f20_alt         F20 Alternador
-20. f21_oilp        F21 Presión aceite
-21. f9_starter      F9 Arranque
-22. f16_cond        F16 Condensador ignición
-23. f24_comp        F24 Compresor A/C
-24. f38_evtc_b1     F38 EVT pos B1 (35th / Rev-Up — skip si no)
-25. f42_evtc_b2     F42 EVT pos B2 (skip si no)
-26. f232_eot        F232 Temp. aceite (skip si no)
-27. f6_at           F6 A/T (skip si M/T)
-28. backup_sw       Marcha atrás (M/T)
+DESPUÉS — sensores / actuadores sin foto de producto
+----------------------------------------------------
+1. evap_purge      EVAP · Purga (F5)
+2. iat             IAT solo si es conector aparte del MAF
+3. psp             PSP dirección
+4. f9_starter      F9 Arranque
+5. f16_cond        F16 Condensador ignición
+6. f24_comp        F24 Compresor A/C
+7. f38_evtc_b1     F38 EVT pos B1 (35th / Rev-Up)
+8. f42_evtc_b2     F42 EVT pos B2 (Rev-Up)
+9. f232_eot        F232 Temp. aceite (Rev-Up)
+10. vtc_ex_b1 / vtc_ex_b2   Magnet retarder escape (Rev-Up; no usar vtc_ex_*.webp del catálogo, son 6 pines)
 
-NO SACAR (ya hay foto de producto en web)
------------------------------------------
-etc, inj1–6, coil1–6, maf, ckp, cmp_b1/b2, knock, ect, ho2s/A/F,
-f21_oilp, vtc_b1/b2, backup_sw, f20_alt,
-ix_e10_f1, ix_e11_f2, ix_e12_f3, ix_f102_m72, ix_f14_f229, ix_f18_f201, ix_f221_f33
+NO SACAR / skip
+---------------
+- ac_press · A/C presión refrigerante — no está en el arnés motor (lado E10 de F1).
+- evap_press (T21 canister), evap_vent, IPDM E3–E9, E108 está en prioridad.
+- f6_at — skip si M/T.
+- Body / cabin: APP, DLC, cluster.
 
 Notas
 -----
-- No hace falta crédito en tus fotos.
-- Body / cabin / IPDM: no (no están en el arnés de motor).
+- En tus fotos no hace falta crédito de vendedor.
+- CONN_FACE en index.html: cámara solo si existe faces/<id>.

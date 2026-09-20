@@ -1637,12 +1637,12 @@ const GROUP_SHORT = {
 const GROUP_I18N = {
   motor: {
     es: {title:'Arnés motor', sub:'sensores · bobinas · inyectores · actuadores · intermedias E/F · poder / grounds'},
-    en: {title:'Arnés motor', sub:'sensors · coils · injectors · actuators · intermediate E/F · power / grounds'},
+    en: {title:'Engine harness', sub:'sensors · coils · injectors · actuators · intermediate E/F · power / grounds'},
     ja: {title:'エンジンハーネス', sub:'センサ · アクチュエータ · 中間E/F · 電源/アース'},
   },
   body: {
     es: {title:'Habitáculo / Body', sub:'APP · freno · ASCD · clock spring · DLC · CAN / meter'},
-    en: {title:'Habitáculo / carrocería', sub:'APP · brake · ASCD · clock spring · DLC · CAN / meter'},
+    en: {title:'Cabin / body', sub:'APP · brake · ASCD · clock spring · DLC · CAN / meter'},
     ja: {title:'車室内 / ボディ', sub:'APP · ブレーキ · ASCD · クロックスプリング · DLC · CAN'},
   },
 };
@@ -4005,8 +4005,16 @@ const NOTES_I18N = {
   ign_vb_120: {en:'VB ECM 120 (P). Path: F3·4 → ECM 120. 12V (Power): E7-18. EC-167. Not the same circuit as ECM 119 (R/W / F3·7).', ja:'VB ECM 120 (P)。経路: F3·4→ECM 120。12V（電源）: E7-18。EC-167。ECM 119（R/W / F3·7）とは別回路。'},
   batt_ecm: {en:'ECM memory: always-hot 12V. Path: BATT → 15A fuse → E108·68G → F102·5H → ECM 121 (EC-441).', ja:'ECMメモリ: 常時12V。経路: BATT → 15Aヒューズ → E108·68G → F102·5H → ECM 121（EC-441）。'},
 
-  fp_relay: {en:'Fuel-pump relay control (relay inside IPDM). Ruta: ECM 113 → F102·6H → E108·28G → E8-40.', ja:'フューエルポンプリレー制御（IPDM内）。経路: ECM 113→F102·6H→E108·28G→E8-40。'},
-  motrly: {en:'ECM only monitors that the IPDM throttle relay (F87) supplied 12V. Ruta: E9-47 → E108·30G → F102·12H → ECM 104.', ja:'ECMはスロットルリレー(F87)の12V供給を監視。経路: E9-47→E108→F102→ECM 104。'},
+  fp_relay: {en:'Fuel-pump relay control (relay inside IPDM). Path: ECM 113 → F102·6H → E108·28G → E8-40.', ja:'フューエルポンプリレー制御（IPDM内）。経路: ECM 113→F102·6H→E108·28G→E8-40。'},
+  motrly: {en:'ECM only monitors that the IPDM throttle relay (F87) supplied 12V. Path: E9-47 → E108·30G → F102·12H → ECM 104.', ja:'ECMはスロットルリレー(F87)の12V供給を監視。経路: E9-47→E108→F102→ECM 104。'},
+  starter: {en:'Starter. Path: IPDM E4-3 B/Y → E10/F1·1 → F9·1 · SC-13.', ja:'スタータ。経路: IPDM E4-3 B/Y → E10/F1·1 → F9·1 · SC-13。'},
+  alt_sl: {en:'Alternator S/L. S: F20·4 LG/B → E11/F2·1. L: F20·3 W/R → F102·13H → cluster. SC-22.', ja:'オルタネータ S/L。S: F20·4 → E11/F2·1。L: F20·3 → F102·13H。SC-22。'},
+  ac_clutch: {en:'A/C clutch. Path: IPDM E8-33 L/Y → F24·1 · ATC-80.', ja:'A/Cクラッチ。経路: IPDM E8-33 L/Y → F24·1 · ATC-80。'},
+  backup_lamp: {en:'Reverse lamps (M/T): switch F36. Selection: F36 + F102·22H. 12V (Power): E7-26 → E10/F1·2 → F36 → F102·22H → rear lamps.', ja:'バックランプ (M/T): SW F36。選択: F36 + F102·22H。12V（電源）: E7-26 → F1·2 → F36 → F102·22H。'},
+  sns_gnd: {en:'HO2S SNS ground. Path: ECM 78. 66 is TPS (ETC card); 67 is on each sensor circuit (A/C, PSP, EVAP, MAF, ASCD).', ja:'HO2S SNSアース。経路: ECM 78。66はTPS（ETC）。67は各センサ回路。'},
+  ign_sw: {en:'Ignition ON signal to ECM (not the power 12V). Path: switch → F102·17H → ECM 109.', ja:'IGN ON信号（電源12Vではない）。経路: SW → F102·17H → ECM 109。'},
+  ecm_relay_ss: {en:'ECM holds/drops the ignition relay inside the IPDM (fuse 77). Path: ECM 111 → F102·11H → E108·69G → E9-46 (SSOFF).', ja:'ECMはIPDM内イグニッションリレー（ヒューズ77）を保持/切断。経路: ECM 111 → F102·11H → E108·69G → E9-46。'},
+  vmot: {en:'Throttle-motor 12V (G) after ETC relay. FSM: continuity ECM 3 ↔ IPDM E8-42; the wire crosses E12/F3 (EC-474) with no labeled F3 cavity. Full loom + Power: E8-42. Motor loom: E12/F3 card (no cavity).', ja:'スロットルモータ12V (G)。FSM: ECM 3 ↔ IPDM E8-42。E12/F3を通るがキャビティ番号なし（EC-474）。全体+電源: E8-42。モータハーネス: E12/F3カード。'},
   ftt: {en:'FTT → ECM 107 (GY/R) via M72/F102 · fuel level sensor unit term. 4.', ja:'FTT → ECM 107 (GY/R) · M72/F102経由。'},
     can: {en:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · also IPDM E9 48/49 · branch E108 2G/7G → ABS/DLC · nodes: combination meter (fuel level / CRUISE) + DLC.', ja:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · 経路 ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · IPDM E9 48/49 · 分岐 E108 2G/7G → ABS/DLC · ノード: コンビネーションメータ（残量/CRUISE）+ DLC。'},
   maf: {en:'MAF signal → ECM 51 (OR).', ja:'MAF信号 → ECM 51 (OR)。'},
@@ -4435,20 +4443,43 @@ function fitEcmPins(){ /* no-op: CSS vars stay at classic ~34×32 */ }
 
 function connShortLabel(cid){
   const SHORT = {
-    jb_10a_inj:'JB 10A iny', jb_15a_ht:'JB 15A A/F+HO2S',
-    feed_af_12v:'Feed A/F', feed_ho2s_12v:'Feed HO2S', feed_inj_coil_12v:'Rail iny/bobinas',
-    feed_ckp_maf_12v:'Feed CKP/MAF',
+    es: {
+      jb_10a_inj:'JB 10A iny', jb_15a_ht:'JB 15A A/F+HO2S',
+      feed_af_12v:'Feed A/F', feed_ho2s_12v:'Feed HO2S', feed_inj_coil_12v:'Rail iny/bobinas',
+      feed_ckp_maf_12v:'Feed CKP/MAF',
+      fuel_pump:'Bomba comb.', backup_sw:'Marcha atrás',
+      evap_purge:'EVAP purga', evap_vent:'EVAP venteo', evap_press:'EVAP presión',
+      ascd_brake:'ASCD freno', stop_lamp:'Stop lamp'
+    },
+    en: {
+      jb_10a_inj:'JB 10A inj', jb_15a_ht:'JB 15A A/F+HO2S',
+      feed_af_12v:'A/F feed', feed_ho2s_12v:'HO2S feed', feed_inj_coil_12v:'Inj/coil rail',
+      feed_ckp_maf_12v:'CKP/MAF feed',
+      fuel_pump:'Fuel pump', backup_sw:'Reverse sw',
+      evap_purge:'EVAP purge', evap_vent:'EVAP vent', evap_press:'EVAP press',
+      ascd_brake:'ASCD brake', stop_lamp:'Stop lamp'
+    },
+    ja: {
+      jb_10a_inj:'JB 10A inj', jb_15a_ht:'JB 15A A/F+HO2S',
+      feed_af_12v:'A/F供給', feed_ho2s_12v:'HO2S供給', feed_inj_coil_12v:'インジェ/コイルレール',
+      feed_ckp_maf_12v:'CKP/MAF供給',
+      fuel_pump:'燃料ポンプ', backup_sw:'リバースSW',
+      evap_purge:'EVAPパージ', evap_vent:'EVAPベント', evap_press:'EVAP圧',
+      ascd_brake:'ASCDブレーキ', stop_lamp:'ストップランプ'
+    }
+  };
+  const common = {
     ix_e108_m15:'E108', ix_e12_f3:'E12/F3', ix_f102_m72:'F102', ix_f221_f33:'F33',
     ix_e10_f1:'E10/F1', ix_f18_f201:'F18', ix_e11_f2:'E11/F2', ix_f14_f229:'F14',
     ix_f103_f151:'F103', ipdm_e3:'IPDM E3', ipdm_e4:'IPDM E4', ipdm_e5:'IPDM E5',
     ipdm_e6:'IPDM E6', ipdm_e7:'IPDM E7', ipdm_e8:'IPDM E8', ipdm_e9:'IPDM E9',
     af_b1:'A/F B1', af_b2:'A/F B2', ho2s_b1:'HO2S2 B1', ho2s_b2:'HO2S2 B2',
-    fuel_pump:'Bomba comb.', backup_sw:'Back-up sw',
-    evap_purge:'EVAP purga', evap_vent:'EVAP venteo', ix_t2_b44:'T2/B44', ix_b1_m12:'B1/M12', evap_press:'EVAP presión',
-    ascd_brake:'ASCD freno', stop_lamp:'Stop lamp', dlc:'OBD/DLC',
+    ix_t2_b44:'T2/B44', ix_b1_m12:'B1/M12', dlc:'OBD/DLC',
     comb_meter:'Comb. meter', fuel_tank_temp:'FTT'
   };
-  if(SHORT[cid]) return SHORT[cid];
+  if(common[cid]) return common[cid];
+  const pack = SHORT[lang] || SHORT.es;
+  if(pack[cid]) return pack[cid];
   const conf = CONN[cid] || CONN_BASE[cid];
   if(!conf) return String(cid);
   const name = connField(cid, conf, 'name') || String(cid);
@@ -4478,9 +4509,9 @@ function accentForConn(f, cid){
 
 /** Connector card name / meta / note — ES lives in CONN_BASE; EN/JA here. */
 const CONN_I18N = {
-  fuel_pump: { en:{name:'Fuel pump', meta:'B27 · EC-710'}, ja:{name:'フューエルポンプ', meta:'B27 · EC-710'} },
-  jb_10a_inj: { en:{name:'JB · 10A injector fuse', meta:'Fuse Block M4 · IGN · EC-702'}, ja:{name:'JB · 10A インジェクタヒューズ', meta:'ヒューズブロック M4'} },
-  jb_15a_ht: { en:{name:'JB · 15A A/F+HO2S fuse', meta:'Fuse Block M4 · IGN · EC-191'}, ja:{name:'JB · 15A A/F+HO2Sヒューズ', meta:'ヒューズブロック M4'} },
+  fuel_pump: { en:{name:'Fuel pump', meta:'B27 · EC-710', note:'Fuel pump. Path: E8-39 → pin 1 · ground pin 3 → D105.'}, ja:{name:'フューエルポンプ', meta:'B27 · EC-710', note:'燃料ポンプ。経路: E8-39 → pin1 · アース pin3 → D105。'} },
+  jb_10a_inj: { en:{name:'JB · 10A injector fuse', meta:'Fuse Block M4 · IGN · EC-702', note:'Injector 10A fuse (cabin fuse block). Path: JB 10A → F102·17H → F33·5 → injector 12V rail.'}, ja:{name:'JB · 10A インジェクタヒューズ', meta:'ヒューズブロック M4', note:'インジェクタ10A。経路: JB 10A → F102·17H → F33·5。'} },
+  jb_15a_ht: { en:{name:'JB · 15A A/F+HO2S fuse', meta:'Fuse Block M4 · IGN · EC-191', note:'A/F+HO2S 15A fuse. Path: JB 15A → E108·65G → F3·3.'}, ja:{name:'JB · 15A A/F+HO2Sヒューズ', meta:'ヒューズブロック M4', note:'A/F+HO2S 15A。経路: JB 15A → E108·65G → F3·3。'} },
   ix_e11_f2: {
     en: { name:'E11 ↔ F2 · APP path (pedal)', meta:'10-pin GY · E113→E11/F2→ECM · EC-523',
       note:'APP path: pedal E113 → E11/F2 → ECM. APP uses 6 circuits (cavities 2,3,4,5,9,10). Unused for APP: 1,6,7,8. F2 face H.S. FSM: top 1–5 / bot 6–10. Colors = F2→ECM. 5V/GND labels on APP rails.' },
@@ -4508,7 +4539,7 @@ const CONN_I18N = {
   },
   ix_f103_f151: {
     en: { name:'F103 ↔ F151 · ECM grounds → body', meta:'4-pin · ECM 1/115/116 → body ground · EC-169/171',
-      note:'ECM grounds to body. Ruta: 1/115/116 → F103/F151.' },
+      note:'ECM grounds to body. Path: 1/115/116 → F103/F151.' },
     ja: { name:'F103 ↔ F151 · ECMアース → ボディ', meta:'4ピン · ECM 1/115/116 → body ground · EC-169/171',
       note:'FSM EC · POWER SUPPLY AND GROUND CIRCUIT: ECM ground 1/115/116 ↔ body ground 連続性。点検リストはハーネスコネクタ F103, F151（および F3/E12）。' },
   },
@@ -4555,12 +4586,12 @@ const CONN_I18N = {
       note:'エンジンハーネスのヒューズ12Vが各 A/F Sensor 1 (B1/B2) のピン3へ。ECMには入らない — ヒータ駆動のみ（ECM 2 / 24）。' },
   },
   ho2s_b1: {
-    en: { name:'HO2S2 B1', meta:'post-cat R · signal ECM 74' },
-    ja: { name:'HO2S2 B1', meta:'後触媒 R · 信号 ECM 74' },
+    en: { name:'HO2S2 B1', meta:'post-cat R · signal ECM 74', note:'HO2S Bank 1. Path: signal→74 · heater→25 · 12V pin2 · ground→78.' },
+    ja: { name:'HO2S2 B1', meta:'後触媒 R · 信号 ECM 74', note:'HO2S B1。経路: 信号→74 · ヒータ→25 · 12V pin2 · アース→78。' },
   },
   ho2s_b2: {
-    en: { name:'HO2S2 B2', meta:'post-cat L · signal ECM 55' },
-    ja: { name:'HO2S2 B2', meta:'後触媒 L · 信号 ECM 55' },
+    en: { name:'HO2S2 B2', meta:'post-cat L · signal ECM 55', note:'HO2S Bank 2. Path: signal→55 · heater→6 · 12V pin2 · ground→78.' },
+    ja: { name:'HO2S2 B2', meta:'後触媒 L · 信号 ECM 55', note:'HO2S B2。経路: 信号→55 · ヒータ→6 · 12V pin2 · アース→78。' },
   },
 
 
@@ -4596,13 +4627,13 @@ const CONN_I18N = {
   },
 
   /* —— remaining connectors —— */
-  ipdm_e3: { en:{name:'IPDM E3 · Battery', meta:'2-pin · 12V in · PG-26'}, ja:{name:'IPDM E3 · バッテリ', meta:'2ピン · 12V入力 · PG-26'} },
-  ipdm_e7: { en:{name:'IPDM E7 · Lamps / wiper / ECM', meta:'VB / back-up / lamps / wiper · PG-26 · EC/LT/WW/SC'}, ja:{name:'IPDM E7 · ランプ / ワイパー / ECM', meta:'VB / ランプ / ワイパー · PG-26'} },
-  ipdm_e8: { en:{name:'IPDM E8 · Pump / throttle / A/C', meta:'GND / VMOT / FP / A/C · PG-26'}, ja:{name:'IPDM E8 · ポンプ / スロットル / A/C', meta:'GND / VMOT / FP / A/C · PG-26'} },
-  ipdm_e9: { en:{name:'IPDM E9 · ECM relays + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'}, ja:{name:'IPDM E9 · ECMリレー + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26'} },
-  ipdm_e4: { en:{name:'IPDM E4 · Starter', meta:'starter · PG-26 · SC-13/14 · Inv face'}, ja:{name:'IPDM E4 · スタータ', meta:'スタータ · PG-26 · 反転面'} },
-  ipdm_e5: { en:{name:'IPDM E5 · Cooling fans', meta:'cooling fan · PG-26 · EC-510 · Inv face'}, ja:{name:'IPDM E5 · 冷却ファン', meta:'冷却ファン · PG-26 · 反転面'} },
-  ipdm_e6: { en:{name:'IPDM E6 · Fans + 40A', meta:'cooling fan / 40A in · EC-510 · Inv face'}, ja:{name:'IPDM E6 · ファン + 40A', meta:'冷却ファン / 40A入力 · 反転面'} },
+  ipdm_e3: { en:{name:'IPDM E3 · Battery', meta:'2-pin · 12V in · PG-26', note:'Battery feed into the IPDM (2-pin).'}, ja:{name:'IPDM E3 · バッテリ', meta:'2ピン · 12V入力 · PG-26', note:'IPDMへのバッテリ入力（2ピン）。'} },
+  ipdm_e7: { en:{name:'IPDM E7 · Lamps / wiper / ECM', meta:'VB / back-up / lamps / wiper · PG-26 · EC/LT/WW/SC', note:'IPDM E7: ignition, lamps, wiper, reverse (cav 26).'}, ja:{name:'IPDM E7 · ランプ / ワイパー / ECM', meta:'VB / ランプ / ワイパー · PG-26', note:'IPDM E7: 点火・ランプ・ワイパー・リバース（cav 26）。'} },
+  ipdm_e8: { en:{name:'IPDM E8 · Pump / throttle / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8: VMOT · fuel pump · A/C · horn · ground.'}, ja:{name:'IPDM E8 · ポンプ / スロットル / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8: VMOT · ポンプ · A/C · ホーン · アース。'} },
+  ipdm_e9: { en:{name:'IPDM E9 · ECM relays + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', note:'IPDM E9: SSOFF · MOTRLY · CAN · grounds · starter/defog.'}, ja:{name:'IPDM E9 · ECMリレー + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', note:'IPDM E9: SSOFF · MOTRLY · CAN · アース。'} },
+  ipdm_e4: { en:{name:'IPDM E4 · Starter', meta:'starter · PG-26 · SC-13/14 · Inv face', note:'IPDM E4 · starter (SC) + defogger power 5/6 (PG-13/GW-63). PG-26 H.S. face: top 3-5 / bot 4-6.'}, ja:{name:'IPDM E4 · スタータ', meta:'スタータ · PG-26 · 反転面', note:'IPDM E4 · スタータ + デフォッガ電源 5/6。'} },
+  ipdm_e5: { en:{name:'IPDM E5 · Cooling fans', meta:'cooling fan · PG-26 · EC-510 · Inv face', note:'IPDM E5 · cooling fan (EC-510) + 7 = ign relay out B/R (PG-14).'}, ja:{name:'IPDM E5 · 冷却ファン', meta:'冷却ファン · PG-26 · 反転面', note:'IPDM E5 · 冷却ファン（EC-510）。'} },
+  ipdm_e6: { en:{name:'IPDM E6 · Fans + 40A', meta:'cooling fan / 40A in · EC-510 · Inv face', note:'IPDM E6 · fans + 40A battery feeds (EC-510).'}, ja:{name:'IPDM E6 · ファン + 40A', meta:'冷却ファン / 40A入力 · 反転面', note:'IPDM E6 · ファン + 40Aバッテリ供給。'} },
   ipdm_legend: {
     en: { name:'IPDM · Relays & fuses', meta:'PG-26 · FSM layout',
       note:'Integrated relays: ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog (empty). Fuse map: see PG-26.' },
@@ -4617,14 +4648,14 @@ const CONN_I18N = {
   },
   af_b1: { en:{name:'A/F Sensor 1 B1', meta:'6-pin · Bank 1 · FSM A/F face'}, ja:{name:'A/Fセンサ1 バンク1', meta:'6ピン · バンク1 · FSM面'} },
   af_b2: { en:{name:'A/F Sensor 1 B2', meta:'6-pin · Bank 2 · FSM A/F face'}, ja:{name:'A/Fセンサ1 バンク2', meta:'6ピン · バンク2 · FSM面'} },
-  maf: { en:{name:'MAF · Mass air flow', meta:'intake'}, ja:{name:'MAF · エアフロ', meta:'吸気'} },
+  maf: { en:{name:'MAF · Mass air flow', meta:'intake', note:'MAF. Path: 12V E7-18 (R/W) → F3 → F25·2 · GND F25·3 → ECM 67 · signal F25·4 → ECM 51 · EC-207.'}, ja:{name:'MAF · エアフロ', meta:'吸気', note:'MAF。経路: 12V E7-18 → F3 → F25·2 · GND→67 · 信号→51 · EC-207。'} },
   knock: {
     en: { name:'Knock sensor', meta:'2-pin · via intermediate F14/F229',
       note:'Knock path (FSM): signal W → ECM 15 via F14/F229; shield → SNS GND.' },
     ja: { name:'ノックセンサ', meta:'2ピン · 中間 F14/F229 経由',
       note:'ノック経路 (FSM): 信号 W → ECM 15（F14/F229経由）; シールド → SNS GND。' },
   },
-  ckp: { en:{name:'CKP · Crank position', meta:'3-pin'}, ja:{name:'CKP · クランク角', meta:'3ピン'} },
+  ckp: { en:{name:'CKP · Crank position', meta:'3-pin', note:'CKP POS. Path: 12V E7-18 → F10·1 · signal F10·2 → ECM 13 · ground F10·3 → F103/F151 → F152 · EC-323.'}, ja:{name:'CKP · クランク角', meta:'3ピン', note:'CKP。経路: 12V E7-18 → F10·1 · 信号→13 · アース F10·3 → F103 · EC-323。'} },
   cmp_b1: { en:{name:'CMP · Cam phase B1', meta:'cam RH'}, ja:{name:'CMP · カム角 B1', meta:'カム 右'} },
   cmp_b2: { en:{name:'CMP · Cam phase B2', meta:'cam LH'}, ja:{name:'CMP · カム角 B2', meta:'カム 左'} },
   ect: { en:{name:'ECT · Coolant temp', meta:'coolant · 2-pin'}, ja:{name:'ECT · 冷却水温', meta:'冷却水 · 2ピン'} },
@@ -4636,7 +4667,7 @@ const CONN_I18N = {
       note:'F31 · FSMアクチュエータ順。1 5V→47 · 2 T2→69 · 3 M- close→4 · 4 T1→50 · 5 GND→66 · 6 M+ open→5。EC-238/304/468。'}
   },
   ac_press: { en:{name:'A/C refrigerant press', meta:'3-pin · 5V=49 · SIG=70 · GND=67 · via E10/F1'}, ja:{name:'A/C冷媒圧力センサ', meta:'3ピン · 5V=49 · SIG=70 · GND=67 · E10/F1'} },
-  evap_press: { en:{name:'EVAP · Pressure sensor', meta:'T21 · canister · EC-379'}, ja:{name:'EVAP · 圧力センサ', meta:'T21 · キャニスタ · EC-379'} },
+  evap_press: { en:{name:'EVAP · Pressure sensor', meta:'T21 · canister · EC-379', note:'EVAP pressure. Path: F102·18H→48 · 19H→32 · 20H→67.'}, ja:{name:'EVAP · 圧力センサ', meta:'T21 · キャニスタ · EC-379', note:'EVAP圧。経路: F102·18H→48 · 19H→32 · 20H→67。'} },
   psp: {
     en: { name:'PSP · Power steering pressure', meta:'3-pin · 5V=68 · SIG=12 · GND=67',
       note:'FSM EC-401: 5V ECM 68 (R/W) · signal ECM 12 (L/W) · GND ECM 67 B/W (shared SNS MAF/IAT/PSP/EVAP).' },
@@ -4645,14 +4676,25 @@ const CONN_I18N = {
   },
   vtc_b1: { en:{name:'VTC intake B1', meta:'intake solenoid RH'}, ja:{name:'VTC吸気ソレノイド B1', meta:'吸気ソレノイド 右'} },
   vtc_b2: { en:{name:'VTC intake B2', meta:'intake solenoid LH'}, ja:{name:'VTC吸気ソレノイド B2', meta:'吸気ソレノイド 左'} },
-  vtc_ex_b1: { en:{name:'VTC exhaust B1', meta:'Rev-Up · exhaust RH'}, ja:{name:'VTC排気ソレノイド B1', meta:'Rev-Up · 排気 右'} },
-  vtc_ex_b2: { en:{name:'VTC exhaust B2', meta:'Rev-Up · exhaust LH'}, ja:{name:'VTC排気ソレノイド B2', meta:'Rev-Up · 排気 左'} },
-  evap_purge: { en:{name:'EVAP · Purge solenoid', meta:'solenoid'}, ja:{name:'EVAP · パージソレノイド', meta:'ソレノイド'} },
-  evap_vent: { en:{name:'EVAP vent', meta:'canister vent · ECM 117'}, ja:{name:'EVAPベント', meta:'キャニスタベント · ECM 117'} },
-  ix_e106_b2: { en:{name:'E106 ↔ B2', meta:'18-pin W · cabin/engine · 11 tail R/L · 13 vent 12V'}, ja:{name:'E106 ↔ B2', meta:'18ピン W · 11テール · 13ベント12V'} },
-  ix_b43_t1: { en:{name:'B43 ↔ T1', meta:'6-pin W · 1/6 GND · 2 vent+ · 3/4 turn · 5 fuel lid'}, ja:{name:'B43 ↔ T1', meta:'6ピン · 1/6 GND · 2ベント+ · 3/4ウインカ · 5給油口'} },
-  ix_t2_b44: { en:{name:'T2 ↔ B44', meta:'16-pin W · 9 vent · 12 backup · 13 tail · 14 stop'}, ja:{name:'T2 ↔ B44', meta:'16ピン · 9ベント · 12バック · 13テール · 14ストップ'} },
-  ix_b1_m12: { en:{name:'B1 ↔ M12 · SMJ body', meta:'69J SMJ · pin 37J · PG-84'}, ja:{name:'B1 ↔ M12 · SMJ', meta:'69J · pin37J · PG-84'} },
+  vtc_ex_b1: { en:{name:'VTC exhaust B1', meta:'Rev-Up · exhaust RH', note:'Exhaust magnet retarder B1. Path: 12V E7-17 (W/L) → F40·4 · control F40·3 (SB) → ECM 9 · EC-198.'}, ja:{name:'VTC排気ソレノイド B1', meta:'Rev-Up · 排気 右', note:'排気マグネットリターダ B1。経路: 12V E7-17 → F40·4 · 制御 F40·3 → ECM 9 · EC-198。'} },
+  vtc_ex_b2: { en:{name:'VTC exhaust B2', meta:'Rev-Up · exhaust LH', note:'Exhaust magnet retarder B2. Path: 12V E7-17 (W/L) → F3·5 → F41·1 · control F41·2 (P) → ECM 8 · EC-200.'}, ja:{name:'VTC排気ソレノイド B2', meta:'Rev-Up · 排気 左', note:'排気マグネットリターダ B2。経路: 12V E7-17 → F3·5 → F41·1 · 制御 F41·2 → ECM 8 · EC-200。'} },
+  f20_alt: { en:{name:'F20 · Alternator S/L', meta:'GY/2 · pins 3-4 · SC-22', note:'Alternator (FSM face 3|4). S LG/B → E11/F2·1 · L W/R → F102·13H · SC-22.'}, ja:{name:'F20 · オルタネータ S/L', meta:'GY/2 · ピン3-4 · SC-22', note:'オルタネータ。S → E11/F2·1 · L → F102·13H · SC-22。'} },
+  f21_oilp: { en:{name:'F21 · Oil pressure', meta:'B/3 · DI-45/46', note:'Oil pressure sensor · F21. 1 R/L 5V · 2 G signal · 3 B ground · to triple meter M44 · DI-45/46.'}, ja:{name:'F21 · 油圧', meta:'B/3 · DI-45/46', note:'油圧センサ F21。1 5V · 2 信号 · 3 GND · メータ M44 · DI-45/46。'} },
+  f9_starter: { en:{name:'F9 · Starter motor', meta:'GY/1 · SC-13', note:'Starter. Path: IPDM E4-3 B/Y → E10/F1·1 → F9·1 · SC-13. E203 is the B+ stud.'}, ja:{name:'F9 · スタータ', meta:'GY/1 · SC-13', note:'スタータ。経路: E4-3 → E10/F1·1 → F9·1 · SC-13。'} },
+  f16_cond: { en:{name:'F16 · Ignition condenser', meta:'W/2 · PG-55 · EC-689', note:'Ignition condenser · F16 W/2. Path: E7-17 W/L → F3·5 → F16·1 · F16·2 B → F23 · EC-689 / PG-55.'}, ja:{name:'F16 · 点火コンデンサ', meta:'W/2 · PG-55 · EC-689', note:'点火コンデンサ。経路: E7-17 → F3·5 → F16 · F23 · EC-689。'} },
+  f23_gnd: { en:{name:'F23 · Engine ground', meta:'PG-35 · engine ground', note:'Engine-control harness ground point · PG-35.'}, ja:{name:'F23 · エンジンアース', meta:'PG-35', note:'エンジン制御ハーネスアース · PG-35。'} },
+  f24_comp: { en:{name:'F24 · A/C compressor', meta:'B/1 · ATC-80', note:'Magnetic clutch. Path: IPDM E8-33 L/Y → F24·1 · ATC-80.'}, ja:{name:'F24 · A/Cコンプレッサ', meta:'B/1 · ATC-80', note:'マグネットクラッチ。経路: E8-33 → F24·1 · ATC-80。'} },
+  f38_evtc_b1: { en:{name:'F38 · EVT pos. B1', meta:'GY/2 · 35th *1 · PG-55', note:'Exhaust VTC position sensor B1 · F38 GY/2 · PG-55 *1 (35th Anniversary M/T = Rev-Up).'}, ja:{name:'F38 · EVT位置 B1', meta:'GY/2 · 35th *1 · PG-55', note:'排気VTC位置センサ B1 · F38 · PG-55 *1。'} },
+  f42_evtc_b2: { en:{name:'F42 · EVT pos. B2', meta:'GY/3 · 35th *1 · PG-55', note:'Exhaust VTC position sensor B2 · F42 GY/3 · PG-55 *1 (35th Anniversary M/T = Rev-Up).'}, ja:{name:'F42 · EVT位置 B2', meta:'GY/3 · 35th *1 · PG-55', note:'排気VTC位置センサ B2 · F42 · PG-55 *1。'} },
+  f232_eot: { en:{name:'F232 · Oil temp', meta:'GY/2 · 35th *1 · PG-55', note:'Oil temperature sensor · F232 GY/2 · PG-55 *1 (35th Anniversary M/T = Rev-Up).'}, ja:{name:'F232 · 油温', meta:'GY/2 · 35th *1 · PG-55', note:'油温センサ · F232 · PG-55 *1。'} },
+  f6_at: { en:{name:'F6 · A/T assembly', meta:'GY/10 · TCM · AT-186/114', note:'F6 GY/10 TCM (A/T). 1/2 R/W BATT · 5/10 B F23 · 6 Y/R IGN · 9 GY/R starter relay E9-53 · AT-186/114.'}, ja:{name:'F6 · A/T', meta:'GY/10 · TCM · AT-186/114', note:'F6 TCM。1/2 BATT · 5/10 GND · 6 IGN · 9スタータリレー · AT-186。'} },
+  backup_sw: { en:{name:'Reverse switch', meta:'F36 · M/T · LT-183 · 2-pin', note:'Reverse switch (M/T). Path: E7-26 → F1·2 → F36 → F102·22H → lamps (12V on Power).'}, ja:{name:'リバーススイッチ', meta:'F36 · M/T · LT-183 · 2ピン', note:'リバースSW (M/T)。経路: E7-26 → F1·2 → F36 → F102·22H。'} },
+  evap_purge: { en:{name:'EVAP · Purge solenoid', meta:'solenoid', note:'EVAP purge valve. Path: 12V pin1 · control pin2 → ECM 45.'}, ja:{name:'EVAP · パージソレノイド', meta:'ソレノイド', note:'EVAPパージ。経路: 12V pin1 · 制御 pin2 → ECM 45。'} },
+  evap_vent: { en:{name:'EVAP vent', meta:'canister vent · ECM 117', note:'EVAP vent valve. Path: 12V E7-17 (W/L) → E106/B2 → B43/T1 (W/R) → T20·1 · control T20·2 → T2/B44 → B1/M12 → F102·29H → ECM 117 · EC-367.'}, ja:{name:'EVAPベント', meta:'キャニスタベント · ECM 117', note:'EVAPベント。経路: E7-17 → E106/B2 → B43/T1 → T20 · F102·29H → ECM 117 · EC-367。'} },
+  ix_e106_b2: { en:{name:'E106 ↔ B2', meta:'18-pin W · cabin/engine · 11 tail R/L · 13 vent 12V', note:'E106/B2 (18-pin, W). FSM: 11 R/L tail (LT-193) · 13 W/L vent 12V from E7-17 (EC-367). Other cavities not labeled on those diagrams.'}, ja:{name:'E106 ↔ B2', meta:'18ピン W · 11テール · 13ベント12V', note:'E106/B2（18ピン）。FSM: 11テール · 13ベント12V。他は未記載。'} },
+  ix_b43_t1: { en:{name:'B43 ↔ T1', meta:'6-pin W · 1/6 GND · 2 vent+ · 3/4 turn · 5 fuel lid', note:'B43/T1 (6-pin). 1/6 B ground · 2 W/R vent 12V · 3 R/W turn RH · 4 G/Y turn LH · 5 W/L fuel-lid. LT-153/154/179 · BL-54 · EC-367.'}, ja:{name:'B43 ↔ T1', meta:'6ピン · 1/6 GND · 2ベント+ · 3/4ウインカ · 5給油口', note:'B43/T1（6ピン）。1/6 GND · 2ベント12V · 3/4ウインカ · 5給油口。'} },
+  ix_t2_b44: { en:{name:'T2 ↔ B44', meta:'16-pin W · 9 vent · 12 backup · 13 tail · 14 stop', note:'T2/B44 (16-pin). FSM: 9 G vent ECM 117 · 12 LG reverse · 13 R/L tail · 14 P/L stop. EC-367 · LT-179/182/194.'}, ja:{name:'T2 ↔ B44', meta:'16ピン · 9ベント · 12バック · 13テール · 14ストップ', note:'T2/B44（16ピン）。9ベント · 12バック · 13テール · 14ストップ。'} },
+  ix_b1_m12: { en:{name:'B1 ↔ M12 · SMJ body', meta:'69J SMJ · pin 37J · PG-84', note:'SMJ B1/M12 (69-pin J). Vent control: 37J (G/B) → F102·29H (G/W) → ECM 117 · EC-367 / PG-84.'}, ja:{name:'B1 ↔ M12 · SMJ', meta:'69J · pin37J · PG-84', note:'SMJ B1/M12。ベント: 37J → F102·29H → ECM 117。'} },
   pnp: { en:{name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y'}, ja:{name:'PNP / インヒビタSW', meta:'A/T · ECM 102 BR/Y'} },
   app: {
     en: { name:'APP pedal E113', meta:'6-pin GY · pedal · PATH E113→E11/F2→ECM',
@@ -4664,7 +4706,7 @@ const CONN_I18N = {
   ascd_brake: { en:{name:'ASCD brake switch', meta:'2-pin · term2 → ECM 108'}, ja:{name:'ASCDブレーキSW', meta:'2ピン · term2 → ECM 108'} },
   ascd_clutch: { en:{name:'ASCD clutch switch', meta:'M/T only · in series with ASCD brake → ECM 108'}, ja:{name:'ASCDクラッチSW', meta:'M/Tのみ · ASCDブレーキと直列 → ECM 108'} },
   clock_spring: { en:{name:'Clock spring / ASCD steer', meta:'comb. sw · SIG→99 · GND→67'}, ja:{name:'クロックスプリング / ASCDステア', meta:'コンビSW · SIG→99 · GND→67'} },
-  dlc: { en:{name:'DLC · OBD-II', meta:'under dash · 16-pin J1962 · K-line ECM 85'}, ja:{name:'DLC · OBD-II診断', meta:'ダッシュ下 · 16ピン · K線 ECM 85'} },
+  dlc: { en:{name:'DLC · OBD-II', meta:'under dash · 16-pin J1962 · K-line ECM 85', note:'OBD plug. Path: 6/14 CAN · 7 K-line · 16 B+ · 4/5 grounds.'}, ja:{name:'DLC · OBD-II診断', meta:'ダッシュ下 · 16ピン · K線 ECM 85', note:'OBD。経路: 6/14 CAN · 7 K線 · 16 B+ · 4/5アース。'} },
   fuel_tank_temp: {
     en: { name:'Fuel tank temp (FTT)', meta:'fuel level sensor unit · ECM 107 GY/R',
       note:'Signal → ECM 107 (GY/R) hard-wired. Ground (term. 5) → unified meter M49 — see Combination meter (not CAN).' },
