@@ -55,6 +55,9 @@ const expect = {
     loomMotor: 'Arnès motor',
     lblLang: 'Idioma',
     fichasTitle: 'Fichas',
+    hdrTitle: 'Nissan 350Z · Harness / Fichas OEM',
+    pageTitle: 'Nissan 350Z · Harness / Fichas OEM (FSM)',
+    railLabel: 'Rieles',
     htmlLang: 'es',
     noHlLegend: true,
   },
@@ -67,6 +70,9 @@ const expect = {
     loomMotor: 'Engine harness',
     lblLang: 'Language',
     fichasTitle: 'Connectors',
+    hdrTitle: 'Nissan 350Z · OEM harness / connectors',
+    pageTitle: 'Nissan 350Z · OEM harness / connectors (FSM)',
+    railLabel: 'Rails',
     htmlLang: 'en',
     noHlLegend: true,
   },
@@ -79,6 +85,9 @@ const expect = {
     loomMotor: 'エンジンハーネス',
     lblLang: '言語',
     fichasTitle: 'コネクタ',
+    hdrTitle: 'Nissan 350Z · OEMハーネス / コネクタ',
+    pageTitle: 'Nissan 350Z · OEMハーネス / コネクタ (FSM)',
+    railLabel: 'レール',
     htmlLang: 'ja',
     noHlLegend: true,
   },
@@ -120,6 +129,9 @@ async function readChrome() {
       loomMotor: document.querySelector('#loomView option[value="motor"]')?.textContent,
       lblLang: textAfter(document.getElementById('lblLang')),
       fichasTitle: document.getElementById('fichasTitle')?.textContent,
+      hdrTitle: document.getElementById('pageH1')?.textContent,
+      pageTitle: document.title,
+      railLabel: document.getElementById('railLabel')?.textContent,
       powerExists: !!document.getElementById('railRelPower'),
       noHlLegend: !document.getElementById('optsHlLegend') && !document.getElementById('hlLegendTitle'),
     };
@@ -139,6 +151,34 @@ for (const lang of ['es', 'en', 'ja']) {
     ok(got[k] === v, `${lang}.${k} = ${JSON.stringify(v)}` + (got[k] !== v ? ` (got ${JSON.stringify(got[k])})` : ''));
   }
 }
+
+console.log('\nlang en content');
+await page.select('#lang', 'en');
+await page.evaluate(() => { if (typeof applyLang === 'function') applyLang(); });
+const enCards = await page.evaluate(() => {
+  const name = (id) => document.querySelector(`.ficha-wrap[data-conn="${id}"] h3`)?.textContent || null;
+  return { coil1: name('coil1'), gnd4: name('gnd4'), inj1: name('inj1') };
+});
+ok(enCards.coil1 === 'Coil 1', `en coil1 card = "Coil 1"` + (enCards.coil1 !== 'Coil 1' ? ` (got ${JSON.stringify(enCards.coil1)})` : ''));
+ok(enCards.inj1 === 'Injector 1', `en inj1 card = "Injector 1"` + (enCards.inj1 !== 'Injector 1' ? ` (got ${JSON.stringify(enCards.inj1)})` : ''));
+ok(enCards.gnd4 && !/Tierra|tierras/i.test(enCards.gnd4), `en gnd4 card has no Tierra` + (enCards.gnd4 ? ` (got ${JSON.stringify(enCards.gnd4)})` : ' (missing)'));
+
+await page.click('#blocks .pin[data-pin="1"]');
+const info1 = await page.$eval('#info', (el) => el.textContent || '');
+ok(!/Tierra|Ruta:|Masa carrocería|Alim\./.test(info1), 'en pin 1 info has no leftover Spanish' + ( /Tierra|Ruta:|Masa carrocería|Alim\./.test(info1) ? ` (got ${JSON.stringify(info1.slice(0, 180))})` : ''));
+ok(/ground/i.test(info1), 'en pin 1 info mentions ground');
+
+await page.evaluate(() => {
+  const el = document.getElementById('railRelPower');
+  if (el && !el.checked) {
+    el.checked = true;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+});
+await page.click('#blocks .pin[data-pin="3"]');
+const info3 = await page.$eval('#info', (el) => el.textContent || '');
+ok(!/Alim\./.test(info3), 'en pin 3 + Power pill is not Alim.' + (/Alim\./.test(info3) ? ` (got ${JSON.stringify(info3.slice(0, 220))})` : ''));
+ok(/Power 12V/.test(info3), 'en pin 3 + Power shows Power 12V' + (!/Power 12V/.test(info3) ? ` (got ${JSON.stringify(info3.slice(0, 220))})` : ''));
 
 await browser.close();
 if (failed) {

@@ -939,7 +939,7 @@
 <body data-mode="outlines">
 <header>
   <div class="hdr-title">
-    <h1>Nissan 350Z · Harness / Fichas OEM</h1>
+    <h1 id="pageH1">Nissan 350Z · Harness / Fichas OEM</h1>
     <div class="sub" id="pageSub">Referencia FSM · click pin ECM o cavidad → punta a punta</div>
   </div>
   <details class="opts" id="optsBox">
@@ -1182,7 +1182,7 @@ const PIN_COL = {"1":"B","2":"GY/R","3":"G","4":"L/B","5":"L/Y","6":"P/L","10":"
 
 const PIN_NAME = {
   1:"Tierra ECM (GND)",2:"Calentador A/F B1",3:"VMOT (alim. motor mariposa)",4:"Motor TB −",5:"Motor TB +",
-  6:"Calentador HO2S2 B2",10:"VTC admisión B2",11:"VTC admisión B1",12:"Sensor PSP",13:"Señal CKP",
+  6:"Calentador HO2S2 B2",8:"VTC escape B2",9:"VTC escape B1",10:"VTC admisión B2",11:"VTC admisión B1",12:"Sensor PSP",13:"Señal CKP",
   14:"CMP B2",15:"Knock (detonación)",16:"Entrada A/F B1",21:"Inyector 5",22:"Inyector 3",
   23:"Inyector 1",24:"Calentador A/F B2",25:"Calentador HO2S2 B1",32:"Presión EVAP",33:"CMP B1",
   34:"IAT (temp. admisión)",35:"A/F B1",40:"Inyector 6",41:"Inyector 4",42:"Inyector 2",
@@ -1200,7 +1200,7 @@ const PIN_NAME = {
 };
 const PIN_NAME_EN = {
   1:"ECM ground (GND)",2:"A/F heater B1",3:"VMOT (throttle motor supply)",4:"TB motor −",5:"TB motor +",
-  6:"HO2S2 heater B2",10:"VTC intake B2",11:"VTC intake B1",12:"PSP sensor",13:"CKP signal",
+  6:"HO2S2 heater B2",8:"VTC exhaust B2",9:"VTC exhaust B1",10:"VTC intake B2",11:"VTC intake B1",12:"PSP sensor",13:"CKP signal",
   14:"CMP B2",15:"Knock sensor",16:"A/F B1 input",21:"Injector 5",22:"Injector 3",
   23:"Injector 1",24:"A/F heater B2",25:"HO2S2 heater B1",32:"EVAP pressure",33:"CMP B1",
   34:"IAT (intake air temp)",35:"A/F B1",40:"Injector 6",41:"Injector 4",42:"Injector 2",
@@ -1218,7 +1218,7 @@ const PIN_NAME_EN = {
 };
 const PIN_NAME_JA = {
   1:"ECMアース (GND)",2:"A/Fヒータ B1",3:"VMOT（スロットルモータ電源）",4:"TBモータ −",5:"TBモータ +",
-  6:"HO2S2ヒータ B2",10:"VTC吸気 B2",11:"VTC吸気 B1",12:"PSPセンサ",13:"CKP信号",
+  6:"HO2S2ヒータ B2",8:"VTC排気 B2",9:"VTC排気 B1",10:"VTC吸気 B2",11:"VTC吸気 B1",12:"PSPセンサ",13:"CKP信号",
   14:"CMP B2",15:"ノックセンサ",16:"A/F B1入力",21:"インジェクタ5",22:"インジェクタ3",
   23:"インジェクタ1",24:"A/Fヒータ B2",25:"HO2S2ヒータ B1",32:"EVAP圧力",33:"CMP B1",
   34:"IAT（吸気温）",35:"A/F B1",40:"インジェクタ6",41:"インジェクタ4",42:"インジェクタ2",
@@ -1779,7 +1779,7 @@ const CONN_BASE = {
       {id:'A',code:'B',ecm:1,rail:'gnd',lab:'ECM1'},
       {id:'B',code:'B/W',ecm:115,rail:'gnd',lab:'ECM115'},
       {id:'C',code:'B/R',ecm:116,rail:'gnd',lab:'ECM116'},
-      {id:'D',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power',lab:'E17',note:'Masa carrocería E17. No es 12V.'}
+      {id:'D',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power',lab:'E17',note:'Masa carrocería E17. No es 12V.',note_en:'Body ground E17. Not 12V.',note_ja:'ボディアース E17。12Vではない。'}
     ],
     note:'4 pines de tierra, no de potencia. Ruta: A→ECM 1 · B→115 · C→116 · D→E17. EC-171.'},
   e17:{group:'motor', sub:'power', name:'Masa carrocería · E17', meta:'punto de masa E17', accent:'#66bb6a', shape:'ring',
@@ -1935,8 +1935,8 @@ const CONN_BASE = {
     pins:[{id:'1',lab:'SIG',code:'GY/R',ecm:79},{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'},{id:'3',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}]},
   backup_sw:{group:'motor', sub:'actuators', name:'Marcha atrás · interruptor', meta:'F36 · M/T · LT-183 · 2 pines', accent:'#ffb300', shape:'tab2',
     pins:[
-      {id:'1',lab:'IN',code:'Y/R',ecm:null,rail:'12v',src:'E7·26',srcSub:'ipdm',circ:'backup_lamp',note:'Switch marcha atrás. Ruta: E7-26 → E10/F1·2 → F36.'},
-      {id:'2',lab:'OUT',code:'OR',ecm:null,rail:'12v',src:'F36',srcSub:'actuators',circ:'backup_lamp',note:'→ F102 22H → luces reversa T10/T18'}
+      {id:'1',lab:'IN',code:'Y/R',ecm:null,rail:'12v',src:'E7·26',srcSub:'ipdm',circ:'backup_lamp',note:'Switch marcha atrás. Ruta: E7-26 → E10/F1·2 → F36.',note_en:'Reverse switch. Path: E7-26 → E10/F1·2 → F36.',note_ja:'リバースSW。経路: E7-26 → E10/F1·2 → F36。'},
+      {id:'2',lab:'OUT',code:'OR',ecm:null,rail:'12v',src:'F36',srcSub:'actuators',circ:'backup_lamp',note:'→ F102 22H → luces reversa T10/T18',note_en:'→ F102 22H → reverse lamps T10/T18',note_ja:'→ F102 22H → バックランプ T10/T18'}
     ],
     note:'Switch de marcha atrás (M/T). Ruta: E7-26 → F1·2 → F36 → F102·22H → luces (12V en Alim.).'},
   inj1:{group:'motor', sub:'inyectores', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/B',ecm:23},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
@@ -2107,9 +2107,13 @@ const CONN_BASE = {
   ix_e10_f1:{group:'motor', sub:'intermedias', name:'E10 ↔ F1 · Arranque / marcha atrás / A/C', meta:'9-pin GY · START · REV Y/R · A/C · SC-13/LT-183/EC-717', accent:'#ef6c00', shape:'f1', face:'f1',
     pins:[
       {id:'1',lab:'START',code:'B/Y',ecm:null,rail:'12v',src:'E4·3',srcSub:'ipdm',circ:'starter',
-        note:'Arranque. Ruta: E4-3 → E10/F1·1 → motor arranque.'},
+        note:'Arranque. Ruta: E4-3 → E10/F1·1 → motor arranque.',
+        note_en:'Starter. Path: E4-3 → E10/F1·1 → starter motor.',
+        note_ja:'スタータ。経路: E4-3 → E10/F1·1 → スタータ。'},
       {id:'2',lab:'REV',code:'Y/R',ecm:null,rail:'12v',src:'E7·26',srcSub:'ipdm',circ:'backup_lamp',
-        note:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → back-up switch F36 pin1 · LT-183 (M/T)'},
+        note:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → back-up switch F36 pin1 · LT-183 (M/T)',
+        note_en:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → reverse switch F36 pin1 · LT-183 (M/T)',
+        note_ja:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → リバースSW F36 pin1 · LT-183 (M/T)'},
       {id:'3',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'feeds'},
       {id:'4',code:'—',ecm:null},
       {id:'5',lab:'5V',code:'B',ecm:49,rail:'5v'},
@@ -2227,12 +2231,12 @@ const CONN_BASE = {
       {id:'65G',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'JB·15A',srcSub:'feeds'},
       {id:'66G',code:'—',ecm:null},
       {id:'67G',code:'—',ecm:null},
-      {id:'68G',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.'},
+      {id:'68G',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.',note_en:'BATT ECM memory 121 (R/W) · EC-441 / P1065.',note_ja:'BATT ECMメモリ 121 (R/W) · EC-441 / P1065。'},
       {id:'69G',code:'W/B',ecm:111,lab:'SSOFF'}
     ],
     note:'Puente motor↔carrocería (SMJ). Ruta: CAN 2G/7G · ASCD-B 3G · FPR 28G · MOTRLY 30G · STOP 38G · 12V A/F 65G · BATT 68G (ECM 121) · SSOFF 69G.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔carrocería', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.'},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.',note_en:'BATT ECM memory 121 (R/W) · EC-441 / P1065.',note_ja:'BATT ECMメモリ 121 (R/W) · EC-441 / P1065。'},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.',note_en:'Empty cavity on the DE harness seen (FSM sometimes lists START GY/R). No wire on H23.',note_ja:'DEハーネスでは空（FSMはSTART GY/Rを記載することがある）。H23に線なし。'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
   note:'Puente motor↔carrocería (F102↔M72). Incluye BATT 5H (ECM 121) · FPR 6H · MOTRLY 12H · CAN · freno · ASCD…'},
 
   /* —— Habitáculo / pedales / ASCD —— */
@@ -3473,6 +3477,9 @@ let lang = 'es';
 const I18N = {
   es: {
     pageSub: 'Referencia FSM · click pin ECM o cavidad → punta a punta',
+    pageTitle: 'Nissan 350Z · Harness / Fichas OEM (FSM)',
+    hdrTitle: 'Nissan 350Z · Harness / Fichas OEM',
+    railLabel: 'Rieles',
     lblModel: 'Modelo',
     lblLoom: 'Vista arnés',
     loomAll: 'Completo',
@@ -3613,6 +3620,9 @@ const I18N = {
   },
   en: {
     pageSub: 'FSM reference · click ECM pin or cavity → end-to-end',
+    pageTitle: 'Nissan 350Z · OEM harness / connectors (FSM)',
+    hdrTitle: 'Nissan 350Z · OEM harness / connectors',
+    railLabel: 'Rails',
     lblModel: 'Model',
     lblLoom: 'Harness view',
     loomAll: 'Full',
@@ -3753,6 +3763,9 @@ const I18N = {
   },
   ja: {
     pageSub: 'FSM参照 · ECMピンまたはカビティをクリック → 端点対端点',
+    pageTitle: 'Nissan 350Z · OEMハーネス / コネクタ (FSM)',
+    hdrTitle: 'Nissan 350Z · OEMハーネス / コネクタ',
+    railLabel: 'レール',
     lblModel: 'モデル',
     lblLoom: 'ハーネス表示',
     loomAll: '全体',
@@ -4080,6 +4093,11 @@ function applyLang(){
   };
   const pageSub = document.getElementById('pageSub');
   if(pageSub) pageSub.textContent = t('pageSub');
+  const pageH1 = document.getElementById('pageH1');
+  if(pageH1) pageH1.textContent = t('hdrTitle');
+  document.title = t('pageTitle');
+  const railLab = document.getElementById('railLabel');
+  if(railLab) railLab.textContent = t('railLabel');
   setLabel('lblModel', 'lblModel');
   const oe = document.getElementById('optEarly'); if(oe) oe.textContent = t('modelEarly');
   const orv = document.getElementById('optRevup'); if(orv) orv.textContent = t('modelRevup');
@@ -5216,7 +5234,7 @@ function updateSelectedTop(connIds){
     sum.innerHTML = `${esc(String(nBuckets) + ' ' + t('selTopGroups'))}<span>${esc(names.join(', '))}</span>`;
   } else {
     const subLab = names[0] || '';
-    sum.innerHTML = `${esc(String(ids.length) + ' ' + (t('selTopFichas') || 'seleccionados'))}<span>${esc(subLab)}</span>`;
+    sum.innerHTML = `${esc(String(ids.length) + ' ' + t('selTopFichas'))}<span>${esc(subLab)}</span>`;
   }
   top.appendChild(sum);
   const body = document.createElement('div');
@@ -5720,7 +5738,7 @@ function applyRailFilter(){
   updateEcmSelCount();
   updateF102SelPins();
 
-  const labels = {gnd:'Tierra / GND', '12v':'12V', '5v':'5V'};
+  const labels = {gnd: t('railGnd'), '12v':'12V', '5v':'5V'};
   const colors = {gnd:'#2E7D32', '12v':'#C62828', '5v':'#F9A825'};
   const pills = [...activeRails].map(r =>
     `<span class="pill" style="border-color:${colors[r]};color:${colors[r]}">${labels[r]}</span>`
@@ -6157,7 +6175,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
         bits.push(esc(pathStepLabel(cid, cav, pin)));
       });
     });
-    lines.push(`<div style="color:var(--muted);margin-top:4px"><span class="pill" style="border-color:#ffca28;color:#ffca28">Alim. 12V</span> ${bits.join(' → ')}</div>`);
+    lines.push(`<div style="color:var(--muted);margin-top:4px"><span class="pill" style="border-color:#ffca28;color:#ffca28">${esc(t('railRelPower'))} 12V</span> ${bits.join(' → ')}</div>`);
   }
   const pinInfo = focusPin!=null
     ? `<div style="margin-bottom:6px"><b>${esc(t('pinEcm'))} ${focusPin}</b> · ${pinName(focusPin)||''} · <code>${PIN_COL[focusPin]||'—'}</code></div>`

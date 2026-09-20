@@ -57,6 +57,9 @@ const expect = {
   selTopTitle: { es: 'Grupos seleccionados', en: 'Selected groups', ja: '選択グループ' },
   selTopGroups: { es: 'grupos', en: 'groups', ja: 'グループ' },
   selTopLines: { es: 'líneas', en: 'lines', ja: 'ライン' },
+  hdrTitle: { es: 'Nissan 350Z · Harness / Fichas OEM', en: 'Nissan 350Z · OEM harness / connectors', ja: 'Nissan 350Z · OEMハーネス / コネクタ' },
+  pageTitle: { es: 'Nissan 350Z · Harness / Fichas OEM (FSM)', en: 'Nissan 350Z · OEM harness / connectors (FSM)', ja: 'Nissan 350Z · OEMハーネス / コネクタ (FSM)' },
+  railLabel: { es: 'Rieles', en: 'Rails', ja: 'レール' },
 };
 for (const [key, byLang] of Object.entries(expect)) {
   for (const l of LANGS) {
@@ -71,6 +74,48 @@ for (const key of used) {
     ok(key in I18N[l], `t('${key}') in ${l}`);
   }
 }
+
+function grab(startTok, endTok) {
+  const s = html.indexOf(startTok);
+  const e = html.indexOf(endTok, s + 1);
+  if (s < 0 || e < 0) throw new Error('missing ' + startTok);
+  return html.slice(s, e);
+}
+
+console.log('\ncavity notes have note_en');
+const CONN_BASE = Function(grab('const CONN_BASE = {', 'const CONN_FACE = {') + '; return CONN_BASE;')();
+const missingNoteEn = [];
+for (const id of Object.keys(CONN_BASE)) {
+  for (const pin of CONN_BASE[id].pins || []) {
+    if (pin.note && !pin.note_en) missingNoteEn.push(id + '·' + pin.id);
+  }
+}
+ok(missingNoteEn.length === 0, 'every pin.note has note_en' + (missingNoteEn.length ? ` missing: ${missingNoteEn.join(', ')}` : ''));
+
+console.log('\nEnglish packs stay English');
+const esLeak = /[áéíóúñ¿¡]|\b(Ruta:|Arnés|ficha|Fichas|calentador|Bobina|Inyector|venteo|habitáculo|carrocería|embrague|Arranque|admisión|mariposa|seleccionados)\b/i;
+function walkLeak(obj, p, hits) {
+  if (obj && typeof obj === 'object') {
+    for (const k of Object.keys(obj)) {
+      if (k === 'es' || k.endsWith('_es')) continue;
+      walkLeak(obj[k], p + '.' + k, hits);
+    }
+  } else if (typeof obj === 'string' && (p.includes('.en') || p.includes('.en_')) && esLeak.test(obj)) {
+    hits.push(p + ': ' + obj.slice(0, 120));
+  }
+}
+const TITLES = Function(grab('const TITLES_I18N = {', 'const NOTES_I18N = {') + '; return TITLES_I18N;')();
+const NOTES = Function(grab('const NOTES_I18N = {', 'function t(key)') + '; return NOTES_I18N;')();
+const CONN_I18N = Function(grab('const CONN_I18N = {', 'function connField') + '; return CONN_I18N;')();
+const leaks = [];
+walkLeak(I18N, 'I18N', leaks);
+walkLeak(TITLES, 'TITLES', leaks);
+walkLeak(NOTES, 'NOTES', leaks);
+walkLeak(CONN_I18N, 'CONN', leaks);
+ok(leaks.length === 0, 'no Spanish leftovers in EN strings' + (leaks.length ? `\n    ${leaks.slice(0, 12).join('\n    ')}` : ''));
+
+ok(!/>Alim\. 12V</.test(html), 'info Power-12V pill uses t(), not hardcoded Alim.');
+ok(/t\('hdrTitle'\)/.test(html) && /t\('pageTitle'\)/.test(html), 'applyLang sets h1 + document.title');
 
 if (failed) {
   console.log(`\n${failed} failed`);
