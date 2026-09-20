@@ -51,8 +51,8 @@ fs.writeFileSync(tmp, script);
 const chk = spawnSync(process.execPath, ['--check', tmp], { encoding: 'utf8' });
 ok('node --check extracted script', chk.status === 0, chk.stderr?.trim() || 'syntax ok');
 
-ok('evap_press in LOOM_BODY_EXTRA',
-  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'evap_press'[\s\S]*?\]\)/.test(html));
+ok('evap_press not in LOOM_BODY_EXTRA (motor loom)',
+  !html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0].includes("'evap_press'"));
 ok('ac_press in LOOM_BODY_EXTRA',
   /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'ac_press'[\s\S]*?\]\)/.test(html));
 ok('cabin JB fuse notes in LOOM_BODY_EXTRA',
@@ -148,8 +148,8 @@ ok('actuators render no longer nests bobinas under actuators',
     vm.createContext(ctx);
     const loomOnly = html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0];
     vm.runInContext(loomOnly + '; result.loom = [...LOOM_BODY_EXTRA];', ctx);
-    ok('eval LOOM_BODY_EXTRA has evap_press',
-      ctx.result.loom.includes('evap_press'),
+    ok('eval LOOM_BODY_EXTRA has no evap_press',
+      !ctx.result.loom.includes('evap_press'),
       JSON.stringify(ctx.result.loom.filter(x => x.startsWith('evap') || x.startsWith('fuel') || x === 'ac_press')));
     ok('eval LOOM_BODY_EXTRA has ac_press', ctx.result.loom.includes('ac_press'));
 

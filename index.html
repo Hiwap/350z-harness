@@ -1852,9 +1852,16 @@ const CONN_BASE = {
       {id:'4',lab:'GND',code:'B/Y',ecm:78,rail:'gnd',lab:'SNS'}
     ],
     note:'HO2S Bank 2. Ruta: señal→55 · heater→6 · 12V pin2 · masa→78.'},
-  maf:{group:'motor', sub:'sensors', name:'MAF · Caudal de aire', meta:'F25 · EC-207', accent:'#fb8c00', shape:'tab3',
-    pins:[{id:'12V',code:'R/W',ecm:null,rail:'12v',lab:'12V',src:'E7·18',srcSub:'ipdm'},{id:'GND',code:'B/W',ecm:67,rail:'gnd',lab:'GND'},{id:'SIG',code:'OR',ecm:51,lab:'SIG'}],
-    note:'MAF. Ruta: 12V E7-18 (R/W) → F3 → F25·2 · GND F25·3 → ECM 67 · señal F25·4 → ECM 51 · EC-207.',},
+  maf:{group:'motor', sub:'sensors', name:'MAF · Caudal de aire', meta:'F25 · 6 pines · EC-207', accent:'#fb8c00', shape:'tab6',
+    pins:[
+      {id:'1',code:'—',ecm:null},
+      {id:'2',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm'},
+      {id:'3',lab:'GND',code:'B/W',ecm:67,rail:'gnd'},
+      {id:'4',lab:'SIG',code:'OR',ecm:51},
+      {id:'5',code:'—',ecm:null},
+      {id:'6',code:'—',ecm:null}
+    ],
+    note:'MAF F25 6 pines (EC-207). Usados: 2 12V R/W · 3 GND B/W→67 · 4 SIG OR→51. Cav 1/5/6 vacías en el diagrama.',},
   knock:{group:'motor', sub:'sensors', name:'Knock · sensor detonación', meta:'2 pines · vía F14/F229', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'1',lab:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd',lab:'GND'}],
     note:'Sensor knock. Ruta: → F14/F229 → ECM 15.'},
@@ -1867,7 +1874,7 @@ const CONN_BASE = {
     pins:[{id:'SIG',code:'R/L',ecm:14},{id:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'}]},
   ect:{group:'motor', sub:'sensors', name:'ECT · Temp. refrigerante', meta:'refrigerante · 2-pin', accent:'#5c6bc0', shape:'tab2',
     pins:[{id:'SIG',code:'BR/Y',ecm:73},{id:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'}]},
-  iat:{group:'motor', sub:'sensors', name:'IAT · Temp. admisión', meta:'admisión · en MAF o 2-pin', accent:'#8d6e63', shape:'tab2',
+  iat:{group:'motor', sub:'sensors', name:'IAT · Temp. admisión', meta:'2-pin · misma cáscara que ECT', accent:'#8d6e63', shape:'tab2',
     pins:[{id:'SIG',code:'Y/G',ecm:34},{id:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power'}]},
   etc:{group:'motor', sub:'sensors', name:'ETC · cuerpo mariposa', meta:'F31 GY/6 · EC-235/464', accent:'#029eb7', shape:'rect6',
     pins:[
@@ -2321,6 +2328,7 @@ const CONN_FACE = {
   cmp_b2: { src: 'faces/cmp_g.webp', source: 'Wiring Specialties' },
   knock: { src: 'faces/knock.webp', source: 'Wiring Specialties' },
   ect: { src: 'faces/ect.webp', source: 'Wiring Specialties' },
+  iat: { src: 'faces/ect.webp', source: 'Wiring Specialties' },
   af_b1: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
   af_b2: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
   f21_oilp: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
@@ -2340,6 +2348,8 @@ const CONN_FACE = {
   ho2s_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
   evap_purge: { src: 'faces/reverse.webp', source: 'Wiring Specialties' },
   psp: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
+  ac_press: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
+  evap_press: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
   f9_starter: { src: 'faces/fsm_f9.webp', source: 'FSM 2005 SC-13' },
   f16_cond: { src: 'faces/fsm_f16.webp', source: 'FSM 2005 EC-689' },
   vtc_ex_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
@@ -2369,8 +2379,6 @@ const LS_MODEL_BANNER = 'z33_modelBannerOpen';
 const LOOM_BODY_EXTRA = new Set([
   /* not on pulled engine-control harness (bench) */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
-  /* T21 on EVAP canister (EC-376), not engine control harness (PG-54) */
-  'evap_press',
   /* A/C refrigerant pressure sensor is on the A/C line / engine-room side of F1, not the pulled motor loom */
   'ac_press',
   /* SMJ E108 stays at firewall / body (M15) */
@@ -3514,6 +3522,7 @@ function renderConnSvg(cid, f){
     case 'tab2': svg = svgTabN(cid,f,2); break;
     case 'tab3': svg = svgTabN(cid,f,3); break;
     case 'tab4': svg = svgTabN(cid,f,4); break;
+    case 'tab6': svg = svgTabN(cid,f,6); break;
     case 'rect4': svg = svgRect4(cid,f); break;
     case 'ring': svg = svgRing(cid,f); break;
     case 'ipdm_e3': svg = svgIpdmE3(cid,f); break;
@@ -4750,7 +4759,7 @@ const CONN_I18N = {
   },
   af_b1: { en:{name:'A/F Sensor 1 B1', meta:'6-pin · F22 · EC-434/529', note:'A/F B1 (F22). FSM: 1 UN→16 · 2 IA→75 · 3 12V · 4 HTR→2 · 5 VM→35 · 6 IP→56 · EC-434/529.'}, ja:{name:'A/Fセンサ1 バンク1', meta:'6ピン · F22 · EC-434/529', note:'A/F B1 (F22)。FSM: 1 UN→16 · 2 IA→75 · 3 12V · 4 HTR→2 · 5 VM→35 · 6 IP→56。'} },
   af_b2: { en:{name:'A/F Sensor 1 B2', meta:'6-pin · F26 · EC-434/529', note:'A/F B2 (F26). FSM: 1 UN→76 · 2 IA→77 · 3 12V · 4 HTR→24 · 5 VM→57 · 6 IP→58.'}, ja:{name:'A/Fセンサ1 バンク2', meta:'6ピン · F26 · EC-434/529', note:'A/F B2 (F26)。FSM: 1 UN→76 · 2 IA→77 · 3 12V · 4 HTR→24 · 5 VM→57 · 6 IP→58。'} },
-  maf: { en:{name:'MAF · Mass air flow', meta:'intake', note:'MAF. Path: 12V E7-18 (R/W) → F3 → F25·2 · GND F25·3 → ECM 67 · signal F25·4 → ECM 51 · EC-207.'}, ja:{name:'MAF · エアフロ', meta:'吸気', note:'MAF。経路: 12V E7-18 → F3 → F25·2 · GND→67 · 信号→51 · EC-207。'} },
+  maf: { en:{name:'MAF · Mass air flow', meta:'F25 · 6-pin · EC-207', note:'MAF F25 6-pin (EC-207). Used: 2 12V R/W · 3 GND B/W→67 · 4 SIG OR→51. Cav 1/5/6 empty on the diagram.'}, ja:{name:'MAF · エアフロ', meta:'F25 · 6ピン · EC-207', note:'MAF F25 6ピン。2 12V · 3 GND→67 · 4 SIG→51。1/5/6は空。'} },
   knock: {
     en: { name:'Knock sensor', meta:'2-pin · via intermediate F14/F229',
       note:'Knock path (FSM): signal W → ECM 15 via F14/F229; shield → SNS GND.' },
@@ -4761,7 +4770,7 @@ const CONN_I18N = {
   cmp_b1: { en:{name:'CMP · Cam phase B1', meta:'cam RH'}, ja:{name:'CMP · カム角 B1', meta:'カム 右'} },
   cmp_b2: { en:{name:'CMP · Cam phase B2', meta:'cam LH'}, ja:{name:'CMP · カム角 B2', meta:'カム 左'} },
   ect: { en:{name:'ECT · Coolant temp', meta:'coolant · 2-pin'}, ja:{name:'ECT · 冷却水温', meta:'冷却水 · 2ピン'} },
-  iat: { en:{name:'IAT · Intake air temp', meta:'intake · on MAF or 2-pin'}, ja:{name:'IAT · 吸気温', meta:'吸気 · MAF上または2ピン'} },
+  iat: { en:{name:'IAT · Intake air temp', meta:'2-pin · same shell as ECT'}, ja:{name:'IAT · 吸気温', meta:'2ピン · ECTと同じハウジング'} },
   etc: {
     en:{name:'ETC · Throttle body DBW', meta:'F31 GY/6 · EC-235/464',
       note:'F31 · FSM actuator order. 1 5V→47 · 2 T2→69 · 3 M- close→4 · 4 T1→50 · 5 GND→66 · 6 M+ open→5. EC-238/304/468.'},
