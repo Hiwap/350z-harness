@@ -57,6 +57,8 @@ ok('ac_press in LOOM_BODY_EXTRA',
   /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'ac_press'[\s\S]*?\]\)/.test(html));
 ok('cabin JB fuse notes in LOOM_BODY_EXTRA',
   /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'jb_10a_inj'[\s\S]*?'jb_15a_ht'[\s\S]*?\]\)/.test(html));
+ok('F9 starter not on pulled motor loom',
+  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'f9_starter'[\s\S]*?\]\)/.test(html));
 ok('evap_press CONN exists', /\n  evap_press:\{/.test(html));
 
 {

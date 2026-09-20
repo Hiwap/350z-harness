@@ -24,7 +24,7 @@ ix_f102_m72 (F102), ix_f14_f229 (sub-arnés knock)
 
 YA HAY CARA FSM (reemplazar con foto del mazo cuando puedas)
 ------------------------------------------------------------
-gnd4 (F103 · EC-169), f9_starter (F9 · SC-13), f16_cond (F16 · EC-689)
+gnd4 (F103 · EC-169), f16_cond (F16 · EC-689)
 
 DESPUÉS — en el mazo, sin cara FSM usable
 -----------------------------------------
@@ -35,6 +35,7 @@ DESPUÉS — en el mazo, sin cara FSM usable
 
 NO SACAR / skip
 ---------------
+- f9_starter · F9 arranque — en el motor de arranque, no en el mazo control (START sale por F1·1).
 - ac_press · A/C presión refrigerante — no está en el arnés motor (lado E10 de F1 / línea A/C).
 - ix_e108_m15 · E108 SMJ — firewall / body (M15), no el mazo control. No reusar f102.webp.
 - IPDM E3–E9 — engine room harness (PG-26), no PG-54.

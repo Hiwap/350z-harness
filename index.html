@@ -2378,7 +2378,9 @@ const LOOM_BODY_EXTRA = new Set([
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
   'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9',
   /* Fuse Block (cabin M4) — not on the pulled PG-54/55 motor loom */
-  'jb_10a_inj', 'jb_15a_ht'
+  'jb_10a_inj', 'jb_15a_ht',
+  /* F9 sits on the starter motor; the control loom only has START at F1·1 */
+  'f9_starter'
 ]);
 /* Battery-tray mates on the pulled engine-control harness (PG-55: F1, F2, F3). Pedal E113 stays cabin. */
 const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);
