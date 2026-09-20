@@ -4,7 +4,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 
 | file | source vendor | maps to | original product |
 |------|---------------|---------|------------------|
-| etc.webp | Wiring Specialties | etc | VQ35 Throttle Motor Connector TPS DBW |
+| etc.webp | Wiring Specialties | etc, af_b1, af_b2 | VQ35 Throttle 6-pin (same 6-way shell as A/F F22/F26) |
 | inj.webp | Wiring Specialties | inj1–6 | VQ35 Injector Connector |
 | coil.webp | Wiring Specialties | coil1–6 | VQ35 Coil Connector |
 | maf.webp | Wiring Specialties | maf | VQ35 MAFS |
@@ -13,7 +13,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | cmp_g.webp | Wiring Specialties | cmp_b2 | VQ35 Cam Sensor Connector Green |
 | knock.webp | Wiring Specialties | knock | VQ35DE Knock Sensor Connector |
 | ect.webp | Wiring Specialties | ect | VQ35/VQ37 Coolant Temperature |
-| ho2s.webp | Wiring Specialties | af_b1, af_b2 | VQ35 Oxygen Sensor (6-pin face; used for A/F) |
+| ho2s.webp | Wiring Specialties | ho2s_b1, ho2s_b2, vtc_ex_b1, vtc_ex_b2 | VQ35 Oxygen Sensor 4-pin (F11/F12 HO2S · F40/F41 4-cavity) |
 | oil.webp | Wiring Specialties | f21_oilp, psp, f38_evtc_b1, f42_evtc_b2 | 3-pin triangle (PG-55: F21 B/3 oil · F19 B/3 PSP · F38 B/3 · F42 GY/3 EVT pos) |
 | vtc.webp | Wiring Specialties | vtc_b1, vtc_b2 | VQ35DE VVT Connector |
 | f1.webp | Wiring Specialties | ix_e10_f1 | VQ35 F1 Connector 9 pin |
@@ -32,17 +32,13 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | file | FSM sheet | maps to |
 |------|-----------|---------|
 | fsm_f103.webp | EC-169 | gnd4 (F103) |
-| fsm_f11.webp | EC-191 | ho2s_b1 (F11) · 4-pin 2×2; not the 6-pin A/F ho2s.webp |
-| fsm_f12.webp | EC-193 | ho2s_b2 (F12) · GY/4, same 2×2 face as F11 |
 | fsm_f5.webp | EC-360 | evap_purge (F5) |
 | fsm_f9.webp | SC-13 | f9_starter (F9 · E203 in the same FSM box) |
 | fsm_f16.webp | EC-689 | f16_cond (F16) |
-| fsm_f40.webp | EC-198 | vtc_ex_b1 (F40 · 4-cavity face) |
-| fsm_f41.webp | EC-200 | vtc_ex_b2 (F41 · 4-cavity face) |
 
 Not mapped in CONN_FACE:
 
-- vtc_ex_b1.webp / vtc_ex_b2.webp — catalog “Rev-Up VTC” shots are 6-pin shells, not F40/F41. Use fsm_f40/fsm_f41 instead.
+- vtc_ex_b1.webp / vtc_ex_b2.webp — catalog “Rev-Up VTC” shots are 6-pin shells, not F40/F41. F40/F41 use ho2s.webp (4-pin).
 - ConceptZ and eBay pigtail search pages returned 403; no extra faces from those URLs.
 
 Do not use the in-bay F1/F2/F3 location photo (IMG_4403) as F3/E12 faces.
