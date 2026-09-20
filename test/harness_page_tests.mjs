@@ -162,8 +162,13 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       ho2s_b1: 4, ho2s_b2: 4,
       /* Round-2 ids — only asserted when present in CONN_FACE */
       ix_e10_f1: 9, ix_e12_f3: 8, ix_e11_f2: 10,
+      ix_f14_f229: 2, ix_f18_f201: 6, ix_f221_f33: 8,
       af_b1: 6, af_b2: 6,
       psp: 3,
+      f21_oilp: 3,
+      vtc_b1: 2, vtc_b2: 2,
+      backup_sw: 2,
+      f20_alt: 2,
     };
     function expectedFacePins(id) {
       if (Object.prototype.hasOwnProperty.call(EXPECTED_FACE_PINS, id)) return EXPECTED_FACE_PINS[id];

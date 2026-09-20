@@ -383,7 +383,7 @@ def draw_ficha_header(x, y, w, h, title, subtitle="", accent=None, qty=""):
     if name and subtitle and w >= 100:
         c.drawString(x + 6.5, y + h - band_h + 2.8, name[:26])
         c.setFont(FONT, max(3.2, name_fs - 0.5))
-        c.drawRightString(x + w - 3.5, y + h - band_h + 2.8, subtitle[:20])
+        c.drawRightString(x + w - 3.5, y + h - band_h + 2.8, subtitle[:38])
     elif name:
         c.drawRightString(x + w - 3.5, y + h - band_h + (band_h * 0.38), name[:22])
     elif subtitle:
@@ -942,12 +942,28 @@ if not PIN_COL:
 E12_F3_PINS, E12_F3_SUB = extract_conn("ix_e12_f3")
 E10_F1_PINS, E10_F1_SUB = extract_conn("ix_e10_f1")
 KNOCK_PINS, _KNOCK_SUB = extract_conn("ix_f14_f229")
+ETC_PINS, ETC_SUB = extract_conn("etc")
 if not KNOCK_PINS:
     KNOCK_PINS = [("SIG", "W", "15"), ("GND", "B", "116")]
 if not E12_F3_SUB:
     E12_F3_SUB = "8-pin GY · VB 119/120 · IGN"
 if not E10_F1_SUB:
     E10_F1_SUB = "9-pin GY · START · REV Y/R"
+if not ETC_PINS or len(ETC_PINS) < 6:
+    # FSM F31 (EC-238/304/468): 1 5V→47 · 2 T2→69 · 3 M-→4 · 4 T1→50 · 5 GND→66 · 6 M+→5
+    ETC_PINS = [
+        ("1", "W/R", "47", "1"),
+        ("2", "Y", "69", "2"),
+        ("3", "L/B", "4", "3"),
+        ("4", "G", "50", "4"),
+        ("5", "L", "66", "5"),
+        ("6", "L/Y", "5", "6"),
+    ]
+else:
+    # Print face: cavity 1–6 on the bottom (FSM F31), ECM# on top, color in the middle.
+    ETC_PINS = [(p[0], p[1], p[2], p[0]) for p in ETC_PINS]
+if not ETC_SUB:
+    ETC_SUB = t("sub_etc")
 
 
 # ========== PAGE 1: cover (top band) + EC-123 (rest) — combined ==========
@@ -1176,8 +1192,7 @@ y -= ch_ks + gap_v
 # --- ETC + VTC (same row — no full-width lone ETC) ---
 cw3 = (usable_w - 2 * GAP) / 3
 ficha(ML, y - ch_act, cw3, ch_act, t("title_etc"),
-      [("M+", "L/Y", "5"), ("M-", "L/B", "4"), ("5V", "W/R", "47"),
-       ("T1", "G", "50"), ("T2", "Y", "69"), ("GND", "B", "SNS")],
+      ETC_PINS,
       "rect6", face="rect6", subtitle=t("sub_etc"),
       accent=GRP["sensors"], rail_5v=True)
 ficha(ML + cw3 + GAP, y - ch_act, cw3, ch_act, t("title_vtc_b1"),
@@ -1282,13 +1297,16 @@ except Exception as e:
     print("pdf2image failed:", e)
     import subprocess
     import shutil
-    subprocess.check_call(
-        ["pdftoppm", "-png", "-r", "120", OUT, f"{PREVIEW_DIR}/print_p"]
-    )
-    p1 = f"{PREVIEW_DIR}/print_p-1.png"
-    p2 = f"{PREVIEW_DIR}/print_p-2.png"
-    if os.path.exists(p1):
-        shutil.copy(p1, f"{PREVIEW_DIR}/ec123_page.png")
-    if os.path.exists(p2):
-        shutil.copy(p2, f"{PREVIEW_DIR}/fichas_page.png")
-    print("pdftoppm ok", sorted(os.listdir(PREVIEW_DIR)))
+    try:
+        subprocess.check_call(
+            ["pdftoppm", "-png", "-r", "120", OUT, f"{PREVIEW_DIR}/print_p"]
+        )
+        p1 = f"{PREVIEW_DIR}/print_p-1.png"
+        p2 = f"{PREVIEW_DIR}/print_p-2.png"
+        if os.path.exists(p1):
+            shutil.copy(p1, f"{PREVIEW_DIR}/ec123_page.png")
+        if os.path.exists(p2):
+            shutil.copy(p2, f"{PREVIEW_DIR}/fichas_page.png")
+        print("pdftoppm ok", sorted(os.listdir(PREVIEW_DIR)))
+    except Exception as e2:
+        print("preview skipped (no poppler/pdftoppm):", e2)

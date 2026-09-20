@@ -5,15 +5,11 @@ Nombre sugerido: faces/<id>.webp
 
 PRIORIDAD — intermedias / ECM
 -----------------------------
-1. ix_f18_f201     F18 ↔ F201 · Bobinas Bank1 + VTC (6 pines)
-2. ix_f221_f33     F33 ↔ F221 · Empalme inyectores (8 pines)
-3. ix_e10_f1       E10 ↔ F1 · Bandeja (9 pines)
-4. ix_e12_f3       E12 ↔ F3 · Bandeja (8 pines)
-5. ix_e11_f2       E11 ↔ F2 · APP (10 pines)
-6. ix_f14_f229     F14 ↔ F229 · Knock intermedia
-7. gnd4            F103 ↔ F151 · Tierras ECM (4 pines)
-8. ecm_f101_can    ECM F101 · Cara del conector ECM
-9. f102            F102 · Cara motor (opcional)
+1. gnd4            F103 ↔ F151 · Tierras ECM (4 pines)
+2. ecm_f101_can    ECM F101 · Cara del conector ECM
+3. ix_e108_m15     E108 · SMJ 69G (no reusar foto F102)
+
+Ya hay foto de producto (interina): F1, F2, F3, F102, F14/F229, F18, F33.
 
 DESPUÉS — sensores / actuadores
 -------------------------------
@@ -39,7 +35,9 @@ DESPUÉS — sensores / actuadores
 
 NO SACAR (ya hay foto de producto en web)
 -----------------------------------------
-etc, inj1–6, coil1–6, maf, ckp, cmp_b1/b2, knock, ect, ho2s_b1/b2
+etc, inj1–6, coil1–6, maf, ckp, cmp_b1/b2, knock, ect, ho2s/A/F,
+f21_oilp, vtc_b1/b2, backup_sw, f20_alt,
+ix_e10_f1, ix_e11_f2, ix_e12_f3, ix_f102_m72, ix_f14_f229, ix_f18_f201, ix_f221_f33
 
 Notas
 -----
