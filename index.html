@@ -392,7 +392,7 @@
   .ficha-wrap.hl { opacity: 1 !important; }
   .ficha {
     border: 1px solid #37474f; border-radius: 10px; padding: 8px; background: #12161d;
-    cursor: pointer; transition: .15s ease;
+    cursor: default; transition: .15s ease;
     overflow-x: auto;
     width: fit-content; max-width: 100%;
     box-sizing: border-box;
@@ -2344,7 +2344,7 @@ const CONN_FACE = {
   f16_cond: { src: 'faces/fsm_f16.webp', source: 'FSM 2005 EC-689' },
   vtc_ex_b1: { src: 'faces/fsm_f40.webp', source: 'FSM 2005 EC-198' },
   vtc_ex_b2: { src: 'faces/fsm_f41.webp', source: 'FSM 2005 EC-200' },
-  f38_evtc_b1: { src: 'faces/fsm_f38.webp', source: 'FSM 2005 EC-445' },
+  f38_evtc_b1: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
   f42_evtc_b2: { src: 'faces/fsm_f42.webp', source: 'FSM 2005 EC-447' },
 };
 
@@ -4919,9 +4919,7 @@ function makeFichaEl(id, f){
       const pin = (f.pins || []).find(x => String(x.id) === String(cavId));
       if(!cavClickable(id, pin)) return;
       selectConnPin(cav.dataset.conn || id, cavId);
-      return;
     }
-    selectConn(id);
   });
   wrap.appendChild(el);
   return wrap;
