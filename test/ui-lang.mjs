@@ -180,6 +180,34 @@ const info3 = await page.$eval('#info', (el) => el.textContent || '');
 ok(!/Alim\./.test(info3), 'en pin 3 + Power pill is not Alim.' + (/Alim\./.test(info3) ? ` (got ${JSON.stringify(info3.slice(0, 220))})` : ''));
 ok(/Power 12V/.test(info3), 'en pin 3 + Power shows Power 12V' + (!/Power 12V/.test(info3) ? ` (got ${JSON.stringify(info3.slice(0, 220))})` : ''));
 
+console.log('\nlang ja content');
+await page.select('#lang', 'ja');
+await page.evaluate(() => { if (typeof applyLang === 'function') applyLang(); });
+const jaCards = await page.evaluate(() => {
+  const name = (id) => document.querySelector(`.ficha-wrap[data-conn="${id}"] h3`)?.textContent || null;
+  return { coil1: name('coil1'), gnd4: name('gnd4'), inj1: name('inj1') };
+});
+ok(jaCards.coil1 === 'コイル1', `ja coil1 card = "コイル1"` + (jaCards.coil1 !== 'コイル1' ? ` (got ${JSON.stringify(jaCards.coil1)})` : ''));
+ok(jaCards.inj1 === 'インジェクタ1', `ja inj1 card = "インジェクタ1"` + (jaCards.inj1 !== 'インジェクタ1' ? ` (got ${JSON.stringify(jaCards.inj1)})` : ''));
+ok(jaCards.gnd4 && /アース/.test(jaCards.gnd4) && !/Tierra/i.test(jaCards.gnd4), `ja gnd4 card uses アース` + (jaCards.gnd4 ? ` (got ${JSON.stringify(jaCards.gnd4)})` : ' (missing)'));
+
+await page.click('#blocks .pin[data-pin="1"]');
+const info1ja = await page.$eval('#info', (el) => el.textContent || '');
+ok(!/Tierra|Ruta:|Masa carrocería|Alim\./.test(info1ja), 'ja pin 1 info has no leftover Spanish' + (/Tierra|Ruta:|Masa carrocería|Alim\./.test(info1ja) ? ` (got ${JSON.stringify(info1ja.slice(0, 180))})` : ''));
+ok(/アース|GND/.test(info1ja), 'ja pin 1 info mentions ground');
+
+await page.evaluate(() => {
+  const el = document.getElementById('railRelPower');
+  if (el && !el.checked) {
+    el.checked = true;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+});
+await page.click('#blocks .pin[data-pin="3"]');
+const info3ja = await page.$eval('#info', (el) => el.textContent || '');
+ok(!/Alim\./.test(info3ja), 'ja pin 3 + Power pill is not Alim.' + (/Alim\./.test(info3ja) ? ` (got ${JSON.stringify(info3ja.slice(0, 220))})` : ''));
+ok(/電源 12V/.test(info3ja), 'ja pin 3 + Power shows 電源 12V' + (!/電源 12V/.test(info3ja) ? ` (got ${JSON.stringify(info3ja.slice(0, 220))})` : ''));
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);
