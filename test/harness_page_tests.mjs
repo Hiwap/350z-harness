@@ -117,6 +117,12 @@ unit('unit: SIG with ECM pin on top → SIG', () =>
   sandbox.cavBottomLabel({ lab: 'SIG', code: 'W', ecm: 15 }) === 'SIG');
 unit('unit: SIG by id with ECM → SIG', () =>
   sandbox.cavBottomLabel({ id: 'SIG', code: 'OR', ecm: 51 }) === 'SIG');
+unit('unit: unnamed ECM cavity (knock/A/F/APP) → SIG', () =>
+  sandbox.cavBottomLabel({ id: '1', code: 'W', ecm: 15 }) === 'SIG');
+unit('unit: injector ECM pin → SIG', () =>
+  sandbox.cavBottomLabel({ id: 'ECM', code: 'R/B', ecm: 23 }) === 'SIG');
+unit('unit: HTR keeps HTR', () =>
+  sandbox.cavBottomLabel({ id: '4', lab: 'HTR', code: 'GY/R', ecm: 2 }) === 'HTR');
 unit('unit: SIG without ecm uses cavity id+S', () =>
   sandbox.cavBottomLabel({ id: '2', lab: 'SIG', code: 'G' }) === '2S');
 unit('unit: top label prefers ecm number', () =>

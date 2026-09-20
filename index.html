@@ -1813,9 +1813,9 @@ const CONN_BASE = {
 
   /* —— Sensores motor —— */
   af_b1:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 1', meta:'6 pines · Bank 1', accent:'#ef6c00', shape:'af6',
-    pins:[{id:'1',code:'LG/B',ecm:16},{id:'2',code:'P/B',ecm:75},{id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'},{id:'4',code:'GY/R',ecm:2},{id:'5',code:'L/W',ecm:35},{id:'6',code:'W/L',ecm:56}]},
+    pins:[{id:'1',code:'LG/B',ecm:16,lab:'SIG'},{id:'2',code:'P/B',ecm:75,lab:'SIG'},{id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'},{id:'4',code:'GY/R',ecm:2,lab:'HTR'},{id:'5',code:'L/W',ecm:35,lab:'SIG'},{id:'6',code:'W/L',ecm:56,lab:'SIG'}]},
   af_b2:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 2', meta:'6 pines · Bank 2', accent:'#2e7d32', shape:'af6',
-    pins:[{id:'1',code:'LG',ecm:76},{id:'2',code:'P',ecm:77},{id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'},{id:'4',code:'G/Y',ecm:24},{id:'5',code:'L',ecm:57},{id:'6',code:'W',ecm:58}]},
+    pins:[{id:'1',code:'LG',ecm:76,lab:'SIG'},{id:'2',code:'P',ecm:77,lab:'SIG'},{id:'3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'},{id:'4',code:'G/Y',ecm:24,lab:'HTR'},{id:'5',code:'L',ecm:57,lab:'SIG'},{id:'6',code:'W',ecm:58,lab:'SIG'}]},
   ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 1 (post-cat)', meta:'F11 · 4 pines · EC-191', accent:'#8e24aa', shape:'tab4',
     pins:[
       {id:'1',lab:'SIG',code:'OR',ecm:74},
@@ -2459,11 +2459,13 @@ function cavBottomLabel(pin){
   if(rail === '5v') return '5V';
   const can = cavCanOf(pin);
   if(can) return can;
-  /* Signal pins: ECM # already on top → 3rd line is SIG (do not repeat 15S). */
+  /* Signal: ECM # already on top → third line SIG (not cavity 1 / 15S). Keep HTR/CTRL/T1… */
   const isSig = lab.toUpperCase() === 'SIG' || idStr.toUpperCase() === 'SIG';
-  if(isSig){
+  const unnamedEcm = pin && pin.ecm != null
+    && (!lab || isSig || idStr.toUpperCase() === 'ECM');
+  if(isSig || unnamedEcm){
     if(pin && pin.ecm != null) return 'SIG';
-    if(idStr && idStr.toUpperCase() !== 'SIG') return idStr + 'S';
+    if(idStr && idStr.toUpperCase() !== 'SIG' && idStr.toUpperCase() !== 'ECM') return idStr + 'S';
     return 'SIG';
   }
   if(lab && !isPseudoWireCode(lab)) return lab;

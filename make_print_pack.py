@@ -858,7 +858,8 @@ def extract_conn(conn_id, html=None):
     for pm in re.finditer(r"\{([^{}]+)\}", pins_m.group(1)):
         obj = pm.group(1)
         pid = _field(obj, "id")
-        lab = _field(obj, "lab") or pid or "?"
+        raw_lab = _field(obj, "lab")
+        lab = raw_lab or pid or "?"
         code = _field(obj, "code")
         if code is None:
             code = "—"
@@ -880,10 +881,12 @@ def extract_conn(conn_id, html=None):
             disp = "12V"
         elif rail == "5v":
             disp = "5V"
-        elif lab_u == "SIG" or id_u == "SIG":
+        elif lab_u == "SIG" or id_u == "SIG" or (
+            ecm and ecm != "null" and (not raw_lab or id_u == "ECM")
+        ):
             if ecm and ecm != "null":
                 disp = "SIG"
-            elif pid and id_u != "SIG":
+            elif pid and id_u not in ("SIG", "ECM"):
                 disp = str(pid) + "S"
             else:
                 disp = "SIG"
