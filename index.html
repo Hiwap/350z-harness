@@ -1836,7 +1836,7 @@ const CONN_BASE = {
     pins:[{id:'12V',code:'R/W',ecm:null,rail:'12v',lab:'12V',src:'E7·18',srcSub:'ipdm'},{id:'GND',code:'B/W',ecm:67,rail:'gnd',lab:'GND'},{id:'SIG',code:'OR',ecm:51,lab:'SIG'}],
     note:'MAF. Ruta: 12V E7-18 (R/W) → F3 → F25·2 · GND F25·3 → ECM 67 · señal F25·4 → ECM 51 · EC-207.',},
   knock:{group:'motor', sub:'sensors', name:'Knock · sensor detonación', meta:'2 pines · vía F14/F229', accent:'#42a5f5', shape:'tab2',
-    pins:[{id:'1',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd',lab:'GND'}],
+    pins:[{id:'1',lab:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd',lab:'GND'}],
     note:'Sensor knock. Ruta: → F14/F229 → ECM 15.'},
   ckp:{group:'motor', sub:'sensors', name:'CKP · Posición cigüeñal', meta:'F10 · EC-323', accent:'#ab47bc', shape:'tab3',
     pins:[{id:'PWR',code:'R/W',ecm:null,rail:'12v',lab:'12V',src:'E7·18',srcSub:'ipdm'},{id:'SIG',code:'W/L',ecm:13,lab:'SIG'},{id:'GND',code:'B',ecm:null,rail:'gnd',lab:'GND',src:'F152',srcSub:'power'}],
