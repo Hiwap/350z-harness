@@ -208,6 +208,27 @@ const info3ja = await page.$eval('#info', (el) => el.textContent || '');
 ok(!/Alim\./.test(info3ja), 'ja pin 3 + Power pill is not Alim.' + (/Alim\./.test(info3ja) ? ` (got ${JSON.stringify(info3ja.slice(0, 220))})` : ''));
 ok(/電源 12V/.test(info3ja), 'ja pin 3 + Power shows 電源 12V' + (!/電源 12V/.test(info3ja) ? ` (got ${JSON.stringify(info3ja.slice(0, 220))})` : ''));
 
+console.log('\nF102 face camera');
+await page.select('#lang', 'en');
+await page.evaluate(() => { if (typeof applyLang === 'function') applyLang(); });
+const f102Face = await page.evaluate(() => {
+  const btn = document.querySelector('#f102Title .ficha-face-btn');
+  if (btn) btn.click();
+  const img = document.querySelector('#faceLightbox img');
+  const srcEl = document.querySelector('#faceLightbox .face-lb-src');
+  return {
+    btn: !!btn,
+    open: !!document.querySelector('#faceLightbox.open'),
+    src: img ? img.getAttribute('src') : null,
+    credit: srcEl ? srcEl.textContent : null,
+    panelOpen: !!document.querySelector('#f102Panel[open]'),
+  };
+});
+ok(f102Face.btn, 'F102 summary has camera button');
+ok(f102Face.open, 'F102 camera opens lightbox');
+ok(f102Face.src && f102Face.src.includes('f102.webp'), 'F102 lightbox src is f102.webp' + (f102Face.src ? ` (got ${f102Face.src})` : ''));
+ok(f102Face.credit && /Wiring Specialties/.test(f102Face.credit), 'F102 credit Wiring Specialties' + (f102Face.credit ? ` (got ${JSON.stringify(f102Face.credit)})` : ''));
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

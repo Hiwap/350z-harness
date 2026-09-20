@@ -136,6 +136,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
   /* CONN_FACE ⊆ CONN_BASE keys; referenced face files exist on disk */
   const faceBlock = html.match(/const CONN_FACE = \{([\s\S]*?)\n\};/);
   ok('CONN_FACE block present', !!faceBlock);
+  ok('F102 panel injects face camera', /faceBtnHtml\('ix_f102_m72'\)/.test(html));
   if (faceBlock) {
     const keys = [...faceBlock[1].matchAll(/^\s*([A-Za-z0-9_]+)\s*:/gm)].map((m) => m[1]);
     const baseBlock = html.match(/const CONN_BASE = \{([\s\S]*?)\n\};\s*\nlet CONN/);

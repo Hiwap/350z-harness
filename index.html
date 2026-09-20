@@ -540,6 +540,9 @@
     padding: 8px 12px; font-size: 13px; font-weight: 700; color: #e8eaed;
     display: flex; align-items: center; gap: 8px;
   }
+  #f102Title { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+  #f102Title .f102-title-txt { flex: 1 1 auto; min-width: 0; }
+  #f102Title .ficha-face-btn { margin-left: auto; }
   #ecm details.f102-panel > summary::-webkit-details-marker { display: none; }
   #ecm details.f102-panel > summary::before {
     content: '▾'; font-size: 11px; color: #90a4ae; transition: transform .12s ease;
@@ -4293,13 +4296,29 @@ function makeF102PinEl(pin){
   return d;
 }
 
+function faceBtnHtml(cid){
+  const face = (typeof CONN_FACE !== 'undefined') ? CONN_FACE[cid] : null;
+  if(!face || !face.src) return '';
+  return `<button type="button" class="ficha-face-btn" data-face-conn="${esc(cid)}" aria-label="${esc(t('facePhotoOpen'))}" title="${esc(t('facePhotoOpen'))}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>`;
+}
+
 function renderF102(){
   const panel = document.getElementById('f102Panel');
   const blocksEl = document.getElementById('f102Blocks');
   const titleEl = document.getElementById('f102Title');
   const legendEl = document.getElementById('f102Legend');
   if(!panel || !blocksEl) return;
-  if(titleEl) titleEl.textContent = t('f102Title');
+  if(titleEl) titleEl.innerHTML = `<span class="f102-title-txt">${esc(t('f102Title'))}</span>${faceBtnHtml('ix_f102_m72')}`;
+  if(!panel.dataset.faceBound){
+    panel.dataset.faceBound = '1';
+    panel.addEventListener('click', e => {
+      const btn = e.target.closest && e.target.closest('.ficha-face-btn');
+      if(!btn || !panel.contains(btn)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openFaceLightbox(btn.dataset.faceConn || 'ix_f102_m72');
+    }, true);
+  }
   if(legendEl){
     const lg = t('f102Legend');
     legendEl.textContent = lg || '';
@@ -4835,10 +4854,7 @@ function makeFichaEl(id, f){
   if(noteTxt){
     extra = `<div class="note-body">${esc(noteTxt)}</div>`;
   }
-  const face = (typeof CONN_FACE !== 'undefined') ? CONN_FACE[id] : null;
-  const faceBtn = face
-    ? `<button type="button" class="ficha-face-btn" data-face-conn="${esc(id)}" aria-label="${esc(t('facePhotoOpen'))}" title="${esc(t('facePhotoOpen'))}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>`
-    : '';
+  const faceBtn = faceBtnHtml(id);
   el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
   wrap.addEventListener('click', e=>{
