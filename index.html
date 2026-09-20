@@ -189,13 +189,13 @@
     /* readable on any wire fill: dark halo + keep accent color inline */
     text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95), 0 0 1px #000;
   }
-  #blocks .pin.rail-lab {
+  #blocks .pin.has-dest {
     min-height: calc(var(--pin-h, 32px) + 10px);
   }
-  #blocks .pin.rail-lab .dest.lab-5v { color: #F9A825; }
-  #blocks .pin.rail-lab .dest.lab-12v { color: #ef9a9a; }
-  #blocks .pin.rail-lab .dest.lab-gnd { color: #81c784; }
-  #blocks .pin.can-lab .dest.lab-can { color: #ce93d8; }
+  #blocks .pin .dest.lab-5v { color: #F9A825; }
+  #blocks .pin .dest.lab-12v { color: #ef9a9a; }
+  #blocks .pin .dest.lab-gnd { color: #81c784; }
+  #blocks .pin .dest.lab-can { color: #ce93d8; }
 
   body[data-mode="solid"] #blocks .pin .pn {
     color: var(--pin-fg, #111);
@@ -2487,6 +2487,34 @@ function cavBottomLabel(pin){
   if(lab && !isPseudoWireCode(lab)) return lab;
   return idStr;
 }
+/** ECM grid third line: rail / CAN, else same role as the matching ficha cavity. */
+function ecmBottomLabel(p){
+  const n = Number(p);
+  const rail = PIN_RAIL[n];
+  if(rail === 'gnd') return 'GND';
+  if(rail === '12v') return '12V';
+  if(rail === '5v') return '5V';
+  if(PIN_CAN[n]) return PIN_CAN[n];
+  const hits = [];
+  const dict = (typeof CONN !== 'undefined' && CONN && Object.keys(CONN).length) ? CONN : CONN_BASE;
+  for(const id of Object.keys(dict)){
+    for(const pin of (dict[id].pins || [])){
+      if(pin.ecm == null || Number(pin.ecm) !== n) continue;
+      const lab = pin.lab != null ? String(pin.lab).trim() : '';
+      let bot = cavBottomLabel(pin);
+      if(lab && !/^(12V|5V|GND|SNS|PWR|BATT)$/i.test(lab)){
+        bot = /^IGN/i.test(lab) ? 'IGN' : (lab.length > 6 ? lab.slice(0, 6) : lab);
+      }
+      const skip = /^(ix_|ipdm_|feed_)/.test(id);
+      hits.push({ bot, skip, generic: bot === '12V' || bot === '5V' || bot === 'GND' });
+    }
+  }
+  const named = hits.filter(h => h.bot && !h.generic);
+  const pool = named.length ? named : hits.filter(h => h.bot);
+  const primary = pool.filter(h => !h.skip);
+  const pick = (primary.length ? primary : pool)[0];
+  return pick ? pick.bot : '';
+}
 /** Mid wire letters — never repeat 12V/5V/GND placeholders. */
 function cavWireCode(pin){
   if(!pin) return '';
@@ -4253,20 +4281,13 @@ function makePinEl(p){
   }
   d.style.setProperty('--pin-fg', fgForWire(wcol));
   if(LIGHT_FILLS.has(wcol.c1) && !wcol.tracer) d.classList.add('light-wire');
-  const rail = PIN_RAIL[p] || null;
-  const can = PIN_CAN[p] || null;
-  if(rail){
-    /* 3-row: pin # top · wire · rail bottom (match fichas) */
-    const railLab = rail === '5v' ? '5V' : (rail === '12v' ? '12V' : 'GND');
-    const lc = labClass(railLab);
-    d.classList.add('rail-lab');
-    d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small><span class="dest${lc?' '+lc:''}">${esc(railLab)}</span>`;
-  } else if(can){
-    d.classList.add('can-lab');
-    d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small><span class="dest lab-can">${esc(can)}</span>`;
-  } else {
-    d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>`;
-  }
+  const dest = ecmBottomLabel(p);
+  const lc = dest ? labClass(dest) : '';
+  if(dest) d.classList.add('has-dest');
+  if(PIN_RAIL[p]) d.classList.add('rail-lab');
+  if(PIN_CAN[p]) d.classList.add('can-lab');
+  d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>`
+    + (dest ? `<span class="dest${lc?' '+lc:''}">${esc(dest)}</span>` : '');
   d.title = `Pin ${p} ${pinName(p)||''} ${code}`;
   d.onclick = () => selectPin(p);
   return d;

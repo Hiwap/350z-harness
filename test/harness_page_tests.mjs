@@ -137,6 +137,8 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
 
 ok('ECM 8/9 exhaust VTC only on Rev-Up',
   /Number\(p\)===8 \|\| Number\(p\)===9/.test(html) && /model !== 'de_revup'/.test(html));
+ok('ECM grid third line via ecmBottomLabel',
+  /function ecmBottomLabel\(/.test(html) && /ecmBottomLabel\(p\)/.test(html) && /has-dest/.test(html));
 ok('rail-focus helpers present (stay in rail on re-click)',
   /function focusRailSelection\(/.test(html) && /function ecmPinOnActiveRail\(/.test(html));
 
