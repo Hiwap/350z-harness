@@ -2459,12 +2459,12 @@ function cavBottomLabel(pin){
   if(rail === '5v') return '5V';
   const can = cavCanOf(pin);
   if(can) return can;
-  /* Signal pins: 3rd line = pin# + S (e.g. 15S), not the word SIG. */
+  /* Signal pins: ECM # already on top → 3rd line is SIG (do not repeat 15S). */
   const isSig = lab.toUpperCase() === 'SIG' || idStr.toUpperCase() === 'SIG';
   if(isSig){
-    if(pin && pin.ecm != null) return String(pin.ecm) + 'S';
+    if(pin && pin.ecm != null) return 'SIG';
     if(idStr && idStr.toUpperCase() !== 'SIG') return idStr + 'S';
-    return 'S';
+    return 'SIG';
   }
   if(lab && !isPseudoWireCode(lab)) return lab;
   return idStr;

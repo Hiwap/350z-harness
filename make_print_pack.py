@@ -882,11 +882,11 @@ def extract_conn(conn_id, html=None):
             disp = "5V"
         elif lab_u == "SIG" or id_u == "SIG":
             if ecm and ecm != "null":
-                disp = str(ecm) + "S"
+                disp = "SIG"
             elif pid and id_u != "SIG":
                 disp = str(pid) + "S"
             else:
-                disp = "S"
+                disp = "SIG"
         else:
             disp = str(lab)
         pins.append((str(pid or lab), code, note, disp))

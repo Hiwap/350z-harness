@@ -81,8 +81,8 @@ ok('cavBottomLabel defines lab before use',
   /function cavBottomLabel\(pin\)\{\s*const rail = cavRailOf\(pin\);\s*const lab = /.test(html));
 ok('cavBottomLabel rail always GND/12V/5V',
   /if\(rail === 'gnd'\) return 'GND';\s*if\(rail === '12v'\) return '12V';\s*if\(rail === '5v'\) return '5V';/.test(html));
-ok('cavBottomLabel SIG uses pin+S suffix',
-  /=== 'SIG'|toUpperCase\(\) === 'SIG'/.test(html) && /\+ 'S'|\+"S"|\+'S'/.test(html));
+ok('cavBottomLabel SIG with ECM is the word SIG',
+  /if\(pin && pin\.ecm != null\) return 'SIG';/.test(html));
 
 const helperSrc = [
   extractConstObject(script, 'PIN_RAIL'),
@@ -113,10 +113,10 @@ unit('unit: 12v rail → 12V even if lab MOTRLY', () =>
   sandbox.cavBottomLabel({ rail: '12v', lab: 'MOTRLY', code: 'SB' }) === '12V');
 unit('unit: 5v rail → 5V', () =>
   sandbox.cavBottomLabel({ rail: '5v', lab: '5V', code: 'PU' }) === '5V');
-unit('unit: SIG bottom is pin+S', () =>
-  sandbox.cavBottomLabel({ lab: 'SIG', code: 'W', ecm: 15 }) === '15S');
-unit('unit: SIG by id alone is pin+S', () =>
-  sandbox.cavBottomLabel({ id: 'SIG', code: 'OR', ecm: 51 }) === '51S');
+unit('unit: SIG with ECM pin on top → SIG', () =>
+  sandbox.cavBottomLabel({ lab: 'SIG', code: 'W', ecm: 15 }) === 'SIG');
+unit('unit: SIG by id with ECM → SIG', () =>
+  sandbox.cavBottomLabel({ id: 'SIG', code: 'OR', ecm: 51 }) === 'SIG');
 unit('unit: SIG without ecm uses cavity id+S', () =>
   sandbox.cavBottomLabel({ id: '2', lab: 'SIG', code: 'G' }) === '2S');
 unit('unit: top label prefers ecm number', () =>
