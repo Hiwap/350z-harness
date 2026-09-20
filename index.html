@@ -2382,7 +2382,9 @@ const LOOM_BODY_EXTRA = new Set([
   /* F9 sits on the starter motor; the control loom only has START at F1·1 */
   'f9_starter',
   /* F16 ignition condenser and F24 A/C clutch are not on the pulled control loom */
-  'f16_cond', 'f24_comp'
+  'f16_cond', 'f24_comp',
+  /* F20 alternator plug and F21 oil pressure sit on those units, not the control loom */
+  'f20_alt', 'f21_oilp'
 ]);
 /* Battery-tray mates on the pulled engine-control harness (PG-55: F1, F2, F3). Pedal E113 stays cabin. */
 const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);
