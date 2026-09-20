@@ -53,20 +53,22 @@ ok('node --check extracted script', chk.status === 0, chk.stderr?.trim() || 'syn
 
 ok('evap_press in LOOM_BODY_EXTRA',
   /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'evap_press'[\s\S]*?\]\)/.test(html));
+ok('ac_press in LOOM_BODY_EXTRA',
+  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'ac_press'[\s\S]*?\]\)/.test(html));
 ok('evap_press CONN exists', /\n  evap_press:\{/.test(html));
 
 {
   const fn = html.match(/function updateEcmSelCount\([\s\S]*?\nfunction /)[0];
   const domLine = fn.match(/const domSel = '([^']+)'/);
-  ok('updateEcmSelCount DOM sel excludes hl-group',
-    domLine && !domLine[1].includes('hl-group') && domLine[1].includes('.pin.hl'),
+  ok('updateEcmSelCount DOM sel includes hl-group + Relacionados',
+    domLine && domLine[1].includes('hl-group') && domLine[1].includes('hl-rail-rel-gnd') && domLine[1].includes('.pin.hl'),
     domLine ? domLine[1] : 'no domSel');
-  ok('selectCircuits passes focusPin to updateEcmSelCount',
-    /if\(focusPin!=null\) updateEcmSelCount\(\[focusPin\]\)/.test(html));
+  ok('selectCircuits labels from DOM (not focus-only)',
+    /updateEcmSelCount\(\)/.test(html) && !/if\(focusPin!=null\) updateEcmSelCount\(\[focusPin\]\)/.test(html));
   const f102 = html.match(/function updateF102SelPins\([\s\S]*?\nfunction /)[0];
   const f102Dom = f102.match(/const domSel = '([^']+)'/);
-  ok('updateF102SelPins DOM sel excludes hl-group',
-    f102Dom && !f102Dom[1].includes('hl-group'),
+  ok('updateF102SelPins DOM sel includes hl-group',
+    f102Dom && f102Dom[1].includes('hl-group'),
     f102Dom ? f102Dom[1] : 'no domSel');
 }
 
@@ -107,11 +109,11 @@ ok('updateSelectedTop allows ≥2 fichas same sub',
   const block = circuitBlock('vmot');
   ok('vmot circuit found', !!block);
   if (block) {
-    ok('vmot.conn is ipdm_e8 only (no empty E12 HL)',
-      /conn:\['ipdm_e8'\]/.test(block) && !/ix_e12_f3/.test(block));
+    ok('vmot.conn is E12/F3 (motor loom; IPDM is Completo/Alim.)',
+      /conn:\['ix_e12_f3'\]/.test(block) && !/conn:\['ipdm_e8'\]/.test(block));
     ok('vmot.path has E8-42', /path:\{ipdm_e8:\['42'\]\}/.test(block));
     ok('vmot notes mention FSM E12/F3 cavity not invented',
-      /E12\/F3/.test(block) && /no inventar|cavidad F3 no fijada/i.test(block));
+      /E12\/F3/.test(block) && /no inventar/i.test(block));
   }
   const f3Body = (html.split(/ix_e12_f3:\{/)[1] || '').slice(0, 1500);
   ok('ix_e12_f3 has no ecm:3 cavity (not invented)', !/ecm:3/.test(f3Body));
@@ -140,7 +142,8 @@ ok('actuators render no longer nests bobinas under actuators',
     vm.runInContext(loomOnly + '; result.loom = [...LOOM_BODY_EXTRA];', ctx);
     ok('eval LOOM_BODY_EXTRA has evap_press',
       ctx.result.loom.includes('evap_press'),
-      JSON.stringify(ctx.result.loom.filter(x => x.startsWith('evap') || x.startsWith('fuel'))));
+      JSON.stringify(ctx.result.loom.filter(x => x.startsWith('evap') || x.startsWith('fuel') || x === 'ac_press')));
+    ok('eval LOOM_BODY_EXTRA has ac_press', ctx.result.loom.includes('ac_press'));
 
     const buildFn = script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/);
     if (buildFn) {
@@ -150,7 +153,7 @@ ok('actuators render no longer nests bobinas under actuators',
       const dlc = circs.find(c => c.id === 'dlc_k');
       const vtc = circs.filter(c => c.id === 'vtc_adm_b1');
       ok('buildCircuits de_early has vmot', !!vmot);
-      ok('vmot.conn === [ipdm_e8]', vmot && JSON.stringify(vmot.conn) === JSON.stringify(['ipdm_e8']));
+      ok('vmot.conn === [ix_e12_f3]', vmot && JSON.stringify(vmot.conn) === JSON.stringify(['ix_e12_f3']));
       ok('dlc_k.conn includes dlc', dlc && dlc.conn.includes('dlc'));
       ok('dlc_k.conn includes F102 (eval)', dlc && dlc.conn.includes('ix_f102_m72'));
       ok('only one vtc_adm_b1 in de_early', vtc.length === 1, `count=${vtc.length}`);

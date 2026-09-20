@@ -74,6 +74,7 @@
   #ecm .ecm-sel-pins .sel-gnd-rail,
   #ecm .ecm-sel-pins .sel-gnd { color: #66bb6a; }
   #ecm .ecm-sel-pins .sel-data { color: #4fc3f7; }
+  #ecm .ecm-sel-pins .sel-power { color: #ef9a9a; }
   #ecm .ecm-sel-pins .sel-group { color: var(--hl-group-color, #ce93d8); }
   #ecm .ecm-sel-pins .sel-end { color: #4fc3f7; }
   #ecm .ecm-sel-pins .sel-hl { color: #ffe082; }
@@ -682,17 +683,22 @@
 
   .pin.hl-rail, .cav-hit.hl-rail,
   .cav-hit.hl-rail .cav-face { opacity: 1 !important; }
-  .pin.hl-rail-rel-gnd, .pin.hl-rail-rel-data,
-  .cav-hit.hl-rail-rel-gnd, .cav-hit.hl-rail-rel-data,
-  .cav-hit.hl-rail-rel-gnd .cav-face, .cav-hit.hl-rail-rel-data .cav-face { opacity: 1 !important; }
+  .pin.hl-rail-rel-gnd, .pin.hl-rail-rel-data, .pin.hl-rail-rel-power,
+  .cav-hit.hl-rail-rel-gnd, .cav-hit.hl-rail-rel-data, .cav-hit.hl-rail-rel-power,
+  .cav-hit.hl-rail-rel-gnd .cav-face, .cav-hit.hl-rail-rel-data .cav-face,
+  .cav-hit.hl-rail-rel-power .cav-face { opacity: 1 !important; }
   .pin.hl-rail-rel-gnd {
     outline: 2px solid #66bb6a; outline-offset: 1px;
   }
   .pin.hl-rail-rel-data {
     outline: 2px solid #4fc3f7; outline-offset: 1px;
   }
+  .pin.hl-rail-rel-power {
+    outline: 2px solid #ef9a9a; outline-offset: 1px;
+  }
   .cav-hit.hl-rail-rel-gnd .cav-face { stroke: #66bb6a !important; stroke-width: 2; }
   .cav-hit.hl-rail-rel-data .cav-face { stroke: #4fc3f7 !important; stroke-width: 2; }
+  .cav-hit.hl-rail-rel-power .cav-face { stroke: #ef9a9a !important; stroke-width: 2; }
   /* Inside a lit ficha, non-path cavities must stay dim (selTop clones too). */
   .ficha.hl .cav-hit.dim, .ficha-wrap.hl .cav-hit.dim,
   .ficha.hl .cav-hit.dim .cav-face, .ficha-wrap.hl .cav-hit.dim .cav-face {
@@ -1452,10 +1458,18 @@ function buildCircuits(model){
       path:{ipdm_e7:['26'],ix_e10_f1:['2'],backup_sw:['1','2'],ix_f102_m72:['22H']},
       notes:'Luces de marcha atrás (M/T): interruptor F36. Selección: F36 + F102·22H. Alim. 12V: E7-26 → E10/F1·2 → F36 → F102·22H → faros traseros.'},
 
-    {id:'gnd_ecm', title:'Tierras ECM → carrocería', color:'#66bb6a',
-      ecm:[1,115,116], conn:['gnd4','e17'],
-      path:{gnd4:['A','B','C','D'],e17:['ring']},
-      notes:'Tierras de potencia del ECM. F103/F151 (4 pines): A→1 · B→115 · C→116 · D→E17. No hay 12V en este conector. EC-171.'},
+    {id:'gnd_ecm_1', title:'Tierra ECM 1 → F103·A', color:'#66bb6a',
+      ecm:[1], conn:['gnd4','e17'],
+      path:{gnd4:['A','D'],e17:['ring']},
+      notes:'Tierra de potencia ECM 1 (B). Ruta: ECM 1 → F103·A → D → E17. 115 y 116 son cables aparte en el mismo plug (EC-171).'},
+    {id:'gnd_ecm_115', title:'Tierra ECM 115 → F103·B', color:'#66bb6a',
+      ecm:[115], conn:['gnd4','e17'],
+      path:{gnd4:['B','D'],e17:['ring']},
+      notes:'Tierra de potencia ECM 115 (B/W). Ruta: ECM 115 → F103·B → D → E17. EC-171.'},
+    {id:'gnd_ecm_116', title:'Tierra ECM 116 → F103·C', color:'#66bb6a',
+      ecm:[116], conn:['gnd4','e17'],
+      path:{gnd4:['C','D'],e17:['ring']},
+      notes:'Tierra de potencia ECM 116 (B/R). Ruta: ECM 116 → F103·C → D → E17. EC-171. El knock usa 116 como malla (circuito aparte).'},
 
     {id:'sns_gnd', title:'SNS GND · HO2S', color:'#ef6c00',
       ecm:[78], conn:[],
@@ -1515,7 +1529,8 @@ function buildCircuits(model){
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
       ecm:[104], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'El ECM solo mira si el relé de la mariposa (dentro del IPDM, F87) entregó 12V; no mueve el motor él solo. Ruta: E9-47 → E108·30G → F102·12H → ECM 104.'},
     {id:'vmot', title:'VMOT · 12V motor mariposa', color:'#ef5350',
-      ecm:[3], conn:['ipdm_e8'], path:{ipdm_e8:['42']}, notes:'12V motor mariposa tras relé ETC del IPDM. FSM: continuidad ECM 3 ↔ IPDM E8-42 (pasa E12/F3; cavidad F3 no fijada en este mapa — no inventar pin). En Completo: E8-42. En Arnès motor (IPDM oculto): ver nota · resalta ECM 3.'},
+      ecm:[3], conn:['ix_e12_f3'], path:{ipdm_e8:['42']},
+      notes:'12V motor mariposa (G) tras relé ETC. FSM: continuidad ECM 3 ↔ IPDM E8-42; el cable pasa E12/F3 (EC-474) sin cavidad etiquetada — no inventar pin F3. En Completo + Alim.: E8-42. En arnés motor: ficha E12/F3 (sin cavidad).'},
     {id:'fp_relay', title:'Control relé bomba', color:'#ef5350',
       ecm:[113], conn:['ipdm_e8','ix_e108_m15','ix_f102_m72'], path:{ipdm_e8:['40'],ix_e108_m15:['28G'],ix_f102_m72:['6H']}, notes:'Control del relé de bomba (el relé está en el IPDM). Ruta: ECM 113 → F102·6H → E108·28G → E8-40.'},
         {id:'ftt', title:'FTT · temp. tanque', color:'#7e57c2',
@@ -2115,7 +2130,7 @@ const CONN_BASE = {
       {id:'7',lab:'VB',code:'R/W',ecm:119,rail:'12v'},
       {id:'8',code:'—',ecm:null}
     ],
-    note:'Alimentaciones del arnés motor. cav1 R/W BATT TCM F6 · cav7→ECM 119 · cav4→120 · cav5 12V bobinas · cav3 12V A/F+HO2S · cav6→E17 · AT-186 · EC-167.'},
+    note:'Alimentaciones del arnés motor. cav1 R/W BATT TCM F6 · cav7→ECM 119 · cav4→120 · cav5 12V bobinas · cav3 12V A/F+HO2S · cav6→E17 · VMOT ECM 3 (G) pasa E12/F3 sin cavidad FSM (EC-474) · AT-186 · EC-167.'},
   ix_f14_f229:{group:'motor', sub:'sensors', name:'F14 ↔ F229 · Knock', meta:'intermedia sub-arnés knock · señal→15 · shield→tierra', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd',lab:'GND'}],
     note:'Intermedia del knock. Ruta: señal → ECM 15 · malla a SNS GND.'},
@@ -2318,6 +2333,8 @@ const LOOM_BODY_EXTRA = new Set([
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
   /* T21 on EVAP canister (EC-376), not engine control harness (PG-54) */
   'evap_press',
+  /* A/C refrigerant pressure sensor is on the A/C line / engine-room side of F1, not the pulled motor loom */
+  'ac_press',
   /* SMJ E108 stays at firewall / body (M15) */
   'ix_e108_m15',
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
@@ -3896,6 +3913,9 @@ const TITLES_I18N = {
   backup_lamp: {en:'Back-up / reverse lamp (M/T)', ja:'バックランプ / リバース (M/T)'},
   ac_press: {en:'A/C refrigerant pressure', ja:'A/C冷媒圧力'},
   gnd_ecm: {en:'ECM ground → body ground', ja:'ECM ground → body ground'},
+  gnd_ecm_1: {en:'ECM ground 1 → F103·A', ja:'ECMアース 1 → F103·A'},
+  gnd_ecm_115: {en:'ECM ground 115 → F103·B', ja:'ECMアース 115 → F103·B'},
+  gnd_ecm_116: {en:'ECM ground 116 → F103·C', ja:'ECMアース 116 → F103·C'},
 
   sns_gnd: {en:'SNS GND · HO2S', ja:'SNS GND · HO2S'},
     knock: {en:'Knock sensor', ja:'ノックセンサ'},
@@ -3958,6 +3978,9 @@ const NOTES_I18N = {
   app_sig: {en:'APS1→106 · APS2→98 via intermediate E11/F2 (pedal E113→E11/F2→ECM).', ja:'APS1→106 · APS2→98（中間E11/F2経由）。'},
   ac_press: {en:'5V ECM 49 (B/Y) · signal ECM 70 (G/R) · GND ECM 67 B/W (shared SNS · via E10/F1). FSM EC-608.', ja:'5V ECM 49 (B/Y) · 信号 ECM 70 (G/R) · GND ECM 67 B/W（SNS共用 · E10/F1）。FSM EC-608。'},
   gnd_ecm: {en:'ECM grounds 1 / 115 / 116 via F103/F151 (4-pin: A/B/C → ECM, D → E17 body). No 12V on this plug. EC-171.', ja:'ECMアース 1 / 115 / 116 は F103/F151（4ピン: A/B/C→ECM、D→E17）。このコネクタに12Vはない。EC-171。'},
+  gnd_ecm_1: {en:'Power ground ECM 1 (B). Path: ECM 1 → F103·A → D → E17. 115 and 116 are separate wires on the same plug (EC-171).', ja:'パワーGND ECM 1 (B)。経路: ECM 1 → F103·A → D → E17。115と116は同じプラグの別線（EC-171）。'},
+  gnd_ecm_115: {en:'Power ground ECM 115 (B/W). Path: ECM 115 → F103·B → D → E17. EC-171.', ja:'パワーGND ECM 115 (B/W)。経路: ECM 115 → F103·B → D → E17。EC-171。'},
+  gnd_ecm_116: {en:'Power ground ECM 116 (B/R). Path: ECM 116 → F103·C → D → E17. EC-171. Knock uses 116 as shield (separate circuit).', ja:'パワーGND ECM 116 (B/R)。経路: ECM 116 → F103·C → D → E17。EC-171。ノックのシールドも116（別回路）。'},
 
   knock: {en:'Signal ECM 15 (W) via intermediate F14/F229 · shield to SNS GND (FSM EC).', ja:'信号 ECM 15 (W) は中間F14/F229経由 · シールドはSNS GNDへ（FSM EC）。'},
   psp: {en:'5V ECM 68 (R/W) · signal ECM 12 (L/W) · GND ECM 67 B/W (shared SNS MAF/IAT/PSP/EVAP). FSM EC-401.', ja:'5V ECM 68 (R/W) · 信号 ECM 12 (L/W) · GND ECM 67 B/W（SNS共用）。FSM EC-401。'},
@@ -4472,9 +4495,9 @@ const CONN_I18N = {
   },
   ix_e12_f3: {
     en: { name:'E12 ↔ F3 · A/F + VB path', meta:'8-pin GY · VB 119/120 · IGN · GND E17 · EC-167 · not via F102',
-      note:'FSM EC-167/169: F3 cav7 R/W→ECM 119 · cav4 P→ECM 120 · cav5 W/L→IGN feed · cav6 B→E17/E43.' },
+      note:'FSM EC-167/169: F3 cav7 R/W→ECM 119 · cav4 P→ECM 120 · cav5 W/L→IGN feed · cav6 B→E17/E43. VMOT ECM 3 (G) crosses E12/F3 (EC-474) with no labeled cavity.' },
     ja: { name:'E12 ↔ F3 · A/F + VB経路', meta:'8ピン GY · VB 119/120 · IGN · GND E17 · F102経由なし',
-      note:'FSM EC-167/169: F3 cav7 R/W→ECM 119 · cav4 P→ECM 120 · cav5 W/L→IGN · cav6 B→E17/E43。他キャビティ未確認。' },
+      note:'FSM EC-167/169: F3 cav7 R/W→ECM 119 · cav4 P→ECM 120 · cav5 W/L→IGN · cav6 B→E17/E43。VMOT ECM 3 (G) は E12/F3 を通るが FSM にキャビティ番号なし（EC-474）。' },
   },
 
   ix_f14_f229: {
@@ -5249,7 +5272,7 @@ let lastCircIds = []; /* circuits of the current selection — retarget yellow i
 function selMarkOn(el){
   if(!el) return false;
   return el.classList.contains('hl') || el.classList.contains('hl-group') || el.classList.contains('hl-end')
-    || el.classList.contains('hl-rail') || el.classList.contains('hl-rail-rel-gnd') || el.classList.contains('hl-rail-rel-data');
+    || el.classList.contains('hl-rail') || el.classList.contains('hl-rail-rel-gnd') || el.classList.contains('hl-rail-rel-data') || el.classList.contains('hl-rail-rel-power');
 }
 function ecmPinEl(n){
   return document.querySelector(`#blocks .pin[data-pin="${n}"]`);
@@ -5288,13 +5311,13 @@ function retargetSelection(focusPin, focusConn, focusCav){
 function clearSelectionClasses(){
   clearHlGroupColor();
   document.querySelectorAll('.pin,.ficha,.ficha-wrap,.cav-hit,.f102-panel').forEach(el=>{
-    el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','rail-5v','rail-12v','rail-gnd');
+    el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','hl-rail-rel-power','rail-5v','rail-12v','rail-gnd');
     stripRailLineClasses(el);
     clearHlGroupElColor(el);
   });
   /* Explicit ECM/F102 pass — dim must never stick after deselect */
   document.querySelectorAll('#blocks .pin, #f102Blocks .pin').forEach(el=>{
-    el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','rail-5v','rail-12v','rail-gnd');
+    el.classList.remove('hl','hl-end','hl-group','dim','hl-rail','hl-rail-rel','hl-rail-rel-gnd','hl-rail-rel-data','hl-rail-rel-power','rail-5v','rail-12v','rail-gnd');
     stripRailLineClasses(el);
     clearHlGroupElColor(el);
   });
@@ -5495,9 +5518,11 @@ function markRailRelEl(el, kind){
   if(!el || !kind) return;
   if(kind === 'gnd' && !railRelGndEnabled()) return;
   if(kind === 'data' && !railRelDataEnabled()) return;
+  if(kind === 'power' && !railRelPowerEnabled()) return;
   if(el.classList.contains('hl-rail')) return;
-  el.classList.remove('dim', 'hl-rail-rel', 'hl-rail-rel-gnd', 'hl-rail-rel-data');
-  el.classList.add(kind === 'gnd' ? 'hl-rail-rel-gnd' : 'hl-rail-rel-data');
+  el.classList.remove('dim', 'hl-rail-rel', 'hl-rail-rel-gnd', 'hl-rail-rel-data', 'hl-rail-rel-power');
+  const cls = kind === 'gnd' ? 'hl-rail-rel-gnd' : (kind === 'power' ? 'hl-rail-rel-power' : 'hl-rail-rel-data');
+  el.classList.add(cls);
 }
 
 function applyRailFilter(){
@@ -5551,7 +5576,7 @@ function applyRailFilter(){
 
   const relCirc = new Set();
   const relEcm = new Set();
-  const wantRelated = railRelGndEnabled() || railRelDataEnabled();
+  const wantRelated = railRelGndEnabled() || railRelDataEnabled() || railRelPowerEnabled();
   if(wantRelated){
     railEcm.forEach(p=>{
       (pinToCirc[p] || pinToCirc[String(p)] || []).forEach(id => relCirc.add(id));
@@ -5729,6 +5754,7 @@ function selKindFromEl(el){
   /* Related tierras always green (checkbox-gated elsewhere). */
   if(el.classList.contains('hl-rail-rel-gnd')) return 'gnd';
   if(el.classList.contains('hl-rail-rel-data')) return 'data';
+  if(el.classList.contains('hl-rail-rel-power')) return 'power';
   const ecmN = el.dataset.pin != null ? Number(el.dataset.pin)
     : (el.dataset.ecm != null ? Number(el.dataset.ecm) : NaN);
   const pinRail = !isNaN(ecmN) ? (PIN_RAIL[ecmN] || null) : null;
@@ -5750,6 +5776,7 @@ function selKindFromEl(el){
 function selKindAllowed(kind){
   if(kind === 'gnd') return railRelGndEnabled();
   if(kind === 'data') return railRelDataEnabled();
+  if(kind === 'power') return railRelPowerEnabled();
   return true;
 }
 function formatSelPinsLabel(tmpl, items){
@@ -5770,7 +5797,7 @@ function updateF102SelPins(cavsOrNull){
   const el = document.getElementById('f102SelPins');
   if(!el) return;
   /* Same as ECM label: focus (hl/hl-end/rails) only — not hl-group siblings */
-  const domSel = '#f102Blocks .pin.hl, #f102Blocks .pin.hl-end, #f102Blocks .pin.hl-rail, #f102Blocks .pin.hl-rail-rel-gnd, #f102Blocks .pin.hl-rail-rel-data';
+  const domSel = '#f102Blocks .pin.hl, #f102Blocks .pin.hl-end, #f102Blocks .pin.hl-group, #f102Blocks .pin.hl-rail, #f102Blocks .pin.hl-rail-rel-gnd, #f102Blocks .pin.hl-rail-rel-data, #f102Blocks .pin.hl-rail-rel-power';
   let items = [];
   if(cavsOrNull === 0){
     items = [];
@@ -5780,7 +5807,7 @@ function updateF102SelPins(cavsOrNull){
       const id = p.dataset.cav;
       if(!id || !want.has(String(id))) return;
       const kind = selKindFromEl(p);
-      if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
+      if(!selKindAllowed(kind)) return;
       items.push({id, kind});
     });
   } else {
@@ -5788,7 +5815,7 @@ function updateF102SelPins(cavsOrNull){
       const id = p.dataset.cav;
       if(!id) return;
       const kind = selKindFromEl(p);
-      if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
+      if(!selKindAllowed(kind)) return;
       items.push({id, kind});
     });
   }
@@ -5816,7 +5843,7 @@ function updateEcmSelCount(nOrPins){
   const el = document.getElementById('ecmSelCount');
   if(!el) return;
   /* Label shows focus (hl / hl-end / rails) only — hl-group siblings stay visual, not in count text */
-  const domSel = '#blocks .pin.hl, #blocks .pin.hl-end, #blocks .pin.hl-rail, #blocks .pin.hl-rail-rel-gnd, #blocks .pin.hl-rail-rel-data';
+  const domSel = '#blocks .pin.hl, #blocks .pin.hl-end, #blocks .pin.hl-group, #blocks .pin.hl-rail, #blocks .pin.hl-rail-rel-gnd, #blocks .pin.hl-rail-rel-data, #blocks .pin.hl-rail-rel-power';
   let items = [];
   if(nOrPins === 0 || (typeof nOrPins === 'number' && nOrPins < 1)){
     items = [];
@@ -5825,10 +5852,9 @@ function updateEcmSelCount(nOrPins){
     want.forEach(n=>{
       const p = document.querySelector(`#blocks .pin[data-pin="${n}"]`);
       if(!p) { items.push({id: n, kind: 'hl'}); return; }
-      if(p.classList.contains('hl-group') && !(p.classList.contains('hl') || p.classList.contains('hl-end') || p.classList.contains('hl-rail'))) return; /* sibling outline only */
-      if(!(p.classList.contains('hl') || p.classList.contains('hl-end') || p.classList.contains('hl-rail') || p.classList.contains('hl-rail-rel-gnd') || p.classList.contains('hl-rail-rel-data'))) return;
+      if(!(p.classList.contains('hl') || p.classList.contains('hl-end') || p.classList.contains('hl-group') || p.classList.contains('hl-rail') || p.classList.contains('hl-rail-rel-gnd') || p.classList.contains('hl-rail-rel-data') || p.classList.contains('hl-rail-rel-power'))) return;
       const kind = selKindFromEl(p);
-      if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
+      if(!selKindAllowed(kind)) return;
       items.push({id: n, kind});
     });
   } else {
@@ -5836,7 +5862,7 @@ function updateEcmSelCount(nOrPins){
       const n = Number(p.dataset.pin);
       if(isNaN(n)) return;
       const kind = selKindFromEl(p);
-      if(!selKindAllowed(kind) && (kind === 'gnd' || kind === 'data')) return;
+      if(!selKindAllowed(kind)) return;
       items.push({id: n, kind});
     });
   }
@@ -6024,12 +6050,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       applyHlGroupEl(el, accentForEcmPin(p) || hlGroupColorForCircuits(circIds, focusPin));
     }
   });
-  /* Label = focus pin only; siblings keep hl-group outline without cluttering ECM: N · … */
-  if(focusPin!=null) updateEcmSelCount([focusPin]);
-  else updateEcmSelCount([...ecmSet].filter(p=>{
-    const el=document.querySelector(`#blocks .pin[data-pin="${p}"]`);
-    return el && (el.classList.contains('hl') || el.classList.contains('hl-end'));
-  }));
+  /* Label = DOM-highlighted pins (yellow focus + Relacionados group / rail-rel). */
+  updateEcmSelCount();
   connSet.forEach(cid=>{
     markFichaHL(cid, true);
     if(cid === 'ix_f102_m72' && !collapseF102){
@@ -6113,7 +6135,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
 function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=null){
   /* selTop clones are fresh DOM without .dim — opacar todas las cavidades primero. */
   document.querySelectorAll('.cav-hit').forEach(cav=>{
-    cav.classList.remove('hl','hl-end','hl-group','hl-rail','hl-rail-rel-gnd','hl-rail-rel-data');
+    cav.classList.remove('hl','hl-end','hl-group','hl-rail','hl-rail-rel-gnd','hl-rail-rel-data','hl-rail-rel-power');
     cav.classList.add('dim');
   });
   document.querySelectorAll('#fichas .ficha.hl .cav-empty, #fichas .ficha-wrap.hl .cav-empty').forEach(g=>{
