@@ -24,7 +24,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | f14.webp | Wiring Specialties | ix_f14_f229 | VQ35 Knock Sensor Sub Harness (sensor 2-pin + F14/F229) |
 | f18.webp | Ballenger Motorsports | ix_f18_f201 | Sumitomo 6-way 2×3 sealed (CONN-75847) — interim ID for F18 |
 | f33.webp | EFI Hardware | ix_f221_f33 | Nissan 8 Pin Injector Loom Female Grey |
-| reverse.webp | Wiring Specialties | backup_sw | VQ35 Reverse Switch Connector |
+| reverse.webp | Wiring Specialties | backup_sw, evap_purge | VQ35 Reverse Switch 2-pin (F36 B/2 · F5 GY/2 purge same 2-way) |
 | alt.webp | Wiring Specialties | f20_alt | VQ35 Alternator Plug Connector |
 
 FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not product photos):
@@ -32,7 +32,6 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | file | FSM sheet | maps to |
 |------|-----------|---------|
 | fsm_f103.webp | EC-169 | gnd4 (F103) |
-| fsm_f5.webp | EC-360 | evap_purge (F5) |
 | fsm_f9.webp | SC-13 | f9_starter (F9 · E203 in the same FSM box) |
 | fsm_f16.webp | EC-689 | f16_cond (F16) |
 
