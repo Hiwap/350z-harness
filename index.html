@@ -266,6 +266,13 @@
   .pin.dim { opacity: 0.22; }
   .pin.hl { outline: 3px solid var(--hl); outline-offset: 1px; box-shadow: 0 0 0 1px #000, 0 0 12px rgba(255,213,79,.55);
     opacity: 1 !important; z-index: 2; }
+  /* Yellow selection focus beats rail-family / rail-line outline when both apply */
+  .pin.hl.hl-rail, .pin.hl.rail-5v, .pin.hl.rail-12v, .pin.hl.rail-gnd {
+    outline: 3px solid var(--hl); outline-offset: 1px;
+    box-shadow: 0 0 0 1px #000, 0 0 12px rgba(255,213,79,.55);
+    opacity: 1 !important; z-index: 3;
+  }
+  .cav-hit.hl.hl-rail .cav-face { stroke: var(--hl) !important; stroke-width: 2.5; }
   .pin.hl-end { outline-color: var(--hl2); box-shadow: 0 0 0 1px #000, 0 0 12px rgba(79,195,247,.5); opacity: 1 !important; z-index: 2; }
   .pin.hl-group { outline: 2px solid var(--hl-group-color, #ab47bc); outline-offset: 1px; opacity: 1 !important; }
 
@@ -962,6 +969,12 @@
         <select id="loomView">
           <option value="all" selected>Completo</option>
           <option value="motor">Arnès motor</option>
+        </select>
+      </label>
+      <label id="lblTrans">Transmisión
+        <select id="transView">
+          <option value="mt" selected>Manual</option>
+          <option value="at">Automático</option>
         </select>
       </label>
       <label id="lblColor">Color
@@ -2375,7 +2388,12 @@ function rebuildIndexes(){
 /* Loom view: all = full map; motor = pulled engine-control harness only.
    F102 stays (motor face of SMJ). Body / rear EVAP path hide. */
 const LS_LOOM = 'z33_loomView';
+const LS_TRANS = 'z33_trans';
 const LS_MODEL_BANNER = 'z33_modelBannerOpen';
+/* A/T-only fichas (hide when Manual). F6 TCM is not on M/T engine loom. */
+const TRANS_AT_ONLY = new Set(['f6_at', 'pnp']);
+/* M/T-only fichas (hide when Automático). Backup SW F36 / ASCD clutch. */
+const TRANS_MT_ONLY = new Set(['backup_sw', 'ascd_clutch']);
 const LOOM_BODY_EXTRA = new Set([
   /* not on pulled engine-control harness (bench) */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
@@ -2402,6 +2420,12 @@ function loomView(){
   const s = localStorage.getItem(LS_LOOM);
   return s === 'motor' ? 'motor' : 'all';
 }
+function transView(){
+  const el = document.getElementById('transView');
+  if(el && (el.value === 'mt' || el.value === 'at')) return el.value;
+  const s = localStorage.getItem(LS_TRANS);
+  return s === 'at' ? 'at' : 'mt'; /* default Manual */
+}
 function loomOfConn(id, conf){
   const c = conf || CONN_BASE[id] || CONN[id];
   if(!c) return 'motor';
@@ -2410,7 +2434,14 @@ function loomOfConn(id, conf){
   if(LOOM_BODY_EXTRA.has(id)) return 'body';
   return 'motor';
 }
+function connVisibleInTrans(id){
+  const t = transView();
+  if(t === 'mt' && TRANS_AT_ONLY.has(id)) return false;
+  if(t === 'at' && TRANS_MT_ONLY.has(id)) return false;
+  return true;
+}
 function connVisibleInLoom(id, conf){
+  if(!connVisibleInTrans(id)) return false;
   if(loomView() !== 'motor') return true;
   return loomOfConn(id, conf) === 'motor';
 }
@@ -3565,6 +3596,9 @@ const I18N = {
     lblLoom: 'Vista arnés',
     loomAll: 'Completo',
     loomMotor: 'Arnès motor',
+    lblTrans: 'Transmisión',
+    transMt: 'Manual',
+    transAt: 'Automático',
     modelEarly: 'VQ35DE · sin VTC escape',
     modelRevup: 'VQ35DE Rev-Up · con VTC escape',
     earlyBanner: '<b>VQ35DE sin VTC escape:</b> mismos datos base del mapa; <b>sin</b> solenoides de escape (F40/F41 · ECM 8/9). Para Rev-Up elegí la otra opción.',
@@ -3708,6 +3742,9 @@ const I18N = {
     lblLoom: 'Harness view',
     loomAll: 'Full',
     loomMotor: 'Engine harness',
+    lblTrans: 'Transmission',
+    transMt: 'Manual',
+    transAt: 'Automatic',
     modelEarly: 'VQ35DE · intake VTC only',
     modelRevup: 'VQ35DE Rev-Up · intake + exhaust VTC',
     earlyBanner: '<b>VQ35DE without exhaust VTC:</b> same base map data; <b>no</b> exhaust solenoids (F40/F41 · ECM 8/9). Choose Rev-Up for the 4-solenoid variant.',
@@ -3851,6 +3888,9 @@ const I18N = {
     lblLoom: 'ハーネス表示',
     loomAll: '全体',
     loomMotor: 'エンジンハーネス',
+    lblTrans: 'トランスミッション',
+    transMt: 'マニュアル',
+    transAt: 'オートマチック',
     modelEarly: 'VQ35DE · 排気VTCなし',
     modelRevup: 'VQ35DE Rev-Up · 吸気+排気VTC',
     earlyBanner: '<b>VQ35DE（排気VTCなし）:</b> 基本マップは同じ。<b>排気</b>ソレノイドなし（F40/F41 · ECM 8/9）。4ソレノイドは Rev-Up を選択。',
@@ -4190,6 +4230,14 @@ function applyLang(){
     if(oAll) oAll.textContent = t('loomAll');
     if(oMot) oMot.textContent = t('loomMotor');
   }
+  setLabel('lblTrans', 'lblTrans');
+  const transSel = document.getElementById('transView');
+  if(transSel){
+    const oMt = transSel.querySelector('option[value="mt"]');
+    const oAt = transSel.querySelector('option[value="at"]');
+    if(oMt) oMt.textContent = t('transMt');
+    if(oAt) oAt.textContent = t('transAt');
+  }
   setLabel('lblColor', 'lblColor');
   setLabel('lblOrient', 'lblOrient');
   setLabel('lblLang', 'lblLang');
@@ -4467,9 +4515,8 @@ function setF102PanelOpen(wantOpen){
   panel.open = !!wantOpen;
 }
 /** Back-up / marcha atrás: never open F102 panel (notes may still mention F102 22H). */
+/** Legacy no-op: backup_lamp declares F102·22H and must open the SMJ panel (LT-183). */
 function shouldCollapseF102ForBackup(circIds, focusConn){
-  if(focusConn === 'backup_sw') return true;
-  if((circIds||[]).includes('backup_lamp')) return true;
   return false;
 }
 /** Call while a selection is active: open only if F102 is in the conn set (unless forced collapse). */
@@ -5621,6 +5668,24 @@ function powerRelatedCircuits(coreIds){
   });
   return extra;
 }
+/** Relacionados · Datos: sibling circuits on the same device (e.g. A/F heater ECM 2/24 with sensor).
+ *  Adds ECM pins only — never merges .path (12V stays behind Alim.). */
+function attachDataRelatedEcm(coreIds, ecmSet){
+  if(!railRelDataEnabled() || !ecmSet) return;
+  const core = new Set(coreIds || []);
+  const devices = new Set();
+  core.forEach(id => {
+    const cir = CIRCUITS.find(c => c.id === id);
+    (cir && cir.conn || []).forEach(cid => { if(connIsDevice(cid)) devices.add(cid); });
+  });
+  if(!devices.size) return;
+  CIRCUITS.forEach(cir => {
+    if(core.has(cir.id)) return;
+    if(!(cir.ecm && cir.ecm.length)) return;
+    if(!(cir.conn || []).some(cid => devices.has(cid))) return;
+    cir.ecm.forEach(p => ecmSet.add(Number(p)));
+  });
+}
 function attachAlimPathFichas(pathCavByConn, connSet){
   if(!railRelPowerEnabled()) return;
   pathCavByConn.forEach((_, cid) => {
@@ -5647,7 +5712,20 @@ function attachPowerPathFichas(coreIds, connSet, pathCavByConn){
   });
 }
 function refreshCurrentSelection(){
-  if(activeRails.size){ applyRailFilter(); return; }
+  if(activeRails.size){
+    const key = selKey;
+    if(key && key.startsWith('pin:')){
+      focusRailSelection(Number(key.slice(4)));
+    } else if(key && key.startsWith('cav:')){
+      const rest = key.slice(4);
+      const i = rest.indexOf(':');
+      if(i >= 0) focusRailSelection(selFocusPin, rest.slice(0, i), rest.slice(i + 1));
+      else applyRailFilter();
+    } else {
+      applyRailFilter();
+    }
+    return;
+  }
   if(!selKey) return;
   const key = selKey;
   if(key.startsWith('pin:')){
@@ -5673,7 +5751,71 @@ function markRailRelEl(el, kind){
   el.classList.add(cls);
 }
 
-function applyRailFilter(){
+function ecmPinOnActiveRail(n){
+  if(!activeRails || !activeRails.size) return false;
+  const r = PIN_RAIL[n] || PIN_RAIL[Number(n)] || null;
+  if(r && activeRails.has(r)) return true;
+  const el = ecmPinEl(n);
+  return !!(el && el.classList.contains('hl-rail'));
+}
+function cavIsActiveRailPrimary(cid, pin){
+  if(!activeRails || !activeRails.size || !pin) return false;
+  const rEcm = (pin.ecm!=null && pin.ecm!=='') ? (PIN_RAIL[Number(pin.ecm)] || null) : null;
+  if(rEcm && activeRails.has(rEcm)) return true;
+  if((pin.ecm==null || pin.ecm==='') && pin.rail && activeRails.has(pin.rail) && pin.rail !== 'gnd') return true;
+  const el = cavSelEl(cid, pin.id);
+  return !!(el && el.classList.contains('hl-rail'));
+}
+function paintRailYellowFocus(focusPin, focusConn, focusCav){
+  const n = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
+  if(n!=null){
+    const el = ecmPinEl(n);
+    if(el){ el.classList.remove('dim'); el.classList.add('hl'); }
+    if(!focusConn){
+      document.querySelectorAll('.cav-hit').forEach(cav=>{
+        const cid = cav.dataset.conn; const pid = cav.dataset.cav;
+        const conf = CONN[cid] || CONN_BASE[cid];
+        const p = (conf && conf.pins || []).find(x => String(x.id)===String(pid));
+        if(p && p.ecm!=null && Number(p.ecm)===n){
+          cav.classList.remove('dim'); cav.classList.add('hl');
+        }
+      });
+      document.querySelectorAll(`#f102Blocks .pin[data-ecm="${n}"]`).forEach(fp=>{
+        fp.classList.remove('dim'); fp.classList.add('hl');
+      });
+    }
+  }
+  if(focusConn && focusCav != null){
+    document.querySelectorAll(`.cav-hit[data-conn="${CSS.escape(String(focusConn))}"][data-cav="${CSS.escape(String(focusCav))}"]`).forEach(cav=>{
+      cav.classList.remove('dim'); cav.classList.add('hl');
+    });
+    if(focusConn === 'ix_f102_m72'){
+      const fp = f102PinEl(focusCav);
+      if(fp){ fp.classList.remove('dim'); fp.classList.add('hl'); }
+    }
+    if(n!=null){
+      const el = ecmPinEl(n);
+      if(el){ el.classList.remove('dim'); el.classList.add('hl'); }
+    }
+  }
+  if(n!=null) updateEcmSelCount([n]);
+  else updateEcmSelCount();
+  updateF102SelPins();
+}
+function focusRailSelection(focusPin, focusConn, focusCav){
+  applyRailFilter({ focusing: true });
+  paintRailYellowFocus(focusPin, focusConn, focusCav);
+  const n = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
+  if(focusConn && focusCav != null){
+    selKey = 'cav:' + focusConn + ':' + focusCav;
+    selFocusPin = n;
+  } else if(n != null){
+    selKey = 'pin:' + String(n);
+    selFocusPin = n;
+  }
+}
+
+function applyRailFilter(opts){
   updateRailButtons();
   if(!activeRails.size){
     clearHL();
@@ -5684,6 +5826,13 @@ function applyRailFilter(){
       info.textContent = t('infoEmpty');
     }
     return;
+  }
+
+  /* Do not mix circuit-selection retarget with rail mode */
+  lastCircIds = [];
+  if(!opts || !opts.focusing){
+    selKey = null;
+    selFocusPin = null;
   }
 
   const railEcm = new Set();
@@ -6145,6 +6294,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   });
   attachPowerPathFichas(circIds, connSet, pathCavByConn);
   attachAlimPathFichas(pathCavByConn, connSet);
+  attachDataRelatedEcm(circIds, ecmSet);
   /* Loom filter: drop body/rear fichas when viewing pulled engine harness */
   [...connSet].forEach(cid => { if(!connVisibleInLoom(cid)) connSet.delete(cid); });
   /* Feed card focus: keep related fichas, but ECM label/highlight = control pins only */
@@ -6170,21 +6320,42 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
      Shared SNS 67 on 20H must not open the panel for 66 / 70 / PSP / etc. */
   const f102Allow = f102AllowForCircuits(circIds, focusConn==='ix_f102_m72' ? focusCav : null);
   const f102Hits = f102HitsForEcm(ecmSet, focusPin, f102Allow);
+  /* Explicit cir.f102 only (e.g. backup 22H). Path.ix_f102_m72 stays Alim-gated (inj 17H). */
+  const f102Declared = new Set();
+  (circIds||[]).forEach(id=>{
+    const cir = CIRCUITS.find(x=>x.id===id);
+    if(cir && Array.isArray(cir.f102)) cir.f102.forEach(c=>f102Declared.add(String(c)));
+  });
   const alimF102 = railRelPowerEnabled() && pathCavByConn.has('ix_f102_m72') && connSet.has('ix_f102_m72');
-  const collapseF102 = shouldCollapseF102ForBackup(circIds, focusConn)
-    || (focusConn!=='ix_f102_m72' && !f102Hits.length && !alimF102);
-  /* Drop empty F102 attachment unless Alim. 12V path uses it (e.g. inj 17H) */
-  if(!f102Hits.length && focusConn!=='ix_f102_m72' && !alimF102) connSet.delete('ix_f102_m72');
-  if(f102Hits.length && !collapseF102){
+  const keepF102 = focusConn==='ix_f102_m72' || f102Hits.length > 0 || alimF102 || f102Declared.size > 0;
+  const collapseF102 = !keepF102;
+  if(!keepF102) connSet.delete('ix_f102_m72');
+  if(keepF102){
     connSet.add('ix_f102_m72');
-    const bits = f102Hits.map(p=>{
-      const lab = p.lab ? ` ${esc(p.lab)}` : '';
-      const focus = (focusPin!=null && Number(p.ecm)===Number(focusPin)) || (focusConn==='ix_f102_m72' && String(focusCav)===String(p.id));
-      const tag = focus ? '<b>' : '';
-      const tagE = focus ? '</b>' : '';
-      return `${tag}<code>F102·${esc(String(p.id))}</code>${lab} · ${esc(p.code||'')} → ECM ${esc(String(p.ecm))}${tagE}`;
-    });
-    lines.push(`<div style="color:var(--muted);margin-top:4px"><span class="pill" style="border-color:#90a4ae;color:#90a4ae">F102</span>${bits.join(' · ')}</div>`);
+    const bits = [];
+    if(f102Hits.length){
+      f102Hits.forEach(p=>{
+        const lab = p.lab ? ` ${esc(p.lab)}` : '';
+        const focus = (focusPin!=null && Number(p.ecm)===Number(focusPin)) || (focusConn==='ix_f102_m72' && String(focusCav)===String(p.id));
+        const tag = focus ? '<b>' : '';
+        const tagE = focus ? '</b>' : '';
+        bits.push(`${tag}<code>F102·${esc(String(p.id))}</code>${lab} · ${esc(p.code||'')} → ECM ${esc(String(p.ecm))}${tagE}`);
+      });
+    } else if(f102Declared.size){
+      [...f102Declared].forEach(cav=>{
+        const conf = CONN['ix_f102_m72'] || CONN_BASE['ix_f102_m72'];
+        const p = (conf && conf.pins || []).find(x => String(x.id)===String(cav));
+        const lab = p && p.lab ? ` ${esc(p.lab)}` : '';
+        const code = p && p.code ? ` · ${esc(p.code)}` : '';
+        const focus = focusConn==='ix_f102_m72' && String(focusCav)===String(cav);
+        const tag = focus ? '<b>' : '';
+        const tagE = focus ? '</b>' : '';
+        bits.push(`${tag}<code>F102·${esc(String(cav))}</code>${lab}${code}${tagE}`);
+      });
+    }
+    if(bits.length){
+      lines.push(`<div style="color:var(--muted);margin-top:4px"><span class="pill" style="border-color:#90a4ae;color:#90a4ae">F102</span>${bits.join(' · ')}</div>`);
+    }
   }
   SKIP_SEL_CONN.forEach(id => connSet.delete(id));
   ecmSet.forEach(p=>{
@@ -6341,6 +6512,10 @@ function selectPin(p, opts){
       clearSelection();
       return;
     }
+    if(activeRails.size && ecmPinOnActiveRail(n)){
+      focusRailSelection(n);
+      return;
+    }
     if(selKey && lastCircIds.length && ecmPinIsMarked(n)){
       retargetSelection(n);
       return;
@@ -6462,6 +6637,11 @@ function selectConnPin(cid, cavId, opts){
   const key = 'cav:' + String(cid) + ':' + String(cavId);
   if(!opts || !opts.keep){
     if(selKey === key){ clearSelection(); return; }
+    if(activeRails.size && cavIsActiveRailPrimary(cid, pin0)){
+      const ecmN = pin0 && pin0.ecm != null ? Number(pin0.ecm) : null;
+      focusRailSelection(ecmN, cid, cavId);
+      return;
+    }
     if(selKey && lastCircIds.length && selMarkOn(cavSelEl(cid, cavId))){
       const conf0 = CONN[cid] || CONN_BASE[cid];
       const pin0 = (conf0 && conf0.pins || []).find(x => String(x.id) === String(cavId));
@@ -6594,6 +6774,15 @@ function applyLoomView(){
   clearSelection();
 }
 
+function applyTransView(){
+  const el = document.getElementById('transView');
+  if(!el) return;
+  const v = el.value === 'at' ? 'at' : 'mt';
+  localStorage.setItem(LS_TRANS, v);
+  renderFichas();
+  clearSelection();
+}
+
 function applyColorMode(){
   const mode = document.getElementById('colorMode').value;
   localStorage.setItem('z33_color', mode);
@@ -6671,6 +6860,7 @@ document.getElementById('colorMode').addEventListener('change', applyColorMode);
 document.getElementById('ecmOrient').addEventListener('change', applyOrient);
 document.getElementById('lang').addEventListener('change', applyLang);
 document.getElementById('loomView').addEventListener('change', applyLoomView);
+document.getElementById('transView').addEventListener('change', applyTransView);
 (function(){
   const box = document.getElementById('modelBannerBox');
   if(!box) return;
@@ -6822,6 +7012,11 @@ document.getElementById('q').addEventListener('input', e=>{
   if(loomEl){
     const loomSaved = localStorage.getItem(LS_LOOM);
     loomEl.value = loomSaved === 'motor' ? 'motor' : 'all';
+  }
+  const transEl = document.getElementById('transView');
+  if(transEl){
+    const transSaved = localStorage.getItem(LS_TRANS);
+    transEl.value = transSaved === 'at' ? 'at' : 'mt';
   }
   const splitSaved = localStorage.getItem(LS_MAIN_SPLIT);
   if(splitSaved != null && /^\d+$/.test(splitSaved)) applyMainSplit(parseInt(splitSaved, 10), false);

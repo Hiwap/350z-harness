@@ -246,7 +246,8 @@ await clickPin(116);
   ok(ids.includes('gnd4'), `pin 116 includes F103/gnd4 (${ids.join(',')})`);
   ok(!ids.includes('batt_feed'), `pin 116 is not BATT feed (${ids.join(',')})`);
   ok(await pinMarked(116), '116 marked');
-  ok(await pinMarked(1) && await pinMarked(115), '1 and 115 in the same ground pack');
+  /* afc4143: 1/115/116 are separate F103 wires — 116 must not pull 1/115 into the selection */
+  ok(!(await pinMarked(1)) && !(await pinMarked(115)), '1 and 115 stay isolated from 116 pack');
 }
 
 console.log('\nECM 117 vent control vs 12V path');

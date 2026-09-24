@@ -193,6 +193,61 @@ ok('actuators render no longer nests bobinas under actuators',
   }
 }
 
+
+{
+  ok('trans select present (z33_trans / Manual default)',
+    /id="transView"/.test(html) && /LS_TRANS = 'z33_trans'/.test(html)
+    && /return s === 'at' \? 'at' : 'mt'/.test(html));
+  ok('TRANS_AT_ONLY hides F6 on Manual',
+    /const TRANS_AT_ONLY = new Set\(\[[^\]]*'f6_at'[^\]]*\]\)/.test(html));
+  ok('TRANS_MT_ONLY has backup_sw',
+    /const TRANS_MT_ONLY = new Set\(\[[^\]]*'backup_sw'[^\]]*\]\)/.test(html));
+  ok('connVisibleInLoom gates transmission',
+    /function connVisibleInTrans/.test(html)
+    && /if\(!connVisibleInTrans\(id\)\) return false/.test(html));
+}
+
+{
+  const block = circuitBlock('backup_lamp');
+  ok('backup_lamp circuit found', !!block);
+  if (block) {
+    ok('backup_lamp declares F102 22H', /f102:\['22H'\]/.test(block));
+    ok('backup_lamp path has 22H', /ix_f102_m72:\['22H'\]/.test(block));
+    ok('backup_lamp conn has backup_sw + F102',
+      /backup_sw/.test(block) && /ix_f102_m72/.test(block));
+  }
+  ok('F102 22H is REV OR backup_lamp',
+    /\{id:'22H',code:'OR'[^}]*circ:'backup_lamp'\}/.test(html)
+    || /\{id:'22H',code:'OR'[^}]*lab:'REV'[^}]*circ:'backup_lamp'\}/.test(html));
+  ok('backup does not force-collapse F102',
+    /function shouldCollapseF102ForBackup[\s\S]*?return false;/.test(html)
+    && !/if\(focusConn === 'backup_sw'\) return true/.test(html));
+  ok('selectCircuits keeps declared F102 cavities (f102Declared)',
+    /f102Declared/.test(html) && /keepF102/.test(html)
+    && /Explicit cir\.f102 only/.test(html));
+}
+
+{
+  const b1 = circuitBlock('af_b1');
+  const h1 = circuitBlock('af_b1_htr');
+  const b2 = circuitBlock('af_b2');
+  const h2 = circuitBlock('af_b2_htr');
+  ok('af_b1_htr ecm is pin 2', h1 && /ecm:\[2\]/.test(h1));
+  ok('af_b2_htr ecm is pin 24', h2 && /ecm:\[24\]/.test(h2));
+  ok('af_b1 sensor shares conn af_b1 with heater',
+    b1 && /conn:\['af_b1'\]/.test(b1) && h1 && /conn:\['af_b1'\]/.test(h1));
+  ok('af_b2 sensor shares conn af_b2 with heater',
+    b2 && /conn:\['af_b2'\]/.test(b2) && h2 && /conn:\['af_b2'\]/.test(h2));
+  ok('af_b1 ficha HTR cavity maps ECM 2',
+    /af_b1:\{[\s\S]*?\{id:'4',code:'GY\/R',ecm:2,lab:'HTR'\}/.test(html));
+  ok('af_b2 ficha HTR cavity maps ECM 24',
+    /af_b2:\{[\s\S]*?\{id:'4',code:'G\/Y',ecm:24,lab:'HTR'\}/.test(html));
+  ok('attachDataRelatedEcm pulls device sibling ECM (Datos)',
+    /function attachDataRelatedEcm/.test(html)
+    && /attachDataRelatedEcm\(circIds, ecmSet\)/.test(html));
+}
+
+
 console.log('\n---');
 console.log(`${passes.length} passed, ${failures.length} failed`);
 if (failures.length) {
