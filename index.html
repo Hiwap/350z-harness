@@ -2444,6 +2444,9 @@ let CONN = {};
 let pinToCirc = {};
 let connToCirc = {};
 
+/* Connector faces. Each src is one physical connector unless allowlisted (FACE_SHARE_OK in test/harness_page_tests.mjs)
+   (identical part on several cylinders/banks). Priority: real product/loom photo → FSM face crop → no icon.
+   That test fails when a src is reused outside the allowlist. */
 const CONN_FACE = {
   etc: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
   inj1: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
@@ -2459,13 +2462,13 @@ const CONN_FACE = {
   coil5: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
   coil6: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
   maf: { src: 'faces/maf.webp', source: 'Wiring Specialties' },
-  ckp: { src: 'faces/cmp.webp', source: 'Wiring Specialties' },
+  ckp: { src: 'faces/ckp.webp', source: 'Wiring Specialties (VQ35 Crank Sensor Connector WRS-VQCRNK-BK · RK03FB shell, cf. Ballenger CONN-86050)' },
   cmp_b1: { src: 'faces/cmp.webp', source: 'Wiring Specialties' },
   cmp_b2: { src: 'faces/cmp_g.webp', source: 'Wiring Specialties' },
   knock: { src: 'faces/knock.webp', source: 'Wiring Specialties' },
   ect: { src: 'faces/ect.webp', source: 'Wiring Specialties' },
-  af_b1: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
-  af_b2: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
+  af_b1: { src: 'faces/fsm_f22.webp', source: 'FSM 2005 EC-529' },
+  af_b2: { src: 'faces/fsm_f34.webp', source: 'FSM 2005 EC-531' },
   f21_oilp: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
   vtc_b1: { src: 'faces/vtc.webp', source: 'Wiring Specialties' },
   vtc_b2: { src: 'faces/vtc.webp', source: 'Wiring Specialties' },
@@ -2481,16 +2484,16 @@ const CONN_FACE = {
   gnd4: { src: 'faces/fsm_f103.webp', source: 'FSM 2005 EC-169' },
   ho2s_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
   ho2s_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
-  evap_purge: { src: 'faces/reverse.webp', source: 'Wiring Specialties' },
-  psp: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
-  ac_press: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
-  evap_press: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
+  evap_purge: { src: 'faces/fsm_f5.webp', source: 'FSM 2005 EC-360' },
+  psp: { src: 'faces/fsm_f19.webp', source: 'FSM 2005 EC-426' },
+  ac_press: { src: 'faces/fsm_e252.webp', source: 'FSM 2005 EC-717' },
+  evap_press: { src: 'faces/fsm_t21.webp', source: 'FSM 2005 EC-379' },
   f9_starter: { src: 'faces/fsm_f9.webp', source: 'FSM 2005 SC-13' },
   f16_cond: { src: 'faces/fsm_f16.webp', source: 'FSM 2005 EC-689' },
-  vtc_ex_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
-  vtc_ex_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
-  f38_evtc_b1: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
-  f42_evtc_b2: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
+  vtc_ex_b1: { src: 'faces/fsm_f40.webp', source: 'FSM 2005 EC-198' },
+  vtc_ex_b2: { src: 'faces/fsm_f41.webp', source: 'FSM 2005 EC-200' },
+  f38_evtc_b1: { src: 'faces/fsm_f38.webp', source: 'FSM 2005 EC-445' },
+  f42_evtc_b2: { src: 'faces/fsm_f42.webp', source: 'FSM 2005 EC-447' },
 };
 
 function rebuildIndexes(){

@@ -160,6 +160,26 @@ ok('rail-focus helpers present (stay in rail on re-click)',
     ok('CONN_FACE image files exist', absent.length === 0, absent.length ? absent.join(',') : `${uniq.length} unique`);
     ok('no empty CONN_FACE placeholders', keys.length > 0 && uniq.length > 0);
 
+    /* One photo = one physical connector. A src may only be shared inside an allowlisted group of
+       identical parts (same connector on every cylinder/bank). Guards against generic reuse such as
+       the old CKP→cmp.webp, A/F→etc.webp, PSP/EVAP/A/C/EVT→oil.webp, purge→reverse.webp, F40/F41→ho2s.webp. */
+    const FACE_SHARE_OK = {
+      'faces/inj.webp': ['inj1', 'inj2', 'inj3', 'inj4', 'inj5', 'inj6'],
+      'faces/coil.webp': ['coil1', 'coil2', 'coil3', 'coil4', 'coil5', 'coil6'],
+      'faces/ho2s.webp': ['ho2s_b1', 'ho2s_b2'],
+      'faces/vtc.webp': ['vtc_b1', 'vtc_b2'],
+    };
+    const bySrc = {};
+    for (const m of faceBlock[1].matchAll(/^\s*([A-Za-z0-9_]+)\s*:\s*\{\s*src:\s*'([^']+)'/gm)) {
+      (bySrc[m[2]] = bySrc[m[2]] || []).push(m[1]);
+    }
+    const badShare = Object.entries(bySrc).filter(([src, ids]) => ids.length > 1 &&
+      !ids.every((id) => (FACE_SHARE_OK[src] || []).includes(id))).map(([src, ids]) => `${src}: ${ids.join('+')}`);
+    ok('CONN_FACE: no face image shared outside allowlist (inj/coil/ho2s/vtc)', badShare.length === 0, badShare.join(' · '));
+    const faceOf = (id) => (faceBlock[1].match(new RegExp(`^\\s*${id}\\s*:\\s*\\{\\s*src:\\s*'([^']+)'`, 'm')) || [])[1];
+    ok('CKP (F10) uses its own crank-sensor photo faces/ckp.webp, not the cam one', faceOf('ckp') === 'faces/ckp.webp', faceOf('ckp'));
+    ok('evap_press (T21) face = FSM EC-379 crop', faceOf('evap_press') === 'faces/fsm_t21.webp', faceOf('evap_press'));
+
     /* Pin-count lock: CONN/CONN_BASE.pins.length must match expected for mapped faces. */
     const EXPECTED_FACE_PINS = {
       etc: 6,
