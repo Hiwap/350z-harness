@@ -4,7 +4,8 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 
 | file | source vendor | maps to | original product |
 |------|---------------|---------|------------------|
-| etc.webp | Wiring Specialties | etc, af_b1, af_b2 | VQ35 Throttle 6-pin (same 6-way shell as A/F F22/F26) |
+| etc.webp | Wiring Specialties | etc | VQ35 Throttle 6-pin (F31) |
+| af.webp | Connector Experts | af_b1, af_b2 | "Air Fuel Ratio Sensor" i-26377349 (SKU CE6043F-1), main image F215307345.jpg, https://connectorexperts.com/i-26377349-air-fuel-ratio-sensor.html · black 6-way (FSM F22/F34 B/6). Similar, not identical: Ezequiel says the lock differs on his car. Caption adds the localized note `faceNoteSimilarLock`. |
 | inj.webp | Wiring Specialties | inj1–6 | VQ35 Injector Connector |
 | coil.webp | Wiring Specialties | coil1–6 | VQ35 Coil Connector |
 | maf.webp | Wiring Specialties | maf | VQ35 MAFS |
@@ -42,4 +43,4 @@ Not mapped in CONN_FACE:
 
 Do not use the in-bay F1/F2/F3 location photo (IMG_4403) as F3/E12 faces.
 Do not replace a real product/loom photo with an FSM inset.
-Shared photos (etc, inj, coil, ho2s, oil, reverse, vtc) are intentional: same connector part. Every share is allowlisted in FACE_SHARE_OK (test/harness_page_tests.mjs); do not swap one without Ezequiel confirming.
+Shared photos (af, inj, coil, ho2s, oil, reverse, vtc) are intentional: same connector part. Every share is allowlisted in FACE_SHARE_OK (test/harness_page_tests.mjs); do not swap one without Ezequiel confirming.

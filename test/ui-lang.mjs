@@ -241,6 +241,21 @@ ok(f102Face.open, 'F102 camera opens lightbox');
 ok(f102Face.src && f102Face.src.includes('f102.webp'), 'F102 lightbox src is f102.webp' + (f102Face.src ? ` (got ${f102Face.src})` : ''));
 ok(f102Face.credit && /Wiring Specialties/.test(f102Face.credit), 'F102 credit Wiring Specialties' + (f102Face.credit ? ` (got ${JSON.stringify(f102Face.credit)})` : ''));
 
+console.log('\nA/F face caption (localized similar-part note)');
+for (const [lg, re] of [['es', /^Foto: Connector Experts \(Air Fuel Ratio Sensor, i-26377349\) · similar, el seguro puede diferir$/],
+  ['en', /^Photo: Connector Experts \(Air Fuel Ratio Sensor, i-26377349\) · similar, lock may differ$/],
+  ['ja', /^写真: Connector Experts \(Air Fuel Ratio Sensor, i-26377349\) · 類似品・ロック形状が異なる場合あり$/]]) {
+  await page.select('#lang', lg);
+  await page.evaluate(() => { if (typeof applyLang === 'function') applyLang(); if (typeof closeFaceLightbox === 'function') closeFaceLightbox(); });
+  const r = await page.evaluate(() => {
+    openFaceLightbox('af_b1');
+    const out = { src: document.querySelector('#faceLightbox img')?.getAttribute('src'), cap: document.querySelector('#faceLightbox .face-lb-src')?.textContent };
+    closeFaceLightbox();
+    return out;
+  });
+  ok(r.src === 'faces/af.webp' && re.test(r.cap || ''), `${lg} A/F lightbox = af.webp + caption (${JSON.stringify(r)})`);
+}
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

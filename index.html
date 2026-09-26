@@ -2467,8 +2467,8 @@ const CONN_FACE = {
   cmp_b2: { src: 'faces/cmp_g.webp', source: 'Wiring Specialties' },
   knock: { src: 'faces/knock.webp', source: 'Wiring Specialties' },
   ect: { src: 'faces/ect.webp', source: 'Wiring Specialties' },
-  af_b1: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
-  af_b2: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
+  af_b1: { src: 'faces/af.webp', source: 'Connector Experts (Air Fuel Ratio Sensor, i-26377349)', note: 'faceNoteSimilarLock' },
+  af_b2: { src: 'faces/af.webp', source: 'Connector Experts (Air Fuel Ratio Sensor, i-26377349)', note: 'faceNoteSimilarLock' },
   f21_oilp: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
   vtc_b1: { src: 'faces/vtc.webp', source: 'Wiring Specialties' },
   vtc_b2: { src: 'faces/vtc.webp', source: 'Wiring Specialties' },
@@ -3786,6 +3786,7 @@ const I18N = {
     clear: 'Limpiar',
     fichasTitle: 'Fichas',
     facePhotoLabel: 'Foto:',
+    faceNoteSimilarLock: 'similar, el seguro puede diferir',
     facePhotoOpen: 'Ver foto del conector',
     facePhotoClose: 'Cerrar foto',
     selTopTitle: 'Grupos seleccionados',
@@ -3964,6 +3965,7 @@ const I18N = {
     clear: 'Clear',
     fichasTitle: 'Connectors',
     facePhotoLabel: 'Photo:',
+    faceNoteSimilarLock: 'similar, lock may differ',
     facePhotoOpen: 'View connector photo',
     facePhotoClose: 'Close photo',
     selTopTitle: 'Selected groups',
@@ -4142,6 +4144,7 @@ const I18N = {
     clear: 'クリア',
     fichasTitle: 'コネクタ',
     facePhotoLabel: '写真:',
+    faceNoteSimilarLock: '類似品・ロック形状が異なる場合あり',
     facePhotoOpen: 'コネクタ写真を見る',
     facePhotoClose: '写真を閉じる',
     selTopTitle: '選択グループ',
@@ -5210,7 +5213,8 @@ function openFaceLightbox(cid){
   closeBtn.setAttribute('aria-label', t('facePhotoClose'));
   if(face.source){
     srcEl.hidden = false;
-    srcEl.textContent = t('facePhotoLabel') + ' ' + face.source;
+    /* face.note = I18N key for a localized caveat (e.g. similar part, lock may differ) */
+    srcEl.textContent = t('facePhotoLabel') + ' ' + face.source + (face.note ? ' · ' + t(face.note) : '');
   } else {
     srcEl.hidden = true;
     srcEl.textContent = '';

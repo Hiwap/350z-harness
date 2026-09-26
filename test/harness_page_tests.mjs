@@ -167,7 +167,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       'faces/inj.webp': ['inj1', 'inj2', 'inj3', 'inj4', 'inj5', 'inj6'],
       'faces/coil.webp': ['coil1', 'coil2', 'coil3', 'coil4', 'coil5', 'coil6'],
       'faces/vtc.webp': ['vtc_b1', 'vtc_b2'],
-      'faces/etc.webp': ['etc', 'af_b1', 'af_b2'],
+      'faces/af.webp': ['af_b1', 'af_b2'], /* A/F F22/F34: same 6-way part both banks (Connector Experts i-26377349, similar) */
       'faces/ho2s.webp': ['ho2s_b1', 'ho2s_b2', 'vtc_ex_b1', 'vtc_ex_b2'],
       'faces/oil.webp': ['f21_oilp', 'psp', 'ac_press', 'evap_press', 'f38_evtc_b1', 'f42_evtc_b2'],
       'faces/reverse.webp': ['backup_sw', 'evap_purge'],
@@ -184,6 +184,10 @@ ok('rail-focus helpers present (stay in rail on re-click)',
     ok('CKP (F10) uses its own crank-sensor photo faces/ckp.webp (not cmp.webp / oil.webp)',
       faceOf('ckp') === 'faces/ckp.webp' && !(FACE_SHARE_OK['faces/cmp.webp'] || []).includes('ckp')
       && !FACE_SHARE_OK['faces/oil.webp'].includes('ckp'), faceOf('ckp'));
+    ok('A/F B1/B2 (F22/F34) use faces/af.webp, not the throttle-body etc.webp',
+      faceOf('af_b1') === 'faces/af.webp' && faceOf('af_b2') === 'faces/af.webp', `${faceOf('af_b1')} / ${faceOf('af_b2')}`);
+    ok('A/F face caption carries the localized similar/lock note', /af_b1:[^\n]*note: 'faceNoteSimilarLock'/.test(faceBlock[1])
+      && (html.match(/faceNoteSimilarLock: '/g) || []).length === 3 /* es + en + ja packs */);
 
     /* Pin-count lock: CONN/CONN_BASE.pins.length must match expected for mapped faces. */
     const EXPECTED_FACE_PINS = {
