@@ -782,6 +782,194 @@ for (const o of ['invertida', 'fsm']) {
 }
 await page.select('#ecmOrient', 'invertida');
 
+console.log('\nEvery ficha = fixed FSM T.S. harness-plug face (no ECM-orient flip) · Ezequiel audit 2026-09');
+/* Expected left→right / top→bottom cavity order per ficha, as the 2005 FSM T.S. drawing (see view notes).
+   null = ficha not shown for that transmission. Only the ECM excerpt ecm_f101_can follows #ecmOrient. */
+const FSM_FACE = {
+  gnd4: { mt: "1 2 3 4", at: "1 2 3 4" },
+  f152: { mt: "ring", at: "ring" },
+  e17: { mt: "ring", at: "ring" },
+  f23_gnd: { mt: "ring", at: "ring" },
+  ipdm_e3: { mt: "1 2", at: "1 2" },
+  ipdm_e4: { mt: "5 3 / 6 4", at: "5 3 / 6 4" },
+  ipdm_e5: { mt: "9 7 / 10 8", at: "9 7 / 10 8" },
+  ipdm_e6: { mt: "16 15 14 / 13 12 11", at: "16 15 14 / 13 12 11" },
+  ipdm_e7: { mt: "24 25 26 27 28 29 30 31 32 / 17 18 19 20 21 22 23", at: "24 25 26 27 28 29 30 31 32 / 17 18 19 20 21 22 23" },
+  ipdm_e8: { mt: "37 36 42 41 35 34 33 / 44 43 40 39 38", at: "37 36 42 41 35 34 33 / 44 43 40 39 38" },
+  ipdm_e9: { mt: "60 59 58 57 56 55 54 53 / 52 51 50 49 48 47 46 45", at: "60 59 58 57 56 55 54 53 / 52 51 50 49 48 47 46 45" },
+  feed_af_12v: { mt: "AF2-3 AF1-3", at: "AF2-3 AF1-3" },
+  feed_ho2s_12v: { mt: "B2-12V B1-12V", at: "B2-12V B1-12V" },
+  jb_10a_inj: { mt: "10A", at: "10A" },
+  jb_15a_ht: { mt: "15A", at: "15A" },
+  feed_inj_coil_12v: { mt: "COIL+ INJ+", at: "COIL+ INJ+" },
+  feed_ckp_maf_12v: { mt: "MAF+ CKP+", at: "MAF+ CKP+" },
+  af_b1: { mt: "5 3 1 / 6 4 2", at: "5 3 1 / 6 4 2" },
+  af_b2: { mt: "5 3 1 / 6 4 2", at: "5 3 1 / 6 4 2" },
+  ho2s_b1: { mt: "3 1 / 4 2", at: "3 1 / 4 2" },
+  ho2s_b2: { mt: "3 1 / 4 2", at: "3 1 / 4 2" },
+  maf: { mt: "1 2 3 4 5 6", at: "1 2 3 4 5 6" },
+  knock: { mt: "2 1", at: "2 1" },
+  ckp: { mt: "3 2 1", at: "3 2 1" },
+  cmp_b1: { mt: "3 2 1", at: "3 2 1" },
+  cmp_b2: { mt: "3 2 1", at: "3 2 1" },
+  ect: { mt: "2 1", at: "2 1" },
+  etc: { mt: "3 2 1 / 6 5 4", at: "3 2 1 / 6 5 4" },
+  ac_press: { mt: "1 2 3", at: "1 2 3" },
+  evap_press: { mt: "3 2 1", at: "3 2 1" },
+  psp: { mt: "1 2 3", at: "1 2 3" },
+  f20_alt: { mt: "3 4", at: "3 4" },
+  f21_oilp: { mt: "1 2 3", at: "1 2 3" },
+  f35_pnp: { mt: "1 2", at: null },
+  ix_f14_f229: { mt: "1 2", at: "1 2" },
+  coil1: { mt: "3 2 1", at: "3 2 1" },
+  coil2: { mt: "3 2 1", at: "3 2 1" },
+  coil3: { mt: "3 2 1", at: "3 2 1" },
+  coil4: { mt: "3 2 1", at: "3 2 1" },
+  coil5: { mt: "3 2 1", at: "3 2 1" },
+  coil6: { mt: "3 2 1", at: "3 2 1" },
+  ix_f18_f201: { mt: "1 2 3 / 4 5 6", at: "1 2 3 / 4 5 6" },
+  inj1: { mt: "2 1", at: "2 1" },
+  inj2: { mt: "2 1", at: "2 1" },
+  inj3: { mt: "2 1", at: "2 1" },
+  inj4: { mt: "2 1", at: "2 1" },
+  inj5: { mt: "2 1", at: "2 1" },
+  inj6: { mt: "2 1", at: "2 1" },
+  ix_f221_f33: { mt: "1 2 3 4 / 5 6 7 8", at: "1 2 3 4 / 5 6 7 8" },
+  f9_starter: { mt: "1", at: "1" },
+  f16_cond: { mt: "1 / 2", at: "1 / 2" },
+  f24_comp: { mt: "1", at: "1" },
+  backup_sw: { mt: "1 2", at: null },
+  vtc_b1: { mt: "2 1", at: "2 1" },
+  vtc_b2: { mt: "2 1", at: "2 1" },
+  evap_purge: { mt: "2 1", at: "2 1" },
+  evap_vent: { mt: "2 1", at: "2 1" },
+  fuel_pump: { mt: "3 1", at: "3 1" },
+  ix_e106_b2: { mt: "1 2 3 4 5 6 7 8 9 10 / 11 12 13 14 15 16 17 18", at: "1 2 3 4 5 6 7 8 9 10 / 11 12 13 14 15 16 17 18" },
+  ix_b43_t1: { mt: "1 2 / 3 4 5 6", at: "1 2 / 3 4 5 6" },
+  ix_t2_b44: { mt: "1 2 3 4 5 6 7 / 8 9 10 11 12 13 14 15 16", at: "1 2 3 4 5 6 7 / 8 9 10 11 12 13 14 15 16" },
+  ix_b1_m12: { mt: "1J 2J 3J 4J 5J / 6J 7J 8J 9J 10J / 28J 29J 30J 31J 32J / 33J 34J 35J 36J 37J / 38J 39J 40J 41J 42J / 43J 44J / 65J 66J 67J 68J 69J", at: "1J 2J 3J 4J 5J / 6J 7J 8J 9J 10J / 28J 29J 30J 31J 32J / 33J 34J 35J 36J 37J / 38J 39J 40J 41J 42J / 43J 44J / 65J 66J 67J 68J 69J" },
+  ix_e10_f1: { mt: "2 3 4 5 / 1 / 6 7 8 9", at: "2 3 4 5 / 1 / 6 7 8 9" },
+  ix_e12_f3: { mt: "1 2 3 4 / 5 6 7 8", at: "1 2 3 4 / 5 6 7 8" },
+  ix_e108_m15: { mt: "1G 2G 3G 4G 5G / 6G 7G 8G 9G 10G / 28G 29G 30G 31G 32G / 33G 34G 35G 36G 37G / 38G 39G 40G 41G 42G / 43G 44G / 65G 66G 67G 68G 69G", at: "1G 2G 3G 4G 5G / 6G 7G 8G 9G 10G / 28G 29G 30G 31G 32G / 33G 34G 35G 36G 37G / 38G 39G 40G 41G 42G / 43G 44G / 65G 66G 67G 68G 69G" },
+  ix_e11_f2: { mt: "1 2 3 4 5 / 6 7 8 9 10", at: "1 2 3 4 5 / 6 7 8 9 10" },
+  app: { mt: "3 2 1 / 6 5 4", at: "3 2 1 / 6 5 4" },
+  stop_lamp: { mt: "1 2", at: "2 1" },
+  ascd_brake: { mt: "2 / 1", at: "2 / 1" },
+  ascd_clutch: { mt: "1 2", at: null },
+  clock_spring: { mt: "34 33", at: "34 33" },
+  dlc: { mt: "16 14 / 7 6 5 4", at: "16 14 / 7 6 5 4" },
+  fuel_tank_temp: { mt: "5 4", at: "5 4" },
+  comb_meter: { mt: "11 1", at: "11 1" },
+  f6_at: { mt: null, at: "1 2 3 4 5 / 6 7 8 9 10" },
+  f38_evtc_b1: { mt: "3 2 1", at: "3 2 1" },
+  f42_evtc_b2: { mt: "3 2 1", at: "3 2 1" },
+  f242_eot: { mt: "G S", at: null },
+  vtc_ex_b1: { mt: "4 3", at: "4 3" },
+  vtc_ex_b2: { mt: "2 1", at: "2 1" },
+};
+const FACE_ALLOW = new Set(['ecm_f101_can']);
+async function fichaFaces() {
+  return page.evaluate(() => {
+    document.querySelectorAll('#fichas details').forEach((d) => { d.open = true; });
+    const res = {};
+    document.querySelectorAll('#fichas .ficha[data-conn]').forEach((card) => {
+      const cid = card.dataset.conn; const seen = new Set();
+      const cavs = [...card.querySelectorAll('[data-cav]')].filter((e) => !seen.has(e.dataset.cav) && seen.add(e.dataset.cav))
+        .map((e) => { const bb = e.getBoundingClientRect(); return { id: e.dataset.cav, x: bb.x, y: Math.round(bb.y) }; });
+      const rows = {}; cavs.forEach((c) => (rows[c.y] = rows[c.y] || []).push(c));
+      const order = Object.keys(rows).sort((a, b) => a - b).map((y) => rows[y].sort((a, b) => a.x - b.x).map((c) => c.id).join(' ')).join(' / ');
+      const conf = CONN[cid] || {};
+      const pins = (conf.pins || []).map((p) => `${p.id}:${p.code}>${p.ecm ?? p.src ?? '-'}`).join(',');
+      res[cid] = { order, pins, view: !!card.querySelector('.view-note'), hasView: !!(conf.view || conf.viewByTrans) };
+    });
+    return res;
+  });
+}
+await page.evaluate(() => { const s = document.getElementById('loomView'); s.value = 'all'; s.dispatchEvent(new Event('change', { bubbles: true })); });
+for (const model of ['de_revup', 'de_early']) {
+  await page.select('#model', model);
+  for (const tv of ['mt', 'at']) {
+    await page.select('#transView', tv);
+    await page.select('#ecmOrient', 'invertida');
+    await new Promise((r) => setTimeout(r, 120));
+    const inv = await fichaFaces();
+    await page.select('#ecmOrient', 'fsm');
+    await new Promise((r) => setTimeout(r, 120));
+    const fsm = await fichaFaces();
+    let nSame = 0; const diff = []; const bad = []; const noView = []; const wires = [];
+    for (const cid of Object.keys(inv)) {
+      if (FACE_ALLOW.has(cid)) continue;
+      if (!fsm[cid] || fsm[cid].order !== inv[cid].order) diff.push(`${cid}: ${inv[cid].order} ≠ ${fsm[cid] && fsm[cid].order}`);
+      else nSame++;
+      if (fsm[cid] && fsm[cid].pins !== inv[cid].pins) wires.push(cid);
+      const want = FSM_FACE[cid] ? FSM_FACE[cid][tv] : undefined;
+      if (want === undefined || want === null || want !== inv[cid].order) bad.push(`${cid}: ${inv[cid].order} (want ${want})`);
+      if (inv[cid].hasView && !inv[cid].view) noView.push(cid);
+    }
+    ok(diff.length === 0, `${model}/${tv}: ${nSame} fichas identical in Invertida and FSM (${diff.join('; ')})`);
+    ok(wires.length === 0, `${model}/${tv}: cavity wire/ECM identical in both modes (${wires.join(',')})`);
+    ok(bad.length === 0, `${model}/${tv}: every ficha matches the FSM T.S. face table (${bad.join('; ')})`);
+    ok(noView.length === 0, `${model}/${tv}: every ficha with view data shows its view note (${noView.join(',')})`);
+    if (model === 'de_revup') {
+      for (const cid of Object.keys(FSM_FACE)) {
+        if (FSM_FACE[cid][tv] && !inv[cid] && !['f242_eot'].includes(cid)) ok(false, `${model}/${tv}: ${cid} ficha rendered`);
+      }
+    }
+  }
+}
+{
+  const vn = await page.evaluate(() => {
+    const out = {};
+    for (const L of ['es', 'en', 'ja']) {
+      lang = L;
+      out[L] = [viewNoteText('ect', CONN.ect), viewNoteText('ipdm_e7', CONN.ipdm_e7)];
+    }
+    lang = 'es';
+    return out;
+  });
+  ok(/^Vista: cara hembra F13 \(EC-229 T\.S\.: 2-1\)/.test(vn.es[0]) && /^View: F13 female face \(EC-229 T\.S\.: 2-1\)/.test(vn.en[0]) && /^表示: F13メス側の面（EC-229 T\.S\.: 2-1/.test(vn.ja[0]),
+    `view note localized es/en/ja (${vn.es[0]} | ${vn.en[0]} | ${vn.ja[0]})`);
+  ok(/^Vista sin verificar/.test(vn.es[1]) && /^View not verified/.test(vn.en[1]) && /^表示は未検証/.test(vn.ja[1]), 'IPDM view marked unverified in es/en/ja');
+}
+await page.select('#ecmOrient', 'invertida');
+
+console.log('\nBack-up lamp switch F36·2 / F102·22H = switched REV output, not a 12V rail (LT-183)');
+await page.select('#model', 'de_early');
+await setTrans('mt');
+{
+  const st = await page.evaluate(() => {
+    const p2 = CONN.backup_sw.pins.find((p) => p.id === '2');
+    const p1 = CONN.backup_sw.pins.find((p) => p.id === '1');
+    const h22 = CONN.ix_f102_m72.pins.find((p) => p.id === '22H');
+    const cardTxt = [...document.querySelectorAll('#fichas [data-conn="backup_sw"] [data-cav="2"]')].map((e) => e.textContent).join(' ');
+    const el22 = f102PinEl('22H');
+    return { b2: cavBottomLabel(p2), b1: cavBottomLabel(p1), h22: cavBottomLabel(h22), r2: cavRailOf(p2), r22: cavRailOf(h22),
+      cardTxt, t22: el22 ? el22.textContent : '' };
+  });
+  ok(st.b2 === 'REV' && st.r2 !== '12v', `F36·2 bottom label REV, no 12V rail (${st.b2}, rail=${st.r2})`);
+  ok(st.h22 === 'REV' && st.r22 !== '12v', `F102·22H bottom label REV, no 12V rail (${st.h22}, rail=${st.r22})`);
+  ok(st.b1 === '12V', `F36·1 (IGN feed, fuse 83) stays 12V (${st.b1})`);
+  ok(!/12V/.test(st.t22), `F102 22H cell does not print 12V (${st.t22.replace(/\s+/g, ' ')})`);
+  for (const [cid, cav] of [['backup_sw', '2'], ['ix_f102_m72', '22H'], ['backup_sw', '1']]) {
+    await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+    await page.evaluate((cid, cav) => selectConnPin(cid, cav), cid, cav);
+    const sel = await page.evaluate(() => ({ circs: [...lastCircIds], f36: [...document.querySelectorAll('.cav-hit[data-conn="backup_sw"]')].some((e) => e.classList.contains('hl')),
+      p22: (() => { const e = f102PinEl('22H'); return !!e && e.classList.contains('hl'); })() }));
+    ok(sel.circs.includes('backup_lamp') && sel.f36 && sel.p22, `${cid}·${cav} click → backup_lamp circuit, F36 + F102·22H lit (${sel.circs.join(',')})`);
+  }
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+  const railLit = await page.evaluate(() => {
+    toggleRail('12v');
+    const railHas = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains('hl-rail'));
+    const e22 = f102PinEl('22H');
+    const r = { f36_2: railHas('backup_sw', '2'), f36_1: railHas('backup_sw', '1'), f102_22: !!e22 && e22.classList.contains('hl-rail'), on: activeRails.has('12v') };
+    toggleRail('12v');
+    return r;
+  });
+  ok(railLit.on && railLit.f36_1 && !railLit.f36_2 && !railLit.f102_22, `12V rail filter lights F36·1 (IGN feed) but not F36·2 / F102·22H (switched output) (${JSON.stringify(railLit)})`);
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+}
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

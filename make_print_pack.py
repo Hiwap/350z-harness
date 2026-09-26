@@ -117,7 +117,7 @@ OC = {
 }
 BENCH = {90, 91, 82, 83, 13, 2, 47, 48, 49}
 
-FACE_INV = True  # Inverted (bench): L/R mirror on ALL faces (ECM + intermediates)
+FACE_INV = True  # legacy "Invertida" flag: only row_labs() reads it (unused). Cards are fixed FSM T.S. faces (see ficha()).
 FACE_ORIENT_LABEL = t("face_orient")
 
 SHELL = black
@@ -303,7 +303,7 @@ def draw_cavity(px, py, cw, ch, lab, col, note, fs=None):
 
 
 def row_labs(labs):
-    """Invertida (bancada): mirror each face row L↔R. Applies to ECM faces AND intermedias."""
+    """Legacy Invertida row mirror (not called). Motor cards are fixed FSM T.S. faces, like the map fichas."""
     labs = list(labs)
     return list(reversed(labs)) if FACE_INV else labs
 
@@ -399,8 +399,9 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     Wire color only on cavity stroke + codes. Invertida L/R on faces.
     """
     face = face or (shape if shape in ("af6", "rect6", "f2", "rect10", "e113", "f102", "smj_h", "f3", "f1") else None)
-    # face_inv=None → global FACE_INV; False = keep FSM H.S. (intermedias)
-    use_inv = FACE_INV if face_inv is None else face_inv
+    # Connector cards are fixed plug faces as drawn in the 2005 FSM T.S. (same as the map fichas):
+    # pins are passed in FSM face order and are NOT mirrored by FACE_INV (that stays for the ECM grid only).
+    use_inv = bool(face_inv)
     def _row(labs):
         labs = list(labs)
         return list(reversed(labs)) if use_inv else labs
@@ -513,7 +514,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
                 draw_cavity(ox + ci * cw, oy + (1 - ri) * ch, cw, ch, lab, col, note, fs=4.0)
         return
 
-    # ---- E113 APP FSM face: top 3-2-1 / bot 6-5-4 · Invertida mirrors ----
+    # ---- E113 APP FSM face (EC-523 T.S.): fixed top 3-2-1 / bot 6-5-4 ----
     if face == "e113" and all(k in by for k in ("1", "2", "3", "4", "5", "6")):
         order = [_row(["3", "2", "1"]), _row(["6", "5", "4"])]
         cw, ch = face_w / 3, face_h / 2
@@ -537,10 +538,14 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
                 draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note, fs=3.4)
         return
 
-    # ---- RECT6: top 1-2-3 / bot 4-5-6 · Invertida ----
+    # ---- RECT6 (ETC F31, EC-235/464 T.S.): fixed top 3-2-1 / bot 6-5-4, same as the map ----
     if face == "rect6" and len(pins) >= 6:
-        top = _row(pins[:3])
-        bot = _row(pins[3:6])
+        if all(k in by for k in ("1", "2", "3", "4", "5", "6")):
+            top = [by[k] for k in ("3", "2", "1")]
+            bot = [by[k] for k in ("6", "5", "4")]
+        else:
+            top = _row(pins[:3])
+            bot = _row(pins[3:6])
         cw, ch = cav_fit(face_w, face_h, 3, 2)
         ox = face_x + max(0, (face_w - 3 * cw) / 2)
         oy = face_y + max(0, (face_h - 2 * ch) / 2)
@@ -610,7 +615,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
             draw_cavity(ox + i * cw, oy, cw, ch, lab, col, note, fs=4.0)
         return
 
-    # ---- F102 SMJ · PG-85 H.S. (ENGINE CONTROL HARNESS, white) · no Invertida ----
+    # ---- F102 SMJ · PG-85 T.S. (ENGINE CONTROL HARNESS, white, female) · fixed ----
     # L 1–10 · M 11–29 as grids; R 30H–46H = one tall empty stub (like web).
     if face in ("f102", "smj_h") or shape in ("f102", "smj_h"):
         blocks = [
@@ -950,6 +955,9 @@ KNOCK_PINS, _KNOCK_SUB = extract_conn("ix_f14_f229")
 ETC_PINS, ETC_SUB = extract_conn("etc")
 if not KNOCK_PINS:
     KNOCK_PINS = [("SIG", "W", "15"), ("GND", "B", "116")]
+# F14 face as drawn in EC-317 T.S.: 1-2 (map ix_f14_f229 faceRows). F229 is not drawn in the FSM: kept as before.
+# EC-317 F14: cavity 1 = B shield (GND), cavity 2 = W signal (SIG) -> left 1, right 2.
+KNOCK_PINS_F14 = sorted(KNOCK_PINS, key=lambda p: 0 if p[0] == "GND" else 1)
 if not E12_F3_SUB:
     E12_F3_SUB = "8-pin GY · VB 119/120 · IGN"
 if not E10_F1_SUB:
@@ -1094,7 +1102,7 @@ c.setFillColor(TITLE_BLACK)
 c.drawString(14, f102_top + 2, t("f102_header"))
 c.setFont(FONT, 4.8)
 c.setFillColor(MUTED)
-c.drawRightString(W - 14, f102_top + 2, (F102_SUB or "PG-85 H.S.") + " · " + t("f102_cavities", n=len(F102_PINS))
+c.drawRightString(W - 14, f102_top + 2, (F102_SUB or "PG-85 T.S.") + " · " + t("f102_cavities", n=len(F102_PINS))
                   + " · " + t("f102_at_note"))
 ficha(14, f102_top - f102_h, W - 28, f102_h - 2, t("f102_title"),
       F102_PINS, shape="f102", face="f102",
@@ -1172,10 +1180,10 @@ path_frame(ML, y - ch_ks, w_kn, ch_ks)
 kn_sens_w = w_kn * 0.30
 kn_mate_w = w_kn - kn_sens_w - 3
 ficha(ML + 1, y - ch_ks + 1, kn_sens_w - 1, ch_ks - 2, t("title_knock"),
-      [("SIG", "W", "15"), ("GND", "B", "116")],
+      [("GND", "B", "116"), ("SIG", "W", "15")],  # F228 EC-317 T.S.: 2-1
       "tab2", subtitle=t("sub_knock"), accent=GRP["sensors"])
 draw_mate_pair(ML + kn_sens_w + 1, y - ch_ks + 1, kn_mate_w - 1, ch_ks - 2,
-               {"title": t("title_f14"), "pins": KNOCK_PINS, "shape": "tab2", "subtitle": t("sub_mate_gnd"),
+               {"title": t("title_f14"), "pins": KNOCK_PINS_F14, "shape": "tab2", "subtitle": t("sub_mate_gnd"),
                 "accent": GRP["intermedias"], "face_inv": False},
                {"title": t("title_f229"), "pins": KNOCK_PINS, "shape": "tab2", "subtitle": t("sub_mate_gnd"),
                 "accent": GRP["intermedias"], "face_inv": False})
@@ -1183,10 +1191,12 @@ draw_mate_pair(ML + kn_sens_w + 1, y - ch_ks + 1, kn_mate_w - 1, ch_ks - 2,
 w6 = (w_rest - 5 * GAP) / 6
 items_s = [
     (t("title_f25"), [("12V", "R/W", "pwr"), ("GND", "B/W", "67"), ("SIG", "OR", "51")], "tab3", t("sub_maf")),
-    (t("title_f10"), [("PWR", "R/W", "12V"), ("SIG", "W/L", "13"), ("GND", "B", "gnd")], "tab3", t("sub_ckp")),
-    (t("title_cmp_b1"), [("GND", "B", "gnd"), ("SIG", "R", "33"), ("12V", "R/W", "12V")], "tab3", t("sub_cmp_b1")),
-    (t("title_cmp_b2"), [("GND", "B", "gnd"), ("SIG", "R/L", "14"), ("12V", "R/W", "12V")], "tab3", t("sub_cmp_b2")),
-    (t("title_ect"), [("SIG", "BR/Y", "73"), ("GND", "B/W", "67")], "tab2", t("sub_ect")),
+    # pins in FSM T.S. face order (fixed, same as the map): F25 1..6 (cards show 2-3-4 / 5-6),
+    # F10/F4/F32 3-2-1, F13 2-1
+    (t("title_f10"), [("GND", "B", "gnd"), ("SIG", "W/L", "13"), ("PWR", "R/W", "12V")], "tab3", t("sub_ckp")),
+    (t("title_cmp_b1"), [("12V", "R/W", "12V"), ("SIG", "R", "33"), ("GND", "B", "gnd")], "tab3", t("sub_cmp_b1")),
+    (t("title_cmp_b2"), [("12V", "R/W", "12V"), ("SIG", "R/L", "14"), ("GND", "B", "gnd")], "tab3", t("sub_cmp_b2")),
+    (t("title_ect"), [("GND", "B/W", "67"), ("SIG", "BR/Y", "73")], "tab2", t("sub_ect")),
     (t("title_iat"), [("IAT", "Y/G", "34"), ("GND", "B/W", "67")], "tab2", t("sub_iat")),
 ]
 xx = ML + w_kn + GAP
@@ -1202,10 +1212,10 @@ ficha(ML, y - ch_act, cw3, ch_act, t("title_etc"),
       "rect6", face="rect6", subtitle=t("sub_etc"),
       accent=GRP["sensors"], rail_5v=True)
 ficha(ML + cw3 + GAP, y - ch_act, cw3, ch_act, t("title_vtc_b1"),
-      [("ECM", "W/R", "11"), ("12V", "W/L", "ign")], "tab2", subtitle=t("sub_vtc_b1"),
+      [("12V", "W/L", "ign"), ("ECM", "W/R", "11")], "tab2", subtitle=t("sub_vtc_b1"),  # F204 EC-455 T.S.: 2-1
       accent=GRP["actuators"])
 ficha(ML + 2 * (cw3 + GAP), y - ch_act, cw3, ch_act, t("title_vtc_b2"),
-      [("ECM", "W/G", "10"), ("12V", "W/L", "ign")], "tab2", subtitle=t("sub_vtc_b2"),
+      [("12V", "W/L", "ign"), ("ECM", "W/G", "10")], "tab2", subtitle=t("sub_vtc_b2"),  # F26 EC-457 T.S.: 2-1
       accent=GRP["actuators"])
 y -= ch_act + gap_v
 
@@ -1215,7 +1225,7 @@ cw_c = (usable_w - 5 * GAP) / 6
 xx = ML
 for cyl, pin, code in coils:
     ficha(xx, y - ch_coil, cw_c, ch_coil, t("title_coil", n=cyl),
-          [("SIG", code, str(pin)), ("GND", "B", "F23"), ("12V", "W/L", "ign")],
+          [("12V", "W/L", "ign"), ("GND", "B", "F23"), ("SIG", code, str(pin))],  # EC-691/693 T.S.: 3-2-1
           "tab3", subtitle=t("sub_ecm_pin", pin=pin), accent=GRP["actuators"])
     xx += cw_c + GAP
 y -= ch_coil + gap_v
@@ -1226,7 +1236,7 @@ injs = [(1, 23, "R/B"), (2, 42, "R/W"), (3, 22, "R/Y"), (4, 41, "R/L"), (5, 21, 
 xx = ML
 for cyl, pin, code in injs:
     ficha(xx, y - ch_inj, cw_c, ch_inj, t("title_inj", n=cyl),
-          [("ECM", code, str(pin)), ("12V", "R", "ign")],
+          [("ECM", code, str(pin)), ("12V", "R", "ign")],  # F222–F227 EC-702 T.S.: 2-1
           "tab2", subtitle=t("sub_ecm_pin", pin=pin), accent=GRP["actuators"])
     xx += cw_c + GAP
 y -= ch_inj + gap_v

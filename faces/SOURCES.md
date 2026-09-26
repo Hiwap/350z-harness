@@ -32,9 +32,9 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 
 | file | FSM sheet | maps to |
 |------|-----------|---------|
-| fsm_f103.webp | EC-169 | gnd4 (F103) |
+| fsm_f103.webp | EC-169 | gnd4 (F103) — the ficha now matches this inset: fixed 1-2-3-4 (2026-09-26 audit; the old default 4-3-2-1 contradicted it) |
 | fsm_f9.webp | SC-13 | f9_starter (F9 · E203 in the same FSM box) |
-| fsm_f16.webp | EC-689 | f16_cond (F16) |
+| fsm_f16.webp | EC-689 | f16_cond (F16) — the ficha now matches this inset: fixed vertical 1 over 2 (2026-09-26 audit) |
 
 Not mapped in CONN_FACE:
 

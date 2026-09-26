@@ -84,6 +84,34 @@ ok('cavBottomLabel rail always GND/12V/5V',
 ok('cavBottomLabel SIG with ECM is the word SIG',
   /if\(pin && pin\.ecm != null\) return 'SIG';/.test(html));
 
+/* Ezequiel 2026-09 audit: every ficha is a fixed harness-plug face exactly as the 2005 FSM T.S. drawing.
+   The ECM selector (#ecmOrient) only drives the ECM grid and the ECM excerpt ecm_f101_can. */
+ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
+  /const FACE_FOLLOWS_ECM_ORIENT = new Set\(\['ecm_f101_can'\]\);/.test(html));
+{
+  const flipUses = [...script.matchAll(/flipRow\(/g)].length;
+  const faceInvUses = [...script.matchAll(/isFaceInv\(/g)].length;
+  ok('fixed faces: flipRow only in its definition + the single FACE_FOLLOWS_ECM_ORIENT guard',
+    flipUses === 2 && /if\(FACE_FOLLOWS_ECM_ORIENT\.has\(cid\)\) row = flipRow\(row\);/.test(script), `flipRow( ×${flipUses}`);
+  ok('fixed faces: isFaceInv only used by flipRow', faceInvUses === 2, `isFaceInv( ×${faceInvUses}`);
+  const svgFns = [...script.matchAll(/function (svg\w+)\([^)]*\)\{[\s\S]*?\n\}/g)].filter((m) => m[1] !== 'svgTabN' && /flipRow|isFaceInv/.test(m[0])).map((m) => m[1]);
+  ok('fixed faces: no svg* renderer other than svgTabN references flipRow/isFaceInv', svgFns.length === 0, svgFns.join(','));
+  const noView = [...html.matchAll(/^  (\w+):\{group:'motor'[^\n]*$/gm)]
+    .filter((m) => !/(?:\bview|viewByTrans):\{/.test(m[0]) && !/shape:'(?:ring|jb|ixnote)'/.test(m[0]) && !/^  (?:jb_|feed_|comb_meter|ix_f103_f151)/.test(m[0]))
+    .map((m) => m[1]).filter((id) => !['ecm_f101_can', 'f152', 'e17', 'f23_gnd'].includes(id));
+  ok('fixed faces: every plug ficha carries view data (FSM ref + order, or unverified reason)', noView.length === 0, noView.join(','));
+  const pp = fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8');
+  ok('print pack cards are fixed (use_inv = bool(face_inv), never FACE_INV)', /use_inv = bool\(face_inv\)/.test(pp) && !/use_inv = [^\n]*FACE_INV/.test(pp));
+}
+{
+  const f36 = (html.match(/backup_sw:\{group[\s\S]*?\n  \w+:\{group/) || [''])[0];
+  const f36p2 = (f36.match(/\{id:'2',[^\n]*/) || [''])[0];
+  const h22 = (html.match(/\{id:'22H'[^}]*\}/) || [''])[0];
+  ok('backup_sw F36·2 is the switched REV output, not a 12V rail (LT-183)', /lab:'REV',code:'OR'/.test(f36p2) && !/rail:'12v'/.test(f36p2), f36p2.slice(0, 80));
+  ok('F102·22H is the switched REV output, not a 12V rail (LT-183)', /lab:'REV'/.test(h22) && !/rail:'12v'/.test(h22), h22.slice(0, 80));
+  ok('backup_sw F36·1 keeps the IGN 12V feed (fuse 83)', /\{id:'1',lab:'IN',code:'Y\/R',ecm:null,rail:'12v'[^\n]*fusible 83/.test(f36));
+}
+
 const helperSrc = [
   extractConstObject(script, 'PIN_RAIL'),
   extractConstObject(script, 'PIN_CAN'),

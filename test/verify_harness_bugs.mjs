@@ -220,8 +220,7 @@ ok('actuators render no longer nests bobinas under actuators',
       /backup_sw/.test(block) && /ix_f102_m72/.test(block));
   }
   ok('F102 22H is REV OR backup_lamp',
-    /\{id:'22H',code:'OR'[^}]*circ:'backup_lamp'\}/.test(html)
-    || /\{id:'22H',code:'OR'[^}]*lab:'REV'[^}]*circ:'backup_lamp'\}/.test(html));
+    /\{id:'22H',code:'OR'[^}]*lab:'REV'[^}]*circ:'backup_lamp'/.test(html));
   ok('backup does not force-collapse F102',
     /function shouldCollapseF102ForBackup[\s\S]*?return false;/.test(html)
     && !/if\(focusConn === 'backup_sw'\) return true/.test(html));
