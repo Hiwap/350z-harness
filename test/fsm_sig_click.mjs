@@ -30,6 +30,7 @@ function findChrome() {
 }
 
 const K = (c, v) => `${c}·${v}`;
+const MC = (s) => (s.cav == null && s.map_cav ? s.map_cav : s.cav); // map label where the FSM publishes no cavity number
 // rail-only set from the FSM table
 const railOnly = new Map(); // key -> reason
 const addRail = (k, why) => { if (!railOnly.has(k)) railOnly.set(k, why); };
@@ -41,13 +42,13 @@ for (const f of TABLE.supply_feeds) for (const s of f.cavities) if (s.map) addRa
 for (const [p, e] of Object.entries(TABLE.pins)) {
   if (e.status === 'pending' || e.sensor_return || !['gnd', '12v'].includes(e.rail)) continue;
   for (const b of e.branches) {
-    for (const s of b.route) if (s.map) addRail(K(s.map, s.cav), `ECM ${p} ${e.rail} route (${e.cite.ec.join('/')})`);
-    if (b.end.map) addRail(K(b.end.map, b.end.cav), `ECM ${p} ${e.rail} end (${e.cite.ec.join('/')})`);
+    for (const s of b.route) if (s.map) addRail(K(s.map, MC(s)), `ECM ${p} ${e.rail} route (${e.cite.ec.join('/')})`);
+    if (b.end.map) addRail(K(b.end.map, MC(b.end)), `ECM ${p} ${e.rail} end (${e.cite.ec.join('/')})`);
   }
 }
 const ownRoute = (p) => {
   const e = TABLE.pins[String(p)]; const set = new Set();
-  for (const b of e.branches) { for (const s of b.route) if (s.map) set.add(K(s.map, s.cav)); if (b.end.map) set.add(K(b.end.map, b.end.cav)); }
+  for (const b of e.branches) { for (const s of b.route) if (s.map) set.add(K(s.map, MC(s))); if (b.end.map) set.add(K(b.end.map, MC(b.end))); }
   return set;
 };
 const allow = new Map();
@@ -79,9 +80,9 @@ const ok = (name, cond, detail = '') => { if (cond) pass++; else { fails.push(na
 
 const sigPins = Object.entries(TABLE.pins).filter(([, e]) => e.rail === 'sig' && e.status !== 'pending').map(([p, e]) => [Number(p), e]);
 const scenarios = [
-  { model: 'de_early', trans: 'mt', pins: sigPins.filter(([, e]) => e.applies !== 'revup' && e.applies !== 'at') },
+  { model: 'de_early', trans: 'mt', pins: sigPins.filter(([, e]) => !['revup', 'revup+mt', 'at'].includes(e.applies)) },
   { model: 'de_early', trans: 'at', pins: sigPins.filter(([, e]) => e.applies === 'at' || e.branches.some((b) => b.applies === 'at')) },
-  { model: 'de_revup', trans: 'mt', pins: sigPins.filter(([, e]) => e.applies === 'revup') },
+  { model: 'de_revup', trans: 'mt', pins: sigPins.filter(([, e]) => e.applies === 'revup' || e.applies === 'revup+mt') },
 ];
 let clicked = 0;
 for (const sc of scenarios) {
@@ -112,6 +113,49 @@ await page.click('#blocks .pin[data-pin="94"]');
   const lit = await page.evaluate(() => [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].map((c) => c.dataset.conn + '·' + c.dataset.cav));
   ok('A/T ECM 94 CAN-H lights F6·3 (TCM) + M48·1 + E9·48 + DLC·6 (LAN-31/32)', ['f6_at·3', 'comb_meter·1', 'ipdm_e9·48', 'dlc·6'].every((k) => lit.includes(k)), lit.join(','));
 }
+// Engine oil temperature sensor F242 (EC-123 (3M) = 35th Anniversary M/T; PG-55 *1; 2006 EC-110 (M)):
+// ECM 54 + F242 exist only on Rev-Up + Manual; the 54 click shows the signal only; the F242 ground reaches ECM 67.
+{
+  const eot = TABLE.pins['54'];
+  const gndBr = TABLE.pins['67'].branches.find((b) => b.end.map === 'f242_eot');
+  ok('table: ECM 54 is revup+mt, cites EC-123 + PG-55', eot && eot.applies === 'revup+mt' && eot.cite.ec.includes('EC-123') && eot.cite.pg.includes('PG-55'));
+  ok('table: ECM 67 has the F242 ground splice branch (revup+mt, EC-123)', !!gndBr && gndBr.applies === 'revup+mt' && TABLE.pins['67'].cite.ec.includes('EC-123'));
+  const sigKey = K('f242_eot', MC(eot.branches[0].end)); const gndKey = K('f242_eot', MC(gndBr.end));
+  for (const [model, trans] of [['de_revup', 'mt'], ['de_revup', 'at'], ['de_early', 'mt'], ['de_early', 'at']]) {
+    await page.select('#model', model);
+    await page.select('#transView', trans);
+    await page.waitForFunction((t) => transView() === t, {}, trans);
+    await page.evaluate(() => clearSelection());
+    const want = model === 'de_revup' && trans === 'mt';
+    const pin = !!(await page.$('#blocks .pin[data-pin="54"]:not(.unused)'));
+    const card = !!(await page.$('#fichas [data-conn="f242_eot"]'));
+    ok(`ECM 54 ${want ? 'shown' : 'hidden'} on ${model}/${trans} (EC-123 3M)`, pin === want, `pin active=${pin}`);
+    ok(`F242 card ${want ? 'shown' : 'hidden'} on ${model}/${trans}`, card === want, `card=${card}`);
+  }
+  await page.select('#model', 'de_revup');
+  await page.select('#transView', 'mt');
+  await page.waitForFunction(() => transView() === 'mt');
+  const litNow = () => page.evaluate(() => [...new Set([...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].map((c) => c.dataset.conn + '·' + c.dataset.cav))]);
+  await page.evaluate(() => clearSelection());
+  await page.click('#blocks .pin[data-pin="54"]');
+  let lit = await litNow();
+  ok(`ECM 54 click lights ${sigKey} and not the ground ${gndKey}`, lit.includes(sigKey) && !lit.includes(gndKey), lit.join(','));
+  const gndLit = await page.evaluate(() => [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].filter((c) => c.dataset.rail === 'gnd' || c.dataset.rail === '12v').map((c) => c.dataset.conn + '·' + c.dataset.cav));
+  ok('ECM 54 click lights no gnd/12V cavity', gndLit.length === 0, gndLit.join(','));
+  await page.evaluate(() => clearSelection());
+  await page.click('#blocks .pin[data-pin="67"]');
+  lit = await litNow();
+  ok(`ECM 67 click lights the oil temp ground ${gndKey} (splice, EC-123) with ECT ect·2`, lit.includes(gndKey) && lit.includes('ect·2'), lit.join(','));
+  await page.evaluate(() => clearSelection());
+  await page.evaluate((k) => { const [c, v] = k.split('·'); document.querySelector(`.cav-hit[data-conn="${c}"][data-cav="${v}"]`).dispatchEvent(new MouseEvent('click', { bubbles: true })); }, gndKey);
+  const e67 = await page.evaluate(() => { const el = document.querySelector('#blocks .pin[data-pin="67"]'); return !!el && (el.classList.contains('hl') || el.classList.contains('hl-group')); });
+  ok(`clicking ${gndKey} selects ECM 67`, e67);
+  await page.evaluate(() => { clearSelection(); toggleRail('gnd'); });
+  const railG = await page.evaluate((k) => { const [c, v] = k.split('·'); return [...document.querySelectorAll(`.cav-hit[data-conn="${c}"][data-cav="${v}"]`)].some((el) => el.classList.contains('hl-rail') || el.classList.contains('hl-rail-rel-gnd')); }, gndKey);
+  ok(`GND rail shows ${gndKey}`, railG);
+  await page.evaluate(() => { toggleRail('gnd'); clearSelection(); });
+}
+await page.select('#model', 'de_early');
 await page.select('#transView', 'mt');
 // Positive control: with "related power" on, the coil 12V feed (E7·17 → E12/F3·5) still lights (EC-689).
 await page.select('#model', 'de_early');

@@ -344,8 +344,8 @@ ok('actuators render no longer nests bobinas under actuators',
     /\{id:'28H',code:'BR\/Y',ecm:102,lab:'PNP',trans:'at',circ:'pnp_at'/.test(html));
   ok('F102 23H START GY/R is A/T only (trans:at, EC-644)',
     /\{id:'23H',code:'GY\/R',ecm:null,lab:'START',src:'F6·9',srcSub:'actuators',trans:'at'/.test(html));
-  ok('applyTransView rebuilds circuits + F102',
-    /localStorage\.setItem\(LS_TRANS, v\);\n  CIRCUITS = circuitsForView\([^\n]*\n  rebuildIndexes\(\);\n  renderFichas\(\);\n  renderF102\(\);/.test(html));
+  ok('applyTransView rebuilds circuits + ECM grid (M/T-gated ECM 54) + F102',
+    /localStorage\.setItem\(LS_TRANS, v\);\n  CIRCUITS = circuitsForView\([^\n]*\n  rebuildIndexes\(\);\n  renderECM\(\);\n  renderFichas\(\);\n  renderF102\(\);/.test(html));
   try {
     const ctx = { result: {} };
     vm.createContext(ctx);
@@ -477,18 +477,26 @@ ok('actuators render no longer nests bobinas under actuators',
 }
 
 {
-  /* Engine oil temperature sensor: PG-55 sub-harness-3 F242 GY/2 (not F232); F241 BR/2 ↔ F39 GY/2 intermediate; no ECM terminal in the 2005 FSM. */
+  /* Engine oil temperature sensor (35th Anniversary M/T): EC-123 TBWT1078E (3M) + 2006 EC-110 (M): signal → ECM 54, ground → splice on ECM 67 (with ECT).
+     PG-55 *1: F242 GY/2 → F241 BR/2 ↔ F39 GY/2. FSM publishes no pinout / colours / F39-F241 cavities / face → neutral S/G labels, colour '—'. */
   ok('no F232 oil temp card left', !/f232_eot|F232/.test(html));
   const b = (html.match(/\n  f242_eot:\{[\s\S]*?\n    note:[^\n]*/) || [''])[0];
-  ok('f242_eot: F242 GY/2 tab2 motor sensor, PG-55', /name:'F242 · Temp\. aceite'/.test(b) && /meta:'GY\/2 /.test(b)
-    && /shape:'tab2'/.test(b) && /group:'motor', sub:'sensors'/.test(b) && b.includes('PG-55'));
-  const pins = [...b.matchAll(/\{id:'([^']+)',code:'([^']+)',ecm:(\w+),unknown:true/g)].map((m) => m.slice(1).join(':'));
-  ok('f242_eot: 2 cavities, no invented ECM pin / color', JSON.stringify(pins) === JSON.stringify(['1:—:null', '2:—:null']), pins.join(','));
-  ok('f242_eot note: F241 BR/2 ↔ F39 GY/2 intermediate, CONSULT only', /F241 BR\/2 ↔ F39 GY\/2/.test(b) && /ENG OIL TEMP/.test(b));
-  ok('f242_eot en/ja i18n', /\n  f242_eot: \{ en:\{name:'F242 · Oil temp', meta:'GY\/2 [^']*', note:'[^']*F241 BR\/2 ↔ F39 GY\/2/.test(html)
-    && /ja:\{name:'F242 · 油温'/.test(html));
+  ok('f242_eot: F242 GY/2 tab2 motor sensor, EC-123 + PG-55', /name:'F242 · Temp\. aceite'/.test(b) && /meta:'GY\/2 /.test(b)
+    && /shape:'tab2'/.test(b) && /group:'motor', sub:'sensors'/.test(b) && b.includes('PG-55') && b.includes('EC-123'));
+  const pins = [...b.matchAll(/\{id:'([^']+)',lab:'([^']+)',code:'([^']+)',wireUnk:true,ecm:(\w+)/g)].map((m) => m.slice(1).join(':'));
+  ok('f242_eot: S → ECM 54, G → ECM 67, colour not invented', JSON.stringify(pins) === JSON.stringify(['S:SIG:—:54', 'G:GND:—:67']), pins.join(','));
+  ok('f242_eot: G is gnd rail', /\{id:'G',lab:'GND',code:'—',wireUnk:true,ecm:67,rail:'gnd'/.test(b));
+  ok('f242_eot note: ECM 54 + 67 splice, F242→F241/F39→F101, EC-123/PG-55/2006 EC-110, verify physically',
+    /ECM 54/.test(b) && /ECM 67/.test(b) && /F242→F241\/F39→ECM F101/.test(b) && /EC-123/.test(b) && /2006 EC-110/.test(b) && /verificar físicamente/.test(b));
+  ok('f242_eot en/ja i18n', /\n  f242_eot: \{ en:\{name:'F242 · Oil temp', meta:'GY\/2 [^']*', note:'Oil temp sensor \(35th Anniv\. M\/T only\): signal → ECM 54[^']*'\}/.test(html)
+    && /ja:\{name:'F242 · 油温', meta:'[^']*', note:'油温センサー（35th Anniversary M\/T車のみ）：信号 → ECM 54/.test(html));
+  ok('PIN_NAME 54 es/en/ja', /54:"Temp\. aceite \(35th M\/T\)"/.test(html) && /54:"Oil temp \(35th M\/T\)"/.test(html) && /54:"油温（35th M\/T）"/.test(html));
+  ok('ECM 54 colour not invented (no PIN_COL entry)', !/"54":"/.test((html.match(/const PIN_COL = \{[^}]*\}/) || [''])[0]));
+  ok('ECM 54 grid gate: Rev-Up + Manual', /Number\(p\)===54 && \(model !== 'de_revup' \|\| transView\(\) !== 'mt'\)\) return false;/.test(html));
+  ok('trans change re-renders the ECM grid', /rebuildIndexes\(\);\n  renderECM\(\);\n  renderFichas\(\);/.test(html));
   ok('F242 hidden on VQ35DE sin VTC escape (Rev-Up only)', /id !== 'f42_evtc_b2' && id !== 'f242_eot'\)/.test(html));
-  ok('F242 not trans-gated', !/'f242_eot'/.test((html.match(/const TRANS_MT_ONLY = new Set\(\[[^\]]*\]\)/) || [''])[0]));
+  ok('F242 M/T-only (EC-123 3M, PG-55 *1)', /'f242_eot'/.test((html.match(/const TRANS_MT_ONLY = new Set\(\[[^\]]*\]\)/) || [''])[0]));
+  ok('eot circuit: Rev-Up branch, trans mt, ECM 54 only', /\{id:'eot', trans:'mt', title:'[^']*', color:'[^']*',\n        ecm:\[54\], conn:\['f242_eot'\],/.test(html));
 }
 
 console.log('\n---');

@@ -7,7 +7,8 @@
   "route = intermediate connectors from the ECM outward; cav is the FSM cavity id; col gives the wire color on each connector half.",
   "map = id of the card in index.html CONN_BASE that depicts the connector (null = not drawn); connectors[map].half says which half's wire color the card shows.",
   "end.type: device (sensor/actuator/module pin), ground (key into ground_points), source (fuse/relay; optional on the map).",
-  "applies: all | revup | at | mt.",
+  "applies: all | revup | at | mt | revup+mt (Rev-Up and M/T both required, e.g. 35th Anniversary M/T).",
+  "map_cav: map cavity label used where the FSM does not number the cavity (cav stays null); colour/face checks for such entries stay pending.",
   "sensor_return=true marks ECM sensor-ground terminals (gnd rail returning to the ECM, not to a ground point).",
   "To add ECM wiring to the map: add/extend the pin here first with EC/PG citations; npm test enforces the map against this table."
  ],
@@ -1734,10 +1735,11 @@
     "2"
    ],
    "cite": [
-    "PG-55"
+    "PG-55",
+    "EC-123"
    ],
    "status": "pending",
-   "reason": "GY/2 per PG-55 sub-harness 3; no ECM wiring diagram in EC for this sensor"
+   "reason": "F242 GY/2 per PG-55 (sub-harness-3, *1 35th Anniversary M/T); EC-123 wires one cavity to ECM 54 and one to the ECM 67 splice, but the FSM (2005/2006) publishes no face or cavity numbering, so the map uses neutral labels S/G"
   }
  },
  "pseudo_cards": {
@@ -2973,6 +2975,51 @@
    },
    "status": "verified"
   },
+  "54": {
+   "color": "unknown",
+   "function": "Engine oil temperature sensor (35th Anniversary M/T; CONSULT ENG OIL TEMP only, not used for engine control)",
+   "rail": "sig",
+   "applies": "revup+mt",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F39/F241",
+       "map": null,
+       "cav": null,
+       "note": "F39 (GY/2, engine control harness) / F241 (BR/2, sub-harness-3), PG-55 *1; cavity numbers not published"
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F242",
+      "map": "f242_eot",
+      "cav": null,
+      "col": null,
+      "applies": "revup+mt",
+      "map_cav": "S",
+      "note": "FSM does not number the F242 cavities; map uses neutral label"
+     },
+     "applies": "revup+mt"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-123"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified",
+   "color_pending": "wire colour not published: EC-123 / 2006 EC-110 print no colour on the oil temperature sensor circuit and terminal 54 is not in the EC-124..134 terminal table",
+   "other_refs": [
+    "2006 FSM EC-110 (TBWT1582E, marked (M))",
+    "EC-136/EC-143 (CONSULT ENG OIL TEMP, 35th Anniversary)",
+    "EM-28 (oil pan)",
+    "GI-52 (35th Anniversary identification)"
+   ]
+  },
   "55": {
    "color": "L/B",
    "function": "Heated oxygen sensor 2 bank 2",
@@ -3384,6 +3431,28 @@
      },
      "applies": "all",
      "note": "ASCD steering switch ground EC-618"
+    },
+    {
+     "route": [
+      {
+       "conn": "F39/F241",
+       "map": null,
+       "cav": null,
+       "note": "F39 (GY/2, engine control harness) / F241 (BR/2, sub-harness-3), PG-55 *1; cavity numbers not published"
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F242",
+      "map": "f242_eot",
+      "cav": null,
+      "col": null,
+      "applies": "revup+mt",
+      "map_cav": "G",
+      "note": "FSM does not number the F242 cavities; map uses neutral label"
+     },
+     "applies": "revup+mt",
+     "note": "engine oil temperature sensor ground (35th Anniversary M/T): joins the ECM 67 sensor-ground line at a splice dot on EC-123 (TBWT1078E), the same line as the ECT sensor; 2006 EC-110 (TBWT1582E) identical. Splice location and wire colour not published."
     }
    ],
    "cite": {
@@ -3394,10 +3463,12 @@
      "EC-426",
      "EC-717",
      "EC-379",
-     "EC-618"
+     "EC-618",
+     "EC-123"
     ],
     "pg": [
      "PG-54",
+     "PG-55",
      "PG-84",
      "PG-85"
     ]

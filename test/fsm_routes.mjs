@@ -75,9 +75,11 @@ const circuitPathRail = (cir) => {
   const rails = new Set(pathKeys(cir).map((k) => { const [cid, cav] = k.split('·'); return pathStepRail(cid, cav); }).filter(Boolean));
   return rails.has('12v') ? '12v' : rails.has('5v') ? '5v' : rails.has('gnd') ? 'gnd' : 'sig';
 };
+// map_cav: map label where the FSM publishes no cavity number (cav null), e.g. F242 S/G (EC-123)
+const MC = (s) => (s.cav == null && s.map_cav ? s.map_cav : s.cav);
 const branchKeys = (b) => {
-  const ks = b.route.filter((s) => s.map).map((s) => K(s.map, s.cav));
-  if (b.end.type === 'device' && b.end.map) ks.push(K(b.end.map, b.end.cav));
+  const ks = b.route.filter((s) => s.map).map((s) => K(s.map, MC(s)));
+  if (b.end.type === 'device' && b.end.map) ks.push(K(b.end.map, MC(b.end)));
   if (b.end.type === 'ground' && groundKey(b.end.point)) ks.push(groundKey(b.end.point));
   if (b.end.type === 'source' && b.end.map) ks.push(K(b.end.map, b.end.cav));
   return ks;
@@ -86,7 +88,12 @@ const sameSeq = (a, b) => a.length === b.length && a.every((x, i) => x === b[i])
 
 // ---------------------------------------------------------------- (a) pin routes
 console.log('(a) ECM pin routes vs FSM table');
-const mapPins = Object.keys(PIN_COL).map(Number).sort((a, b) => a - b);
+// every ECM pin the map draws: PIN_COL keys + ECM pins on cards + circuit ECM lists (a pin with an unpublished colour has no PIN_COL entry)
+const mapPins = [...new Set([
+  ...Object.keys(PIN_COL).map(Number),
+  ...Object.entries(CONN_BASE).filter(([cid]) => !TABLE.pseudo_cards[cid]).flatMap(([, c]) => (c.pins || []).filter((p) => p.ecm != null && p.ecm !== '').map((p) => Number(p.ecm))),
+  ...CIRCUITS.flatMap((c) => (c.ecm || []).map(Number)),
+])].filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
 let verifiedPins = 0; const pendingPins = [];
 for (const p of mapPins) {
   const e = TABLE.pins[String(p)];
@@ -98,8 +105,8 @@ for (const p of mapPins) {
   const expected = new Map(); const optional = new Set();
   const addExp = (k, col) => { if (!expected.has(k)) expected.set(k, new Set()); if (col) expected.get(k).add(col); };
   for (const b of e.branches) {
-    for (const s of b.route) if (s.map) addExp(K(s.map, s.cav), stepColor(s));
-    if (b.end.type === 'device' && b.end.map) addExp(K(b.end.map, b.end.cav), b.end.col);
+    for (const s of b.route) if (s.map) addExp(K(s.map, MC(s)), stepColor(s));
+    if (b.end.type === 'device' && b.end.map) addExp(K(b.end.map, MC(b.end)), b.end.col);
     if (b.end.type === 'source' && b.end.map) optional.add(K(b.end.map, b.end.cav));
   }
   const actual = new Map();
@@ -120,6 +127,14 @@ for (const p of mapPins) {
       if (!code || code === '—') continue;
       ok(`ECM ${p}: ${k} color ${code} = FSM ${[...cols].join(' or ')}`, cols.has(code), `half ${half(k.split('·')[0])}, cite ${e.cite.ec.join('/')}`);
     }
+  }
+  // applicability: Rev-Up-only pins have no circuit on the early (non-Rev-Up) model; revup+mt circuits are also M/T-only
+  if (e.applies === 'revup' || e.applies === 'revup+mt') {
+    const earlyC = early.filter((c) => (c.ecm || []).map(Number).includes(p));
+    const revC = rev.filter((c) => (c.ecm || []).map(Number).includes(p));
+    ok(`ECM ${p} (${e.applies}): no circuit on the non-Rev-Up model`, earlyC.length === 0, earlyC.map((c) => c.id).join(','));
+    ok(`ECM ${p} (${e.applies}): drawn on the Rev-Up model`, revC.length > 0);
+    if (e.applies === 'revup+mt') ok(`ECM ${p} (revup+mt): every circuit is M/T-only (trans:'mt')`, revC.every((c) => c.trans === 'mt'), revC.map((c) => `${c.id}:${c.trans || 'all'}`).join(','));
   }
   // rail class
   const mapRail = PIN_RAIL[p] || null;

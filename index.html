@@ -1207,7 +1207,7 @@ const PIN_NAME = {
   23:"Inyector 1",24:"Calentador A/F B2",25:"Calentador HO2S2 B1",32:"Presión EVAP",33:"CMP B1",
   34:"IAT (temp. admisión)",35:"A/F B1",40:"Inyector 6",41:"Inyector 4",42:"Inyector 2",
   45:"Purga EVAP",47:"Rail 5V",48:"5V EVAP",49:"5V A/C",50:"TPS1",
-  51:"MAF (caudal de aire)",53:"EVT posición B1 (Rev-Up)",55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",
+  51:"MAF (caudal de aire)",53:"EVT posición B1 (Rev-Up)",54:"Temp. aceite (35th M/T)",55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",
   60:"Bobina 5",61:"Bobina 3",62:"Bobina 1",66:"Tierra sensores (SNS)",67:"Tierra SNS / ASCD",
   68:"5V PSP",69:"TPS2",70:"Presión A/C",72:"EVT posición B2 (Rev-Up)",73:"ECT (temp. refrigerante)",74:"HO2S2 B1",
   75:"A/F B1",76:"A/F B2",77:"A/F B2",78:"Tierra sensores (SNS)",79:"Bobina 6",
@@ -1225,7 +1225,7 @@ const PIN_NAME_EN = {
   23:"Injector 1",24:"A/F heater B2",25:"HO2S2 heater B1",32:"EVAP pressure",33:"CMP B1",
   34:"IAT (intake air temp)",35:"A/F B1",40:"Injector 6",41:"Injector 4",42:"Injector 2",
   45:"EVAP purge",47:"5V rail",48:"5V EVAP",49:"5V A/C",50:"TPS1",
-  51:"MAF (air flow)",53:"EVT position B1 (Rev-Up)",55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",
+  51:"MAF (air flow)",53:"EVT position B1 (Rev-Up)",54:"Oil temp (35th M/T)",55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",
   60:"Coil 5",61:"Coil 3",62:"Coil 1",66:"Sensor ground (SNS)",67:"SNS ground / ASCD",
   68:"5V PSP",69:"TPS2",70:"A/C pressure",72:"EVT position B2 (Rev-Up)",73:"ECT (coolant temp)",74:"HO2S2 B1",
   75:"A/F B1",76:"A/F B2",77:"A/F B2",78:"Sensor ground (SNS)",79:"Coil 6",
@@ -1243,7 +1243,7 @@ const PIN_NAME_JA = {
   23:"インジェクタ1",24:"A/Fヒータ B2",25:"HO2S2ヒータ B1",32:"EVAP圧力",33:"CMP B1",
   34:"IAT（吸気温）",35:"A/F B1",40:"インジェクタ6",41:"インジェクタ4",42:"インジェクタ2",
   45:"EVAPパージ",47:"5Vレール",48:"5V EVAP",49:"5V A/C",50:"TPS1",
-  51:"MAF（エアフロ）",53:"EVT位置 B1（Rev-Up）",55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",
+  51:"MAF（エアフロ）",53:"EVT位置 B1（Rev-Up）",54:"油温（35th M/T）",55:"HO2S2 B2",56:"A/F B1",57:"A/F B2",58:"A/F B2",
   60:"コイル5",61:"コイル3",62:"コイル1",66:"センサアース (SNS)",67:"SNSアース / ASCD",
   68:"5V PSP",69:"TPS2",70:"A/C圧力",72:"EVT位置 B2（Rev-Up）",73:"ECT（冷却水温）",74:"HO2S2 B1",
   75:"A/F B1",76:"A/F B2",77:"A/F B2",78:"センサアース (SNS)",79:"コイル6",
@@ -1665,7 +1665,11 @@ function buildCircuits(model){
       {id:'evt_pos_b2_pwr', title:'EVT posición B2 · 12V', color:'#ad1457',
         ecm:[], conn:['f42_evtc_b2','ix_e12_f3'],
         path:{ipdm_e7:['18'],ix_e12_f3:['7'],f42_evtc_b2:['3']},
-        notes:'12V sensor EVT B2. Ruta: IPDM E7·18 (relé ECM, R/W) → E12/F3·7 → F42·3. EC-447.'}
+        notes:'12V sensor EVT B2. Ruta: IPDM E7·18 (relé ECM, R/W) → E12/F3·7 → F42·3. EC-447.'},
+      /* Engine oil temperature sensor F242 (EC-123 (3M) = 35th Anniversary M/T; 2006 EC-110 (M)). Ground = F242·G on the ECM 67 line (no path: sensor return, like ECT). */
+      {id:'eot', trans:'mt', title:'Temp. aceite (35th M/T) · F242', color:'#6d4c41',
+        ecm:[54], conn:['f242_eot'],
+        notes:'Sensor temperatura de aceite (solo 35th Anniversary M/T). Señal F242·S → F241/F39 → ECM 54 · masa F242·G → empalme ECM 67 (clic en ECM 67, F242·G o Masa). Solo dato CONSULT; no controla el motor. EC-123 · PG-55.'}
     );
   } else {
     base.push(
@@ -1994,12 +1998,12 @@ const CONN_BASE = {
       {id:'3',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm',circ:'evt_pos_b2_pwr',note:'12V relé ECM: IPDM E7·18 (R/W, relé ECM + fusible 77 15A) → E12/F3·7 → pin 3 (mismo empalme que ECM 119). EC-447.',note_en:'12V from ECM relay: IPDM E7·18 (R/W, ECM relay + fuse 77 15A) → E12/F3·7 → pin 3 (same splice as ECM 119). EC-447.',note_ja:'ECMリレー12V: IPDM E7·18（R/W, ECMリレー + ヒューズ77 15A）→ E12/F3·7 → pin3（ECM 119と同じスプライス）。EC-447。'}
     ],
     note:'Sensor posición VTC escape B2 (solo Rev-Up). F42 GY/3: 1 B → F103·3 → F152 · 2 L/W → ECM 72 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18 (relé ECM). EC-447 · PG-55 *1.'},
-  f242_eot:{group:'motor', sub:'sensors', name:'F242 · Temp. aceite', meta:'GY/2 · Rev-Up (35th *1) · sub-arnés 3 · PG-55 · EC-23', accent:'#6d4c41', shape:'tab2',
+  f242_eot:{group:'motor', sub:'sensors', name:'F242 · Temp. aceite', meta:'GY/2 · Rev-Up 35th M/T (*1) · sub-arnés 3 · EC-123 · PG-55', accent:'#6d4c41', shape:'tab2',
     pins:[
-      {id:'1',code:'—',ecm:null,unknown:true,note:'Pin sin publicar: el FSM 2005 no da diagrama ni terminal ECM de este sensor (no está en la tabla ECM EC-121..134). No inventar.',note_en:'Pin not published: the 2005 FSM gives no wiring diagram or ECM terminal for this sensor (not in the ECM table EC-121..134). Do not guess.',note_ja:'未公開ピン: 2005 FSMにこのセンサの配線図・ECM端子の記載なし（ECM端子表 EC-121..134 にもなし）。推測しないこと。'},
-      {id:'2',code:'—',ecm:null,unknown:true,note:'Pin sin publicar: el FSM 2005 no da diagrama ni terminal ECM de este sensor (no está en la tabla ECM EC-121..134). No inventar.',note_en:'Pin not published: the 2005 FSM gives no wiring diagram or ECM terminal for this sensor (not in the ECM table EC-121..134). Do not guess.',note_ja:'未公開ピン: 2005 FSMにこのセンサの配線図・ECM端子の記載なし（ECM端子表 EC-121..134 にもなし）。推測しないこと。'}
+      {id:'S',lab:'SIG',code:'—',wireUnk:true,ecm:54,note:'Señal → ECM 54 (EC-123, 2006 EC-110). "S" es una etiqueta neutra: el FSM no numera las cavidades de F242 ni publica el color del cable. Pasa por F241/F39 (cavidad sin publicar).',note_en:'Signal → ECM 54 (EC-123, 2006 EC-110). "S" is a neutral label: the FSM does not number the F242 cavities or print the wire colour. Runs through F241/F39 (cavity not published).',note_ja:'信号 → ECM 54（EC-123、2006 EC-110）。「S」は仮ラベル：FSMはF242のキャビティ番号・配線色を記載していない。F241/F39経由（キャビティ未記載）。'},
+      {id:'G',lab:'GND',code:'—',wireUnk:true,ecm:67,rail:'gnd',note:'Masa → empalme con la línea ECM 67 (masa sensores, compartida con ECT F13·2; EC-123, 2006 EC-110). "G" es una etiqueta neutra: el FSM no numera las cavidades ni publica color ni ubicación del empalme. Pasa por F241/F39 (cavidad sin publicar).',note_en:'Ground → splice into the ECM 67 line (sensor ground shared with ECT F13·2; EC-123, 2006 EC-110). "G" is a neutral label: the FSM does not number the cavities or print the wire colour or splice location. Runs through F241/F39 (cavity not published).',note_ja:'アース → ECM 67ライン（センサーアース、ECT F13·2と共用）にスプライス（EC-123、2006 EC-110）。「G」は仮ラベル：キャビティ番号・配線色・スプライス位置はFSMに未記載。F241/F39経由（キャビティ未記載）。'}
     ],
-    note:'Sensor temperatura de aceite (solo 35th Anniversary = Rev-Up; EM-28, GI-52). F242 GY/2 en el sub-arnés control motor 3 → F241 BR/2 ↔ F39 GY/2 (intermedia al arnés control motor, PG-54 C4/C5) → ECM. Solo dato CONSULT "ENG OIL TEMP"; no controla el motor (EC-136/143). El FSM 2005 no publica terminal ECM, pinout ni colores de cable. PG-55 *1 dice "35th con M/T".'},
+    note:'Sensor temp. aceite (solo 35th Anniv. M/T): señal → ECM 54, masa → empalme con ECM 67 (masa sensores, compartida con ECT). Ruta F242→F241/F39→ECM F101. Fuente: FSM 2005 EC-123, PG-55 (2006 EC-110 igual). El FSM no publica pinout del sensor, colores de cable, cavidades F39/F241 ni vista del conector: verificar físicamente en un 35th Anniversary.'},
   f6_at:{group:'motor', sub:'actuators', name:'F6 · A/T assembly', meta:'GY/10 · TCM · AT-186/114', accent:'#7e57c2', shape:'rect10',
     pins:[
       {id:'1',code:'R/W',lab:'BATT',rail:'12v'},
@@ -2448,7 +2452,8 @@ const LS_MODEL_BANNER = 'z33_modelBannerOpen';
 /* A/T-only fichas (hide when Manual). F6 TCM is not on M/T engine loom. */
 const TRANS_AT_ONLY = new Set(['f6_at']);
 /* M/T-only fichas (hide when Automático). Backup SW F36 / ASCD clutch. */
-const TRANS_MT_ONLY = new Set(['backup_sw', 'ascd_clutch', 'f35_pnp']);
+/* F242 oil temp: 35th Anniversary M/T only (EC-123 (3M), PG-55 *1, 2006 EC-110 (M)). */
+const TRANS_MT_ONLY = new Set(['backup_sw', 'ascd_clutch', 'f35_pnp', 'f242_eot']);
 const LOOM_BODY_EXTRA = new Set([
   /* not on pulled engine-control harness (bench) */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
@@ -2775,7 +2780,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const ecmFace = isUnk ? '—' : cavTopLabel(pin);
   let topFill = isUnk ? ((mode === 'solid') ? txtFill : '#90a4ae') : cavTopFill(pin, mode, txtFill);
   const wireLetters = isUnk ? '?' : cavWireCode(pin);
-  const midFace = isUnk
+  const midFace = (isUnk || (pin && pin.wireUnk))
     ? `<text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" ${ink('#b0bec5')} font-size="${h<30?11:13}" font-weight="800">?</text>`
     : (wireLetters
         ? wireCodeSvg(wireLetters, x+w/2, codeY, 'cav-sub cav-code', true, codeSw)
@@ -4201,6 +4206,7 @@ const TITLES_I18N = {
   evt_pos_b1_pwr: {en:'EVT position B1 · 12V', ja:'EVT位置 B1 · 12V'},
   evt_pos_b1_gnd: {en:'EVT position B1 · ground F38·1', ja:'EVT位置 B1 · アース F38·1'},
   evt_pos_b2: {en:'EVT position B2 (exhaust) · F42', ja:'EVT位置 B2（排気）· F42'},
+  eot: {en:'Oil temp (35th M/T) · F242', ja:'油温（35th M/T）· F242'},
   evt_pos_b2_pwr: {en:'EVT position B2 · 12V', ja:'EVT位置 B2 · 12V'},
   evt_pos_b2_gnd: {en:'EVT position B2 · ground F42·1', ja:'EVT位置 B2 · アース F42·1'},
   pnp_mt: {en:'PNP · Park/Neutral (M/T) · F35', ja:'PNP · パーキング/ニュートラル（M/T）· F35'},
@@ -4288,6 +4294,7 @@ const NOTES_I18N = {
   evt_pos_b1_gnd: {en:'EVT B1 sensor ground. Path: F38·1 (B) → F103/F151·3 → engine ground F152. EC-445.', ja:'EVT B1センサアース。経路: F38·1 (B) → F103/F151·3 → エンジンアース F152。EC-445。'},
   evt_pos_b1_pwr: {en:'EVT B1 sensor 12V. Path: IPDM E7·18 (ECM relay, R/W) → E12/F3·7 → F38·3. EC-445.', ja:'EVT B1センサ12V。経路: IPDM E7·18（ECMリレー, R/W）→ E12/F3·7 → F38·3。EC-445。'},
   evt_pos_b2: {en:'Exhaust valve timing position sensor Bank 2 (Rev-Up). Signal F42·2 (L/W) → ECM 72. Ground F42·1 → F103·3 → F152 under Ground or by clicking F42·1 · 12V F42·3 (R/W) under Power. EC-447.', ja:'排気バルブタイミング位置センサ B2（Rev-Up）。信号 F42·2 (L/W) → ECM 72。アース F42·1 → F103·3 → F152 はアース表示または F42·1 クリックで表示 · 12V F42·3 (R/W) は電源で表示。EC-447。'},
+  eot: {en:'Engine oil temperature sensor (35th Anniversary M/T only). Signal F242·S → F241/F39 → ECM 54 · ground F242·G → splice into ECM 67 (click ECM 67, F242·G or Ground). CONSULT data only; not used for engine control. EC-123 · PG-55.', ja:'エンジン油温センサー（35th Anniversary M/Tのみ）。信号 F242·S → F241/F39 → ECM 54 · アース F242·G → ECM 67にスプライス（ECM 67・F242·G・アースで表示）。CONSULT表示のみ、エンジン制御には不使用。EC-123 · PG-55。'},
   evt_pos_b2_gnd: {en:'EVT B2 sensor ground. Path: F42·1 (B) → F103/F151·3 → engine ground F152. EC-447.', ja:'EVT B2センサアース。経路: F42·1 (B) → F103/F151·3 → エンジンアース F152。EC-447。'},
   evt_pos_b2_pwr: {en:'EVT B2 sensor 12V. Path: IPDM E7·18 (ECM relay, R/W) → E12/F3·7 → F42·3. EC-447.', ja:'EVT B2センサ12V。経路: IPDM E7·18（ECMリレー, R/W）→ E12/F3·7 → F42·3。EC-447。'},
   pnp_mt: {en:'M/T park/neutral switch F35 (on the transmission). Signal: ECM 102 (BR/Y) → F35·1 directly, not through F102. Neutral = switch closed to ground (ECM 102 ≈ 0V); other gears = 12V. Ground F35·2 → F103·3 → F152 under Ground or by clicking F35·2. EC-646/648.', ja:'M/Tパーキング/ニュートラルSW F35（トランスミッション上）。信号: ECM 102 (BR/Y) → F35·1 直結（F102を通らない）。ニュートラル＝SW閉でアース（ECM 102 ≈ 0V）、その他＝12V。アース F35·2 → F103·3 → F152 はアース表示または F35·2 クリックで表示。EC-646/648。'},
@@ -4428,6 +4435,8 @@ function isPinActive(p){
   if((Number(p)===8 || Number(p)===9) && model !== 'de_revup') return false;
   /* ECM 53/72 = EVT position sensors B1/B2 (F38/F42, EC-445/447) — Rev-Up only. */
   if((Number(p)===53 || Number(p)===72) && model !== 'de_revup') return false;
+  /* ECM 54 = engine oil temp sensor F242 (EC-123 (3M): 35th Anniversary M/T) — Rev-Up + Manual only. */
+  if(Number(p)===54 && (model !== 'de_revup' || transView() !== 'mt')) return false;
   if(PIN_COL[p]) return true;
   const name = pinName(p);
   if(name && name !== '—') return true;
@@ -4979,7 +4988,7 @@ const CONN_I18N = {
   f24_comp: { en:{name:'F24 · A/C compressor', meta:'B/1 · ATC-80', note:'Magnetic clutch. Path: IPDM E8-33 L/Y → F24·1 · ATC-80.'}, ja:{name:'F24 · A/Cコンプレッサ', meta:'B/1 · ATC-80', note:'マグネットクラッチ。経路: E8-33 → F24·1 · ATC-80。'} },
   f38_evtc_b1: { en:{name:'F38 · EVT pos. B1', meta:'B/3 · Rev-Up (35th M/T *1) · EC-445 · PG-55', note:'Exhaust valve timing position sensor B1 (Rev-Up only). F38 B/3: 1 B → F103·3 → F152 · 2 L/B → ECM 53 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18 (ECM relay). EC-445 · PG-55 *1.'}, ja:{name:'F38 · EVT位置 B1', meta:'B/3 · Rev-Up（35th M/T *1）· EC-445 · PG-55', note:'排気バルブタイミング位置センサ B1（Rev-Upのみ）。F38 B/3: 1 B → F103·3 → F152 · 2 L/B → ECM 53 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18（ECMリレー）。EC-445 · PG-55 *1。'} },
   f42_evtc_b2: { en:{name:'F42 · EVT pos. B2', meta:'GY/3 · Rev-Up (35th M/T *1) · EC-447 · PG-55', note:'Exhaust valve timing position sensor B2 (Rev-Up only). F42 GY/3: 1 B → F103·3 → F152 · 2 L/W → ECM 72 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18 (ECM relay). EC-447 · PG-55 *1.'}, ja:{name:'F42 · EVT位置 B2', meta:'GY/3 · Rev-Up（35th M/T *1）· EC-447 · PG-55', note:'排気バルブタイミング位置センサ B2（Rev-Upのみ）。F42 GY/3: 1 B → F103·3 → F152 · 2 L/W → ECM 72 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18（ECMリレー）。EC-447 · PG-55 *1。'} },
-  f242_eot: { en:{name:'F242 · Oil temp', meta:'GY/2 · Rev-Up (35th *1) · sub-harness 3 · PG-55 · EC-23', note:'Engine oil temperature sensor (35th Anniversary = Rev-Up only; EM-28, GI-52). F242 GY/2 on engine control sub-harness 3 → F241 BR/2 ↔ F39 GY/2 (intermediate to the engine control harness, PG-54 C4/C5) → ECM. CONSULT "ENG OIL TEMP" data only; not used for engine control (EC-136/143). The 2005 FSM does not publish the ECM terminal, pinout or wire colors. PG-55 *1 says "35th with M/T".'}, ja:{name:'F242 · 油温', meta:'GY/2 · Rev-Up（35th *1）· サブハーネス3 · PG-55 · EC-23', note:'エンジン油温センサ（35th Anniversary = Rev-Upのみ; EM-28, GI-52）。F242 GY/2 はエンジン制御サブハーネス3 → F241 BR/2 ↔ F39 GY/2（エンジン制御ハーネスへの中継, PG-54 C4/C5）→ ECM。CONSULT「ENG OIL TEMP」表示のみ、エンジン制御には不使用（EC-136/143）。2005 FSMにECM端子・ピン配列・配線色の記載なし。PG-55 *1 は「35th M/T」。'} },
+  f242_eot: { en:{name:'F242 · Oil temp', meta:'GY/2 · Rev-Up 35th M/T (*1) · sub-harness 3 · EC-123 · PG-55', note:'Oil temp sensor (35th Anniv. M/T only): signal → ECM 54, ground → splice into ECM 67 (sensor ground shared with ECT). Route F242→F241/F39→ECM F101. Source: 2005 FSM EC-123, PG-55 (2006 EC-110 same). The FSM does not publish the sensor pinout, wire colours, F39/F241 cavities or a connector face. Verify physically on a 35th Anniversary car.'}, ja:{name:'F242 · 油温', meta:'GY/2 · Rev-Up 35th M/T（*1）· サブハーネス3 · EC-123 · PG-55', note:'油温センサー（35th Anniversary M/T車のみ）：信号 → ECM 54、アース → ECM 67（センサーアース、水温センサーと共用）にスプライス接続。経路 F242→F241/F39→ECM F101。出典：2005 FSM EC-123、PG-55（2006 EC-110も同じ）。センサーのピン配置、配線色、F39/F241のキャビティ、コネクター図はFSMに未記載。35th Anniversary実車で要確認。'} },
   f6_at: { en:{name:'F6 · A/T assembly', meta:'GY/10 · TCM · AT-186/114', note:'F6 GY/10 TCM (A/T). 1/2 R/W BATT · 5/10 B F23 · 6 Y/R IGN · 9 GY/R starter relay E9-53 · AT-186/114.'}, ja:{name:'F6 · A/T', meta:'GY/10 · TCM · AT-186/114', note:'F6 TCM。1/2 BATT · 5/10 GND · 6 IGN · 9スタータリレー · AT-186。'} },
   backup_sw: { en:{name:'Reverse switch', meta:'F36 · M/T · LT-183 · 2-pin', note:'Reverse switch (M/T). Path: E7-26 → F1·2 → F36 → F102·22H → lamps (12V on Power).'}, ja:{name:'リバーススイッチ', meta:'F36 · M/T · LT-183 · 2ピン', note:'リバースSW (M/T)。経路: E7-26 → F1·2 → F36 → F102·22H。'} },
   evap_purge: { en:{name:'EVAP · Purge solenoid', meta:'solenoid', note:'EVAP purge valve. Path: 12V pin1 · control pin2 → ECM 45.'}, ja:{name:'EVAP · パージソレノイド', meta:'ソレノイド', note:'EVAPパージ。経路: 12V pin1 · 制御 pin2 → ECM 45。'} },
@@ -5720,6 +5729,7 @@ function onRailRelKindToggle(){
 /** True if cavity has a real wire (not empty / nc / unknown hole). */
 function cavHasWire(pin){
   if(!pin || pin.unknown) return false;
+  if(pin.wireUnk && pin.ecm != null) return true; /* wired per FSM diagram, colour not published */
   const code = String(pin.code == null ? '' : pin.code).trim();
   if(!code || code === '—' || code === '-' || code === 'nc' || code === '·' || code === '?') return false;
   return true;
@@ -6996,6 +7006,7 @@ function applyTransView(){
   localStorage.setItem(LS_TRANS, v);
   CIRCUITS = circuitsForView(document.getElementById('model').value);
   rebuildIndexes();
+  renderECM();
   renderFichas();
   renderF102();
   clearSelection();
