@@ -1386,11 +1386,13 @@ function railLineOfCav(cid, pin){
   }
   if(rail === 'gnd'){
     if(cid === 'app' || cid === 'ix_e11_f2') return 'gnd_app';
-    if(cid === 'gnd4' || cid === 'e17' || cid === 'f152' || (pin.src === 'E17' || pin.srcSub === 'power')) return 'gnd_pwr';
+    if(cid === 'gnd4' || cid === 'e17' || cid === 'f152' || cid === 'alt_e' || (pin.src === 'E17' || pin.srcSub === 'power')) return 'gnd_pwr';
     if(pin.lab === 'GND' && (cid.startsWith('af_') || cid.startsWith('ho2s_') || cid === 'maf' || cid === 'ckp' || cid === 'knock' || cid === 'ect' || cid === 'etc' || cid === 'ac_press' || cid === 'evap_press' || cid === 'psp')) return 'gnd_sns';
     return 'gnd_sns';
   }
   if(rail === '12v'){
+    /* Alternator charge output + S sensing: battery-direct (SC-22, PG-POWER-01/02) */
+    if(cid === 'alt_b' || cid === 'fuse36_alt' || (cid === 'ix_e11_f2' && id === '1') || (cid === 'f20_alt' && id === '4')) return '12v_batt';
     if(cid === 'feed_inj_coil_12v'){
       if(id === 'INJ+' || id.toUpperCase().indexOf('INJ') === 0) return '12v_inj';
       return '12v_coil';
@@ -1527,10 +1529,18 @@ function buildCircuits(model){
       ecm:[], conn:['f9_starter','ix_e10_f1','ipdm_e4'],
       path:{ipdm_e4:['3'],ix_e10_f1:['1'],f9_starter:['1']},
       notes:'Arranque. Ruta: E4-3 B/Y → E10/F1·1 → F9·1 · SC-13.'},
-    {id:'alt_sl', title:'Alternador S/L', color:'#ffa726',
-      ecm:[], conn:['f20_alt','ix_e11_f2','ix_f102_m72'], f102:['13H'],
-      path:{f20_alt:['3','4'],ix_e11_f2:['1'],ix_f102_m72:['13H']},
-      notes:'Alternador. S: F20·4 LG/B → E11/F2·1. L: F20·3 W/R → F102·13H → M72 G/R → medidor M19·17 (testigo de carga); el otro lado del testigo es M19·23 G/Y ← J/B fusible 14 10A vía M4·5A (IGN ON/START). SC-22 (SC-CHARGE-01).'},
+    {id:'alt_charge', title:'Alternador · carga (B/E + S/L)', color:'#ffa726',
+      ecm:[], conn:['alt_b','alt_e','f20_alt','ix_e11_f2','fuse36_alt','ix_f102_m72'], f102:['13H'],
+      path:{alt_b:['1'],alt_e:['2'],fuse36_alt:['36'],ix_e11_f2:['1'],f20_alt:['3','4'],ix_f102_m72:['13H']},
+      notes:'Sistema de carga (SC-22 / SC-CHARGE-01). B: E202·1 B/GY → portafusibles E201·5 → batería (+) (barra de batería antes de los fusible-link, PG-POWER-01; comparte el cable con el arranque E203). E: E211·2 B → masas E212 (carrocería) / E213 (motor) (B/Y). S: fusible 36 10A (BAT) → E11/F2·1 LG/B → F20·4. L: F20·3 W/R → F102·13H → M72 G/R → testigo de carga M19·17.'},
+    {id:'alt_s', title:'Alternador · S (sensado 12V BAT, fusible 36)', color:'#ffee58',
+      ecm:[], conn:['fuse36_alt','ix_e11_f2','f20_alt'],
+      path:{fuse36_alt:['36'],ix_e11_f2:['1'],f20_alt:['4']},
+      notes:'Sensado de voltaje del alternador (S). Ruta: bloque de fusibles y fusible-link E21 · fusible 36 10A (BAT, siempre) → LG/B → E11/F2·1 → F20·4 “S”. PG-POWER-02 / SC-22.'},
+    {id:'alt_l', title:'Alternador · L (testigo de carga)', color:'#ffa726',
+      ecm:[], conn:['f20_alt','ix_f102_m72'], f102:['13H'],
+      path:{f20_alt:['3'],ix_f102_m72:['13H']},
+      notes:'Testigo de carga (L). Ruta: F20·3 W/R → F102·13H → M72 G/R → medidor M19·17 (testigo CHARGE); el otro lado del testigo es M19·23 G/Y ← J/B fusible 14 10A vía M4·5A (IGN ON/START). SC-22.'},
     {id:'ac_clutch', title:'A/C · embrague compresor', color:'#29b6f6',
       ecm:[], conn:['f24_comp','ipdm_e8'],
       path:{ipdm_e8:['33'],f24_comp:['1']},
@@ -1928,6 +1938,9 @@ const CONN_BASE = {
   jb_15a_ht:{group:'motor', sub:'feeds', name:'JB · Fusible 15A A/F+HO2S', meta:'Fuse Block M4 · IGN ON · EC-191', accent:'#ffca28', shape:'note',
     pins:[{id:'15A',code:'R/B',ecm:null,rail:'12v',src:'IGN·SW',srcSub:'power',lab:'15A'}],
     note:'Fusible 15A A/F+HO2S. Ruta: JB 15A → E108·65G → F3·3.'},
+  fuse36_alt:{group:'motor', sub:'feeds', name:'Fusible 36 · 10A alternador S', meta:'bloque fusibles/fusible-link E21 · BAT · PG-POWER-02', accent:'#ffca28', shape:'note', faceRows:[['36']],
+    pins:[{id:'36',code:'LG/B',ecm:null,rail:'12v',src:'BAT',srcSub:'power',lab:'10A',circ:'alt_s'}],
+    note:'Fusible 36 (10A) del bloque de fusibles y fusible-link E21 (caja E18, vano motor), 12V BAT siempre (PG-POWER-02 “TO SC-CHARGE”). Ruta: fusible 36 → LG/B → E11/F2·1 → F20·4 “S”. SC-22.'},
   feed_inj_coil_12v:{group:'motor', sub:'feeds', name:'12V rail iny / bobinas', meta:'iny R · bobinas W/L vía E12/F3 · no ECM', accent:'#ffca28', shape:'note', faceRows:[['COIL+','INJ+']],
     pins:[{id:'INJ+',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'},{id:'COIL+',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}],
     note:'12V común: inyectores por JB 10A→F33; bobinas por E7-17→F3·5. El ECM solo dispara a masa.'},
@@ -2021,10 +2034,16 @@ const CONN_BASE = {
     note:'Sensor PSP. Ruta: 5V ECM 68 · señal 12 · GND 67.'},
   f20_alt:{group:'motor', sub:'sensors', name:'F20 · Alternador S/L', meta:'GY/2 · pines 3-4 · SC-22', accent:'#ffa726', shape:'tab2', faceRows:[['3','4']], view:{c:'F20',g:'f',src:'SC-22',ord:'3-4'},
     pins:[
-      {id:'3',lab:'L',code:'W/R',src:'F102·13H',srcSub:'intermedias'},
-      {id:'4',lab:'S',code:'LG/B',src:'E11/F2·1',srcSub:'pedals'}
+      {id:'3',lab:'L',code:'W/R',src:'F102·13H',srcSub:'intermedias',circ:'alt_l'},
+      {id:'4',lab:'S',code:'LG/B',rail:'12v',src:'E11/F2·1',srcSub:'pedals',circ:'alt_s',note:'S = sensado de voltaje: 12V BAT desde el fusible 36 (10A) → E11/F2·1 → F20·4. SC-22.',note_en:'S = voltage sensing: 12V BAT from fuse 36 (10A) → E11/F2·1 → F20·4. SC-22.',note_ja:'S = 電圧検出: ヒューズ36（10A）から12V BAT → E11/F2·1 → F20·4。SC-22。'}
     ],
-    note:'Alternador. S: F20·4 LG/B → E11/F2·1 · L: F20·3 W/R → F102·13H → M72 G/R → medidor M19·17 (testigo de carga); el otro lado del testigo es M19·23 G/Y ← J/B fusible 14 10A vía M4·5A (IGN ON/START). SC-22.'},
+    note:'Alternador. S: fusible 36 10A (BAT) → E11/F2·1 LG/B → F20·4 · L: F20·3 W/R → F102·13H → M72 G/R → medidor M19·17 (testigo de carga); el otro lado del testigo es M19·23 G/Y ← J/B fusible 14 10A vía M4·5A (IGN ON/START). Salida B y masa E: fichas E202 / E211. SC-22.'},
+  alt_b:{group:'motor', sub:'sensors', name:'Alternador · B (E202)', meta:'terminal B · ojal · salida de carga · SC-22', accent:'#ffa726', shape:'ring', view:{c:'E202',g:'r',src:'SC-22',ord:'1'},
+    pins:[{id:'1',lab:'B',code:'B/GY',ecm:null,rail:'12v',src:'E201·5',srcSub:'power',circ:'alt_charge',note:'Salida de carga B (E202 terminal 1, ojal en el perno B): B/GY → portafusibles E201·5 → batería (+). En PG-POWER-01 E201·5 está en la barra de batería antes de los fusible-link (sin fusible propio) y el mismo cable alimenta el arranque E203. Cable de batería (PG-53).',note_en:'Charge output B (E202 terminal 1, ring on the B stud): B/GY → fusible link holder E201·5 → battery (+). In PG-POWER-01, E201·5 sits on the battery bus ahead of the fusible links (no fuse of its own) and the same cable feeds the starter E203. Battery cable (PG-53).',note_ja:'充電出力 B（E202 端子1、Bスタッドの丸端子）: B/GY → フュージブルリンクホルダ E201·5 → バッテリ（+）。PG-POWER-01 では E201·5 はフュージブルリンクの手前のバッテリバス上（専用ヒューズなし）で、同じケーブルがスタータ E203 にも供給。バッテリケーブル（PG-53）。'}],
+    note:'Terminal B del alternador (E202, ojal). Ruta: E202·1 B/GY → E201·5 → batería (+). Cable de batería PG-53 (no es el arnés de control motor). SC-22 / PG-POWER-01.'},
+  alt_e:{group:'motor', sub:'sensors', name:'Alternador · E (E211)', meta:'terminal E · ojal · masa · SC-22', accent:'#66bb6a', shape:'ring', view:{c:'E211',g:'r',src:'SC-22',ord:'2'},
+    pins:[{id:'2',lab:'E',code:'B',ecm:null,rail:'gnd',src:'E212/E213',srcSub:'power',circ:'alt_charge',note:'Masa E del alternador (E211 terminal 2, ojal): B → masa de carrocería E212 (junto al depósito del lavaparabrisas); E212 y E213 (masa de motor, tapa de distribución) unidos por B/Y. SC-22 / PG-53.',note_en:'Alternator E ground (E211 terminal 2, ring): B → body ground E212 (by the washer tank); E212 and E213 (engine ground, timing chain case) are linked by B/Y. SC-22 / PG-53.',note_ja:'オルタネータ E アース（E211 端子2、丸端子）: B → ボディアース E212（ウォッシャタンク付近）。E212 と E213（エンジンアース、タイミングチェーンケース）は B/Y で接続。SC-22 / PG-53。'}],
+    note:'Terminal E del alternador (E211, ojal). Ruta: E211·2 B → E212 (masa carrocería) ↔ B/Y ↔ E213 (masa motor). Cable de batería PG-53. SC-22.'},
   f21_oilp:{group:'motor', sub:'sensors', name:'F21 · Presión aceite', meta:'B/3 · DI-45/46', accent:'#6d4c41', shape:'tab3', faceRows:[['1','2','3']], view:{c:'F21',g:'f',src:'DI-34/DI-45',ord:'1-2-3'},
     pins:[
       {id:'1',code:'R/L',lab:'5V'},
@@ -2262,7 +2281,7 @@ const CONN_BASE = {
   /* —— ix_* paths: single-purpose in their sub; multi stay in intermedias —— */
   ix_e11_f2:{group:'body', sub:'pedals', name:'E11 ↔ F2 · APP pedal', meta:'10-pin GY · E113→E11/F2→ECM · EC-523', accent:'#f9a825', shape:'rect10', view:{c:'F2',g:'f',src:'EC-523',ord:'1-2-3-4-5 / 6-7-8-9-10'}, face:'f2',
     pins:[
-      {id:'1',lab:'ALT-S',code:'LG/B',ecm:null,src:'F20·4',srcSub:'sensors'},
+      {id:'1',lab:'ALT-S',code:'LG/B',ecm:null,rail:'12v',src:'E21·36',srcSub:'feeds',circ:'alt_s',note:'Alternador S (sensado de voltaje): 12V BAT siempre desde el fusible 36 (10A) del bloque de fusibles y fusible-link E21 (PG-POWER-02) → LG/B → E11·1 → F2·1 → F20·4 “S”. SC-22.',note_en:'Alternator S (voltage sensing): 12V BAT at all times from fuse 36 (10A) in the fuse and fusible link block E21 (PG-POWER-02) → LG/B → E11·1 → F2·1 → F20·4 “S”. SC-22.',note_ja:'オルタネータ S（電圧検出）: ヒューズ＆フュージブルリンクブロック E21 のヒューズ36（10A）から常時12V BAT（PG-POWER-02）→ LG/B → E11·1 → F2·1 → F20·4「S」。SC-22。'},
       {id:'2',lab:'GND',code:'G/R',ecm:83,rail:'gnd'},
       {id:'3',code:'G/B',ecm:98},
       {id:'4',lab:'GND',code:'G/Y',ecm:82,rail:'gnd'},
@@ -2404,7 +2423,7 @@ const CONN_BASE = {
     ],
     note:'Puente motor↔carrocería (SMJ). Ruta: CAN 2G/7G · ASCD-B 3G · FPR 28G · MOTRLY 30G · STOP 38G · 12V A/F 65G · BATT 68G (ECM 121) · SSOFF 69G.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔carrocería', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', view:{c:'F102',g:'f',src:'PG-85',ord:'1H…5H | 11H…20H / 6H…10H | 21H…29H'}, face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.',note_en:'BATT ECM memory 121 (R/W) · EC-441 / P1065.',note_ja:'BATT ECMメモリ 121 (R/W) · EC-441 / P1065。'},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors',note:'CHARGE (SC-22): alternador F20·3 "L" W/R → F102·13H → M72 G/R → medidor M19·17 (testigo de carga). Otro lado del testigo: M19·23 G/Y ← J/B fusible 14 10A vía M4·5A (IGN ON/START).',note_en:'CHARGE (SC-22): alternator F20·3 "L" W/R → F102·13H → M72 G/R → combination meter M19·17 (charge warning lamp). Lamp\'s other side: M19·23 G/Y ← J/B fuse 14 10A via M4·5A (IGN ON/START).',note_ja:'CHARGE (SC-22): オルタネータ F20·3「L」W/R → F102·13H → M72 G/R → コンビメータ M19·17（充電警告灯）。警告灯の反対側: M19·23 G/Y ← J/B ヒューズ14 10A（M4·5A経由, IGN ON/START）。'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp',note:'REV (LT-183, M/T): salida conmutada del interruptor F36·2 OR → F102·22H → M72 OR → luces de marcha atrás T10/T18. 12V solo con marcha atrás puesta (no es riel 12V).',note_en:'REV (LT-183, M/T): switched output of back-up lamp switch F36·2 OR → F102·22H → M72 OR → reverse lamps T10/T18. 12V only while reverse is engaged (not a 12V rail).',note_ja:'REV (LT-183, M/T): バックランプSW F36·2 OR のスイッチ出力 → F102·22H → M72 OR → バックランプ T10/T18。リバース時のみ12V（12Vレールではない）。'},{id:'23H',code:'GY/R',ecm:null,lab:'START',src:'F6·9',srcSub:'actuators',trans:'at',circ:'pnp_at',note:'Solo A/T (EC-644): F6·9 (TCM START-RLY) GY/R → F102·23H → M72 → medidor M49·32 AT-P RANGE; rama a SC-START. En M/T vacía (SC-12/13: el arranque M/T va por el interlock de embrague E121, sin F102).',note_en:'A/T only (EC-644): F6·9 (TCM START-RLY) GY/R → F102·23H → M72 → unified meter M49·32 AT-P RANGE; branch to SC-START. Empty on M/T (SC-12/13: M/T start goes through clutch interlock E121, not F102).',note_ja:'A/Tのみ (EC-644): F6·9（TCM START-RLY）GY/R → F102·23H → M72 → メータ M49·32 AT-P RANGE; SC-STARTへ分岐。M/Tでは空（SC-12/13: M/T始動はクラッチインターロック E121経由、F102なし）。',offNote:'Vacía en M/T. Solo A/T: START GY/R F6·9 ↔ medidor M49·32 (EC-644).',offNote_en:'Empty on M/T. A/T only: START GY/R F6·9 ↔ meter M49·32 (EC-644).',offNote_ja:'M/Tでは空。A/Tのみ: START GY/R F6·9 ↔ メータ M49·32 (EC-644)。'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP',trans:'at',circ:'pnp_at',note:'Solo A/T (EC-644): ECM 102 BR/Y → F102·28H → M72 G/W → medidor M49·25. En M/T vacía: ECM 102 va directo a F35·1 sin F102 (EC-646).',note_en:'A/T only (EC-644): ECM 102 BR/Y → F102·28H → M72 G/W → unified meter M49·25. Empty on M/T: ECM 102 runs straight to F35·1, not through F102 (EC-646).',note_ja:'A/Tのみ (EC-644): ECM 102 BR/Y → F102·28H → M72 G/W → メータ M49·25。M/Tでは空: ECM 102 はF102を通らず F35·1 へ直結 (EC-646)。',offNote:'Vacía en M/T: ECM 102 va directo a F35·1 sin F102 (EC-646). Solo A/T: PNP BR/Y → medidor (EC-644).',offNote_en:'Empty on M/T: ECM 102 runs straight to F35·1, not through F102 (EC-646). A/T only: PNP BR/Y → meter (EC-644).',offNote_ja:'M/Tでは空: ECM 102 はF102を通らず F35·1 へ直結 (EC-646)。A/Tのみ: PNP BR/Y → メータ (EC-644)。'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.',note_en:'BATT ECM memory 121 (R/W) · EC-441 / P1065.',note_ja:'BATT ECMメモリ 121 (R/W) · EC-441 / P1065。'},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors',circ:'alt_l',note:'CHARGE (SC-22): alternador F20·3 "L" W/R → F102·13H → M72 G/R → medidor M19·17 (testigo de carga). Otro lado del testigo: M19·23 G/Y ← J/B fusible 14 10A vía M4·5A (IGN ON/START).',note_en:'CHARGE (SC-22): alternator F20·3 "L" W/R → F102·13H → M72 G/R → combination meter M19·17 (charge warning lamp). Lamp\'s other side: M19·23 G/Y ← J/B fuse 14 10A via M4·5A (IGN ON/START).',note_ja:'CHARGE (SC-22): オルタネータ F20·3「L」W/R → F102·13H → M72 G/R → コンビメータ M19·17（充電警告灯）。警告灯の反対側: M19·23 G/Y ← J/B ヒューズ14 10A（M4·5A経由, IGN ON/START）。'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp',note:'REV (LT-183, M/T): salida conmutada del interruptor F36·2 OR → F102·22H → M72 OR → luces de marcha atrás T10/T18. 12V solo con marcha atrás puesta (no es riel 12V).',note_en:'REV (LT-183, M/T): switched output of back-up lamp switch F36·2 OR → F102·22H → M72 OR → reverse lamps T10/T18. 12V only while reverse is engaged (not a 12V rail).',note_ja:'REV (LT-183, M/T): バックランプSW F36·2 OR のスイッチ出力 → F102·22H → M72 OR → バックランプ T10/T18。リバース時のみ12V（12Vレールではない）。'},{id:'23H',code:'GY/R',ecm:null,lab:'START',src:'F6·9',srcSub:'actuators',trans:'at',circ:'pnp_at',note:'Solo A/T (EC-644): F6·9 (TCM START-RLY) GY/R → F102·23H → M72 → medidor M49·32 AT-P RANGE; rama a SC-START. En M/T vacía (SC-12/13: el arranque M/T va por el interlock de embrague E121, sin F102).',note_en:'A/T only (EC-644): F6·9 (TCM START-RLY) GY/R → F102·23H → M72 → unified meter M49·32 AT-P RANGE; branch to SC-START. Empty on M/T (SC-12/13: M/T start goes through clutch interlock E121, not F102).',note_ja:'A/Tのみ (EC-644): F6·9（TCM START-RLY）GY/R → F102·23H → M72 → メータ M49·32 AT-P RANGE; SC-STARTへ分岐。M/Tでは空（SC-12/13: M/T始動はクラッチインターロック E121経由、F102なし）。',offNote:'Vacía en M/T. Solo A/T: START GY/R F6·9 ↔ medidor M49·32 (EC-644).',offNote_en:'Empty on M/T. A/T only: START GY/R F6·9 ↔ meter M49·32 (EC-644).',offNote_ja:'M/Tでは空。A/Tのみ: START GY/R F6·9 ↔ メータ M49·32 (EC-644)。'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP',trans:'at',circ:'pnp_at',note:'Solo A/T (EC-644): ECM 102 BR/Y → F102·28H → M72 G/W → medidor M49·25. En M/T vacía: ECM 102 va directo a F35·1 sin F102 (EC-646).',note_en:'A/T only (EC-644): ECM 102 BR/Y → F102·28H → M72 G/W → unified meter M49·25. Empty on M/T: ECM 102 runs straight to F35·1, not through F102 (EC-646).',note_ja:'A/Tのみ (EC-644): ECM 102 BR/Y → F102·28H → M72 G/W → メータ M49·25。M/Tでは空: ECM 102 はF102を通らず F35·1 へ直結 (EC-646)。',offNote:'Vacía en M/T: ECM 102 va directo a F35·1 sin F102 (EC-646). Solo A/T: PNP BR/Y → medidor (EC-644).',offNote_en:'Empty on M/T: ECM 102 runs straight to F35·1, not through F102 (EC-646). A/T only: PNP BR/Y → meter (EC-644).',offNote_ja:'M/Tでは空: ECM 102 はF102を通らず F35·1 へ直結 (EC-646)。A/Tのみ: PNP BR/Y → メータ (EC-644)。'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
   note:'Puente motor↔carrocería (F102↔M72). Incluye BATT 5H (ECM 121) · FPR 6H · MOTRLY 12H · CAN · freno · ASCD…'},
 
   /* —— Habitáculo / pedales / ASCD —— */
@@ -2539,7 +2558,9 @@ const LOOM_BODY_EXTRA = new Set([
   /* F16 ignition condenser and F24 A/C clutch are not on the pulled control loom */
   'f16_cond', 'f24_comp',
   /* F20 alternator plug and F21 oil pressure sit on those units, not the control loom */
-  'f20_alt', 'f21_oilp'
+  'f20_alt', 'f21_oilp',
+  /* Alternator B/E ring terminals: Battery cable (PG-53), not the engine-control loom; fuse 36 sits in E21 (engine-room fuse box E18) */
+  'alt_b', 'alt_e', 'fuse36_alt'
 ]);
 /* Battery-tray mates on the pulled engine-control harness (PG-55: F1, F2, F3). Pedal E113 stays cabin. */
 const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);
@@ -4383,7 +4404,9 @@ const TITLES_I18N = {
   app_gnd: {en:'APP grounds', ja:'APPアース'},
   app_sig: {en:'APP signals APS1/APS2', ja:'APP信号 APS1/APS2'},
   starter: {en:'Starter F9 · E4-3 → E10/F1 → F9 · SC-13', ja:'スタータ F9 · SC-13'},
-  alt_sl: {en:'Alternator S/L · F20 · SC-22', ja:'オルタネータ S/L · F20 · SC-22'},
+  alt_charge: {en:'Alternator · charging (B/E + S/L) · SC-22', ja:'オルタネータ · 充電（B/E + S/L）· SC-22'},
+  alt_s: {en:'Alternator · S (12V BAT sensing, fuse 36)', ja:'オルタネータ · S（12V BAT検出、ヒューズ36）'},
+  alt_l: {en:'Alternator · L (charge warning lamp)', ja:'オルタネータ · L（充電警告灯）'},
   ac_clutch: {en:'A/C clutch · IPDM E8-33 → F24 · ATC-80', ja:'A/Cクラッチ · E8-33 → F24 · ATC-80'},
   start_sig: {en:'Start signal (START)', ja:'スタート信号 (START)'},
   backup_lamp: {en:'Back-up / reverse lamp (M/T)', ja:'バックランプ / リバース (M/T)'},
@@ -4496,7 +4519,9 @@ const NOTES_I18N = {
   fp_relay: {en:'Fuel-pump relay control (relay inside IPDM). Path: ECM 113 → F102·6H → E108·28G → E8-40.', ja:'フューエルポンプリレー制御（IPDM内）。経路: ECM 113→F102·6H→E108·28G→E8-40。'},
   motrly: {en:'ECM only monitors that the IPDM throttle relay (F87) supplied 12V. Path: E9-47 → E108·30G → F102·12H → ECM 104.', ja:'ECMはスロットルリレー(F87)の12V供給を監視。経路: E9-47→E108→F102→ECM 104。'},
   starter: {en:'Starter. Path: IPDM E4-3 B/Y → E10/F1·1 → F9·1 · SC-13.', ja:'スタータ。経路: IPDM E4-3 B/Y → E10/F1·1 → F9·1 · SC-13。'},
-  alt_sl: {en:'Alternator S/L. S: F20·4 LG/B → E11/F2·1. L: F20·3 W/R → F102·13H → M72 G/R → combination meter M19·17 (charge warning lamp); the lamp\'s other side is M19·23 G/Y ← J/B fuse 14 10A via M4·5A (IGN ON/START). SC-22 (SC-CHARGE-01).', ja:'オルタネータ S/L。S: F20·4 LG/B → E11/F2·1。L: F20·3 W/R → F102·13H → M72 G/R → コンビメータ M19·17（充電警告灯）; 警告灯の反対側は M19·23 G/Y ← J/B ヒューズ14 10A（M4·5A経由, IGN ON/START）。SC-22（SC-CHARGE-01）。'},
+  alt_charge: {en:'Charging system (SC-22 / SC-CHARGE-01). B: E202·1 B/GY → fusible link holder E201·5 → battery (+) (battery bus ahead of the fusible links, PG-POWER-01; shares the cable with starter E203). E: E211·2 B → grounds E212 (body) / E213 (engine) (B/Y). S: fuse 36 10A (BAT) → E11/F2·1 LG/B → F20·4. L: F20·3 W/R → F102·13H → M72 G/R → charge lamp M19·17.', ja:'充電システム（SC-22 / SC-CHARGE-01）。B: E202·1 B/GY → フュージブルリンクホルダ E201·5 → バッテリ（+）（フュージブルリンク手前のバッテリバス、PG-POWER-01。スタータ E203 とケーブル共用）。E: E211·2 B → アース E212（ボディ）/ E213（エンジン）（B/Y）。S: ヒューズ36 10A（BAT）→ E11/F2·1 LG/B → F20·4。L: F20·3 W/R → F102·13H → M72 G/R → 充電警告灯 M19·17。'},
+  alt_s: {en:'Alternator voltage sensing (S). Path: fuse and fusible link block E21 · fuse 36 10A (BAT, always) → LG/B → E11/F2·1 → F20·4 “S”. PG-POWER-02 / SC-22.', ja:'オルタネータ電圧検出（S）。経路: ヒューズ＆フュージブルリンクブロック E21 · ヒューズ36 10A（BAT、常時）→ LG/B → E11/F2·1 → F20·4「S」。PG-POWER-02 / SC-22。'},
+  alt_l: {en:'Charge warning lamp (L). Path: F20·3 W/R → F102·13H → M72 G/R → combination meter M19·17 (CHARGE lamp); the lamp’s other side is M19·23 G/Y ← J/B fuse 14 10A via M4·5A (IGN ON/START). SC-22.', ja:'充電警告灯（L）。経路: F20·3 W/R → F102·13H → M72 G/R → コンビメータ M19·17（CHARGE灯）。警告灯の反対側は M19·23 G/Y ← J/B ヒューズ14 10A（M4·5A経由, IGN ON/START）。SC-22。'},
   ac_clutch: {en:'A/C clutch. Path: IPDM E8-33 L/Y → F24·1 · ATC-80.', ja:'A/Cクラッチ。経路: IPDM E8-33 L/Y → F24·1 · ATC-80。'},
   backup_lamp: {en:'Reverse lamps (M/T, LT-183): IGN ON/START → IPDM fuse 83 (10A) → E7·26 G/W → E10/F1·2 Y/R → F36·1 (12V). F36·2 OR = switched output (12V only in reverse) → F102·22H → M72 → B1/M12·64J → T2/B44·12 LG → lamps T10/T18.', ja:'バックランプ (M/T, LT-183): IGN ON/START → IPDM ヒューズ83 (10A) → E7·26 G/W → E10/F1·2 Y/R → F36·1 (12V)。F36·2 OR = スイッチ出力（リバース時のみ12V）→ F102·22H → M72 → B1/M12·64J → T2/B44·12 LG → ランプ T10/T18。'},
   sns_gnd: {en:'HO2S SNS ground. Path: ECM 78. 66 is TPS (ETC card); 67 is on each sensor circuit (A/C, PSP, EVAP, MAF, ASCD).', ja:'HO2S SNSアース。経路: ECM 78。66はTPS（ETC）。67は各センサ回路。'},
@@ -4971,6 +4996,7 @@ function fitEcmPins(){ /* no-op: CSS vars stay at classic ~34×32 */ }
 function connShortLabel(cid){
   const SHORT = {
     es: {
+      fuse36_alt:'Fus. 36 ALT-S', alt_b:'ALT B', alt_e:'ALT E',
       jb_10a_inj:'JB 10A iny', jb_15a_ht:'JB 15A A/F+HO2S',
       feed_af_12v:'Feed A/F', feed_ho2s_12v:'Feed HO2S', feed_inj_coil_12v:'Rail iny/bobinas',
       feed_ckp_maf_12v:'Feed CKP/MAF',
@@ -4979,6 +5005,7 @@ function connShortLabel(cid){
       ascd_brake:'ASCD freno', stop_lamp:'Stop lamp'
     },
     en: {
+      fuse36_alt:'Fuse 36 ALT-S', alt_b:'ALT B', alt_e:'ALT E',
       jb_10a_inj:'JB 10A inj', jb_15a_ht:'JB 15A A/F+HO2S',
       feed_af_12v:'A/F feed', feed_ho2s_12v:'HO2S feed', feed_inj_coil_12v:'Inj/coil rail',
       feed_ckp_maf_12v:'CKP/MAF feed',
@@ -4987,6 +5014,7 @@ function connShortLabel(cid){
       ascd_brake:'ASCD brake', stop_lamp:'Stop lamp'
     },
     ja: {
+      fuse36_alt:'ヒューズ36 ALT-S', alt_b:'ALT B', alt_e:'ALT E',
       jb_10a_inj:'JB 10A inj', jb_15a_ht:'JB 15A A/F+HO2S',
       feed_af_12v:'A/F供給', feed_ho2s_12v:'HO2S供給', feed_inj_coil_12v:'インジェ/コイルレール',
       feed_ckp_maf_12v:'CKP/MAF供給',
@@ -5212,7 +5240,10 @@ const CONN_I18N = {
   vtc_b2: { en:{name:'VTC intake B2', meta:'intake solenoid LH'}, ja:{name:'VTC吸気ソレノイド B2', meta:'吸気ソレノイド 左'} },
   vtc_ex_b1: { en:{name:'VTC exhaust B1', meta:'Rev-Up · exhaust RH', note:'Exhaust magnet retarder B1. Path: 12V E7-17 (W/L) → F40·4 · control F40·3 (SB) → ECM 9 · EC-198.'}, ja:{name:'VTC排気ソレノイド B1', meta:'Rev-Up · 排気 右', note:'排気マグネットリターダ B1。経路: 12V E7-17 → F40·4 · 制御 F40·3 → ECM 9 · EC-198。'} },
   vtc_ex_b2: { en:{name:'VTC exhaust B2', meta:'Rev-Up · exhaust LH', note:'Exhaust magnet retarder B2. Path: 12V E7-17 (W/L) → F3·5 → F41·1 · control F41·2 (P) → ECM 8 · EC-200.'}, ja:{name:'VTC排気ソレノイド B2', meta:'Rev-Up · 排気 左', note:'排気マグネットリターダ B2。経路: 12V E7-17 → F3·5 → F41·1 · 制御 F41·2 → ECM 8 · EC-200。'} },
-  f20_alt: { en:{name:'F20 · Alternator S/L', meta:'GY/2 · pins 3-4 · SC-22', note:'Alternator. S: F20·4 LG/B → E11/F2·1 · L: F20·3 W/R → F102·13H → M72 G/R → combination meter M19·17 (charge warning lamp); the lamp\'s other side is M19·23 G/Y ← J/B fuse 14 10A via M4·5A (IGN ON/START). SC-22.'}, ja:{name:'F20 · オルタネータ S/L', meta:'GY/2 · ピン3-4 · SC-22', note:'オルタネータ。S: F20·4 LG/B → E11/F2·1 · L: F20·3 W/R → F102·13H → M72 G/R → コンビメータ M19·17（充電警告灯）; 警告灯の反対側は M19·23 G/Y ← J/B ヒューズ14 10A（M4·5A経由, IGN ON/START）。SC-22。'} },
+  f20_alt: { en:{name:'F20 · Alternator S/L', meta:'GY/2 · pins 3-4 · SC-22', note:'Alternator. S: fuse 36 10A (BAT) → E11/F2·1 LG/B → F20·4 · L: F20·3 W/R → F102·13H → M72 G/R → combination meter M19·17 (charge warning lamp); the lamp’s other side is M19·23 G/Y ← J/B fuse 14 10A via M4·5A (IGN ON/START). B output and E ground: cards E202 / E211. SC-22.'}, ja:{name:'F20 · オルタネータ S/L', meta:'GY/2 · ピン3-4 · SC-22', note:'オルタネータ。S: ヒューズ36 10A（BAT）→ E11/F2·1 LG/B → F20·4 · L: F20·3 W/R → F102·13H → M72 G/R → コンビメータ M19·17（充電警告灯）; 警告灯の反対側は M19·23 G/Y ← J/B ヒューズ14 10A（M4·5A経由, IGN ON/START）。B出力とEアース: E202 / E211 カード。SC-22。'} },
+  alt_b: { en:{name:'Alternator · B (E202)', meta:'B terminal · ring · charge output · SC-22', note:'Alternator B terminal (E202, ring). Path: E202·1 B/GY → E201·5 → battery (+). Battery cable PG-53 (not the engine-control harness). SC-22 / PG-POWER-01.'}, ja:{name:'オルタネータ · B（E202）', meta:'B端子 · 丸端子 · 充電出力 · SC-22', note:'オルタネータ B端子（E202、丸端子）。経路: E202·1 B/GY → E201·5 → バッテリ（+）。バッテリケーブル PG-53（エンジン制御ハーネスではない）。SC-22 / PG-POWER-01。'} },
+  alt_e: { en:{name:'Alternator · E (E211)', meta:'E terminal · ring · ground · SC-22', note:'Alternator E terminal (E211, ring). Path: E211·2 B → E212 (body ground) ↔ B/Y ↔ E213 (engine ground). Battery cable PG-53. SC-22.'}, ja:{name:'オルタネータ · E（E211）', meta:'E端子 · 丸端子 · アース · SC-22', note:'オルタネータ E端子（E211、丸端子）。経路: E211·2 B → E212（ボディアース）↔ B/Y ↔ E213（エンジンアース）。バッテリケーブル PG-53。SC-22。'} },
+  fuse36_alt: { en:{name:'Fuse 36 · 10A alternator S', meta:'fuse & fusible link block E21 · BAT · PG-POWER-02', note:'Fuse 36 (10A) in the fuse and fusible link block E21 (box E18, engine room), 12V BAT at all times (PG-POWER-02 “TO SC-CHARGE”). Path: fuse 36 → LG/B → E11/F2·1 → F20·4 “S”. SC-22.'}, ja:{name:'ヒューズ36 · 10A オルタネータS', meta:'ヒューズ＆フュージブルリンクブロック E21 · BAT · PG-POWER-02', note:'ヒューズ＆フュージブルリンクブロック E21（ボックス E18、エンジンルーム）のヒューズ36（10A）、常時12V BAT（PG-POWER-02「TO SC-CHARGE」）。経路: ヒューズ36 → LG/B → E11/F2·1 → F20·4「S」。SC-22。'} },
   f21_oilp: { en:{name:'F21 · Oil pressure', meta:'B/3 · DI-45/46', note:'Oil pressure sensor · F21. 1 R/L 5V · 2 G signal · 3 B ground · to triple meter M44 · DI-45/46.'}, ja:{name:'F21 · 油圧', meta:'B/3 · DI-45/46', note:'油圧センサ F21。1 5V · 2 信号 · 3 GND · メータ M44 · DI-45/46。'} },
   f9_starter: { en:{name:'F9 · Starter motor', meta:'GY/1 · SC-13', note:'Starter. Path: IPDM E4-3 B/Y → E10/F1·1 → F9·1 · SC-13. E203 is the B+ stud.'}, ja:{name:'F9 · スタータ', meta:'GY/1 · SC-13', note:'スタータ。経路: E4-3 → E10/F1·1 → F9·1 · SC-13。'} },
   f16_cond: { en:{name:'F16 · Ignition condenser', meta:'W/2 · PG-55 · EC-689', note:'Ignition condenser · F16 W/2. Path: E7-17 W/L → F3·5 → F16·1 · F16·2 B → F23 · EC-689 / PG-55.'}, ja:{name:'F16 · 点火コンデンサ', meta:'W/2 · PG-55 · EC-689', note:'点火コンデンサ。経路: E7-17 → F3·5 → F16 · F23 · EC-689。'} },
@@ -5335,17 +5366,19 @@ function viewNoteText(id, f){
     const why = vw.unv[L] || vw.unv.en || '';
     return L === 'en' ? `View not verified: ${why}` : L === 'ja' ? `表示は未検証: ${why}` : `Vista sin verificar: ${why}`;
   }
-  const par = `${vw.src} T.S.: ${vw.ord}`;
+  const par = vw.g === 'r'
+    ? (L === 'en' ? `${vw.src}, terminal ${vw.ord}` : L === 'ja' ? `${vw.src}、端子${vw.ord}` : `${vw.src}, terminal ${vw.ord}`)
+    : `${vw.src} T.S.: ${vw.ord}`;
   const ex = vw.ex ? (L === 'ja' ? `・${vw.ex[L]}` : `; ${vw.ex[L]}`) : '';
   if(L === 'en'){
-    const face = vw.g === 'f' ? `${vw.c} female face` : vw.g === 'm' ? `${vw.c} male face` : `${vw.c} harness connector face`;
+    const face = vw.g === 'f' ? `${vw.c} female face` : vw.g === 'm' ? `${vw.c} male face` : vw.g === 'r' ? `${vw.c} ring terminal` : `${vw.c} harness connector face`;
     return `View: ${face} (${par}${ex}).`;
   }
   if(L === 'ja'){
-    const face = vw.g === 'f' ? `${vw.c}メス側の面` : vw.g === 'm' ? `${vw.c}オス側の面` : `${vw.c} ハーネス側コネクタの面`;
+    const face = vw.g === 'f' ? `${vw.c}メス側の面` : vw.g === 'm' ? `${vw.c}オス側の面` : vw.g === 'r' ? `${vw.c}丸形端子` : `${vw.c} ハーネス側コネクタの面`;
     return `表示: ${face}（${par}${ex}）。`;
   }
-  const face = vw.g === 'f' ? `cara hembra ${vw.c}` : vw.g === 'm' ? `cara macho ${vw.c}` : `cara del conector ${vw.c} del arnés`;
+  const face = vw.g === 'f' ? `cara hembra ${vw.c}` : vw.g === 'm' ? `cara macho ${vw.c}` : vw.g === 'r' ? `terminal de ojal ${vw.c}` : `cara del conector ${vw.c} del arnés`;
   return `Vista: ${face} (${par}${ex}).`;
 }
 function makeFichaEl(id, f){

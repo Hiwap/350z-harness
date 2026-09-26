@@ -97,7 +97,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   const svgFns = [...script.matchAll(/function (svg\w+)\([^)]*\)\{[\s\S]*?\n\}/g)].filter((m) => m[1] !== 'svgTabN' && /flipRow|isFaceInv/.test(m[0])).map((m) => m[1]);
   ok('fixed faces: no svg* renderer other than svgTabN references flipRow/isFaceInv', svgFns.length === 0, svgFns.join(','));
   const noView = [...html.matchAll(/^  (\w+):\{group:'motor'[^\n]*$/gm)]
-    .filter((m) => !/(?:\bview|viewByTrans):\{/.test(m[0]) && !/shape:'(?:ring|jb|ixnote)'/.test(m[0]) && !/^  (?:jb_|feed_|comb_meter|ix_f103_f151)/.test(m[0]))
+    .filter((m) => !/(?:\bview|viewByTrans):\{/.test(m[0]) && !/shape:'(?:ring|jb|ixnote)'/.test(m[0]) && !/^  (?:jb_|feed_|fuse\d+_|comb_meter|ix_f103_f151)/.test(m[0]))
     .map((m) => m[1]).filter((id) => !['ecm_f101_can', 'f152', 'e17', 'f23_gnd'].includes(id));
   ok('fixed faces: every plug ficha carries view data (FSM ref + order, or unverified reason)', noView.length === 0, noView.join(','));
   const pp = fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8');
@@ -110,6 +110,24 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('backup_sw F36·2 is the switched REV output, not a 12V rail (LT-183)', /lab:'REV',code:'OR'/.test(f36p2) && !/rail:'12v'/.test(f36p2), f36p2.slice(0, 80));
   ok('F102·22H is the switched REV output, not a 12V rail (LT-183)', /lab:'REV'/.test(h22) && !/rail:'12v'/.test(h22), h22.slice(0, 80));
   ok('backup_sw F36·1 keeps the IGN 12V feed (fuse 83)', /\{id:'1',lab:'IN',code:'Y\/R',ecm:null,rail:'12v'[^\n]*fusible 83/.test(f36));
+  /* Alternator charging (SC-22 / PG-53 / PG-POWER-01/02) */
+  ok('alternator B E202: ring, B/GY, 12V, src E201·5, circ alt_charge',
+    /alt_b:\{group:'motor', sub:'sensors'[^\n]*shape:'ring'[^\n]*\n\s*pins:\[\{id:'1',lab:'B',code:'B\/GY',ecm:null,rail:'12v',src:'E201·5',srcSub:'power',circ:'alt_charge'/.test(html));
+  ok('alternator E E211: ring, B, GND, src E212/E213, circ alt_charge',
+    /alt_e:\{group:'motor', sub:'sensors'[^\n]*shape:'ring'[^\n]*\n\s*pins:\[\{id:'2',lab:'E',code:'B',ecm:null,rail:'gnd',src:'E212\/E213',srcSub:'power',circ:'alt_charge'/.test(html));
+  ok('E11/F2·1 ALT-S fed by fuse 36 10A (E21·36), 12V rail, circ alt_s',
+    /\{id:'1',lab:'ALT-S',code:'LG\/B',ecm:null,rail:'12v',src:'E21·36',srcSub:'feeds',circ:'alt_s'/.test(html)
+    && /fuse36_alt:\{[^\n]*\n\s*pins:\[\{id:'36',code:'LG\/B',ecm:null,rail:'12v',src:'BAT'[^\n]*circ:'alt_s'/.test(html));
+  ok('F20·4 S = 12V alt_s · F20·3 L and F102·13H = alt_l (signal, no rail)',
+    /\{id:'4',lab:'S',code:'LG\/B',rail:'12v',src:'E11\/F2·1',srcSub:'pedals',circ:'alt_s'/.test(html)
+    && /\{id:'3',lab:'L',code:'W\/R',src:'F102·13H',srcSub:'intermedias',circ:'alt_l'\}/.test(html)
+    && /\{id:'13H',code:'W\/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors',circ:'alt_l'/.test(html));
+  ok('charge circuits alt_charge / alt_s / alt_l defined; alt_l path has no rail cavity',
+    /\{id:'alt_charge'[\s\S]*?path:\{alt_b:\['1'\],alt_e:\['2'\],fuse36_alt:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['3','4'\],ix_f102_m72:\['13H'\]\}/.test(html)
+    && /\{id:'alt_s'[\s\S]*?path:\{fuse36_alt:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['4'\]\}/.test(html)
+    && /\{id:'alt_l'[\s\S]*?path:\{f20_alt:\['3'\],ix_f102_m72:\['13H'\]\}/.test(html));
+  ok('Arnés motor hides alternator B/E (battery cable PG-53) and fuse 36 (E21)',
+    /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'alt_b', 'alt_e', 'fuse36_alt'[\s\S]*?\]\);/.test(html));
 }
 
 const helperSrc = [

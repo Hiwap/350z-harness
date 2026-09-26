@@ -41,7 +41,9 @@ NO SACAR / skip
 - f9_starter · F9 arranque — en el motor de arranque, no en el mazo control (START sale por F1·1).
 - f16_cond · F16 condensador ignición — no está en el mazo control (Completo).
 - f24_comp · F24 embrague A/C — en el compresor, no en el mazo control.
-- f20_alt · F20 alternador — en el alternador; S sigue en F2·1.
+- f20_alt · F20 alternador — en el alternador; S sigue en F2·1. Ya tiene foto de producto (faces/alt.webp, WS WRS-VQ35ALT-CON).
+- alt_b / alt_e · terminales B (E202) y E (E211) del alternador — ojales del cable de batería (PG-53); sin foto a propósito.
+- fuse36_alt · fusible 36 10A (bloque E21, caja E18) — nota de fusible, no es ficha.
 - f21_oilp · F21 presión aceite — en el filtro/bloque, no en el mazo control (PSP F19 sí).
 - ac_press · A/C presión refrigerante — no está en el arnés motor (lado E10 de F1 / línea A/C).
 - ix_e108_m15 · E108 SMJ — firewall / body (M15), no el mazo control. No reusar f102.webp.

@@ -1759,11 +1759,14 @@
   "ipdm_e4": "IPDM connector with no ECM wiring (not verified in this pass)",
   "ipdm_e5": "IPDM connector with no ECM wiring (not verified in this pass)",
   "ipdm_e6": "IPDM connector with no ECM wiring (not verified in this pass)",
-  "f20_alt": "non-ECM connector (SC section), not verified in this pass",
+  "f20_alt": "non-ECM connector F20 GY/2 alternator S/L (SC-22): 3 L W/R -> F102·13H -> M72 G/R -> meter M19·17; 4 S LG/B <- E11/F2·1 <- fuse 36 10A (E21, BAT, PG-POWER-02)",
   "f21_oilp": "non-ECM connector (DI section), not verified in this pass",
   "f9_starter": "non-ECM connector (SC section), not verified in this pass",
   "f24_comp": "non-ECM connector (ATC section), not verified in this pass",
-  "backup_sw": "non-ECM connector (LT section), not verified in this pass"
+  "backup_sw": "non-ECM connector (LT section), not verified in this pass",
+  "alt_b": "non-ECM ring terminal E202·1 alternator B (SC-22): B/GY -> fusible link holder E201·5 -> battery + (PG-POWER-01 battery bus, no fuse); battery cable PG-53",
+  "alt_e": "non-ECM ring terminal E211·2 alternator E (SC-22): B -> body ground E212, B/Y link to engine ground E213; battery cable PG-53",
+  "fuse36_alt": "fuse card (fuse & fusible link block E21 fuse 36 10A, BAT, PG-POWER-02 -> SC-CHARGE) feeding E11/F2·1 -> F20·4 S"
  },
  "sig_click_allowlist": [
   {

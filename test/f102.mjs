@@ -818,6 +818,9 @@ const FSM_FACE = {
   evap_press: { mt: "3 2 1", at: "3 2 1" },
   psp: { mt: "1 2 3", at: "1 2 3" },
   f20_alt: { mt: "3 4", at: "3 4" },
+  alt_b: { mt: "1", at: "1" },
+  alt_e: { mt: "2", at: "2" },
+  fuse36_alt: { mt: "36", at: "36" },
   f21_oilp: { mt: "1 2 3", at: "1 2 3" },
   f35_pnp: { mt: "1 2", at: null },
   ix_f14_f229: { mt: "1 2", at: "1 2" },
@@ -968,6 +971,81 @@ await setTrans('mt');
   });
   ok(railLit.on && railLit.f36_1 && !railLit.f36_2 && !railLit.f102_22, `12V rail filter lights F36·1 (IGN feed) but not F36·2 / F102·22H (switched output) (${JSON.stringify(railLit)})`);
   await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+}
+
+console.log('\nAlternator charging (SC-22): B E202 / E ring fichas, S via fuse 36 → E11/F2·1 → F20·4, L → F102·13H');
+await page.select('#model', 'de_early');
+await setTrans('mt');
+await page.evaluate(() => { const s = document.getElementById('loomView'); s.value = 'all'; s.dispatchEvent(new Event('change', { bubbles: true })); });
+{
+  const lab = await page.evaluate(() => {
+    const L = (cid, id) => cavBottomLabel((CONN[cid].pins || []).find((p) => String(p.id) === id));
+    const vn = {};
+    for (const Lg of ['es', 'en', 'ja']) { lang = Lg; vn[Lg] = viewNoteText('alt_b', CONN.alt_b); }
+    lang = 'es';
+    return { b: L('alt_b', '1'), e: L('alt_e', '2'), e11: L('ix_e11_f2', '1'), s: L('f20_alt', '4'), l: L('f20_alt', '3'), fuse: L('fuse36_alt', '36'),
+      e11src: CONN.ix_e11_f2.pins.find((p) => p.id === '1').src, bCode: CONN.alt_b.pins[0].code, eCode: CONN.alt_e.pins[0].code, vn,
+      shapes: [CONN.alt_b.shape, CONN.alt_e.shape], group: [CONN.alt_b.sub, CONN.alt_e.sub, CONN.f20_alt.sub] };
+  });
+  ok(lab.b === '12V' && lab.e === 'GND' && lab.bCode === 'B/GY' && lab.eCode === 'B', `E202 B = 12V B/GY, E211 E = GND B (${lab.b}/${lab.bCode}, ${lab.e}/${lab.eCode})`);
+  ok(lab.shapes.every((x) => x === 'ring') && lab.group.every((x) => x === 'sensors'), `B/E are ring fichas next to F20 (${lab.shapes}, ${lab.group})`);
+  ok(lab.e11 === '12V' && lab.e11src === 'E21·36' && lab.fuse === '12V' && lab.s === '12V' && lab.l === 'L',
+    `E11/F2·1 fed by fuse 36 (E21·36) 12V · F20·4 S 12V · F20·3 L signal (${lab.e11}/${lab.e11src}, S=${lab.s}, L=${lab.l})`);
+  ok(/^Vista: terminal de ojal E202 \(SC-22, terminal 1\)/.test(lab.vn.es) && /^View: E202 ring terminal \(SC-22, terminal 1\)/.test(lab.vn.en) && /^表示: E202丸形端子（SC-22、端子1）/.test(lab.vn.ja),
+    `ring view note es/en/ja (${lab.vn.es} | ${lab.vn.en} | ${lab.vn.ja})`);
+}
+async function altLit() {
+  return page.evaluate(() => {
+    const on = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains('hl'));
+    const p13 = f102PinEl('13H');
+    return { circs: [...lastCircIds].sort().join(','), b: on('alt_b', '1'), e: on('alt_e', '2'), fuse: on('fuse36_alt', '36'), e11: on('ix_e11_f2', '1'),
+      s: on('f20_alt', '4'), l: on('f20_alt', '3'), h13: !!p13 && p13.classList.contains('hl') };
+  });
+}
+for (const [cid, cav] of [['alt_b', '1'], ['alt_e', '2']]) {
+  await page.evaluate(() => clearSelection());
+  await page.evaluate((c, v) => selectConnPin(c, v), cid, cav);
+  const r = await altLit();
+  ok(r.circs === 'alt_charge' && r.b && r.e && r.fuse && r.e11 && r.s && r.l && r.h13, `${cid}·${cav} click → alt_charge: B, E, fuse 36, E11/F2·1, F20·3/4, F102·13H lit (${JSON.stringify(r)})`);
+}
+for (const [cid, cav] of [['ix_e11_f2', '1'], ['f20_alt', '4'], ['fuse36_alt', '36']]) {
+  await page.evaluate(() => clearSelection());
+  await page.evaluate((c, v) => selectConnPin(c, v), cid, cav);
+  const r = await altLit();
+  ok(r.circs === 'alt_s' && r.fuse && r.e11 && r.s && !r.l && !r.h13 && !r.b && !r.e, `${cid}·${cav} click → alt_s: fuse 36 → E11/F2·1 → F20·4 only (${JSON.stringify(r)})`);
+}
+for (const [cid, cav] of [['f20_alt', '3'], ['ix_f102_m72', '13H']]) {
+  await page.evaluate(() => clearSelection());
+  await page.evaluate((c, v) => selectConnPin(c, v), cid, cav);
+  const r = await altLit();
+  ok(r.circs === 'alt_l' && r.l && r.h13 && !r.s && !r.e11 && !r.fuse && !r.b && !r.e, `${cid}·${cav} (L signal) click → alt_l, lights no 12V/GND rail cavity (${JSON.stringify(r)})`);
+}
+await page.evaluate(() => clearSelection());
+{
+  const rail = await page.evaluate(() => {
+    const has = (cid, cav, cls) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains(cls));
+    toggleRail('12v');
+    const v = { b: has('alt_b', '1', 'rail-line-12v_batt'), fuse: has('fuse36_alt', '36', 'rail-line-12v_batt'), e11: has('ix_e11_f2', '1', 'rail-line-12v_batt'),
+      s: has('f20_alt', '4', 'rail-line-12v_batt'), l: has('f20_alt', '3', 'hl-rail') };
+    toggleRail('12v'); toggleRail('gnd');
+    v.e = has('alt_e', '2', 'hl-rail'); v.e17 = has('e17', 'ring', 'hl-rail'); v.f23 = has('f23_gnd', 'ring', 'hl-rail');
+    toggleRail('gnd');
+    return v;
+  });
+  ok(rail.b && rail.fuse && rail.e11 && rail.s && !rail.l, `12V rail (12V BATT line) lights B, fuse 36, E11/F2·1, F20·4 but not L (${JSON.stringify(rail)})`);
+  ok(rail.e === rail.e17 && rail.e === rail.f23, `GND rail treats E211 like the other bare ground points E17/F23 (ECM grounds only) (${JSON.stringify(rail)})`);
+}
+{
+  const vis = async (v) => {
+    await page.evaluate((v) => { const s = document.getElementById('loomView'); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })); }, v);
+    return page.evaluate(() => Object.fromEntries(['alt_b', 'alt_e', 'fuse36_alt', 'f20_alt', 'ix_e11_f2'].map((c) => [c, !!document.querySelector(`#fichas .ficha[data-conn="${c}"]`)])));
+  };
+  const all = await vis('all');
+  const mot = await vis('motor');
+  ok(Object.values(all).every(Boolean), `Completo shows E202, E211, fuse 36, F20, E11/F2 (${JSON.stringify(all)})`);
+  ok(!mot.alt_b && !mot.alt_e && !mot.fuse36_alt && !mot.f20_alt && mot.ix_e11_f2,
+    `Arnés motor hides battery-cable E202/E211, fuse 36 (E21) and F20 (on the alternator); keeps E11/F2 (${JSON.stringify(mot)})`);
+  await vis('all');
 }
 
 await browser.close();
