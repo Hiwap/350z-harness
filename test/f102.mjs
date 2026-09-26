@@ -709,7 +709,7 @@ console.log('\nEVT position sensors F38/F42 (Rev-Up only, EC-445/447)');
   ok(!(await page.$('#fichas [data-conn="f242_eot"]')), 'sin VTC escape: F242 oil temp card hidden');
 }
 
-console.log('\nF33/F221 cavity layout = male face as in the photo (EC-279 T.S.), independent of ECM orient');
+console.log('\nF33/F221 cavity layout = F33 female face (EC-278 T.S.), independent of ECM orient');
 for (const o of ['invertida', 'fsm']) {
   await page.select('#ecmOrient', o);
   await new Promise((r) => setTimeout(r, 150));
@@ -724,10 +724,32 @@ for (const o of ['invertida', 'fsm']) {
     const pins = Object.fromEntries((CONN.ix_f221_f33.pins || []).map((p) => [p.id, `${p.code}>${p.ecm ?? p.src ?? '-'}`]));
     return { order, pins };
   });
-  ok(r && JSON.stringify(r.order) === JSON.stringify(['4 3 2 1', '8 7 6 5']),
-    `${o}: F33 ficha rows 4-3-2-1 / 8-7-6-5 like the male-face photo (${JSON.stringify(r && r.order)})`);
+  ok(r && JSON.stringify(r.order) === JSON.stringify(['1 2 3 4', '5 6 7 8']),
+    `${o}: F33 ficha rows 1-2-3-4 / 5-6-7-8 = F33 female EC-278 T.S. (${JSON.stringify(r && r.order)})`);
   ok(r && JSON.stringify(r.pins) === JSON.stringify({ 1: 'SB>21', 2: 'R/Y>22', 3: 'W/B>41', 4: 'B/R>42', 5: 'W/B>JB·10A', 6: 'R/B>23', 7: 'LG>40', 8: '—>-' }),
     `${o}: F33 cavities keep their wire/ECM (EC-702) (${JSON.stringify(r && r.pins)})`);
+}
+await page.select('#ecmOrient', 'invertida');
+
+console.log('\nF18/F201 cavity layout = F18 female face (EC-691/EC-455 T.S.), independent of ECM orient');
+for (const o of ['invertida', 'fsm']) {
+  await page.select('#ecmOrient', o);
+  await new Promise((r) => setTimeout(r, 150));
+  const r = await page.evaluate(() => {
+    const card = document.querySelector('#fichas [data-conn="ix_f18_f201"]');
+    if (!card) return null;
+    const seen = new Set();
+    const cavs = [...card.querySelectorAll('[data-cav]')].filter((e) => !seen.has(e.dataset.cav) && seen.add(e.dataset.cav))
+      .map((e) => { const bb = e.getBoundingClientRect(); return { id: e.dataset.cav, x: bb.x, y: Math.round(bb.y) }; });
+    const rows = {}; cavs.forEach((c) => (rows[c.y] = rows[c.y] || []).push(c));
+    const order = Object.keys(rows).sort((a, b) => a - b).map((y) => rows[y].sort((a, b) => a.x - b.x).map((c) => c.id).join(' '));
+    const pins = Object.fromEntries((CONN.ix_f18_f201.pins || []).map((p) => [p.id, `${p.code}>${p.ecm ?? p.src ?? '-'}`]));
+    return { order, pins };
+  });
+  ok(r && JSON.stringify(r.order) === JSON.stringify(['1 2 3', '4 5 6']),
+    `${o}: F18 ficha rows 1-2-3 / 4-5-6 = F18 female EC-691 T.S. (${JSON.stringify(r && r.order)})`);
+  ok(r && JSON.stringify(r.pins) === JSON.stringify({ 1: 'B>F23', 2: 'L/R>61', 3: 'Y/R>62', 4: 'P>11', 5: 'W/L>E7·17', 6: 'W/L>E7·17' }),
+    `${o}: F18 cavities keep their wire/ECM (EC-691/455) (${JSON.stringify(r && r.pins)})`);
 }
 await page.select('#ecmOrient', 'invertida');
 

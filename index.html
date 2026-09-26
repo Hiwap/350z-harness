@@ -2317,7 +2317,7 @@ const CONN_BASE = {
       {id:'5',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'},
       {id:'6',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}
     ],
-    note:'Empalme Bank 1 (bobinas 1/3 + VTC). Ruta: cav2→bobina3 · cav3→bobina1 · cav4→VTC B1 · cav5/6 12V desde E7-17→F3·5. Bank 2 y bobina 5 no pasan por acá.'},
+    note:'Empalme Bank 1 (bobinas 1/3 + VTC). Ruta: cav2→bobina3 · cav3→bobina1 · cav4→VTC B1 · cav5/6 12V desde E7-17→F3·5. Bank 2 y bobina 5 no pasan por acá. Vista: cara hembra F18 (EC-691/EC-455 T.S.: 1-2-3 / 4-5-6).'},
   ix_f221_f33:{group:'motor', sub:'inyectores', name:'F33 ↔ F221 · Empalme inyectores', meta:'8-pin · frente del collector · no es F18', accent:'#9ccc65', shape:'f33',
     pins:[
       {id:'1',lab:'I5',code:'SB',ecm:21},
@@ -2329,7 +2329,7 @@ const CONN_BASE = {
       {id:'7',lab:'I6',code:'LG',ecm:40},
       {id:'8',code:'—',ecm:null}
     ],
-    note:'Junta del arnés motor con el sub-arnés de inyectores (F33↔F221). Pin 5 = 12V común (JB 10A → F102·17H). Pines 1–4, 6–7 = control ECM (abre a masa cada iny). Pin 8 vacío. No confundir con F18 (bobinas/VTC). Vista: cara macho F221 como la foto (EC-279 T.S.: 4-3-2-1 / 8-7-6-5); F33 hembra = espejo (EC-278).'},
+    note:'Junta del arnés motor con el sub-arnés de inyectores (F33↔F221). Pin 5 = 12V común (JB 10A → F102·17H). Pines 1–4, 6–7 = control ECM (abre a masa cada iny). Pin 8 vacío. No confundir con F18 (bobinas/VTC). Vista: cara hembra F33 (EC-278 T.S.: 1-2-3-4 / 5-6-7-8); la foto muestra la mitad macho F221 = espejo (EC-279).'},
   ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · SMJ motor↔carrocería', meta:'SMJ 69G · PG-84 · cara E108', accent:'#90a4ae', shape:'e108', face:'smj_g',
     pins:[
       {id:'1G',code:'—',ecm:null},
@@ -2478,7 +2478,7 @@ const CONN_FACE = {
   ix_f102_m72: { src: 'faces/f102.webp', source: 'Wiring Specialties' },
   ix_f14_f229: { src: 'faces/f14.webp', source: 'Wiring Specialties' },
   ix_f18_f201: { src: 'faces/f18.webp', source: 'Ballenger Motorsports' },
-  ix_f221_f33: { src: 'faces/f33.webp', source: 'EFI Hardware (Nissan 8 Pin Injector Loom Male Pin Connector, Grey)' },
+  ix_f221_f33: { src: 'faces/f33.webp', source: 'EFI Hardware (Nissan 8 Pin Injector Loom Male Pin Connector, Grey)', note: 'faceNoteMateMirror' },
   backup_sw: { src: 'faces/reverse.webp', source: 'Wiring Specialties' },
   f20_alt: { src: 'faces/alt.webp', source: 'Wiring Specialties' },
   gnd4: { src: 'faces/fsm_f103.webp', source: 'FSM 2005 EC-169' },
@@ -2879,12 +2879,12 @@ function flipRow(arr){
 
 /** A/F FSM face: top 5-3-1, bottom 6-4-2 (looking into connector) */
 function svgF33(cid, f){
-  /* Shown as the male mating face, same view as the photo faces/f33.webp (EFI male 8-pin), lock on top:
-     top 4-3-2-1 / bot 8-7-6-5 left→right = F221 terminal side (EC-279 T.S., black guide = male terminals).
-     F33 has the female terminals (EC-278 / EC-702 T.S., white guide): top 1-2-3-4 / bot 5-6-7-8 = mirror.
+  /* Ezequiel's F33 female plug as drawn in EC-278 T.S. (white guide = female terminals), lock on top:
+     top 1-2-3-4 / bot 5-6-7-8 left→right. The photo faces/f33.webp is the mating male half F221
+     (EC-279 T.S., black guide: 4-3-2-1 / 8-7-6-5) = mirror of this view.
      Fixed view: does not follow the ECM Invertida/FSM toggle. Cavity ids/wires/ECM pins unchanged. */
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const orderTop = ['4','3','2','1'], orderBot = ['8','7','6','5'];
+  const orderTop = ['1','2','3','4'], orderBot = ['5','6','7','8'];
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=14, topY=20;
   const botY = topY + ch + gap;
@@ -2904,9 +2904,11 @@ function svgF33(cid, f){
 }
 
 function svgF18(cid, f){
-  /* F18 H.S. black 6-pin: top 1–2–3 / bot 4–5–6 (EC-691) */
+  /* F18 engine-harness plug as drawn in EC-691 / EC-455 T.S. (single outline, white guide = female terminals),
+     black 6-pin, lock on top: top 1-2-3 / bot 4-5-6 left→right.
+     Fixed view: does not follow the ECM Invertida/FSM toggle. Cavity ids/wires/ECM pins unchanged. */
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const orderTop = flipRow(['1','2','3']), orderBot = flipRow(['4','5','6']);
+  const orderTop = ['1','2','3'], orderBot = ['4','5','6'];
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=22, topY=20;
   const botY = topY + ch + gap;
@@ -3790,6 +3792,7 @@ const I18N = {
     fichasTitle: 'Fichas',
     facePhotoLabel: 'Foto:',
     faceNoteSimilarLock: 'similar, el seguro puede diferir',
+    faceNoteMateMirror: 'mitad macho F221 que acopla; espejo de la ficha (F33 hembra)',
     facePhotoOpen: 'Ver foto del conector',
     facePhotoClose: 'Cerrar foto',
     selTopTitle: 'Grupos seleccionados',
@@ -3969,6 +3972,7 @@ const I18N = {
     fichasTitle: 'Connectors',
     facePhotoLabel: 'Photo:',
     faceNoteSimilarLock: 'similar, lock may differ',
+    faceNoteMateMirror: 'mating male half F221; mirrored vs the pin diagram (F33 female)',
     facePhotoOpen: 'View connector photo',
     facePhotoClose: 'Close photo',
     selTopTitle: 'Selected groups',
@@ -4148,6 +4152,7 @@ const I18N = {
     fichasTitle: 'コネクタ',
     facePhotoLabel: '写真:',
     faceNoteSimilarLock: '類似品・ロック形状が異なる場合あり',
+    faceNoteMateMirror: '相手側F221オス；ピン図（F33メス）とは左右反転',
     facePhotoOpen: 'コネクタ写真を見る',
     facePhotoClose: '写真を閉じる',
     selTopTitle: '選択グループ',
@@ -4984,15 +4989,15 @@ const CONN_I18N = {
   },
   ix_f18_f201: {
     en: { name:'F18 ↔ F201 · Coils B1 + VTC', meta:'6-pin · Bank 1 only · EC-691/455',
-      note:'F18: 1 B GND · 2 L/R→61 C3 · 3 Y/R→62 C1 · 4 W/R→P→11 VTC · 5–6 W/L 12V. Coil5 separate. No mate on Bank2.' },
+      note:'F18: 1 B GND · 2 L/R→61 C3 · 3 Y/R→62 C1 · 4 W/R→P→11 VTC · 5–6 W/L 12V. Coil5 separate. No mate on Bank2. View: F18 female face (EC-691/EC-455 T.S.: 1-2-3 / 4-5-6).' },
     ja: { name:'F18 ↔ F201 · B1コイル + VTC', meta:'6ピン · Bank1のみ · EC-691/455',
-      note:'F18: 1 B GND · 2→61 · 3→62 · 4→11 VTC · 5–6 W/L。Coil5は別。Bank2にこの中間なし。' },
+      note:'F18: 1 B GND · 2→61 · 3→62 · 4→11 VTC · 5–6 W/L。Coil5は別。Bank2にこの中間なし。表示: F18メス側の面（EC-691/EC-455 T.S.: 1-2-3 / 4-5-6）。' },
   },
   ix_f221_f33: {
     en: { name:'F33 ↔ F221 · Injector junction', meta:'8-pin · front of collector · not F18',
-      note:'Joins engine harness to injector sub-harness (F33↔F221). Pin 5 = shared 12V (JB 10A → F102·17H). Pins 1–4, 6–7 = ECM drive (grounds each injector). Pin 8 empty. Not F18 (coils/VTC). View: F221 male face, as in the photo (EC-279 T.S.: 4-3-2-1 / 8-7-6-5); F33 female = mirror (EC-278).' },
+      note:'Joins engine harness to injector sub-harness (F33↔F221). Pin 5 = shared 12V (JB 10A → F102·17H). Pins 1–4, 6–7 = ECM drive (grounds each injector). Pin 8 empty. Not F18 (coils/VTC). View: F33 female face (EC-278 T.S.: 1-2-3-4 / 5-6-7-8); the photo shows the male half F221 = mirror (EC-279).' },
     ja: { name:'F33 ↔ F221 · インジェクタ中間', meta:'8ピン · コレクタ前 · F18ではない',
-      note:'エンジンハーネスとインジェクタサブハーネスの中間（F33↔F221）。ピン5=共通12V（JB 10A→F102·17H）。1–4・6–7=ECM制御。ピン8空き。F18（コイル/VTC）と別。表示: 写真と同じF221オス側の面（EC-279 T.S.: 4-3-2-1 / 8-7-6-5）；F33メス側は左右反転（EC-278）。' },
+      note:'エンジンハーネスとインジェクタサブハーネスの中間（F33↔F221）。ピン5=共通12V（JB 10A→F102·17H）。1–4・6–7=ECM制御。ピン8空き。F18（コイル/VTC）と別。表示: F33メス側の面（EC-278 T.S.: 1-2-3-4 / 5-6-7-8）；写真は相手側のF221オス = 左右反転（EC-279）。' },
   },
   ix_e108_m15: {
     en: { name:'E108 ↔ M15 · SMJ engine room↔body', meta:'SMJ 69G · PG-84 · E108 H.S.',

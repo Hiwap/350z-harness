@@ -188,12 +188,16 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       faceOf('af_b1') === 'faces/af.webp' && faceOf('af_b2') === 'faces/af.webp', `${faceOf('af_b1')} / ${faceOf('af_b2')}`);
     ok('F33/F221 injector splice uses faces/f33.webp = EFI Hardware male 8-pin grey (gallery img 4, F33 GY/8 PG-55/EC-702)',
       faceOf('ix_f221_f33') === 'faces/f33.webp'
-      && /ix_f221_f33: \{ src: 'faces\/f33\.webp', source: 'EFI Hardware \(Nissan 8 Pin Injector Loom Male Pin Connector, Grey\)' \}/.test(faceBlock[1]),
+      && /ix_f221_f33: \{ src: 'faces\/f33\.webp', source: 'EFI Hardware \(Nissan 8 Pin Injector Loom Male Pin Connector, Grey\)', note: 'faceNoteMateMirror' \}/.test(faceBlock[1])
+      && (html.match(/faceNoteMateMirror: '/g) || []).length === 3,
       faceOf('ix_f221_f33'));
     {
       const fn = (html.match(/function svgF33\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
-      ok('svgF33: fixed male-face order top 4-3-2-1 / bot 8-7-6-5 (EC-279 T.S.), no ECM-orient flipRow',
-        /const orderTop = \['4','3','2','1'\], orderBot = \['8','7','6','5'\];/.test(fn) && !/flipRow/.test(fn));
+      ok('svgF33: fixed F33 female order top 1-2-3-4 / bot 5-6-7-8 (EC-278 T.S.), no ECM-orient flipRow',
+        /const orderTop = \['1','2','3','4'\], orderBot = \['5','6','7','8'\];/.test(fn) && !/flipRow/.test(fn));
+      const fn18 = (html.match(/function svgF18\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
+      ok('svgF18: fixed F18 female order top 1-2-3 / bot 4-5-6 (EC-691/455 T.S.), no ECM-orient flipRow',
+        /const orderTop = \['1','2','3'\], orderBot = \['4','5','6'\];/.test(fn18) && !/flipRow/.test(fn18));
     }
     ok('A/F face caption carries the localized similar/lock note', /af_b1:[^\n]*note: 'faceNoteSimilarLock'/.test(faceBlock[1])
       && (html.match(/faceNoteSimilarLock: '/g) || []).length === 3 /* es + en + ja packs */);

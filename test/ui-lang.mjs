@@ -257,7 +257,8 @@ for (const [lg, re] of [['es', /^Foto: Connector Experts \(Air Fuel Ratio Sensor
 }
 
 console.log('\nF33/F221 face caption');
-for (const [lg, lab] of [['es', 'Foto:'], ['en', 'Photo:'], ['ja', '写真:']]) {
+for (const [lg, lab, note] of [['es', 'Foto:', 'mitad macho F221 que acopla; espejo de la ficha (F33 hembra)'],
+  ['en', 'Photo:', 'mating male half F221; mirrored vs the pin diagram (F33 female)'], ['ja', '写真:', '相手側F221オス；ピン図（F33メス）とは左右反転']]) {
   await page.select('#lang', lg);
   await page.evaluate(() => { if (typeof applyLang === 'function') applyLang(); });
   const r = await page.evaluate(() => {
@@ -266,7 +267,7 @@ for (const [lg, lab] of [['es', 'Foto:'], ['en', 'Photo:'], ['ja', '写真:']]) 
     closeFaceLightbox();
     return out;
   });
-  ok(r.src === 'faces/f33.webp' && r.cap === `${lab} EFI Hardware (Nissan 8 Pin Injector Loom Male Pin Connector, Grey)`,
+  ok(r.src === 'faces/f33.webp' && r.cap === `${lab} EFI Hardware (Nissan 8 Pin Injector Loom Male Pin Connector, Grey) · ${note}`,
     `${lg} F33 lightbox = f33.webp + EFI caption (${JSON.stringify(r)})`);
 }
 
