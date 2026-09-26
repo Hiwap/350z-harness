@@ -365,9 +365,15 @@ ok('actuators render no longer nests bobinas under actuators',
     ok('Manual: ECM 102 → only pnp_mt', pmt.length === 1 && pmt[0].id === 'pnp_mt', pmt.map((c) => c.id).join(','));
     ok('Automático: ECM 102 → only pnp_at', pat.length === 1 && pat[0].id === 'pnp_at', pat.map((c) => c.id).join(','));
     const m = all.find((c) => c.id === 'pnp_mt');
-    ok('pnp_mt path F35·2 → F103·3 → F152, no F102 / E17',
-      m && m.trans === 'mt' && JSON.stringify(m.path) === JSON.stringify({ f35_pnp: ['2'], gnd4: ['3'], f152: ['ring'] })
-        && !(m.conn || []).includes('ix_f102_m72') && !m.f102 && !(m.conn || []).includes('e17'), JSON.stringify(m));
+    ok('pnp_mt = signal only: ECM 102 → F35·1, no F103/F152/F102/E17 (ground in pnp_mt_gnd)',
+      m && m.trans === 'mt' && JSON.stringify(m.path) === JSON.stringify({ f35_pnp: ['1'] })
+        && JSON.stringify(m.conn) === JSON.stringify(['f35_pnp']) && !m.f102 && !m.gndRel, JSON.stringify(m));
+    const mg = all.find((c) => c.id === 'pnp_mt_gnd');
+    ok('pnp_mt_gnd: F35·2 → F103·3 → F152, no ECM pin, gndRel, M/T only',
+      mg && mg.trans === 'mt' && mg.gndRel === true && mg.ecm.length === 0
+        && JSON.stringify(mg.path) === JSON.stringify({ f35_pnp: ['2'], gnd4: ['3'], f152: ['ring'] })
+        && !(mg.conn || []).includes('e17'), JSON.stringify(mg));
+    ok('Automático: no pnp_mt_gnd', !at.some((c) => c.id === 'pnp_mt_gnd'));
     const a = all.find((c) => c.id === 'pnp_at');
     ok('pnp_at: F102 28H (+23H) → F6, no invented PNP ground',
       a && a.trans === 'at' && JSON.stringify(a.f102) === JSON.stringify(['28H', '23H'])
@@ -393,12 +399,13 @@ ok('actuators render no longer nests bobinas under actuators',
       + script.match(/function circuitPathRail\([\s\S]*?\n\}/)[0] + '\n'
       + script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/)[0]
       + '\nconst C = buildCircuits("de_early"); const r = (id) => circuitPathRail(C.find((c) => c.id === id));'
-      + "\nresult.r = { g116: r('gnd_ecm_116'), g1: r('gnd_ecm_1'), knock: r('knock'), pnp_mt: r('pnp_mt'), pnp_at: r('pnp_at'), coil1: r('coil_1'), backup: r('backup_lamp'), brake: r('brake_stop') };"
+      + "\nresult.r = { g116: r('gnd_ecm_116'), g1: r('gnd_ecm_1'), knock: r('knock'), pnp_mt: r('pnp_mt'), pnp_mt_gnd: r('pnp_mt_gnd'), pnp_at: r('pnp_at'), coil1: r('coil_1'), backup: r('backup_lamp'), brake: r('brake_stop') };"
       + "\nresult.v5 = circuitPathRail({ path: { app: ['4'] } });";
     vm.runInContext(src, ctx);
     const r = ctx.result.r;
     ok('route rail: ECM 116 / ECM 1 grounds = gnd', r.g116 === 'gnd' && r.g1 === 'gnd', JSON.stringify(r));
-    ok('route rail: knock shield + PNP M/T = gnd', r.knock === 'gnd' && r.pnp_mt === 'gnd');
+    ok('route rail: knock shield + PNP M/T ground return = gnd', r.knock === 'gnd' && r.pnp_mt_gnd === 'gnd');
+    ok('route rail: PNP M/T signal (ECM 102 → F35·1) = sig', r.pnp_mt === 'sig', r.pnp_mt);
     ok('route rail: coil / backup lamp = 12v', r.coil1 === '12v' && r.backup === '12v');
     ok('route rail: brake / PNP A/T = sig', r.brake === 'sig' && r.pnp_at === 'sig');
     ok('route rail: 5V cavity = 5v', ctx.result.v5 === '5v', ctx.result.v5);
@@ -440,11 +447,15 @@ ok('actuators render no longer nests bobinas under actuators',
     ok('no EVT circuits on de_early', !early.some((c) => /^evt_pos/.test(c.id)));
     const by = (id) => rev.find((c) => c.id === id);
     for (const [b, ecm, conn] of [[1, 53, 'f38_evtc_b1'], [2, 72, 'f42_evtc_b2']]) {
-      const sig = by(`evt_pos_b${b}`); const pwr = by(`evt_pos_b${b}_pwr`);
-      ok(`evt_pos_b${b}: ECM ${ecm}, ground path pin1 → F103·3 → F152`,
+      const sig = by(`evt_pos_b${b}`); const pwr = by(`evt_pos_b${b}_pwr`); const gnd = by(`evt_pos_b${b}_gnd`);
+      ok(`evt_pos_b${b}: signal only ECM ${ecm} → pin 2, no F103/F152`,
         sig && JSON.stringify(sig.ecm) === JSON.stringify([ecm])
-          && JSON.stringify(sig.path) === JSON.stringify({ [conn]: ['1'], gnd4: ['3'], f152: ['ring'] })
-          && !(sig.conn || []).includes('e17'), JSON.stringify(sig));
+          && JSON.stringify(sig.path) === JSON.stringify({ [conn]: ['2'] })
+          && JSON.stringify(sig.conn) === JSON.stringify([conn]), JSON.stringify(sig));
+      ok(`evt_pos_b${b}_gnd: pin 1 → F103·3 → F152, no ECM pin, gndRel`,
+        gnd && gnd.ecm.length === 0 && gnd.gndRel === true
+          && JSON.stringify(gnd.path) === JSON.stringify({ [conn]: ['1'], gnd4: ['3'], f152: ['ring'] })
+          && !(gnd.conn || []).includes('e17'), JSON.stringify(gnd));
       ok(`evt_pos_b${b}_pwr: E7·18 → F3·7 → pin 3, no ECM pin`,
         pwr && pwr.ecm.length === 0
           && JSON.stringify(pwr.path) === JSON.stringify({ ipdm_e7: ['18'], ix_e12_f3: ['7'], [conn]: ['3'] }), JSON.stringify(pwr));
@@ -452,6 +463,33 @@ ok('actuators render no longer nests bobinas under actuators',
   } catch (e) {
     ok('eval EVT circuits', false, String(e.message || e));
   }
+}
+
+{
+  /* Signal-pin clicks show the signal path; sensor ground returns are separate gndRel circuits. */
+  ok('F35·2 / F38·1 / F42·1 ground cavities select their own ground circuit',
+    /circ:'pnp_mt_gnd',note:'Masa PNP/.test(html) && /circ:'evt_pos_b1_gnd'/.test(html) && /circ:'evt_pos_b2_gnd'/.test(html));
+  ok('F35·1 SIG still selects pnp_mt', /\{id:'1',lab:'SIG',code:'BR\/Y',ecm:102,circ:'pnp_mt'\}/.test(html));
+  ok('Masa rail paints gndRel sensor-ground path cavities only',
+    /if\(!cir\.gndRel\) return;/.test(html) && /gndRelOnlyConns\.has\(cid\) && !\(gndRelCavs\[cid\]/.test(html));
+  for (const id of ['pnp_mt_gnd', 'evt_pos_b1_gnd', 'evt_pos_b2_gnd']) {
+    ok(`CIRC i18n title + notes for ${id}`, (html.match(new RegExp(`\\n  ${id}: \\{en:'`, 'g')) || []).length === 2);
+  }
+}
+
+{
+  /* Engine oil temperature sensor: PG-55 sub-harness-3 F242 GY/2 (not F232); F241 BR/2 ↔ F39 GY/2 intermediate; no ECM terminal in the 2005 FSM. */
+  ok('no F232 oil temp card left', !/f232_eot|F232/.test(html));
+  const b = (html.match(/\n  f242_eot:\{[\s\S]*?\n    note:[^\n]*/) || [''])[0];
+  ok('f242_eot: F242 GY/2 tab2 motor sensor, PG-55', /name:'F242 · Temp\. aceite'/.test(b) && /meta:'GY\/2 /.test(b)
+    && /shape:'tab2'/.test(b) && /group:'motor', sub:'sensors'/.test(b) && b.includes('PG-55'));
+  const pins = [...b.matchAll(/\{id:'([^']+)',code:'([^']+)',ecm:(\w+),unknown:true/g)].map((m) => m.slice(1).join(':'));
+  ok('f242_eot: 2 cavities, no invented ECM pin / color', JSON.stringify(pins) === JSON.stringify(['1:—:null', '2:—:null']), pins.join(','));
+  ok('f242_eot note: F241 BR/2 ↔ F39 GY/2 intermediate, CONSULT only', /F241 BR\/2 ↔ F39 GY\/2/.test(b) && /ENG OIL TEMP/.test(b));
+  ok('f242_eot en/ja i18n', /\n  f242_eot: \{ en:\{name:'F242 · Oil temp', meta:'GY\/2 [^']*', note:'[^']*F241 BR\/2 ↔ F39 GY\/2/.test(html)
+    && /ja:\{name:'F242 · 油温'/.test(html));
+  ok('F242 hidden on VQ35DE sin VTC escape (Rev-Up only)', /id !== 'f42_evtc_b2' && id !== 'f242_eot'\)/.test(html));
+  ok('F242 not trans-gated', !/'f242_eot'/.test((html.match(/const TRANS_MT_ONLY = new Set\(\[[^\]]*\]\)/) || [''])[0]));
 }
 
 console.log('\n---');

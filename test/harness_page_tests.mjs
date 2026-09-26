@@ -190,6 +190,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       vtc_ex_b1: 2, vtc_ex_b2: 2, /* FSM face is 4-cavity; CONN wires 2 */
       f38_evtc_b1: 3, /* FSM EC-445 / PG-55: F38 B/3 */
       f42_evtc_b2: 3,
+      f242_eot: 2, /* PG-55 sub-harness-3: F242 GY/2 (only asserted if a face is mapped) */
     };
     function expectedFacePins(id) {
       if (Object.prototype.hasOwnProperty.call(EXPECTED_FACE_PINS, id)) return EXPECTED_FACE_PINS[id];

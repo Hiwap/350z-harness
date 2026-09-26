@@ -544,18 +544,42 @@ await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelec
   ok(st.f35 && !st.f6, `Manual: F35 PNP ficha shown, F6 A/T hidden (f35=${st.f35}, f6=${st.f6})`);
   ok(st.p28Empty, 'Manual: F102·28H empty (ECM 102 does not use F102 on M/T, EC-646)');
   ok(st.p23Empty, 'Manual: F102·23H empty (START GY/R is A/T only, EC-644)');
-  ok(JSON.stringify(st.circs) === JSON.stringify(['pnp_mt']), `Manual: only pnp_mt circuit (${st.circs.join(',')})`);
+  ok(JSON.stringify(st.circs) === JSON.stringify(['pnp_mt', 'pnp_mt_gnd']), `Manual: only pnp_mt + pnp_mt_gnd circuits (${st.circs.join(',')})`);
 }
 await clickPin(102);
 {
   ok(!(await f102Open()), 'Manual: pin 102 → F102 collapsed');
   const tags = await routeTags();
-  const g = tags.find((x) => x.rail === 'gnd');
-  ok(!!g && /F35·2/.test(g.text) && /F103·3/.test(g.text) && /F152/.test(g.text) && !/E17/.test(g.text),
-    `Manual: pin 102 route tag GND F35·2 → F103·3 → F152 (${JSON.stringify(tags)})`);
-  const lit = await page.evaluate(() => [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group')].map((c) => c.dataset.conn + '·' + c.dataset.cav));
+  ok(!tags.some((x) => x.rail === 'gnd' || x.rail === '12v'), `Manual: pin 102 route has no GND/12V tag (${JSON.stringify(tags)})`);
+  ok(tags.some((x) => x.rail === 'sig' && /F35·1/.test(x.text)), `Manual: pin 102 route tagged signal F35·1 (${JSON.stringify(tags)})`);
+  const lit = await page.evaluate(() => [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].map((c) => c.dataset.conn + '·' + c.dataset.cav));
   ok(lit.includes('f35_pnp·1'), `Manual: F35·1 lit for ECM 102 (${lit.join(',')})`);
+  ok(!lit.includes('f35_pnp·2') && !lit.some((x) => /^gnd4·|^f152·/.test(x)), `Manual: pin 102 does not mark F35·2 / F103 / F152 (${lit.join(',')})`);
+  const fichHl = await page.evaluate(() => ['f35_pnp', 'gnd4', 'f152'].map((c) => {
+    const el = document.querySelector(`#fichas [data-conn="${c}"]`);
+    return !!el && !el.classList.contains('dim') && (el.classList.contains('hl') || el.classList.contains('sel') || el.classList.contains('hl-group'));
+  }));
+  ok(fichHl[0] && !fichHl[1] && !fichHl[2], `Manual: pin 102 → F35 card on, F103/F152 cards off (${JSON.stringify(fichHl)})`);
 }
+await page.evaluate(() => { clearSelection(); selectConnPin('f35_pnp', '2'); });
+{
+  const tags = await routeTags();
+  ok(tags.some((x) => x.rail === 'gnd' && /F35·2/.test(x.text) && /F103·3/.test(x.text) && /F152/.test(x.text) && !/E17/.test(x.text)),
+    `Manual: F35·2 click → GND F35·2 → F103·3 → F152 (${JSON.stringify(tags)})`);
+  const lit = await page.evaluate(() => [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].map((c) => c.dataset.conn + '·' + c.dataset.cav));
+  ok(lit.includes('gnd4·3') && lit.includes('f152·ring'), `Manual: F35·2 click marks F103·3 + F152 (${lit.join(',')})`);
+  ok(!(await page.$eval('#blocks .pin[data-pin="102"]', (el) => el.classList.contains('hl'))), 'Manual: F35·2 click does not focus ECM 102 (related data sibling only)');
+}
+await page.evaluate(() => { clearSelection(); toggleRail('gnd'); });
+{
+  const st = await page.evaluate(() => {
+    const cls = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)]
+      .some((el) => el.classList.contains('hl-rail') || el.classList.contains('hl-rail-rel-gnd'));
+    return { f35_2: cls('f35_pnp', '2'), f35_1: cls('f35_pnp', '1'), g3: cls('gnd4', '3'), f152: cls('f152', 'ring') };
+  });
+  ok(st.f35_2 && st.g3 && st.f152 && !st.f35_1, `Manual + Masa: F35·2 → F103·3 → F152 shown, F35·1 SIG not (${JSON.stringify(st)})`);
+}
+await page.evaluate(() => { toggleRail('gnd'); clearSelection(); });
 await setTrans('at');
 await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
 {
@@ -619,11 +643,32 @@ console.log('\nEVT position sensors F38/F42 (Rev-Up only, EC-445/447)');
   for (const [n, cid] of [[53, 'f38_evtc_b1'], [72, 'f42_evtc_b2']]) {
     await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
     await clickPin(n);
-    const lit = await page.evaluate(() => [...new Set([...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group')].map((c) => c.dataset.conn + '·' + c.dataset.cav))]);
-    ok(lit.includes(cid + '·2') && lit.includes(cid + '·1') && lit.includes('gnd4·3') && lit.includes('f152·ring'),
-      `ECM ${n} lights ${cid}·2 SIG + ·1 GND → F103·3 → F152 (${lit.join(',')})`);
+    const lit = await page.evaluate(() => [...new Set([...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].map((c) => c.dataset.conn + '·' + c.dataset.cav))]);
+    ok(lit.includes(cid + '·2') && !lit.includes(cid + '·1') && !lit.includes(cid + '·3') && !lit.some((x) => /^gnd4·|^f152·/.test(x)),
+      `ECM ${n} lights only ${cid}·2 SIG (no ·1 GND / F103 / F152) (${lit.join(',')})`);
     const tags = await routeTags();
-    ok(tags.some((x) => x.rail === 'gnd' && /F103·3/.test(x.text) && /F152/.test(x.text)), `ECM ${n} route tag GND F103·3 → F152`);
+    ok(!tags.some((x) => x.rail === 'gnd' || x.rail === '12v'), `ECM ${n} route has no GND/12V tag (${JSON.stringify(tags)})`);
+    await page.evaluate((cid) => { clearSelection(); selectConnPin(cid, '1'); }, cid);
+    const tg = await routeTags();
+    ok(tg.some((x) => x.rail === 'gnd' && /F103·3/.test(x.text) && /F152/.test(x.text)), `${cid}·1 click → GND F103·3 → F152 (${JSON.stringify(tg)})`);
+    ok(!(await page.$eval(`#blocks .pin[data-pin="${n}"]`, (el) => el.classList.contains('hl'))), `${cid}·1 click does not focus ECM ${n}`);
+  }
+  await page.evaluate(() => { clearSelection(); toggleRail('gnd'); });
+  {
+    const st = await page.evaluate(() => {
+      const on = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)]
+        .some((el) => el.classList.contains('hl-rail') || el.classList.contains('hl-rail-rel-gnd'));
+      return { b1g: on('f38_evtc_b1', '1'), b2g: on('f42_evtc_b2', '1'), b1s: on('f38_evtc_b1', '2'), b1p: on('f38_evtc_b1', '3') };
+    });
+    ok(st.b1g && st.b2g && !st.b1s && !st.b1p, `Rev-Up + Masa: F38·1/F42·1 ground returns shown, SIG/12V cavities not (${JSON.stringify(st)})`);
+  }
+  await page.evaluate(() => { toggleRail('gnd'); clearSelection(); });
+  {
+    const oil = await page.evaluate(() => ({
+      f242: !!document.querySelector('#fichas [data-conn="f242_eot"]'),
+      f232: !!document.querySelector('#fichas [data-conn="f232_eot"]'),
+    }));
+    ok(oil.f242 && !oil.f232, `Rev-Up: oil temp card is F242 (not F232) (${JSON.stringify(oil)})`);
   }
   await page.evaluate(() => { clearSelection(); selectConnPin('f38_evtc_b1', '3'); });
   const t3 = await routeTags();
@@ -635,6 +680,7 @@ console.log('\nEVT position sensors F38/F42 (Rev-Up only, EC-445/447)');
   await page.select('#loomView', 'all');
   await page.select('#model', 'de_early');
   await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+  ok(!(await page.$('#fichas [data-conn="f242_eot"]')), 'sin VTC escape: F242 oil temp card hidden');
 }
 
 await browser.close();

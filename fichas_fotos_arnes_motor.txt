@@ -31,7 +31,7 @@ DESPUÉS — en el mazo, sin cara FSM usable
 1. iat                 IAT va en el MAF (EC-204); no hay conector aparte en el FSM
 2. f23_gnd             F23 masa motor (PG-35, no es cara de ficha)
 3. f24_comp            F24 Compresor A/C — no está en el mazo control (Completo)
-4. f232_eot            F232 Temp. aceite (Rev-Up; sin diagrama de cara)
+4. f242_eot            F242 Temp. aceite GY/2 (Rev-Up; PG-55 sub-arnés 3; sin diagrama de cara ni pinout FSM)
 5. f152                F152 masa motor (EC-169; punto de masa, no es cara de ficha)
 
 NO SACAR / skip

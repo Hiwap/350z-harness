@@ -1603,7 +1603,9 @@ function buildCircuits(model){
       ecm:[99,67], conn:['clock_spring','ix_f102_m72'], f102:['1H','7H'], notes:'Botones ASCD del volante. Ruta: reloj / clock spring → F102·1H/7H → ECM 99 · masa ECM 67.'},
     /* PNP depends on transmission (FSM EC-646 M/T vs EC-644 A/T). trans:'mt'|'at' → filtered by circuitVisibleInTrans. */
     {id:'pnp_mt', trans:'mt', title:'PNP · Park/Neutral (M/T) · F35', color:'#ab47bc',
-      ecm:[102], conn:['f35_pnp','gnd4','f152'], path:{f35_pnp:['2'],gnd4:['3'],f152:['ring']}, notes:'Interruptor park/neutral M/T F35 (en la caja). Ruta: ECM 102 (BR/Y) → F35·1 directo, sin pasar por F102 · F35·2 (B) → F103/F151·3 → masa motor F152. Neutral = interruptor cerrado (ECM 102 ≈ 0V); otras marchas = 12V. EC-646/648.'},
+      ecm:[102], conn:['f35_pnp'], path:{f35_pnp:['1']}, notes:'Interruptor park/neutral M/T F35 (en la caja). Señal: ECM 102 (BR/Y) → F35·1 directo, sin pasar por F102. Neutral = interruptor cerrado a masa (ECM 102 ≈ 0V); otras marchas = 12V. Masa F35·2 → F103·3 → F152 en Masa o clic en F35·2. EC-646/648.'},
+    {id:'pnp_mt_gnd', trans:'mt', gndRel:true, title:'PNP (M/T) · masa F35·2', color:'#ab47bc',
+      ecm:[], conn:['f35_pnp','gnd4','f152'], path:{f35_pnp:['2'],gnd4:['3'],f152:['ring']}, notes:'Masa del PNP M/T. Ruta: F35·2 (B) → F103/F151·3 → masa motor F152. EC-646.'},
     {id:'pnp_at', trans:'at', title:'PNP · Park/Neutral (A/T) · vía medidor', color:'#ab47bc',
       ecm:[102], conn:['f6_at','ix_f102_m72'], f102:['28H','23H'], path:{ix_f102_m72:['28H','23H'],f6_at:['9']}, notes:'A/T: el PNP está dentro del conjunto A/T (F6, AT-118) y lo lee el TCM; no hay interruptor aparte ni masa PNP en el arnés motor. Ruta: ECM 102 (BR/Y) → F102·28H → M72 (G/W) → medidor unificado/A/C amp M49·25. El medidor toma AT-P RANGE (M49·32, GY/R) ← F102·23H ← F6·9 (TCM START-RLY). EC-644/647.'},
 
@@ -1639,17 +1641,25 @@ function buildCircuits(model){
         notes:'VTC escape Bank 2 (Rev-Up). ECM 8 (P) · F41·2. 12V E7-17 → F3·5 → F41·1 · EC-200.'},
       /* EVT position sensors F38/F42 (EC-445/447): signal + ground (Masa) and 12V feed (Alim.) as separate circuits */
       {id:'evt_pos_b1', title:'EVT posición B1 (escape) · F38', color:'#ad1457',
-        ecm:[53], conn:['f38_evtc_b1','gnd4','f152'],
+        ecm:[53], conn:['f38_evtc_b1'],
+        path:{f38_evtc_b1:['2']},
+        notes:'Sensor posición VTC escape Bank 1 (Rev-Up). Señal F38·2 (L/B) → ECM 53. Masa F38·1 → F103·3 → F152 en Masa o clic en F38·1 · 12V F38·3 (R/W) en Alim. EC-445.'},
+      {id:'evt_pos_b1_gnd', gndRel:true, title:'EVT posición B1 · masa F38·1', color:'#ad1457',
+        ecm:[], conn:['f38_evtc_b1','gnd4','f152'],
         path:{f38_evtc_b1:['1'],gnd4:['3'],f152:['ring']},
-        notes:'Sensor posición VTC escape Bank 1 (Rev-Up). Señal F38·2 (L/B) → ECM 53 · masa F38·1 (B) → F103/F151·3 → F152 · 12V F38·3 (R/W) en Alim. EC-445.'},
+        notes:'Masa sensor EVT B1. Ruta: F38·1 (B) → F103/F151·3 → masa motor F152. EC-445.'},
       {id:'evt_pos_b1_pwr', title:'EVT posición B1 · 12V', color:'#ad1457',
         ecm:[], conn:['f38_evtc_b1','ix_e12_f3'],
         path:{ipdm_e7:['18'],ix_e12_f3:['7'],f38_evtc_b1:['3']},
         notes:'12V sensor EVT B1. Ruta: IPDM E7·18 (relé ECM, R/W) → E12/F3·7 → F38·3. EC-445.'},
       {id:'evt_pos_b2', title:'EVT posición B2 (escape) · F42', color:'#ad1457',
-        ecm:[72], conn:['f42_evtc_b2','gnd4','f152'],
+        ecm:[72], conn:['f42_evtc_b2'],
+        path:{f42_evtc_b2:['2']},
+        notes:'Sensor posición VTC escape Bank 2 (Rev-Up). Señal F42·2 (L/W) → ECM 72. Masa F42·1 → F103·3 → F152 en Masa o clic en F42·1 · 12V F42·3 (R/W) en Alim. EC-447.'},
+      {id:'evt_pos_b2_gnd', gndRel:true, title:'EVT posición B2 · masa F42·1', color:'#ad1457',
+        ecm:[], conn:['f42_evtc_b2','gnd4','f152'],
         path:{f42_evtc_b2:['1'],gnd4:['3'],f152:['ring']},
-        notes:'Sensor posición VTC escape Bank 2 (Rev-Up). Señal F42·2 (L/W) → ECM 72 · masa F42·1 (B) → F103/F151·3 → F152 · 12V F42·3 (R/W) en Alim. EC-447.'},
+        notes:'Masa sensor EVT B2. Ruta: F42·1 (B) → F103/F151·3 → masa motor F152. EC-447.'},
       {id:'evt_pos_b2_pwr', title:'EVT posición B2 · 12V', color:'#ad1457',
         ecm:[], conn:['f42_evtc_b2','ix_e12_f3'],
         path:{ipdm_e7:['18'],ix_e12_f3:['7'],f42_evtc_b2:['3']},
@@ -1969,21 +1979,24 @@ const CONN_BASE = {
     note:'Embrague magnético. Ruta: IPDM E8-33 L/Y → F24·1 · ATC-80.'},
   f38_evtc_b1:{group:'motor', sub:'sensors', name:'F38 · EVT pos. B1', meta:'B/3 · Rev-Up (35th M/T *1) · EC-445 · PG-55', accent:'#ad1457', shape:'tab3',
     pins:[
-      {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'evt_pos_b1',note:'Masa sensor EVT B1: pin 1 (B) → F103/F151·3 → masa motor F152. EC-445.',note_en:'EVT B1 sensor ground: pin 1 (B) → F103/F151·3 → engine ground F152. EC-445.',note_ja:'EVT B1センサアース: pin1 (B) → F103/F151·3 → エンジンアース F152。EC-445。'},
+      {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'evt_pos_b1_gnd',note:'Masa sensor EVT B1: pin 1 (B) → F103/F151·3 → masa motor F152. EC-445.',note_en:'EVT B1 sensor ground: pin 1 (B) → F103/F151·3 → engine ground F152. EC-445.',note_ja:'EVT B1センサアース: pin1 (B) → F103/F151·3 → エンジンアース F152。EC-445。'},
       {id:'2',lab:'SIG',code:'L/B',ecm:53},
       {id:'3',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm',circ:'evt_pos_b1_pwr',note:'12V relé ECM: IPDM E7·18 (R/W, relé ECM + fusible 77 15A) → E12/F3·7 → pin 3 (mismo empalme que ECM 119). EC-445.',note_en:'12V from ECM relay: IPDM E7·18 (R/W, ECM relay + fuse 77 15A) → E12/F3·7 → pin 3 (same splice as ECM 119). EC-445.',note_ja:'ECMリレー12V: IPDM E7·18（R/W, ECMリレー + ヒューズ77 15A）→ E12/F3·7 → pin3（ECM 119と同じスプライス）。EC-445。'}
     ],
     note:'Sensor posición VTC escape B1 (solo Rev-Up). F38 B/3: 1 B → F103·3 → F152 · 2 L/B → ECM 53 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18 (relé ECM). EC-445 · PG-55 *1.'},
   f42_evtc_b2:{group:'motor', sub:'sensors', name:'F42 · EVT pos. B2', meta:'GY/3 · Rev-Up (35th M/T *1) · EC-447 · PG-55', accent:'#ad1457', shape:'tab3',
     pins:[
-      {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'evt_pos_b2',note:'Masa sensor EVT B2: pin 1 (B) → F103/F151·3 → masa motor F152. EC-447.',note_en:'EVT B2 sensor ground: pin 1 (B) → F103/F151·3 → engine ground F152. EC-447.',note_ja:'EVT B2センサアース: pin1 (B) → F103/F151·3 → エンジンアース F152。EC-447。'},
+      {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'evt_pos_b2_gnd',note:'Masa sensor EVT B2: pin 1 (B) → F103/F151·3 → masa motor F152. EC-447.',note_en:'EVT B2 sensor ground: pin 1 (B) → F103/F151·3 → engine ground F152. EC-447.',note_ja:'EVT B2センサアース: pin1 (B) → F103/F151·3 → エンジンアース F152。EC-447。'},
       {id:'2',lab:'SIG',code:'L/W',ecm:72},
       {id:'3',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm',circ:'evt_pos_b2_pwr',note:'12V relé ECM: IPDM E7·18 (R/W, relé ECM + fusible 77 15A) → E12/F3·7 → pin 3 (mismo empalme que ECM 119). EC-447.',note_en:'12V from ECM relay: IPDM E7·18 (R/W, ECM relay + fuse 77 15A) → E12/F3·7 → pin 3 (same splice as ECM 119). EC-447.',note_ja:'ECMリレー12V: IPDM E7·18（R/W, ECMリレー + ヒューズ77 15A）→ E12/F3·7 → pin3（ECM 119と同じスプライス）。EC-447。'}
     ],
     note:'Sensor posición VTC escape B2 (solo Rev-Up). F42 GY/3: 1 B → F103·3 → F152 · 2 L/W → ECM 72 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18 (relé ECM). EC-447 · PG-55 *1.'},
-  f232_eot:{group:'motor', sub:'sensors', name:'F232 · Temp. aceite', meta:'GY/2 · 35th *1 · PG-55', accent:'#6d4c41', shape:'tab2',
-    pins:[{id:'1',code:'—',ecm:null},{id:'2',code:'—',ecm:null}],
-    note:'Sensor temperatura de aceite · F232 GY/2 · PG-55 *1 (35th Anniversary M/T = Rev-Up).'},
+  f242_eot:{group:'motor', sub:'sensors', name:'F242 · Temp. aceite', meta:'GY/2 · Rev-Up (35th *1) · sub-arnés 3 · PG-55 · EC-23', accent:'#6d4c41', shape:'tab2',
+    pins:[
+      {id:'1',code:'—',ecm:null,unknown:true,note:'Pin sin publicar: el FSM 2005 no da diagrama ni terminal ECM de este sensor (no está en la tabla ECM EC-121..134). No inventar.',note_en:'Pin not published: the 2005 FSM gives no wiring diagram or ECM terminal for this sensor (not in the ECM table EC-121..134). Do not guess.',note_ja:'未公開ピン: 2005 FSMにこのセンサの配線図・ECM端子の記載なし（ECM端子表 EC-121..134 にもなし）。推測しないこと。'},
+      {id:'2',code:'—',ecm:null,unknown:true,note:'Pin sin publicar: el FSM 2005 no da diagrama ni terminal ECM de este sensor (no está en la tabla ECM EC-121..134). No inventar.',note_en:'Pin not published: the 2005 FSM gives no wiring diagram or ECM terminal for this sensor (not in the ECM table EC-121..134). Do not guess.',note_ja:'未公開ピン: 2005 FSMにこのセンサの配線図・ECM端子の記載なし（ECM端子表 EC-121..134 にもなし）。推測しないこと。'}
+    ],
+    note:'Sensor temperatura de aceite (solo 35th Anniversary = Rev-Up; EM-28, GI-52). F242 GY/2 en el sub-arnés control motor 3 → F241 BR/2 ↔ F39 GY/2 (intermedia al arnés control motor, PG-54 C4/C5) → ECM. Solo dato CONSULT "ENG OIL TEMP"; no controla el motor (EC-136/143). El FSM 2005 no publica terminal ECM, pinout ni colores de cable. PG-55 *1 dice "35th con M/T".'},
   f6_at:{group:'motor', sub:'actuators', name:'F6 · A/T assembly', meta:'GY/10 · TCM · AT-186/114', accent:'#7e57c2', shape:'rect10',
     pins:[
       {id:'1',code:'R/W',lab:'BATT',rail:'12v'},
@@ -2021,7 +2034,7 @@ const CONN_BASE = {
   f35_pnp:{group:'motor', sub:'sensors', name:'F35 · PNP (M/T)', meta:'B/2 · M/T · ECM 102 BR/Y · EC-646 · PG-55', accent:'#ab47bc', shape:'tab2',
     pins:[
       {id:'1',lab:'SIG',code:'BR/Y',ecm:102,circ:'pnp_mt'},
-      {id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'pnp_mt',note:'Masa PNP: F35·2 (B) → F103/F151·3 → masa motor F152. EC-646/648.',note_en:'PNP ground: F35·2 (B) → F103/F151·3 → engine ground F152. EC-646/648.',note_ja:'PNPアース: F35·2 (B) → F103/F151·3 → エンジンアース F152。EC-646/648。'}
+      {id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'pnp_mt_gnd',note:'Masa PNP: F35·2 (B) → F103/F151·3 → masa motor F152. EC-646/648.',note_en:'PNP ground: F35·2 (B) → F103/F151·3 → engine ground F152. EC-646/648.',note_ja:'PNPアース: F35·2 (B) → F103/F151·3 → エンジンアース F152。EC-646/648。'}
     ],
     note:'Interruptor park/neutral M/T (en la caja). ECM 102 (BR/Y) → F35·1 directo (sin F102) · F35·2 → F103/F151·3 → F152. EC-646.'},
   inj1:{group:'motor', sub:'inyectores', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/B',ecm:23},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
@@ -2514,7 +2527,7 @@ function activeConnIds(model){
   let ids = Object.keys(CONN_BASE).filter(id => !hide.has(id));
   if(model === 'de_early'){
     ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2'
-      && id !== 'f38_evtc_b1' && id !== 'f42_evtc_b2' && id !== 'f232_eot');
+      && id !== 'f38_evtc_b1' && id !== 'f42_evtc_b2' && id !== 'f242_eot');
   }
   ids = ids.filter(id => connVisibleInLoom(id, CONN_BASE[id]));
   return ids;
@@ -4183,9 +4196,12 @@ const TITLES_I18N = {
   ascd_steer: {en:'ASCD steering (clock spring)', ja:'ASCDステアリング（クロックスプリング）'},
   evt_pos_b1: {en:'EVT position B1 (exhaust) · F38', ja:'EVT位置 B1（排気）· F38'},
   evt_pos_b1_pwr: {en:'EVT position B1 · 12V', ja:'EVT位置 B1 · 12V'},
+  evt_pos_b1_gnd: {en:'EVT position B1 · ground F38·1', ja:'EVT位置 B1 · アース F38·1'},
   evt_pos_b2: {en:'EVT position B2 (exhaust) · F42', ja:'EVT位置 B2（排気）· F42'},
   evt_pos_b2_pwr: {en:'EVT position B2 · 12V', ja:'EVT位置 B2 · 12V'},
+  evt_pos_b2_gnd: {en:'EVT position B2 · ground F42·1', ja:'EVT位置 B2 · アース F42·1'},
   pnp_mt: {en:'PNP · Park/Neutral (M/T) · F35', ja:'PNP · パーキング/ニュートラル（M/T）· F35'},
+  pnp_mt_gnd: {en:'PNP (M/T) · ground F35·2', ja:'PNP（M/T）· アース F35·2'},
   pnp_at: {en:'PNP · Park/Neutral (A/T) · via meter', ja:'PNP · パーキング/ニュートラル（A/T）· メータ経由'},
   vtc_adm_b1: {en:'VTC intake B1', ja:'VTC吸気 B1'},
   vtc_adm_b2: {en:'VTC intake B2', ja:'VTC吸気 B2'},
@@ -4264,11 +4280,14 @@ const NOTES_I18N = {
   brake_stop: {en:'Brake signal → ECM 101 (L/OR). Stop lamp switch under pedal.', ja:'ブレーキ信号 → ECM 101 (L/OR)。ストップランプSWはペダル下。'},
   ascd_brake: {en:'ASCD brake → ECM 108 (B/R). On M/T the clutch switch is in series on the same signal path.', ja:'ASCDブレーキ → ECM 108 (B/R)。MTではクラッチSWが同信号経路に直列。'},
   ascd_steer: {en:'ASCD steering → ECM 99 (G/Y) via combination switch / clock spring (term. 14). Ground via ECM 67 (B/W) (term. 15).', ja:'ASCDステア → ECM 99 (G/Y)（コンビスイッチ/クロックスプリング端子14）。アースは ECM 67 (B/W)（端子15）。'},
-  evt_pos_b1: {en:'Exhaust valve timing position sensor Bank 1 (Rev-Up). Signal F38·2 (L/B) → ECM 53 · ground F38·1 (B) → F103/F151·3 → F152 · 12V F38·3 (R/W) under Power. EC-445.', ja:'排気バルブタイミング位置センサ B1（Rev-Up）。信号 F38·2 (L/B) → ECM 53 · アース F38·1 (B) → F103/F151·3 → F152 · 12V F38·3 (R/W) は電源で表示。EC-445。'},
+  evt_pos_b1: {en:'Exhaust valve timing position sensor Bank 1 (Rev-Up). Signal F38·2 (L/B) → ECM 53. Ground F38·1 → F103·3 → F152 under Ground or by clicking F38·1 · 12V F38·3 (R/W) under Power. EC-445.', ja:'排気バルブタイミング位置センサ B1（Rev-Up）。信号 F38·2 (L/B) → ECM 53。アース F38·1 → F103·3 → F152 はアース表示または F38·1 クリックで表示 · 12V F38·3 (R/W) は電源で表示。EC-445。'},
+  evt_pos_b1_gnd: {en:'EVT B1 sensor ground. Path: F38·1 (B) → F103/F151·3 → engine ground F152. EC-445.', ja:'EVT B1センサアース。経路: F38·1 (B) → F103/F151·3 → エンジンアース F152。EC-445。'},
   evt_pos_b1_pwr: {en:'EVT B1 sensor 12V. Path: IPDM E7·18 (ECM relay, R/W) → E12/F3·7 → F38·3. EC-445.', ja:'EVT B1センサ12V。経路: IPDM E7·18（ECMリレー, R/W）→ E12/F3·7 → F38·3。EC-445。'},
-  evt_pos_b2: {en:'Exhaust valve timing position sensor Bank 2 (Rev-Up). Signal F42·2 (L/W) → ECM 72 · ground F42·1 (B) → F103/F151·3 → F152 · 12V F42·3 (R/W) under Power. EC-447.', ja:'排気バルブタイミング位置センサ B2（Rev-Up）。信号 F42·2 (L/W) → ECM 72 · アース F42·1 (B) → F103/F151·3 → F152 · 12V F42·3 (R/W) は電源で表示。EC-447。'},
+  evt_pos_b2: {en:'Exhaust valve timing position sensor Bank 2 (Rev-Up). Signal F42·2 (L/W) → ECM 72. Ground F42·1 → F103·3 → F152 under Ground or by clicking F42·1 · 12V F42·3 (R/W) under Power. EC-447.', ja:'排気バルブタイミング位置センサ B2（Rev-Up）。信号 F42·2 (L/W) → ECM 72。アース F42·1 → F103·3 → F152 はアース表示または F42·1 クリックで表示 · 12V F42·3 (R/W) は電源で表示。EC-447。'},
+  evt_pos_b2_gnd: {en:'EVT B2 sensor ground. Path: F42·1 (B) → F103/F151·3 → engine ground F152. EC-447.', ja:'EVT B2センサアース。経路: F42·1 (B) → F103/F151·3 → エンジンアース F152。EC-447。'},
   evt_pos_b2_pwr: {en:'EVT B2 sensor 12V. Path: IPDM E7·18 (ECM relay, R/W) → E12/F3·7 → F42·3. EC-447.', ja:'EVT B2センサ12V。経路: IPDM E7·18（ECMリレー, R/W）→ E12/F3·7 → F42·3。EC-447。'},
-  pnp_mt: {en:'M/T park/neutral switch F35 (on the transmission). Path: ECM 102 (BR/Y) → F35·1 directly, not through F102 · F35·2 (B) → F103/F151·3 → engine ground F152. Neutral = switch closed (ECM 102 ≈ 0V); other gears = 12V. EC-646/648.', ja:'M/Tパーキング/ニュートラルSW F35（トランスミッション上）。経路: ECM 102 (BR/Y) → F35·1 直結（F102を通らない）· F35·2 (B) → F103/F151·3 → エンジンアース F152。ニュートラル＝SW閉（ECM 102 ≈ 0V）、その他＝12V。EC-646/648。'},
+  pnp_mt: {en:'M/T park/neutral switch F35 (on the transmission). Signal: ECM 102 (BR/Y) → F35·1 directly, not through F102. Neutral = switch closed to ground (ECM 102 ≈ 0V); other gears = 12V. Ground F35·2 → F103·3 → F152 under Ground or by clicking F35·2. EC-646/648.', ja:'M/Tパーキング/ニュートラルSW F35（トランスミッション上）。信号: ECM 102 (BR/Y) → F35·1 直結（F102を通らない）。ニュートラル＝SW閉でアース（ECM 102 ≈ 0V）、その他＝12V。アース F35·2 → F103·3 → F152 はアース表示または F35·2 クリックで表示。EC-646/648。'},
+  pnp_mt_gnd: {en:'M/T PNP ground. Path: F35·2 (B) → F103/F151·3 → engine ground F152. EC-646.', ja:'M/T PNPアース。経路: F35·2 (B) → F103/F151·3 → エンジンアース F152。EC-646。'},
   pnp_at: {en:'A/T: the PNP switch is inside the A/T assembly (F6, AT-118) and read by the TCM; there is no separate switch and no PNP ground on the engine harness. Path: ECM 102 (BR/Y) → F102·28H → M72 (G/W) → unified meter/A/C amp M49·25. The meter takes AT-P RANGE (M49·32, GY/R) ← F102·23H ← F6·9 (TCM START-RLY). EC-644/647.', ja:'A/T: PNPスイッチはA/Tアッセンブリ内部（F6, AT-118）でTCMが読む。単体SWもエンジンハーネス上のPNPアースもなし。経路: ECM 102 (BR/Y) → F102·28H → M72 (G/W) → ユニファイドメータ/A/Cアンプ M49·25。メータは AT-P RANGE（M49·32, GY/R）← F102·23H ← F6·9（TCM START-RLY）。EC-644/647。'},
   vtc: {
     en_early:'VQ35DE without exhaust VTC: intake only (2 solenoids). ECM 11 B1 · ECM 10 B2.',
@@ -4957,7 +4976,7 @@ const CONN_I18N = {
   f24_comp: { en:{name:'F24 · A/C compressor', meta:'B/1 · ATC-80', note:'Magnetic clutch. Path: IPDM E8-33 L/Y → F24·1 · ATC-80.'}, ja:{name:'F24 · A/Cコンプレッサ', meta:'B/1 · ATC-80', note:'マグネットクラッチ。経路: E8-33 → F24·1 · ATC-80。'} },
   f38_evtc_b1: { en:{name:'F38 · EVT pos. B1', meta:'B/3 · Rev-Up (35th M/T *1) · EC-445 · PG-55', note:'Exhaust valve timing position sensor B1 (Rev-Up only). F38 B/3: 1 B → F103·3 → F152 · 2 L/B → ECM 53 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18 (ECM relay). EC-445 · PG-55 *1.'}, ja:{name:'F38 · EVT位置 B1', meta:'B/3 · Rev-Up（35th M/T *1）· EC-445 · PG-55', note:'排気バルブタイミング位置センサ B1（Rev-Upのみ）。F38 B/3: 1 B → F103·3 → F152 · 2 L/B → ECM 53 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18（ECMリレー）。EC-445 · PG-55 *1。'} },
   f42_evtc_b2: { en:{name:'F42 · EVT pos. B2', meta:'GY/3 · Rev-Up (35th M/T *1) · EC-447 · PG-55', note:'Exhaust valve timing position sensor B2 (Rev-Up only). F42 GY/3: 1 B → F103·3 → F152 · 2 L/W → ECM 72 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18 (ECM relay). EC-447 · PG-55 *1.'}, ja:{name:'F42 · EVT位置 B2', meta:'GY/3 · Rev-Up（35th M/T *1）· EC-447 · PG-55', note:'排気バルブタイミング位置センサ B2（Rev-Upのみ）。F42 GY/3: 1 B → F103·3 → F152 · 2 L/W → ECM 72 · 3 R/W 12V ← E12/F3·7 ← IPDM E7·18（ECMリレー）。EC-447 · PG-55 *1。'} },
-  f232_eot: { en:{name:'F232 · Oil temp', meta:'GY/2 · 35th *1 · PG-55', note:'Oil temperature sensor · F232 GY/2 · PG-55 *1 (35th Anniversary M/T = Rev-Up).'}, ja:{name:'F232 · 油温', meta:'GY/2 · 35th *1 · PG-55', note:'油温センサ · F232 · PG-55 *1。'} },
+  f242_eot: { en:{name:'F242 · Oil temp', meta:'GY/2 · Rev-Up (35th *1) · sub-harness 3 · PG-55 · EC-23', note:'Engine oil temperature sensor (35th Anniversary = Rev-Up only; EM-28, GI-52). F242 GY/2 on engine control sub-harness 3 → F241 BR/2 ↔ F39 GY/2 (intermediate to the engine control harness, PG-54 C4/C5) → ECM. CONSULT "ENG OIL TEMP" data only; not used for engine control (EC-136/143). The 2005 FSM does not publish the ECM terminal, pinout or wire colors. PG-55 *1 says "35th with M/T".'}, ja:{name:'F242 · 油温', meta:'GY/2 · Rev-Up（35th *1）· サブハーネス3 · PG-55 · EC-23', note:'エンジン油温センサ（35th Anniversary = Rev-Upのみ; EM-28, GI-52）。F242 GY/2 はエンジン制御サブハーネス3 → F241 BR/2 ↔ F39 GY/2（エンジン制御ハーネスへの中継, PG-54 C4/C5）→ ECM。CONSULT「ENG OIL TEMP」表示のみ、エンジン制御には不使用（EC-136/143）。2005 FSMにECM端子・ピン配列・配線色の記載なし。PG-55 *1 は「35th M/T」。'} },
   f6_at: { en:{name:'F6 · A/T assembly', meta:'GY/10 · TCM · AT-186/114', note:'F6 GY/10 TCM (A/T). 1/2 R/W BATT · 5/10 B F23 · 6 Y/R IGN · 9 GY/R starter relay E9-53 · AT-186/114.'}, ja:{name:'F6 · A/T', meta:'GY/10 · TCM · AT-186/114', note:'F6 TCM。1/2 BATT · 5/10 GND · 6 IGN · 9スタータリレー · AT-186。'} },
   backup_sw: { en:{name:'Reverse switch', meta:'F36 · M/T · LT-183 · 2-pin', note:'Reverse switch (M/T). Path: E7-26 → F1·2 → F36 → F102·22H → lamps (12V on Power).'}, ja:{name:'リバーススイッチ', meta:'F36 · M/T · LT-183 · 2ピン', note:'リバースSW (M/T)。経路: E7-26 → F1·2 → F36 → F102·22H。'} },
   evap_purge: { en:{name:'EVAP · Purge solenoid', meta:'solenoid', note:'EVAP purge valve. Path: 12V pin1 · control pin2 → ECM 45.'}, ja:{name:'EVAP · パージソレノイド', meta:'ソレノイド', note:'EVAPパージ。経路: 12V pin1 · 制御 pin2 → ECM 45。'} },
@@ -6007,6 +6026,25 @@ function applyRailFilter(opts){
     });
   }
 
+  /* Sensor ground returns (circuits with gndRel: F35·2, F38·1, F42·1 → F103·3 → F152).
+     Signal-pin clicks show only the signal path; these appear with Masa (+ Tierras relacionadas)
+     or when the ground cavity itself is clicked. Only their path cavities are painted. */
+  const gndRelCavs = {};
+  const gndRelOnlyConns = new Set();
+  if(activeRails.has('gnd') && railRelGndEnabled()){
+    CIRCUITS.forEach(cir=>{
+      if(!cir.gndRel) return;
+      Object.entries(cir.path || {}).forEach(([cid, cavs])=>{
+        if(!CONN[cid]) return;
+        if(typeof connVisibleInLoom === 'function' && !connVisibleInLoom(cid)) return;
+        (gndRelCavs[cid] = gndRelCavs[cid] || new Set());
+        (cavs || []).forEach(c => gndRelCavs[cid].add(String(c)));
+        if(!matchedConns.has(cid)) gndRelOnlyConns.add(cid);
+      });
+    });
+    gndRelOnlyConns.forEach(cid => matchedConns.add(cid));
+  }
+
   clearHL();
   /* Open / clone fichas first (selTop may rebuild DOM), then paint cavities on the final nodes. */
   matchedConns.forEach(cid => markFichaHL(cid, true));
@@ -6061,6 +6099,7 @@ function applyRailFilter(opts){
       const conf = CONN[cid] || CONN_BASE[cid];
       (conf && conf.pins || []).forEach(pin=>{
         if(!cavHasWire(pin)) return; /* empty / nc / ? stay dim */
+        if(gndRelOnlyConns.has(cid) && !(gndRelCavs[cid] && gndRelCavs[cid].has(String(pin.id)))) return;
         if(isRailPrimaryPin(pin)) return; /* primary already (ECM rail or bare 5V/12V feed) */
         if(cid === 'ix_f102_m72'){
           const e = pin.ecm != null ? Number(pin.ecm) : null;
