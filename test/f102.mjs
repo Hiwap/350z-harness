@@ -1048,6 +1048,92 @@ await page.evaluate(() => clearSelection());
   await vis('all');
 }
 
+console.log('\nFusibles group: every fuse card in one top-level ficha group, collapsed by default, hidden in Arnés motor, auto-opens when lit');
+{
+  const setLoom = (v) => page.evaluate((v) => { const s = document.getElementById('loomView'); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })); }, v);
+  const FUSES = ['jb_10a_inj', 'jb_15a_ht', 'fuse36_alt'];
+  const resetClosed = async () => {
+    await page.evaluate(() => { clearSelection(); localStorage.removeItem('z33_sub_fuses'); });
+    await setLoom('motor'); await setLoom('all');
+  };
+  const state = () => page.evaluate((FUSES) => {
+    const sec = document.querySelector('#fichas details.ficha-sec[data-sub="fuses"]');
+    const lit = (cid, cav) => [...document.querySelectorAll(`#fichas details.ficha-sec[data-sub="fuses"] .cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains('hl') || e.classList.contains('hl-group'));
+    const outside = FUSES.filter((c) => { const f = document.querySelector(`#fichas .ficha[data-conn="${c}"]`); return f && !f.closest('details.ficha-sec[data-sub="fuses"]'); });
+    return { saved: localStorage.getItem('z33_sub_fuses'), exists: !!sec, open: !!(sec && sec.open), order: sec ? [...sec.querySelectorAll('.ficha[data-conn]')].map((f) => f.dataset.conn) : [],
+      title: sec ? (sec.querySelector('summary') || {}).textContent || '' : '', outside,
+      secOrder: [...document.querySelectorAll('#fichas details.ficha-sec[data-sub]')].map((d) => d.dataset.sub),
+      l10: lit('jb_10a_inj', '10A'), l15: lit('jb_15a_ht', '15A'), l36: lit('fuse36_alt', '36') };
+  }, FUSES);
+  await page.evaluate(() => clearSelection());
+  await resetClosed();
+  let st = await state();
+  ok(st.exists && st.order.join(',') === FUSES.join(','), `Completo: Fusibles group holds J/B 10A, J/B 15A, E21 fuse 36 in that order (${st.order.join(',')})`);
+  ok(st.outside.length === 0, `no fuse card rendered outside the Fusibles group (${st.outside.join(',')})`);
+  ok(/Fusibles/.test(st.title), `group title (es) = Fusibles (${st.title.trim().slice(0, 40)})`);
+  ok(st.secOrder.indexOf('fuses') === st.secOrder.indexOf('feeds') + 1 && st.secOrder.indexOf('fuses') < st.secOrder.indexOf('sensors'),
+    `Fusibles is a top-level group after Alimentación, before Sensores (${st.secOrder.join(',')})`);
+  ok(!st.open, 'Fusibles group collapsed by default (no saved state)');
+  /* clicks light the fuse card and auto-open the group */
+  await page.evaluate(() => selectConnPin('ix_e11_f2', '1'));
+  st = await state();
+  ok(st.open && st.l36, `E11/F2·1 click lights fuse 36 and opens the Fusibles group (open=${st.open}, lit=${st.l36})`);
+  ok(st.saved === null, `auto-open is temporary: not saved to localStorage (saved=${st.saved})`);
+  await page.evaluate(() => clearSelection());
+  st = await state();
+  ok(!st.open && st.saved === null, `clearing the selection re-collapses the auto-opened Fusibles group (open=${st.open}, saved=${st.saved})`);
+  const setPwr = (on) => page.evaluate((on) => { const e = document.getElementById('railRelPower'); e.checked = on; e.dispatchEvent(new Event('change', { bubbles: true })); }, on);
+  for (const [n, key, label] of [[23, 'l10', 'J/B 10A (injector 1, ECM 23)'], [16, 'l15', 'J/B 15A (A/F heater, ECM 16)']]) {
+    await resetClosed();
+    await setPwr(true);
+    await clickPin(n);
+    st = await state();
+    await setPwr(false);
+    ok(st.open && st[key], `ECM ${n} + Alim. lights ${label} and opens the collapsed Fusibles group (open=${st.open}, lit=${st[key]})`);
+    await page.evaluate(() => clearSelection());
+    await clickPin(n);
+    st = await state();
+    ok(!st.open && !st[key], `ECM ${n} without Alim. leaves the fuse unlit and the group collapsed, as before (open=${st.open}, lit=${st[key]})`);
+  }
+  await resetClosed();
+  await page.evaluate(() => selectConnPin('jb_15a_ht', '15A'));
+  st = await state();
+  ok(st.open && st.l15, `J/B 15A click lights its own cavity with the group open (open=${st.open}, lit=${st.l15})`);
+  /* user choice is kept: manually opened group stays open after a selection is cleared */
+  await resetClosed();
+  await page.evaluate(() => { document.querySelector('#fichas details.ficha-sec[data-sub="fuses"]').open = true; });
+  await new Promise((r) => setTimeout(r, 50));
+  await page.evaluate(() => selectConnPin('ix_e11_f2', '1'));
+  await page.evaluate(() => clearSelection());
+  st = await state();
+  ok(st.open && st.saved === '1', `user-opened Fusibles group stays open after select + clear (open=${st.open}, saved=${st.saved})`);
+  /* 12V rail filter still lights every fuse cavity and reveals the group */
+  await resetClosed();
+  const rail = await page.evaluate(() => {
+    const has = (cid, cav, cls) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains(cls));
+    toggleRail('12v');
+    const sec = document.querySelector('#fichas details.ficha-sec[data-sub="fuses"]');
+    const v = { open: !!(sec && sec.open), inj: has('jb_10a_inj', '10A', 'rail-line-12v_inj'), ht: has('jb_15a_ht', '15A', 'rail-line-12v_ht'), batt: has('fuse36_alt', '36', 'rail-line-12v_batt'),
+      hl: ['jb_10a_inj:10A', 'jb_15a_ht:15A', 'fuse36_alt:36'].every((k) => { const [c, v] = k.split(':'); return has(c, v, 'hl-rail'); }) };
+    toggleRail('12v');
+    return v;
+  });
+  ok(rail.hl && rail.inj && rail.ht && rail.batt && rail.open, `12V rail lights all fuse cavities on their 12V lines (INJ/HT/BATT) and opens the group (${JSON.stringify(rail)})`);
+  /* Arnés motor: all fuse cards are body-side → whole group hidden */
+  await resetClosed();
+  await setLoom('motor');
+  const mot = await page.evaluate((FUSES) => {
+    const sec = document.querySelector('#fichas details.ficha-sec[data-sub="fuses"]');
+    return { sec: !!sec && !!sec.querySelector('.ficha[data-conn]'), cards: FUSES.filter((c) => document.querySelector(`#fichas .ficha[data-conn="${c}"]`)) };
+  }, FUSES);
+  ok(!mot.sec && mot.cards.length === 0, `Arnés motor hides the whole Fusibles group (${JSON.stringify(mot)})`);
+  await page.evaluate(() => selectConnPin('ix_e11_f2', '1'));
+  const mot2 = await page.evaluate(() => !!document.querySelector('#fichas .ficha[data-conn="fuse36_alt"]'));
+  ok(!mot2, 'Arnés motor: E11/F2·1 click does not resurrect the hidden fuse card');
+  await page.evaluate(() => clearSelection());
+  await setLoom('all');
+}
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

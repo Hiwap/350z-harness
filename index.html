@@ -1784,6 +1784,7 @@ const SUB_I18N = {
   power:       {es:'Poder / tierras', en:'Power / grounds', ja:'電源 / アース'},
   ipdm:        {es:'IPDM', en:'IPDM', ja:'IPDM'},
   feeds:       {es:'Alimentación / sin ECM', en:'Feeds (non-ECM)', ja:'電源フィード（ECM外）'},
+  fuses:       {es:'Fusibles', en:'Fuses', ja:'ヒューズ'},
   sensors:     {es:'Sensores', en:'Sensors', ja:'センサ'},
   bobinas:     {es:'Bobinas', en:'Coils', ja:'コイル'},
   inyectores:  {es:'Inyectores', en:'Injectors', ja:'インジェクタ'},
@@ -1794,13 +1795,14 @@ const SUB_I18N = {
   other:       {es:'Otros', en:'Other', ja:'その他'},
 };
 
-const SUB_ORDER = ['power','ipdm','feeds','sensors','bobinas','inyectores','actuators','intermedias','pedals','ascd_dlc'];
+const SUB_ORDER = ['power','ipdm','feeds','fuses','sensors','bobinas','inyectores','actuators','intermedias','pedals','ascd_dlc'];
 
 /** One border color per subcategory (ficha groups). */
 const SUB_ACCENT = {
   power:       '#66bb6a',  /* green — tierras / poder */
   ipdm:        '#ef5350',  /* red — IPDM */
   feeds:       '#ffca28',  /* amber — rails 12V / feeds */
+  fuses:       '#fbc02d',  /* dark amber — every fuse card (J/B, IPDM, E21) in one group */
   sensors:     '#42a5f5',  /* blue — sensores */
   bobinas:     '#f57f17',  /* orange — coils */
   inyectores:  '#c62828',  /* red — injectors */
@@ -1809,6 +1811,8 @@ const SUB_ACCENT = {
   pedals:      '#ff7043',  /* deep orange — pedales / freno */
   ascd_dlc:    '#26c6da',  /* cyan — ASCD / DLC / CAN */
 };
+/* Groups collapsed by default (until the user opens them or a selection / rail filter reveals a member). */
+const SUB_DEFAULT_CLOSED = new Set(['fuses']);
 /* Bobinas / Inyectores — filet + sibling HL follow group accent */
 const ACT_BOBINAS = new Set(['coil1','coil2','coil3','coil4','coil5','coil6','ix_f18_f201']);
 const ACT_INYECTORES = new Set(['inj1','inj2','inj3','inj4','inj5','inj6','ix_f221_f33']);
@@ -1835,8 +1839,8 @@ const CONN_BASE = {
       {id:'22',src:'TAIL',srcSub:'ipdm',code:'R/L',ecm:null,rail:'12v',note:'Luces de posición / matrícula / cola (R/L) · LT-197.',note_en:'Parking / license / tail lamps (R/L) · LT-197.',note_ja:'車幅灯/ライセンス/テール (R/L) · LT-197。'},
       {id:'23',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'24',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
-      {id:'25',src:'F89',srcSub:'feeds',code:'G/Y',ecm:null,rail:'12v',note:'Alimentación interlock embrague M/T / fusible 89 (G/Y) · SC-13.',note_en:'Clutch interlock power (M/T) / fuse 89 (G/Y) · SC-13.',note_ja:'クラッチインターロック電源 (M/T) / ヒューズ89 (G/Y) · SC-13。'},
-      {id:'26',src:'F83',srcSub:'feeds',code:'G/W',ecm:null,rail:'12v',circ:'backup_lamp',note:'Feed luz marcha atrás (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fusible 83.',note_en:'Back-up lamp feed (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fuse 83.',note_ja:'バックランプ給電 (G/W) → E10/F1 cav2 → F36 · LT-183。'},
+      {id:'25',src:'F89',srcSub:'fuses',code:'G/Y',ecm:null,rail:'12v',note:'Alimentación interlock embrague M/T / fusible 89 (G/Y) · SC-13.',note_en:'Clutch interlock power (M/T) / fuse 89 (G/Y) · SC-13.',note_ja:'クラッチインターロック電源 (M/T) / ヒューズ89 (G/Y) · SC-13。'},
+      {id:'26',src:'F83',srcSub:'fuses',code:'G/W',ecm:null,rail:'12v',circ:'backup_lamp',note:'Feed luz marcha atrás (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fusible 83.',note_en:'Back-up lamp feed (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fuse 83.',note_ja:'バックランプ給電 (G/W) → E10/F1 cav2 → F36 · LT-183。'},
       {id:'27',src:'HL·HI',srcSub:'ipdm',code:'BR',ecm:null,rail:'12v',note:'Luz alta faro RH (BR) · LT-16/47.',note_en:'Headlamp high RH (BR) · LT-16/47.',note_ja:'ヘッドランプHi RH (BR) · LT-16/47。'},
       {id:'28',src:'HL·HI',srcSub:'ipdm',code:'R/Y',ecm:null,rail:'12v',note:'Luz alta faro LH (R/Y) · LT-16/47.',note_en:'Headlamp high LH (R/Y) · LT-16/47.',note_ja:'ヘッドランプHi LH (R/Y) · LT-16/47。'},
       {id:'29',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
@@ -1885,8 +1889,8 @@ const CONN_BASE = {
     pins:[
       {id:'3',src:'STR·RLY',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',circ:'starter',note:'Salida de arranque del IPDM.',note_en:'Starter relay out → starter motor pin1 via E10/F1 cav1 (B/Y) · SC-13/14.',note_ja:'スタータリレー出力 → スタータ pin1（E10/F1経由）(B/Y) · SC-13/14。'},
       {id:'4',src:'IGN·SW',srcSub:'power',code:'W/R',ecm:null,rail:'12v',note:'Entrada START desde interruptor de encendido pin5 (W/R) · SC-13/14.',note_en:'START input from ignition switch pin5 (W/R) · SC-13/14.',note_ja:'イグニッションSW pin5 からの START 入力 (W/R) · SC-13/14。'},
-      {id:'5',src:'F80',srcSub:'feeds',code:'P',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 80) → B34 vía E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 80) → B34 via E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ80）→ B34（E107/B3経由）· CP:P / RS:R · PG-13 / GW-63。'},
-      {id:'6',src:'F75',srcSub:'feeds',code:'W',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 75) W → B34 pin3 vía E107/B3 · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 75) W → B34 pin3 via E107/B3 · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ75）W → B34 pin3（E107/B3経由）· PG-13 / GW-63。'}
+      {id:'5',src:'F80',srcSub:'fuses',code:'P',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 80) → B34 vía E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 80) → B34 via E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ80）→ B34（E107/B3経由）· CP:P / RS:R · PG-13 / GW-63。'},
+      {id:'6',src:'F75',srcSub:'fuses',code:'W',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 75) W → B34 pin3 vía E107/B3 · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 75) W → B34 pin3 via E107/B3 · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ75）W → B34 pin3（E107/B3経由）· PG-13 / GW-63。'}
     ], note:'IPDM E4 · starter (SC) + defogger power 5/6 (PG-13/GW-63). Cara PG-26 H.S.: top 3-5 / bot 4-6 · vista fija (sin verificar).'},
   ipdm_e5:{group:'motor', sub:'ipdm', name:'IPDM E5 · Ventiladores', meta:'ventiladores · PG-26 · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e5', view:{unv:{es:'el FSM 2005 no dibuja la cara T.S. del conector del arnés (solo el zócalo del IPDM en PG-26 y la vista H.S. del lado cables); se mantiene la vista por defecto anterior (espejo de PG-26), fija.',en:'the 2005 FSM has no T.S. drawing of this harness plug (only the IPDM socket on PG-26 and the H.S. wire-side view); the previous default view (mirror of PG-26) is kept, fixed.',ja:'2005 FSMにはこのハーネス側コネクタのT.S.図がない（PG-26のIPDMソケットとH.S.配線側図のみ）。以前の既定表示（PG-26の鏡像）を固定で維持。'}},
     pins:[
@@ -1930,19 +1934,19 @@ const CONN_BASE = {
     pins:[{id:'AF1-3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'},{id:'AF2-3',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'E108·65G',srcSub:'intermedias'}],
     note:'12V de los calentadores A/F (pin 3 del sensor). El ECM solo controla el calentador (pines 2/24), no manda ese 12V.'},
   feed_ho2s_12v:{group:'motor', sub:'feeds', name:'12V calentadores HO2S2 (fusible)', meta:'JB 15A · R/B · vía E108·65G', accent:'#ce93d8', shape:'note', faceRows:[['B2-12V','B1-12V']],
-    pins:[{id:'B1-12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'feeds'},{id:'B2-12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'feeds'}],
+    pins:[{id:'B1-12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'fuses'},{id:'B2-12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'fuses'}],
     note:'12V calentadores HO2S2. Ruta: JB 15A → E108·65G → F3·3 → sensor pin 2. Comparte riel con A/F.'},
-  jb_10a_inj:{group:'motor', sub:'feeds', name:'JB · Fusible 10A iny', meta:'Fuse Block M4 · IGN ON · EC-702', accent:'#ffca28', shape:'note',
+  jb_10a_inj:{group:'motor', sub:'fuses', name:'JB · Fusible 10A iny', meta:'Fuse Block M4 · IGN ON · EC-702', accent:'#ffca28', shape:'note',
     pins:[{id:'10A',code:'W/B',ecm:null,rail:'12v',src:'IGN·SW',srcSub:'power',lab:'10A'}],
     note:'Fusible 10A de inyectores (caja habitáculo). Ruta: JB 10A → F102·17H → F33·5 → rail 12V iny.'},
-  jb_15a_ht:{group:'motor', sub:'feeds', name:'JB · Fusible 15A A/F+HO2S', meta:'Fuse Block M4 · IGN ON · EC-191', accent:'#ffca28', shape:'note',
+  jb_15a_ht:{group:'motor', sub:'fuses', name:'JB · Fusible 15A A/F+HO2S', meta:'Fuse Block M4 · IGN ON · EC-191', accent:'#ffca28', shape:'note',
     pins:[{id:'15A',code:'R/B',ecm:null,rail:'12v',src:'IGN·SW',srcSub:'power',lab:'15A'}],
     note:'Fusible 15A A/F+HO2S. Ruta: JB 15A → E108·65G → F3·3.'},
-  fuse36_alt:{group:'motor', sub:'feeds', name:'Fusible 36 · 10A alternador S', meta:'bloque fusibles/fusible-link E21 · BAT · PG-POWER-02', accent:'#ffca28', shape:'note', faceRows:[['36']],
+  fuse36_alt:{group:'motor', sub:'fuses', name:'Fusible 36 · 10A alternador S', meta:'bloque fusibles/fusible-link E21 · BAT · PG-POWER-02', accent:'#ffca28', shape:'note', faceRows:[['36']],
     pins:[{id:'36',code:'LG/B',ecm:null,rail:'12v',src:'BAT',srcSub:'power',lab:'10A',circ:'alt_s'}],
     note:'Fusible 36 (10A) del bloque de fusibles y fusible-link E21 (caja E18, vano motor), 12V BAT siempre (PG-POWER-02 “TO SC-CHARGE”). Ruta: fusible 36 → LG/B → E11/F2·1 → F20·4 “S”. SC-22.'},
   feed_inj_coil_12v:{group:'motor', sub:'feeds', name:'12V rail iny / bobinas', meta:'iny R · bobinas W/L vía E12/F3 · no ECM', accent:'#ffca28', shape:'note', faceRows:[['COIL+','INJ+']],
-    pins:[{id:'INJ+',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'},{id:'COIL+',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}],
+    pins:[{id:'INJ+',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'fuses'},{id:'COIL+',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}],
     note:'12V común: inyectores por JB 10A→F33; bobinas por E7-17→F3·5. El ECM solo dispara a masa.'},
   feed_ckp_maf_12v:{group:'motor', sub:'feeds', name:'12V CKP / MAF (arnés)', meta:'E7-18 · F3 · EC-207/323', accent:'#ffa726', shape:'note', faceRows:[['MAF+','CKP+']],
     pins:[{id:'CKP+',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm'},{id:'MAF+',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm'}],
@@ -1972,7 +1976,7 @@ const CONN_BASE = {
   ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 1 (post-cat)', meta:'F11 B/4 · 4 pines · EC-191', accent:'#8e24aa', shape:'ho2s4', view:{c:'F11',g:'f',src:'EC-191',ord:'3-1 / 4-2'},
     pins:[
       {id:'1',lab:'SIG',code:'OR',ecm:74},
-      {id:'2',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'feeds'},
+      {id:'2',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'fuses'},
       {id:'3',lab:'HTR',code:'P/B',ecm:25},
       {id:'4',lab:'GND',code:'B/Y',ecm:78,rail:'gnd',lab:'SNS'}
     ],
@@ -1980,7 +1984,7 @@ const CONN_BASE = {
   ho2s_b2:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 2 (post-cat)', meta:'F12 GY/4 · 4 pines · EC-193', accent:'#8e24aa', shape:'ho2s4', view:{c:'F12',g:'f',src:'EC-193',ord:'3-1 / 4-2'},
     pins:[
       {id:'1',lab:'SIG',code:'L/B',ecm:55},
-      {id:'2',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'feeds'},
+      {id:'2',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'fuses'},
       {id:'3',lab:'HTR',code:'P/L',ecm:6},
       {id:'4',lab:'GND',code:'B/Y',ecm:78,rail:'gnd',lab:'SNS'}
     ],
@@ -2126,12 +2130,12 @@ const CONN_BASE = {
       {id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'pnp_mt_gnd',note:'Masa PNP: F35·2 (B) → F103/F151·3 → masa motor F152. EC-646/648.',note_en:'PNP ground: F35·2 (B) → F103/F151·3 → engine ground F152. EC-646/648.',note_ja:'PNPアース: F35·2 (B) → F103/F151·3 → エンジンアース F152。EC-646/648。'}
     ],
     note:'Interruptor park/neutral M/T (en la caja). ECM 102 (BR/Y) → F35·1 directo (sin F102) · F35·2 → F103/F151·3 → F152. EC-646.'},
-  inj1:{group:'motor', sub:'inyectores', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', faceRows:[['2','1']], view:{c:'F222',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'R/B',ecm:23},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj2:{group:'motor', sub:'inyectores', name:'Inyector 2', meta:'ECM42 B/R', accent:'#37474f', shape:'tab2', faceRows:[['2','1']], view:{c:'F225',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'R/W',ecm:42},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj3:{group:'motor', sub:'inyectores', name:'Inyector 3', meta:'ECM22 R/Y', accent:'#c62828', shape:'tab2', faceRows:[['2','1']], view:{c:'F223',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'R/Y',ecm:22},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj4:{group:'motor', sub:'inyectores', name:'Inyector 4', meta:'ECM41 W/B', accent:'#9e9e9e', shape:'tab2', faceRows:[['2','1']], view:{c:'F226',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'R/L',ecm:41},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj5:{group:'motor', sub:'inyectores', name:'Inyector 5', meta:'ECM21 SB', accent:'#0277bd', shape:'tab2', faceRows:[['2','1']], view:{c:'F224',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'L/W',ecm:21},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
-  inj6:{group:'motor', sub:'inyectores', name:'Inyector 6', meta:'ECM40 LG', accent:'#558b2f', shape:'tab2', faceRows:[['2','1']], view:{c:'F227',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'PU/R',ecm:40},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
+  inj1:{group:'motor', sub:'inyectores', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', faceRows:[['2','1']], view:{c:'F222',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'R/B',ecm:23},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'fuses'}]},
+  inj2:{group:'motor', sub:'inyectores', name:'Inyector 2', meta:'ECM42 B/R', accent:'#37474f', shape:'tab2', faceRows:[['2','1']], view:{c:'F225',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'R/W',ecm:42},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'fuses'}]},
+  inj3:{group:'motor', sub:'inyectores', name:'Inyector 3', meta:'ECM22 R/Y', accent:'#c62828', shape:'tab2', faceRows:[['2','1']], view:{c:'F223',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'R/Y',ecm:22},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'fuses'}]},
+  inj4:{group:'motor', sub:'inyectores', name:'Inyector 4', meta:'ECM41 W/B', accent:'#9e9e9e', shape:'tab2', faceRows:[['2','1']], view:{c:'F226',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'R/L',ecm:41},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'fuses'}]},
+  inj5:{group:'motor', sub:'inyectores', name:'Inyector 5', meta:'ECM21 SB', accent:'#0277bd', shape:'tab2', faceRows:[['2','1']], view:{c:'F224',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'L/W',ecm:21},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'fuses'}]},
+  inj6:{group:'motor', sub:'inyectores', name:'Inyector 6', meta:'ECM40 LG', accent:'#558b2f', shape:'tab2', faceRows:[['2','1']], view:{c:'F227',g:'f',src:'EC-702',ord:'2-1'}, pins:[{id:'2',lab:'SIG',code:'PU/R',ecm:40},{id:'1',lab:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'fuses'}]},
   vtc_b1:{group:'motor', sub:'actuators', name:'VTC admisión B1', meta:'F204 · vía F18/F201 · ECM11', accent:'#d81b60', shape:'tab2', faceRows:[['2','1']], view:{c:'F204',g:'f',src:'EC-455',ord:'2-1'},
     pins:[{id:'1',lab:'SIG',code:'W/R',ecm:11},{id:'2',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}]},
   vtc_b2:{group:'motor', sub:'actuators', name:'VTC admisión B2', meta:'Bank2 solo · ECM10 · sin F18', accent:'#d81b60', shape:'tab2', faceRows:[['2','1']], view:{c:'F26',g:'f',src:'EC-457',ord:'2-1'},
@@ -2281,7 +2285,7 @@ const CONN_BASE = {
   /* —— ix_* paths: single-purpose in their sub; multi stay in intermedias —— */
   ix_e11_f2:{group:'body', sub:'pedals', name:'E11 ↔ F2 · APP pedal', meta:'10-pin GY · E113→E11/F2→ECM · EC-523', accent:'#f9a825', shape:'rect10', view:{c:'F2',g:'f',src:'EC-523',ord:'1-2-3-4-5 / 6-7-8-9-10'}, face:'f2',
     pins:[
-      {id:'1',lab:'ALT-S',code:'LG/B',ecm:null,rail:'12v',src:'E21·36',srcSub:'feeds',circ:'alt_s',note:'Alternador S (sensado de voltaje): 12V BAT siempre desde el fusible 36 (10A) del bloque de fusibles y fusible-link E21 (PG-POWER-02) → LG/B → E11·1 → F2·1 → F20·4 “S”. SC-22.',note_en:'Alternator S (voltage sensing): 12V BAT at all times from fuse 36 (10A) in the fuse and fusible link block E21 (PG-POWER-02) → LG/B → E11·1 → F2·1 → F20·4 “S”. SC-22.',note_ja:'オルタネータ S（電圧検出）: ヒューズ＆フュージブルリンクブロック E21 のヒューズ36（10A）から常時12V BAT（PG-POWER-02）→ LG/B → E11·1 → F2·1 → F20·4「S」。SC-22。'},
+      {id:'1',lab:'ALT-S',code:'LG/B',ecm:null,rail:'12v',src:'E21·36',srcSub:'fuses',circ:'alt_s',note:'Alternador S (sensado de voltaje): 12V BAT siempre desde el fusible 36 (10A) del bloque de fusibles y fusible-link E21 (PG-POWER-02) → LG/B → E11·1 → F2·1 → F20·4 “S”. SC-22.',note_en:'Alternator S (voltage sensing): 12V BAT at all times from fuse 36 (10A) in the fuse and fusible link block E21 (PG-POWER-02) → LG/B → E11·1 → F2·1 → F20·4 “S”. SC-22.',note_ja:'オルタネータ S（電圧検出）: ヒューズ＆フュージブルリンクブロック E21 のヒューズ36（10A）から常時12V BAT（PG-POWER-02）→ LG/B → E11·1 → F2·1 → F20·4「S」。SC-22。'},
       {id:'2',lab:'GND',code:'G/R',ecm:83,rail:'gnd'},
       {id:'3',code:'G/B',ecm:98},
       {id:'4',lab:'GND',code:'G/Y',ecm:82,rail:'gnd'},
@@ -2301,7 +2305,7 @@ const CONN_BASE = {
         note:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → back-up switch F36 pin1 · LT-183 (M/T)',
         note_en:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → reverse switch F36 pin1 · LT-183 (M/T)',
         note_ja:'IPDM E7-26 G/W → E10/F1 cav2 Y/R → リバースSW F36 pin1 · LT-183 (M/T)'},
-      {id:'3',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'feeds'},
+      {id:'3',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'fuses'},
       {id:'4',code:'—',ecm:null},
       {id:'5',lab:'5V',code:'B',ecm:49,rail:'5v'},
       {id:'6',code:'—',ecm:null},
@@ -2314,7 +2318,7 @@ const CONN_BASE = {
     pins:[
       {id:'1',code:'R/W',lab:'BATT',rail:'12v'},
       {id:'2',code:'—',ecm:null},
-      {id:'3',lab:'AF/HO2S',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'feeds'},
+      {id:'3',lab:'AF/HO2S',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'fuses'},
       {id:'4',lab:'VB',code:'P',ecm:120,rail:'12v'},
       {id:'5',lab:'IGN',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'},
       {id:'6',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'E17',srcSub:'power',circ:'gnd_f152_e17'},
@@ -2343,7 +2347,7 @@ const CONN_BASE = {
       {id:'2',lab:'I3',code:'R/Y',ecm:22},
       {id:'3',lab:'I4',code:'W/B',ecm:41},
       {id:'4',lab:'I2',code:'B/R',ecm:42},
-      {id:'5',lab:'12V',code:'W/B',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'},
+      {id:'5',lab:'12V',code:'W/B',ecm:null,rail:'12v',src:'JB·10A',srcSub:'fuses'},
       {id:'6',lab:'I1',code:'R/B',ecm:23},
       {id:'7',lab:'I6',code:'LG',ecm:40},
       {id:'8',code:'—',ecm:null}
@@ -2415,7 +2419,7 @@ const CONN_BASE = {
       {id:'62G',code:'—',ecm:null},
       {id:'63G',code:'—',ecm:null},
       {id:'64G',code:'—',ecm:null},
-      {id:'65G',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'JB·15A',srcSub:'feeds'},
+      {id:'65G',code:'R/B',ecm:null,rail:'12v',lab:'12V',src:'JB·15A',srcSub:'fuses'},
       {id:'66G',code:'—',ecm:null},
       {id:'67G',code:'—',ecm:null},
       {id:'68G',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.',note_en:'BATT ECM memory 121 (R/W) · EC-441 / P1065.',note_ja:'BATT ECMメモリ 121 (R/W) · EC-441 / P1065。'},
@@ -5490,7 +5494,7 @@ function renderFichas(){
     sec.dataset.ord = String(++_fichaOrd);
     const lsKey = 'z33_sub_' + sk;
     const saved = localStorage.getItem(lsKey);
-    sec.open = saved === null ? true : saved === '1';
+    sec.open = saved === null ? !SUB_DEFAULT_CLOSED.has(sk) : saved === '1';
     const sum=document.createElement('summary');
     const subLabel = (SUB_I18N[sk] && SUB_I18N[sk][lang]) || (SUB_I18N[sk] && SUB_I18N[sk].es) || sk;
     sum.innerHTML = `<span class="sub-label">${esc(subLabel)}</span>`;
@@ -5507,6 +5511,11 @@ function renderFichas(){
       sec.appendChild(grid);
     }
     sec.addEventListener('toggle', ()=>{
+      /* Auto-open of a default-closed group (Fusibles) is temporary: never persisted. */
+      const m = sec.dataset.autoOpen;
+      if(m === '1' && sec.open) return;
+      if(m && !sec.open){ delete sec.dataset.autoOpen; return; }
+      if(m) delete sec.dataset.autoOpen; /* stale 'closing' marker: this open is the user's */
       localStorage.setItem(lsKey, sec.open ? '1' : '0');
     });
     root.appendChild(sec);
@@ -5530,11 +5539,13 @@ function applyCollapseIdleSubs(connIds){
   /* Decide open/closed from current selection (do not restore-first — that raced with revealConns reopen). */
   if(!collapseIdleEnabled()){
     restoreCollapsedSubs();
+    syncAutoOpenSubs();
     return;
   }
   const set = new Set((connIds||[]).filter(Boolean));
   if(!set.size){
     restoreCollapsedSubs();
+    syncAutoOpenSubs();
     return;
   }
   const connOf = (el) => el && el.dataset && el.dataset.conn;
@@ -5557,11 +5568,30 @@ function applyCollapseIdleSubs(connIds){
       });
       return;
     }
-    if(sec.open) sec.dataset.wasOpen = '1';
+    if(sec.open && sec.dataset.autoOpen !== '1') sec.dataset.wasOpen = '1';
     sec.open = false;
   });
+  syncAutoOpenSubs();
 }
 
+/* Default-closed groups (SUB_DEFAULT_CLOSED, e.g. Fusibles): a selection / rail filter that lights one of
+   their cards opens the group temporarily (data-auto-open, not saved to localStorage) and closes it again
+   when nothing inside is lit any more — the user's own open/closed choice is kept. */
+function subHasLit(sec){
+  return !!(sec && sec.querySelector('.ficha.hl, .ficha-wrap.hl, .cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-rail'));
+}
+function autoOpenSub(sec){
+  if(!sec || sec.open) return;
+  sec.dataset.autoOpen = '1';
+  sec.open = true;
+}
+function syncAutoOpenSubs(){
+  document.querySelectorAll('#fichas details.ficha-sec:not(.sel-top)').forEach(sec=>{
+    if(!SUB_DEFAULT_CLOSED.has(sec.dataset.sub)) return;
+    if(subHasLit(sec)) autoOpenSub(sec);
+    else if(sec.dataset.autoOpen === '1'){ sec.dataset.autoOpen = 'closing'; sec.open = false; }
+  });
+}
 function restoreCollapsedSubs(){
   document.querySelectorAll('#fichas details.ficha-sec[data-was-open="1"]').forEach(sec=>{
     sec.open = true;
@@ -5867,9 +5897,12 @@ function revealConns(connIds, opts){
     }
     const sec = f.closest('details.ficha-sec');
     if(sec && !sec.open){
-      sec.open = true;
       const sk = sec.dataset.sub;
-      if(sk) localStorage.setItem('z33_sub_' + sk, '1');
+      if(SUB_DEFAULT_CLOSED.has(sk)) autoOpenSub(sec);
+      else {
+        sec.open = true;
+        if(sk) localStorage.setItem('z33_sub_' + sk, '1');
+      }
     }
   });
   /* selTop + promote; then scroll the fichas panel to the selection */
@@ -5885,7 +5918,10 @@ function revealConns(connIds, opts){
     const nest = f.closest('details.ficha-nest');
     if(nest && !nest.classList.contains('sel-line')) nest.open = true;
     const sec = f.closest('details.ficha-sec');
-    if(sec && !sec.classList.contains('sel-top')) sec.open = true;
+    if(sec && !sec.classList.contains('sel-top')){
+      if(SUB_DEFAULT_CLOSED.has(sec.dataset.sub)) autoOpenSub(sec);
+      else sec.open = true;
+    }
   });
   applyCollapseIdleSubs(ids); /* last word after any reopen */
   const top = document.getElementById('selTop');
@@ -5972,6 +6008,7 @@ function clearHL(){
   restoreCollapsedSubs();
   restoreFichaOrder();
   clearSelectionClasses();
+  syncAutoOpenSubs();
   updateEcmSelCount(0);
   setF102PanelOpen(true); // no selection → F102 visible
 }
@@ -6083,7 +6120,7 @@ function circuitHasPowerPath(cir){
   return ids.some(cid => {
     const f = CONN[cid] || CONN_BASE[cid];
     if(!f) return false;
-    if(f.sub === 'feeds' || f.sub === 'intermedias' || f.sub === 'ipdm') return true;
+    if(f.sub === 'feeds' || f.sub === 'fuses' || f.sub === 'intermedias' || f.sub === 'ipdm') return true;
     return false;
   });
 }
@@ -6136,7 +6173,7 @@ function attachPowerPathFichas(coreIds, connSet, pathCavByConn, onPathCir=null){
     if(!cir) return;
     (cir.conn || []).forEach(cid => {
       const f = CONN[cid] || CONN_BASE[cid];
-      if(f && (f.sub === 'intermedias' || f.sub === 'ipdm' || f.sub === 'feeds')) connSet.add(cid);
+      if(f && (f.sub === 'intermedias' || f.sub === 'ipdm' || f.sub === 'feeds' || f.sub === 'fuses')) connSet.add(cid);
     });
     if(cir.path){
       Object.entries(cir.path).forEach(([cid, cavs]) => {
@@ -6637,7 +6674,7 @@ function updateEcmSelCount(nOrPins){
 
 
 /* Sibling highlight outline follows subcategory accent (sensors blue, actuators magenta, …). Focus stays yellow. */
-const HL_GROUP_SUB_PRIORITY = ['sensors','actuators','pedals','ascd_dlc','power','ipdm','feeds','intermedias'];
+const HL_GROUP_SUB_PRIORITY = ['sensors','actuators','pedals','ascd_dlc','power','ipdm','feeds','fuses','intermedias'];
 function primarySubForCircuits(circIds, focusPin=null){
   const circs = (circIds||[]).map(id => CIRCUITS.find(x=>x.id===id)).filter(Boolean);
   const ordered = (focusPin!=null)

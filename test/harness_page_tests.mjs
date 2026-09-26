@@ -116,7 +116,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('alternator E E211: ring, B, GND, src E212 (B/Y link to E213), circ alt_charge',
     /alt_e:\{group:'motor', sub:'sensors'[^\n]*shape:'ring'[^\n]*\n\s*pins:\[\{id:'2',lab:'E',code:'B',ecm:null,rail:'gnd',src:'E212',srcSub:'power',circ:'alt_charge'/.test(html));
   ok('E11/F2·1 ALT-S fed by fuse 36 10A (E21·36), 12V rail, circ alt_s',
-    /\{id:'1',lab:'ALT-S',code:'LG\/B',ecm:null,rail:'12v',src:'E21·36',srcSub:'feeds',circ:'alt_s'/.test(html)
+    /\{id:'1',lab:'ALT-S',code:'LG\/B',ecm:null,rail:'12v',src:'E21·36',srcSub:'fuses',circ:'alt_s'/.test(html)
     && /fuse36_alt:\{[^\n]*\n\s*pins:\[\{id:'36',code:'LG\/B',ecm:null,rail:'12v',src:'BAT'[^\n]*circ:'alt_s'/.test(html));
   ok('F20·4 S = 12V alt_s · F20·3 L and F102·13H = alt_l (signal, no rail)',
     /\{id:'4',lab:'S',code:'LG\/B',rail:'12v',src:'E11\/F2·1',srcSub:'pedals',circ:'alt_s'/.test(html)
@@ -128,6 +128,25 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     && /\{id:'alt_l'[\s\S]*?path:\{f20_alt:\['3'\],ix_f102_m72:\['13H'\]\}/.test(html));
   ok('Arnés motor hides alternator B/E (battery cable PG-53) and fuse 36 (E21)',
     /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'alt_b', 'alt_e', 'fuse36_alt'[\s\S]*?\]\);/.test(html));
+}
+{
+  /* Fuse cards: one top-level ficha group 'fuses' (Fusibles / Fuses / ヒューズ), collapsed by default, body-side (hidden in Arnés motor). */
+  const FUSES = ['jb_10a_inj', 'jb_15a_ht', 'fuse36_alt'];
+  const subOf = (id) => ((html.match(new RegExp(`\\n  ${id}:\\{group:'\\w+', sub:'(\\w+)'`)) || [])[1]);
+  ok('fuse cards (J/B 10A inj, J/B 15A HT, E21 fuse 36) all in sub fuses', FUSES.every((id) => subOf(id) === 'fuses'), FUSES.map((id) => `${id}=${subOf(id)}`).join(','));
+  const inFuses = [...html.matchAll(/\n  (\w+):\{group:'\w+', sub:'fuses'/g)].map((m) => m[1]);
+  ok('sub fuses holds exactly the fuse cards, in J/B → IPDM → E21 order', inFuses.join(',') === FUSES.join(','), inFuses.join(','));
+  const noFuseInFeeds = [...html.matchAll(/\n  ((?:jb_|fuse)\w*):\{group:'\w+', sub:'(\w+)'/g)].filter((m) => m[2] !== 'fuses').map((m) => m[1]);
+  ok('no jb_* / fuse* card left outside the Fusibles group', noFuseInFeeds.length === 0, noFuseInFeeds.join(','));
+  ok('SUB_ORDER has fuses (after feeds, before sensors)', /const SUB_ORDER = \['power','ipdm','feeds','fuses','sensors',/.test(html));
+  ok('SUB_I18N fuses: Fusibles / Fuses / ヒューズ', /fuses:\s*\{es:'Fusibles', en:'Fuses', ja:'ヒューズ'\}/.test(html));
+  ok('SUB_ACCENT has fuses colour', /SUB_ACCENT = \{[\s\S]*?\n  fuses:\s*'#[0-9a-f]{6}'/.test(html));
+  ok('Fusibles group collapsed by default (SUB_DEFAULT_CLOSED)', /const SUB_DEFAULT_CLOSED = new Set\(\['fuses'\]\)/.test(html)
+    && /sec\.open = saved === null \? !SUB_DEFAULT_CLOSED\.has\(sk\) : saved === '1'/.test(html));
+  ok('LOOM_BODY_EXTRA keeps every fuse card (hidden in Arnés motor)', FUSES.every((id) => new RegExp(`const LOOM_BODY_EXTRA = new Set\\(\\[[\\s\\S]*?'${id}'[\\s\\S]*?\\]\\);`).test(html)));
+  ok('power-path helpers treat fuses like feeds', /f\.sub === 'feeds' \|\| f\.sub === 'fuses'/.test(html) && /f\.sub === 'feeds' \|\| f\.sub === 'fuses'\)\) connSet\.add/.test(html)
+    && /HL_GROUP_SUB_PRIORITY = \[[^\]]*'fuses'/.test(html));
+  ok('pins fed straight from a fuse colour their source tag with the fuses accent', !/src:'(?:JB·10A|JB·15A|E21·36|F83|F89|F80|F75)',srcSub:'feeds'/.test(html));
 }
 
 const helperSrc = [
