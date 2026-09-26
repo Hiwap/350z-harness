@@ -602,6 +602,41 @@ for (const [lang, gndTxt, pwrTxt] of [['es', 'Masa', 'Alim. 12V'], ['en', 'Groun
 await page.select('#lang', 'es');
 await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
 
+console.log('\nEVT position sensors F38/F42 (Rev-Up only, EC-445/447)');
+{
+  const evtState = () => page.evaluate(() => ({
+    p53: !document.querySelector('#blocks .pin[data-pin="53"]').classList.contains('unused'),
+    p72: !document.querySelector('#blocks .pin[data-pin="72"]').classList.contains('unused'),
+    f38: !!document.querySelector('#fichas [data-conn="f38_evtc_b1"]'),
+    f42: !!document.querySelector('#fichas [data-conn="f42_evtc_b2"]'),
+  }));
+  const e0 = await evtState();
+  ok(!e0.p53 && !e0.p72 && !e0.f38 && !e0.f42, `sin VTC escape: ECM 53/72 unused, F38/F42 hidden (${JSON.stringify(e0)})`);
+  await page.select('#model', 'de_revup');
+  await page.waitForSelector('#fichas [data-conn="f38_evtc_b1"]');
+  const e1 = await evtState();
+  ok(e1.p53 && e1.p72 && e1.f38 && e1.f42, `Rev-Up: ECM 53/72 active, F38/F42 shown (${JSON.stringify(e1)})`);
+  for (const [n, cid] of [[53, 'f38_evtc_b1'], [72, 'f42_evtc_b2']]) {
+    await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+    await clickPin(n);
+    const lit = await page.evaluate(() => [...new Set([...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group')].map((c) => c.dataset.conn + '·' + c.dataset.cav))]);
+    ok(lit.includes(cid + '·2') && lit.includes(cid + '·1') && lit.includes('gnd4·3') && lit.includes('f152·ring'),
+      `ECM ${n} lights ${cid}·2 SIG + ·1 GND → F103·3 → F152 (${lit.join(',')})`);
+    const tags = await routeTags();
+    ok(tags.some((x) => x.rail === 'gnd' && /F103·3/.test(x.text) && /F152/.test(x.text)), `ECM ${n} route tag GND F103·3 → F152`);
+  }
+  await page.evaluate(() => { clearSelection(); selectConnPin('f38_evtc_b1', '3'); });
+  const t3 = await routeTags();
+  ok(t3.some((x) => x.rail === '12v' && /E7·18/.test(x.text) && /F3·7/.test(x.text)), `F38·3 → 12V E7·18 → E12/F3·7 (${JSON.stringify(t3)})`);
+  await page.select('#loomView', 'motor');
+  await new Promise((r) => setTimeout(r, 100));
+  const e2 = await evtState();
+  ok(e2.f38 && e2.f42, 'Rev-Up + Arnès motor: F38/F42 stay on the engine loom');
+  await page.select('#loomView', 'all');
+  await page.select('#model', 'de_early');
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+}
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

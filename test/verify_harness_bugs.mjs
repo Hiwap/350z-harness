@@ -410,6 +410,50 @@ ok('actuators render no longer nests bobinas under actuators',
   }
 }
 
+{
+  /* EVT position sensors F38/F42 (EC-445/447, PG-55 *1): Rev-Up only; 1 B → F103·3 → F152 · 2 SIG → ECM 53/72 · 3 R/W 12V ← E12/F3·7 ← E7·18. */
+  const blk = (id) => (html.match(new RegExp('\\n  ' + id + ':\\{[\\s\\S]*?\\n    note:[^\\n]*')) || [''])[0];
+  for (const [id, color, ecm, sig, page] of [['f38_evtc_b1', 'B', 53, 'L\\/B', 'EC-445'], ['f42_evtc_b2', 'GY', 72, 'L\\/W', 'EC-447']]) {
+    const b = blk(id);
+    ok(`${id} is ${color}/3 tab3 motor sensor (${page})`,
+      new RegExp(`meta:'${color}/3 `).test(b) && /shape:'tab3'/.test(b) && /group:'motor', sub:'sensors'/.test(b) && b.includes(page));
+    const ids = [...b.matchAll(/\{id:'([^']+)'/g)].map((m) => m[1]);
+    ok(`${id} cavities 1-2-3`, JSON.stringify(ids) === JSON.stringify(['1', '2', '3']), ids.join(','));
+    ok(`${id} pin 1 B GND → F152`, /\{id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152'/.test(b));
+    ok(`${id} pin 2 SIG → ECM ${ecm}`, new RegExp(`\\{id:'2',lab:'SIG',code:'${sig}',ecm:${ecm}\\}`).test(b));
+    ok(`${id} pin 3 R/W 12V ← E7·18`, /\{id:'3',lab:'12V',code:'R\/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm'/.test(b));
+  }
+  ok('F38 no longer GY/2', !/F38 GY\/2/.test(html) && !/GY\/2/.test(blk('f38_evtc_b1')) && !/f38_evtc_b1: \{ en:\{name:'F38 · EVT pos\. B1', meta:'GY\/2/.test(html));
+  ok('EVT fichas hidden on VQ35DE sin VTC escape',
+    /id !== 'f38_evtc_b1' && id !== 'f42_evtc_b2'/.test(html));
+  ok('EVT fichas not in LOOM_BODY_EXTRA (engine loom)',
+    !/'f38_evtc_b1'|'f42_evtc_b2'/.test(html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0]));
+  ok('ECM 53/72 inactive unless Rev-Up',
+    /\(Number\(p\)===53 \|\| Number\(p\)===72\) && model !== 'de_revup'/.test(html));
+  ok('PIN_COL 53 L/B · 72 L/W', /"53":"L\/B"/.test(html) && /"72":"L\/W"/.test(html));
+  try {
+    const ctx = { result: {} };
+    vm.createContext(ctx);
+    const buildFn = script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/)[0];
+    vm.runInContext(buildFn + '; result.early = buildCircuits("de_early"); result.rev = buildCircuits("de_revup");', ctx);
+    const { early, rev } = ctx.result;
+    ok('no EVT circuits on de_early', !early.some((c) => /^evt_pos/.test(c.id)));
+    const by = (id) => rev.find((c) => c.id === id);
+    for (const [b, ecm, conn] of [[1, 53, 'f38_evtc_b1'], [2, 72, 'f42_evtc_b2']]) {
+      const sig = by(`evt_pos_b${b}`); const pwr = by(`evt_pos_b${b}_pwr`);
+      ok(`evt_pos_b${b}: ECM ${ecm}, ground path pin1 → F103·3 → F152`,
+        sig && JSON.stringify(sig.ecm) === JSON.stringify([ecm])
+          && JSON.stringify(sig.path) === JSON.stringify({ [conn]: ['1'], gnd4: ['3'], f152: ['ring'] })
+          && !(sig.conn || []).includes('e17'), JSON.stringify(sig));
+      ok(`evt_pos_b${b}_pwr: E7·18 → F3·7 → pin 3, no ECM pin`,
+        pwr && pwr.ecm.length === 0
+          && JSON.stringify(pwr.path) === JSON.stringify({ ipdm_e7: ['18'], ix_e12_f3: ['7'], [conn]: ['3'] }), JSON.stringify(pwr));
+    }
+  } catch (e) {
+    ok('eval EVT circuits', false, String(e.message || e));
+  }
+}
+
 console.log('\n---');
 console.log(`${passes.length} passed, ${failures.length} failed`);
 if (failures.length) {

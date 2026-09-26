@@ -188,7 +188,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       f9_starter: 1,
       f16_cond: 2,
       vtc_ex_b1: 2, vtc_ex_b2: 2, /* FSM face is 4-cavity; CONN wires 2 */
-      f38_evtc_b1: 2,
+      f38_evtc_b1: 3, /* FSM EC-445 / PG-55: F38 B/3 */
       f42_evtc_b2: 3,
     };
     function expectedFacePins(id) {
