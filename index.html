@@ -948,6 +948,39 @@
     .conn-svg { max-height: none; }
     .fichas { max-height: 80vh; }
   }
+  /* Feedback button row — sits right under the footer disclaimer */
+  .fb-row { padding: 0 16px 18px; margin-top: -8px; font-size: 11px; }
+  .fb-row .fb-open { font-size: 12px; padding: 6px 12px; }
+  #feedbackDialog {
+    width: min(560px, 94vw); max-height: 92vh; overflow: auto;
+    background: #12161d; color: var(--text); border: 1px solid #37474f; border-radius: 12px;
+    padding: 14px 16px 12px; box-shadow: 0 12px 40px rgba(0,0,0,.45);
+  }
+  #feedbackDialog::backdrop { background: rgba(0,0,0,.72); }
+  #feedbackDialog h2 { margin: 0 0 6px; font-size: 16px; }
+  #feedbackDialog p { margin: 6px 0; font-size: 12px; color: var(--muted); }
+  #feedbackDialog label { display: block; font-size: 12px; margin: 10px 0 4px; }
+  #feedbackDialog textarea {
+    width: 100%; box-sizing: border-box; min-height: 120px; resize: vertical;
+    background: #0f1115; color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; font: inherit; font-size: 13px;
+  }
+  #feedbackDialog textarea:focus-visible, #feedbackDialog button:focus-visible, #feedbackDialog a:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  #feedbackDialog .fb-count { text-align: right; font-size: 11px; color: var(--muted); }
+  #feedbackDialog details { margin: 8px 0; font-size: 11px; color: var(--muted); }
+  #feedbackDialog details pre { white-space: pre-wrap; word-break: break-word; margin: 6px 0 0; font-size: 11px; }
+  #feedbackDialog .fb-turnstile { min-height: 65px; margin: 8px 0; }
+  #feedbackDialog .fb-status { min-height: 1.2em; font-size: 12px; margin: 6px 0; }
+  #feedbackDialog .fb-status.err { color: var(--warn); }
+  #feedbackDialog .fb-status.ok { color: var(--ok); }
+  #feedbackDialog .fb-status a, #feedbackDialog .fb-alt a { color: var(--accent); }
+  #feedbackDialog .fb-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+  #feedbackDialog .fb-send { background: #1b3a4b; border-color: var(--accent); }
+  #feedbackDialog .fb-send[disabled] { opacity: .5; cursor: not-allowed; }
+  #feedbackDialog .fb-alt { font-size: 11px; margin-top: 6px; }
+  @media print { .fb-row, #feedbackDialog { display: none !important; } }
 </style>
 </head>
 <body data-mode="outlines">
@@ -1066,6 +1099,30 @@
   Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio.
   Colores y pinouts según FSM EC/PG 2005 VQ35DE salvo donde se indique variante.
 </footer>
+<div class="fb-row" id="feedbackRow">
+  <button type="button" class="fb-open" id="feedbackBtn" aria-haspopup="dialog" aria-controls="feedbackDialog">Enviar feedback</button>
+</div>
+<dialog id="feedbackDialog" aria-labelledby="fbTitle" aria-describedby="fbIntro">
+  <form id="fbForm" novalidate>
+    <h2 id="fbTitle">Enviar feedback</h2>
+    <p id="fbIntro"></p>
+    <p id="fbNotConfigured" hidden></p>
+    <label for="fbMsg" id="fbMsgLabel">Mensaje</label>
+    <textarea id="fbMsg" name="message" minlength="5" maxlength="4000" required aria-describedby="fbCount"></textarea>
+    <div class="fb-count" id="fbCount">0/4000</div>
+    <details id="fbCtxBox">
+      <summary id="fbCtxSummary">Contexto</summary>
+      <pre id="fbCtx"></pre>
+    </details>
+    <div class="fb-turnstile" id="fbTurnstile"></div>
+    <div class="fb-status" id="fbStatus" role="status" aria-live="polite"></div>
+    <div class="fb-actions">
+      <button type="button" id="fbCancel">Cancelar</button>
+      <button type="submit" class="fb-send" id="fbSend">Enviar</button>
+    </div>
+    <div class="fb-alt"><span id="fbGithubAlt"></span> <a id="fbGithubAltLink" href="https://github.com/Hiwap/350z-harness/issues/new" target="_blank" rel="noopener noreferrer"></a></div>
+  </form>
+</dialog>
 <script>
 /* ========== Color map ========== */
 const OC = {
@@ -3824,6 +3881,25 @@ const I18N = {
     f102_title: "F102 · SMJ",
 
     cname: {B:'negro',W:'blanco',R:'rojo',G:'verde',L:'azul',Y:'amarillo',OR:'naranja',P:'rosa',PU:'violeta',GY:'gris',BR:'marrón',SB:'celeste',LG:'v.claro'},
+    fbBtn: 'Enviar feedback',
+    fbTitle: 'Enviar feedback',
+    fbIntro: 'Errores, colores de cable, pines o sugerencias. Se crea un issue público en GitHub con tu mensaje y el contexto de abajo. No incluyas datos personales.',
+    fbNotConfigured: 'El envío directo aún no está activo: al pulsar Enviar se abre GitHub con el mensaje ya rellenado (requiere cuenta de GitHub).',
+    fbMsgLabel: 'Mensaje',
+    fbPlaceholder: 'Ej.: en mi 35th Anniversary el cable de ECM 54 es de color …',
+    fbCounter: '{n}/4000',
+    fbCtxSummary: 'Contexto que se envía',
+    fbSend: 'Enviar',
+    fbSending: 'Enviando…',
+    fbCancel: 'Cancelar',
+    fbOk: '¡Gracias! Feedback enviado:',
+    fbErrShort: 'El mensaje debe tener entre 5 y 4000 caracteres.',
+    fbErrCaptcha: 'Completa la verificación anti-bots.',
+    fbErrTurnstile: 'La verificación anti-bots falló. Inténtalo de nuevo.',
+    fbErrRate: 'Demasiados envíos. Espera un minuto.',
+    fbErrFallback: 'No se pudo enviar desde aquí. Usa GitHub (el mensaje va rellenado):',
+    fbGithubAlt: '¿Prefieres GitHub directamente?',
+    fbGithubLink: 'Abrir issue en GitHub',
   },
   en: {
     pageSub: 'FSM reference · click ECM pin or cavity → end-to-end',
@@ -3979,6 +4055,25 @@ const I18N = {
     f102_title: "F102 · SMJ",
 
     cname: {B:'black',W:'white',R:'red',G:'green',L:'blue',Y:'yellow',OR:'orange',P:'pink',PU:'purple',GY:'gray',BR:'brown',SB:'sky',LG:'lt.green'},
+    fbBtn: 'Send feedback',
+    fbTitle: 'Send feedback',
+    fbIntro: 'Errors, wire colours, pins or suggestions. This creates a public GitHub issue with your message and the context below. Do not include personal data.',
+    fbNotConfigured: 'Direct sending is not active yet: pressing Send opens GitHub with your message prefilled (GitHub account required).',
+    fbMsgLabel: 'Message',
+    fbPlaceholder: 'E.g. on my 35th Anniversary the ECM 54 wire is …',
+    fbCounter: '{n}/4000',
+    fbCtxSummary: 'Context that will be sent',
+    fbSend: 'Send',
+    fbSending: 'Sending…',
+    fbCancel: 'Cancel',
+    fbOk: 'Thanks! Feedback sent:',
+    fbErrShort: 'The message must be 5–4000 characters.',
+    fbErrCaptcha: 'Please complete the anti-bot check.',
+    fbErrTurnstile: 'The anti-bot check failed. Please try again.',
+    fbErrRate: 'Too many submissions. Please wait a minute.',
+    fbErrFallback: 'Could not send from here. Use GitHub instead (message prefilled):',
+    fbGithubAlt: 'Prefer GitHub directly?',
+    fbGithubLink: 'Open a GitHub issue',
   },
   ja: {
     pageSub: 'FSM参照 · ECMピンまたはカビティをクリック → 端点対端点',
@@ -4134,6 +4229,25 @@ const I18N = {
     f102_title: "F102 · SMJ",
 
     cname: {B:'黒',W:'白',R:'赤',G:'緑',L:'青',Y:'黄',OR:'橙',P:'桃',PU:'紫',GY:'灰',BR:'茶',SB:'水色',LG:'黄緑'},
+    fbBtn: 'フィードバックを送る',
+    fbTitle: 'フィードバックを送る',
+    fbIntro: '誤り・配線色・ピン・ご提案など。メッセージと下記のコンテキストで GitHub に公開 issue が作成されます。個人情報は書かないでください。',
+    fbNotConfigured: '直接送信はまだ有効ではありません。「送信」を押すとメッセージ入力済みの GitHub が開きます（GitHub アカウントが必要）。',
+    fbMsgLabel: 'メッセージ',
+    fbPlaceholder: '例：35th Anniversary 実車では ECM 54 の配線色は …',
+    fbCounter: '{n}/4000',
+    fbCtxSummary: '送信されるコンテキスト',
+    fbSend: '送信',
+    fbSending: '送信中…',
+    fbCancel: 'キャンセル',
+    fbOk: 'ありがとうございます！送信しました：',
+    fbErrShort: 'メッセージは5〜4000文字で入力してください。',
+    fbErrCaptcha: 'ボット対策の確認を完了してください。',
+    fbErrTurnstile: 'ボット対策の確認に失敗しました。もう一度お試しください。',
+    fbErrRate: '送信が多すぎます。1分ほど待ってください。',
+    fbErrFallback: 'ここから送信できませんでした。GitHub をご利用ください（メッセージ入力済み）：',
+    fbGithubAlt: 'GitHub で直接送る場合：',
+    fbGithubLink: 'GitHub で issue を開く',
   },
 };
 
@@ -7292,6 +7406,221 @@ document.getElementById('q').addEventListener('input', e=>{
   CIRCUITS = circuitsForView(document.getElementById('model').value);
   rebuildIndexes();
   applyLang();
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+  /* ---- Configure after deploying the Worker (see /workspace/feedback-worker/README.md) ---- */
+  const WORKER_URL = 'https://z33-harness-feedback.hiwap.workers.dev/feedback';   // e.g. https://z33-harness-feedback.<subdomain>.workers.dev/feedback
+  const TURNSTILE_SITEKEY = '0x4AAAAAAFEknUl1ozACZbKT';                  // Turnstile widget site key (public)
+  const GH_NEW_ISSUE = 'https://github.com/Hiwap/350z-harness/issues/new';
+  const MSG_MIN = 5, MSG_MAX = 4000, TIMEOUT_MS = 15000;
+
+  const configured = () => /^(https:\/\/|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/)/.test(WORKER_URL) /* http only for local wrangler dev */ && !/REPLACE_ME/.test(WORKER_URL)
+                        && !!TURNSTILE_SITEKEY && !/REPLACE_ME/.test(TURNSTILE_SITEKEY);
+  const $ = id => document.getElementById(id);
+  /* Uses the page's t(); falls back to the key if a string is missing. */
+  const tr = key => (typeof t === 'function' ? t(key) : key);
+  const curLang = () => (typeof lang === 'string' ? lang : (document.documentElement.lang || 'es'));
+
+  const dlg = $('feedbackDialog'), btn = $('feedbackBtn'), form = $('fbForm'), msg = $('fbMsg');
+  const status = $('fbStatus'), send = $('fbSend');
+  if(!dlg || !btn || !form) return;
+
+  let tsWidgetId = null, tsToken = '', tsLoading = null, busy = false;
+
+  /* ---------- context (reads the page's existing state) ---------- */
+  function selectionInfo(){
+    const key = (typeof selKey === 'string' && selKey) ? selKey : '';
+    const out = { selection: key, ficha: '', pin: '' };
+    /* CONN = connectors of the current model view; CONN_BASE = all (e.g. F242 exists only on Rev-Up). */
+    const live = (typeof CONN === 'object' && CONN) ? CONN : {};
+    const base = (typeof CONN_BASE === 'object' && CONN_BASE) ? CONN_BASE : {};
+    const conf = cid => live[cid] || base[cid] || null;
+    const connName = cid => (conf(cid) && conf(cid).name) ? conf(cid).name + ' (' + cid + ')' : cid;
+    if(key.startsWith('pin:')){ out.ficha = 'ECM'; out.pin = key.slice(4); }
+    else if(key.startsWith('cav:')){
+      const rest = key.slice(4), i = rest.lastIndexOf(':');
+      const cid = i >= 0 ? rest.slice(0, i) : rest, cav = i >= 0 ? rest.slice(i + 1) : '';
+      out.ficha = connName(cid);
+      const c = conf(cid), p = c && Array.isArray(c.pins) ? c.pins.find(x => String(x.id) === cav) : null;
+      out.pin = cav + (p && p.lab ? ' (' + p.lab + ')' : '');
+    }
+    else if(key.startsWith('conn:')){ out.ficha = connName(key.slice(5)); }
+    if(!out.pin && typeof selFocusPin !== 'undefined' && selFocusPin != null) out.pin = 'ECM ' + selFocusPin;
+    return out;
+  }
+  function gatherContext(){
+    const s = selectionInfo();
+    const lv = typeof loomView === 'function' ? loomView() : (localStorage.getItem('z33_loomView') || 'all');
+    const tv = typeof transView === 'function' ? transView() : (localStorage.getItem('z33_trans') || 'mt');
+    const modelSel = $('model');
+    const modelOpt = modelSel && modelSel.selectedOptions && modelSel.selectedOptions[0];
+    const meta = document.querySelector('meta[name="z33-build"]');
+    return {
+      ficha: s.ficha, pin: s.pin, selection: s.selection,
+      view: lv === 'motor' ? 'Motor' : 'Completo',
+      trans: tv === 'at' ? 'Automático' : 'Manual',
+      engine: modelSel ? (modelSel.value + (modelOpt ? ' · ' + modelOpt.textContent.trim() : '')) : '',
+      lang: curLang(),
+      version: meta ? meta.content : ('lastModified ' + document.lastModified),
+      pageUrl: location.href.slice(0, 300),
+      userAgent: navigator.userAgent.slice(0, 300),
+    };
+  }
+  const CTX_LABELS = [['ficha','Ficha / connector'],['pin','Pin / cavity'],['selection','Selection key'],['view','View'],
+    ['trans','Trans'],['engine','Engine variant'],['lang','Lang'],['version','Page version'],['pageUrl','Page URL'],['userAgent','User agent']];
+  const ctxText = c => CTX_LABELS.filter(([k]) => c[k]).map(([k, l]) => l + ': ' + c[k]).join('\n');
+
+  /* ---------- GitHub prefilled fallback ---------- */
+  function githubUrl(message, c){
+    const flat = message.replace(/\s+/g, ' ').trim();
+    const title = 'Feedback: ' + (Array.from(flat).length > 60 ? Array.from(flat).slice(0, 60).join('').trimEnd() + '…' : flat);
+    const cell = v => String(v).replace(/[\r\n]+/g, ' ').replace(/\|/g, '\\|');
+    const table = CTX_LABELS.filter(([k]) => c[k]).map(([k, l]) => '| ' + l + ' | ' + cell(c[k]) + ' |').join('\n');
+    let body = '### Message\n\n' + message.trim() + '\n\n### Context\n\n| Field | Value |\n|---|---|\n' + table + '\n';
+    const build = b => GH_NEW_ISSUE + '?labels=feedback&title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(b);
+    let url = build(body);
+    // Keep the URL under ~7500 chars (GitHub / browser limits): trim the message part if needed.
+    while(url.length > 7500 && body.length > 200){
+      body = body.slice(0, Math.floor(body.length * 0.85)) + '\n\n…(truncated)\n';
+      url = build(body);
+    }
+    return url;
+  }
+  function refreshAltLink(){
+    const a = $('fbGithubAltLink');
+    if(a) a.href = githubUrl(msg.value || '', gatherContext());
+  }
+
+  /* ---------- Turnstile (loaded lazily, only when configured) ---------- */
+  function loadTurnstile(){
+    if(window.turnstile) return Promise.resolve();
+    if(tsLoading) return tsLoading;
+    tsLoading = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      s.async = true; s.defer = true;
+      s.onload = () => resolve(); s.onerror = () => { tsLoading = null; reject(new Error('turnstile load failed')); };
+      document.head.appendChild(s);
+    });
+    return tsLoading;
+  }
+  async function ensureWidget(){
+    if(!configured()) return;
+    try { await loadTurnstile(); } catch { setStatus(tr('fbErrFallback'), 'err', true); return; }
+    const L = curLang();
+    if(tsWidgetId !== null){ window.turnstile.reset(tsWidgetId); tsToken = ''; updateSend(); return; }
+    tsWidgetId = window.turnstile.render('#fbTurnstile', {
+      sitekey: TURNSTILE_SITEKEY, action: 'feedback', theme: 'dark',
+      language: L === 'ja' ? 'ja' : (L === 'en' ? 'en' : 'es'),
+      callback: tok => { tsToken = tok; updateSend(); },
+      'expired-callback': () => { tsToken = ''; updateSend(); },
+      'error-callback': () => { tsToken = ''; updateSend(); },
+    });
+  }
+
+  /* ---------- UI ---------- */
+  function setStatus(text, kind, withGithubLink, issueUrl){
+    status.className = 'fb-status' + (kind ? ' ' + kind : '');
+    status.textContent = text || '';
+    const href = issueUrl || (withGithubLink ? githubUrl(msg.value || '', gatherContext()) : null);
+    if(href){
+      status.appendChild(document.createTextNode(' '));
+      const a = document.createElement('a');
+      a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      a.textContent = issueUrl ? issueUrl.replace(/^https:\/\/github\.com\//, '') : tr('fbGithubLink');
+      status.appendChild(a);
+    }
+  }
+  function msgLen(){ return Array.from(msg.value.trim()).length; }
+  function updateSend(){
+    $('fbCount').textContent = tr('fbCounter').replace('{n}', String(Array.from(msg.value).length));
+    const okLen = msgLen() >= MSG_MIN && msgLen() <= MSG_MAX;
+    send.disabled = busy || !okLen || (configured() && !tsToken);
+  }
+  function applyFbLang(){
+    btn.textContent = tr('fbBtn');
+    $('fbTitle').textContent = tr('fbTitle');
+    $('fbIntro').textContent = tr('fbIntro');
+    const nc = $('fbNotConfigured'); nc.textContent = tr('fbNotConfigured'); nc.hidden = configured();
+    $('fbMsgLabel').textContent = tr('fbMsgLabel');
+    msg.placeholder = tr('fbPlaceholder');
+    $('fbCtxSummary').textContent = tr('fbCtxSummary');
+    $('fbCancel').textContent = tr('fbCancel');
+    if(!busy) send.textContent = tr('fbSend');
+    $('fbGithubAlt').textContent = tr('fbGithubAlt');
+    $('fbGithubAltLink').textContent = tr('fbGithubLink');
+    updateSend();
+  }
+  let lastFocus = null;
+  function openDialog(){
+    lastFocus = document.activeElement;
+    applyFbLang();
+    $('fbCtx').textContent = ctxText(gatherContext());
+    setStatus('');
+    refreshAltLink();
+    if(typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+    msg.focus();
+    ensureWidget();
+  }
+  function closeDialog(){
+    if(typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open');
+  }
+  dlg.addEventListener('close', () => { if(lastFocus && lastFocus.focus) lastFocus.focus(); });
+  dlg.addEventListener('click', e => { if(e.target === dlg && !busy) closeDialog(); }); /* backdrop click */
+  dlg.addEventListener('cancel', e => { if(busy) e.preventDefault(); });                /* Esc while sending */
+  btn.addEventListener('click', openDialog);
+  $('fbCancel').addEventListener('click', () => { if(!busy) closeDialog(); });
+  msg.addEventListener('input', () => { updateSend(); refreshAltLink(); });
+  $('lang') && $('lang').addEventListener('change', applyFbLang); /* runs after the page's applyLang listener */
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const text = msg.value.trim();
+    if(Array.from(text).length < MSG_MIN || Array.from(text).length > MSG_MAX){ setStatus(tr('fbErrShort'), 'err'); msg.focus(); return; }
+    const ctx = gatherContext();
+    if(!configured()){
+      /* Worker not set up yet: open GitHub prefilled (synchronous → not popup-blocked). */
+      window.open(githubUrl(text, ctx), '_blank', 'noopener');
+      setStatus(tr('fbErrFallback'), 'err', true);
+      return;
+    }
+    if(!tsToken){ setStatus(tr('fbErrCaptcha'), 'err'); return; }
+    busy = true; send.textContent = tr('fbSending'); updateSend(); setStatus(tr('fbSending'));
+    const ac = new AbortController(); const timer = setTimeout(() => ac.abort(), TIMEOUT_MS);
+    let res = null, data = null;
+    try {
+      res = await fetch(WORKER_URL, {
+        method: 'POST', mode: 'cors', credentials: 'omit', signal: ac.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, turnstileToken: tsToken, context: ctx }),
+      });
+      data = await res.json().catch(() => null);
+    } catch { res = null; }
+    clearTimeout(timer);
+    busy = false; send.textContent = tr('fbSend');
+    tsToken = ''; if(tsWidgetId !== null && window.turnstile) window.turnstile.reset(tsWidgetId); /* tokens are single-use */
+    if(res && res.ok && data && data.ok && data.url){
+      setStatus(tr('fbOk'), 'ok', false, data.url);
+      msg.value = ''; updateSend(); refreshAltLink();
+      return;
+    }
+    const err = data && data.error;
+    if(res && res.status === 429) setStatus(tr('fbErrRate'), 'err');
+    else if(err === 'turnstile_failed') setStatus(tr('fbErrTurnstile'), 'err');
+    else if(err === 'message_too_short' || err === 'message_too_long') setStatus(tr('fbErrShort'), 'err');
+    else {
+      /* unreachable / not_configured / github_error → GitHub prefilled. window.open after an await may be
+         popup-blocked, so the same URL is always shown as a link in the status line too. */
+      window.open(githubUrl(text, ctx), '_blank', 'noopener');
+      setStatus(tr('fbErrFallback'), 'err', true);
+    }
+    updateSend();
+  });
+
+  applyFbLang();
 })();
 </script>
 <script data-goatcounter="https://350z-harness.goatcounter.com/count"
