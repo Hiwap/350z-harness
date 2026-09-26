@@ -190,6 +190,11 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       faceOf('ix_f221_f33') === 'faces/f33.webp'
       && /ix_f221_f33: \{ src: 'faces\/f33\.webp', source: 'EFI Hardware \(Nissan 8 Pin Injector Loom Male Pin Connector, Grey\)' \}/.test(faceBlock[1]),
       faceOf('ix_f221_f33'));
+    {
+      const fn = (html.match(/function svgF33\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
+      ok('svgF33: fixed male-face order top 4-3-2-1 / bot 8-7-6-5 (EC-279 T.S.), no ECM-orient flipRow',
+        /const orderTop = \['4','3','2','1'\], orderBot = \['8','7','6','5'\];/.test(fn) && !/flipRow/.test(fn));
+    }
     ok('A/F face caption carries the localized similar/lock note', /af_b1:[^\n]*note: 'faceNoteSimilarLock'/.test(faceBlock[1])
       && (html.match(/faceNoteSimilarLock: '/g) || []).length === 3 /* es + en + ja packs */);
 
