@@ -110,6 +110,88 @@ await page.waitForFunction(() => !document.getElementById('feedbackDialog').open
 ok('Esc closes the dialog', !(await isOpen()));
 ok('gate never reached the Worker (no POST)', !blocked.some((u) => /workers\.dev/.test(u)), blocked.join(', '));
 
+// ---- selection in the payload + preview (mocked Turnstile and fetch; nothing leaves the browser) ----
+{
+  const mp = await browser.newPage();
+  await mp.setViewport({ width: 1280, height: 900 });
+  await mp.setRequestInterception(true);
+  mp.on('request', (req) => { const u = req.url(); if (/workers\.dev|challenges\.cloudflare\.com|github\.com/.test(u)) { blocked.push(u); req.abort(); } else req.continue(); });
+  await mp.evaluateOnNewDocument(() => {
+    // mock Turnstile: every render/reset issues a fresh single-use token (the real widget re-solves after reset)
+    let opts = null; let n = 0;
+    window.turnstile = { render: (el, o) => { opts = o; setTimeout(() => o.callback('mock-token-' + (++n)), 0); return 'mock'; },
+      reset: () => { if (opts) setTimeout(() => opts.callback('mock-token-' + (++n)), 0); } };
+    window.__fbCalls = [];
+    const realFetch = window.fetch.bind(window);
+    window.fetch = (url, init) => {
+      if (/workers\.dev/.test(String(url))) {
+        window.__fbCalls.push({ url: String(url), body: JSON.parse(init.body) });
+        return Promise.resolve(new Response(JSON.stringify({ ok: true, url: 'https://github.com/Hiwap/350z-harness/issues/999999' }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+      }
+      return realFetch(url, init);
+    };
+  });
+  await mp.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'domcontentloaded' });
+  await mp.waitForSelector('#blocks .pin[data-pin="24"]');
+  await mp.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+  await mp.reload({ waitUntil: 'domcontentloaded' });
+  await mp.waitForSelector('#blocks .pin[data-pin="24"]');
+  const sendOnce = async (text) => {
+    await mp.click('#feedbackBtn');
+    await mp.waitForFunction(() => document.getElementById('feedbackDialog').open, { timeout: 3000 });
+    const incl = await mp.evaluate(() => document.getElementById('fbIncl').textContent);
+    const ctx = await mp.evaluate(() => document.getElementById('fbCtx').textContent);
+    await mp.evaluate(() => { document.getElementById('fbMsg').value = ''; });
+    await mp.type('#fbMsg', text);
+    await mp.waitForFunction(() => !document.getElementById('fbSend').disabled, { timeout: 3000 }).catch(() => {});
+    const n0 = await mp.evaluate(() => window.__fbCalls.length);
+    await mp.click('#fbSend');
+    await mp.waitForFunction((n) => window.__fbCalls.length > n, { timeout: 3000 }, n0).catch(() => {});
+    await mp.waitForFunction(() => /issues\/999999/.test(document.getElementById('fbStatus').textContent), { timeout: 3000 }).catch(() => {});
+    const calls = await mp.evaluate(() => window.__fbCalls);
+    const call = calls.length > n0 ? calls[calls.length - 1] : null;
+    const status = await mp.evaluate(() => document.getElementById('fbStatus').textContent);
+    await mp.evaluate(() => document.getElementById('feedbackDialog').close());
+    return { incl, ctx, call, status };
+  };
+  const I = await mp.evaluate(() => ({ es: I18N.es, en: I18N.en, ja: I18N.ja }));
+  // nothing selected → "none"
+  await mp.evaluate(() => clearSelection());
+  let r = await sendOnce('nothing selected test');
+  ok('no selection: preview says none', r.incl === I.es.fbIncl + ' ' + I.es.fbInclNone, r.incl);
+  ok('no selection: payload selPin/selConn/rails = "none" (mock fetch, Worker URL)', !!r.call && r.call.url === WORKER
+    && r.call.body.context.selPin === 'none' && r.call.body.context.selConn === 'none' && r.call.body.context.rails === 'none', JSON.stringify(r.call && r.call.body.context));
+  ok('mocked success shows the issue link', /issues\/999999/.test(r.status), r.status);
+  // ECM pin 24 selected
+  await mp.evaluate(() => clearSelection());
+  await mp.click('#blocks .pin[data-pin="24"]');
+  r = await sendOnce('pin 24 selected test');
+  ok('pin 24: preview "Incluye: pin ECM 24"', r.incl.startsWith(I.es.fbIncl + ' ' + I.es.fbInclPin.replace('{n}', '24')), r.incl);
+  ok('pin 24: payload selPin = ECM 24 · name · GY', !!r.call && /^ECM 24 · .+ · GY$/.test(r.call.body.context.selPin), JSON.stringify(r.call && r.call.body.context));
+  ok('pin 24: context box lists "Selected pin: ECM 24"', /Selected pin: ECM 24/.test(r.ctx), r.ctx);
+  // cavity F34·4 selected (ficha click) + GND rail
+  await mp.evaluate(() => { clearSelection(); document.querySelector('.cav-hit[data-conn="af_b2"][data-cav="4"]').dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+  r = await sendOnce('cavity F34 4 test');
+  ok('cavity af_b2·4: preview shows pin ECM 24 · F34·4', r.incl.includes(I.es.fbInclPin.replace('{n}', '24')) && r.incl.includes('F34·4'), r.incl);
+  ok('cavity af_b2·4: payload selConn names the ficha + cavity', !!r.call && /af_b2/.test(r.call.body.context.selConn) && / · 4/.test(r.call.body.context.selConn), JSON.stringify(r.call && r.call.body.context));
+  await mp.evaluate(() => { clearSelection(); toggleRail('gnd'); });
+  r = await sendOnce('gnd rail test');
+  ok('GND rail on: payload rails = GND, preview mentions it', !!r.call && r.call.body.context.rails === 'GND' && r.incl.includes(I.es.fbInclRails.replace('{r}', 'GND')), JSON.stringify([r.incl, r.call && r.call.body.context.rails]));
+  await mp.evaluate(() => { toggleRail('gnd'); clearSelection(); });
+  // preview localizes
+  await mp.click('#blocks .pin[data-pin="24"]');
+  for (const lg of ['en', 'ja', 'es']) {
+    await mp.select('#lang', lg);
+    await mp.evaluate(() => { clearSelection(); document.querySelector('#blocks .pin[data-pin="24"]').click(); });
+    await mp.click('#feedbackBtn');
+    const t = await mp.evaluate(() => document.getElementById('fbIncl').textContent);
+    await mp.evaluate(() => document.getElementById('feedbackDialog').close());
+    ok(`[${lg}] preview localized: "${I[lg].fbIncl} ${I[lg].fbInclPin.replace('{n}', '24')}"`, t.startsWith(I[lg].fbIncl + ' ' + I[lg].fbInclPin.replace('{n}', '24')), t);
+  }
+  ok('mock page: no real Worker / GitHub request left the browser', !blocked.some((u) => /workers\.dev/.test(u)), blocked.join(', '));
+  await mp.close();
+}
+
 await browser.close();
 console.log(`---\nfeedback: ${pass} passed, ${fails.length} failed`);
 if (fails.length) { console.log('FAILED:\n' + fails.join('\n')); process.exit(1); }

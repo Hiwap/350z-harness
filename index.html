@@ -974,6 +974,7 @@
     outline: 2px solid var(--accent); outline-offset: 2px;
   }
   #feedbackDialog .fb-count { text-align: right; font-size: 11px; color: var(--muted); }
+  #feedbackDialog p.fb-incl { margin: 4px 0; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #feedbackDialog details { margin: 8px 0; font-size: 11px; color: var(--muted); }
   #feedbackDialog details pre { white-space: pre-wrap; word-break: break-word; margin: 6px 0 0; font-size: 11px; }
   #feedbackDialog .fb-turnstile { min-height: 65px; margin: 8px 0; }
@@ -1114,6 +1115,7 @@
     <label for="fbMsg" id="fbMsgLabel">Mensaje</label>
     <textarea id="fbMsg" name="message" minlength="5" maxlength="4000" required aria-describedby="fbCount"></textarea>
     <div class="fb-count" id="fbCount">0/4000</div>
+    <p class="fb-incl" id="fbIncl"></p>
     <details id="fbCtxBox">
       <summary id="fbCtxSummary">Contexto</summary>
       <pre id="fbCtx"></pre>
@@ -3904,6 +3906,10 @@ const I18N = {
     fbErrFallback: 'No se pudo enviar desde aquí. Usa GitHub (el mensaje va rellenado):',
     fbGithubAlt: '¿Prefieres GitHub directamente?',
     fbGithubLink: 'Abrir issue en GitHub',
+    fbIncl: 'Incluye:',
+    fbInclPin: 'pin ECM {n}',
+    fbInclRails: 'rieles {r}',
+    fbInclNone: 'sin selección (se envía «none»)',
   },
   en: {
     pageSub: 'FSM reference · click ECM pin or cavity → end-to-end',
@@ -4078,6 +4084,10 @@ const I18N = {
     fbErrFallback: 'Could not send from here. Use GitHub instead (message prefilled):',
     fbGithubAlt: 'Prefer GitHub directly?',
     fbGithubLink: 'Open a GitHub issue',
+    fbIncl: 'Includes:',
+    fbInclPin: 'ECM pin {n}',
+    fbInclRails: 'rails {r}',
+    fbInclNone: 'no selection (sends "none")',
   },
   ja: {
     pageSub: 'FSM参照 · ECMピンまたはカビティをクリック → 端点対端点',
@@ -4252,6 +4262,10 @@ const I18N = {
     fbErrFallback: 'ここから送信できませんでした。GitHub をご利用ください（メッセージ入力済み）：',
     fbGithubAlt: 'GitHub で直接送る場合：',
     fbGithubLink: 'GitHub で issue を開く',
+    fbIncl: '添付：',
+    fbInclPin: 'ECMピン{n}',
+    fbInclRails: 'レール {r}',
+    fbInclNone: '選択なし（「none」を送信）',
   },
 };
 
@@ -7455,8 +7469,43 @@ document.getElementById('q').addEventListener('input', e=>{
     if(!out.pin && typeof selFocusPin !== 'undefined' && selFocusPin != null) out.pin = 'ECM ' + selFocusPin;
     return out;
   }
+  /* Current selection attached to every report: ECM pin (+ name / colour), ficha + cavity, active rail toggles.
+     Each is the string 'none' when nothing is selected. */
+  const RAIL_TXT = { '5v': '5V', '12v': '12V', gnd: 'GND' };
+  function selectionDetail(){
+    const s = selectionInfo(), key = s.selection;
+    const pinNo = (typeof selFocusPin !== 'undefined' && selFocusPin != null) ? String(selFocusPin) : (key.startsWith('pin:') ? key.slice(4) : '');
+    let selPin = 'none';
+    if(pinNo){
+      const nm = typeof pinName === 'function' ? String(pinName(pinNo) || '') : '';
+      const col = (typeof PIN_COL === 'object' && PIN_COL && PIN_COL[pinNo]) || '';
+      selPin = ['ECM ' + pinNo, nm && nm !== '—' ? nm : '', col].filter(Boolean).join(' · ');
+    }
+    let selConn = 'none', connShort = '';
+    if(key.startsWith('cav:') || key.startsWith('conn:')){
+      const isCav = key.startsWith('cav:'), rest = key.slice(isCav ? 4 : 5), i = isCav ? rest.lastIndexOf(':') : -1;
+      const cid = i >= 0 ? rest.slice(0, i) : rest, cav = i >= 0 ? rest.slice(i + 1) : '';
+      selConn = s.ficha + (isCav && cav ? ' · ' + (s.pin || cav) : '');
+      const live = (typeof CONN === 'object' && CONN) ? CONN : {}, base = (typeof CONN_BASE === 'object' && CONN_BASE) ? CONN_BASE : {};
+      const c = live[cid] || base[cid];
+      /* short FSM id for the preview: first connector code (F34, E108, M48…) in name or meta, else the name's first part */
+      const code = c && (String(c.name || '').match(/\b[BEFMT]\d{1,3}\b/) || String(c.meta || '').match(/\b[BEFMT]\d{1,3}\b/));
+      connShort = (code ? code[0] : ((c && c.name) ? String(c.name).split(' · ')[0] : cid)).slice(0, 32) + (cav ? '·' + cav : '');
+    }
+    const on = (typeof activeRails !== 'undefined' && activeRails && activeRails.size) ? [...activeRails].map(r => RAIL_TXT[r] || String(r)) : [];
+    return { selPin, selConn, rails: on.length ? on.join(', ') : 'none', pinNo, connShort, railList: on };
+  }
+  function inclText(){
+    const d = selectionDetail();
+    const parts = [];
+    if(d.pinNo) parts.push(tr('fbInclPin').replace('{n}', d.pinNo));
+    if(d.connShort) parts.push(d.connShort);
+    if(d.railList.length) parts.push(tr('fbInclRails').replace('{r}', d.railList.join('/')));
+    return tr('fbIncl') + ' ' + (parts.length ? parts.join(' · ') : tr('fbInclNone'));
+  }
   function gatherContext(){
     const s = selectionInfo();
+    const sd = selectionDetail();
     const lv = typeof loomView === 'function' ? loomView() : (localStorage.getItem('z33_loomView') || 'all');
     const tv = typeof transView === 'function' ? transView() : (localStorage.getItem('z33_trans') || 'mt');
     const modelSel = $('model');
@@ -7464,6 +7513,7 @@ document.getElementById('q').addEventListener('input', e=>{
     const meta = document.querySelector('meta[name="z33-build"]');
     return {
       ficha: s.ficha, pin: s.pin, selection: s.selection,
+      selPin: sd.selPin, selConn: sd.selConn, rails: sd.rails,
       view: lv === 'motor' ? 'Motor' : 'Completo',
       trans: tv === 'at' ? 'Automático' : 'Manual',
       engine: modelSel ? (modelSel.value + (modelOpt ? ' · ' + modelOpt.textContent.trim() : '')) : '',
@@ -7473,7 +7523,8 @@ document.getElementById('q').addEventListener('input', e=>{
       userAgent: navigator.userAgent.slice(0, 300),
     };
   }
-  const CTX_LABELS = [['ficha','Ficha / connector'],['pin','Pin / cavity'],['selection','Selection key'],['view','View'],
+  const CTX_LABELS = [['ficha','Ficha / connector'],['pin','Pin / cavity'],['selection','Selection key'],
+    ['selPin','Selected pin'],['selConn','Selected connector/cavity'],['rails','Rails'],['view','View'],
     ['trans','Trans'],['engine','Engine variant'],['lang','Lang'],['version','Page version'],['pageUrl','Page URL'],['userAgent','User agent']];
   const ctxText = c => CTX_LABELS.filter(([k]) => c[k]).map(([k, l]) => l + ': ' + c[k]).join('\n');
 
@@ -7556,6 +7607,7 @@ document.getElementById('q').addEventListener('input', e=>{
     if(!busy) send.textContent = tr('fbSend');
     $('fbGithubAlt').textContent = tr('fbGithubAlt');
     $('fbGithubAltLink').textContent = tr('fbGithubLink');
+    $('fbIncl').textContent = inclText();
     updateSend();
   }
   let lastFocus = null;
@@ -7563,6 +7615,7 @@ document.getElementById('q').addEventListener('input', e=>{
     lastFocus = document.activeElement;
     applyFbLang();
     $('fbCtx').textContent = ctxText(gatherContext());
+    $('fbIncl').textContent = inclText();
     setStatus('');
     refreshAltLink();
     if(typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
