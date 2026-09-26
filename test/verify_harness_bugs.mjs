@@ -51,8 +51,12 @@ fs.writeFileSync(tmp, script);
 const chk = spawnSync(process.execPath, ['--check', tmp], { encoding: 'utf8' });
 ok('node --check extracted script', chk.status === 0, chk.stderr?.trim() || 'syntax ok');
 
-ok('evap_press not in LOOM_BODY_EXTRA (motor loom)',
-  !html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0].includes("'evap_press'"));
+/* Arnès motor hides rear/tank items: T21 EVAP pressure + T20 vent valve are Tail harness (PG-63),
+   fuel pump / level unit B27 is Body harness (EC-710). Same treatment as IPDM / E108 / JB fuses. */
+for (const id of ['evap_press', 'evap_vent', 'fuel_pump', 'ix_t2_b44']) {
+  ok(`${id} in LOOM_BODY_EXTRA (rear/tank, not on pulled motor loom)`,
+    html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0].includes(`'${id}'`));
+}
 ok('ac_press in LOOM_BODY_EXTRA',
   /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'ac_press'[\s\S]*?\]\)/.test(html));
 ok('cabin JB fuse notes in LOOM_BODY_EXTRA',
@@ -147,8 +151,8 @@ ok('actuators render no longer nests bobinas under actuators',
     vm.createContext(ctx);
     const loomOnly = html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0];
     vm.runInContext(loomOnly + '; result.loom = [...LOOM_BODY_EXTRA];', ctx);
-    ok('eval LOOM_BODY_EXTRA has no evap_press',
-      !ctx.result.loom.includes('evap_press'),
+    ok('eval LOOM_BODY_EXTRA has evap_press (T21 Tail harness PG-63)',
+      ctx.result.loom.includes('evap_press'),
       JSON.stringify(ctx.result.loom.filter(x => x.startsWith('evap') || x.startsWith('fuel') || x === 'ac_press')));
     ok('eval LOOM_BODY_EXTRA has ac_press', ctx.result.loom.includes('ac_press'));
 

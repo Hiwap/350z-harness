@@ -307,11 +307,37 @@ await page.evaluate(() => {
   const ids = await hlConns();
   ok(ids.includes('f152') && !ids.includes('e17'), `Arnès motor: pin 116 → F152, not E17 (${ids.join(',')})`);
 }
+{
+  /* Body/rear items stay out of Arnès motor: IPDM, E108, JB fuses, and the tank-side EVAP/fuel fichas
+     (T21 EVAP pressure, T20 vent: Tail harness PG-63 · B27 fuel pump: body). E11/F2 is a PG-55 battery-tray
+     mate (LOOM_MOTOR_KEEP) and stays. */
+  const shown = await page.evaluate(() => [...document.querySelectorAll('#fichas [data-conn]')]
+    .filter((el) => el.getClientRects().length > 0).map((el) => el.dataset.conn));
+  const hidden = ['evap_press', 'evap_vent', 'fuel_pump', 'fuel_tank_temp', 'ix_t2_b44', 'ix_b1_m12',
+    'ipdm_e7', 'ipdm_e8', 'ix_e108_m15', 'jb_10a_inj', 'jb_15a_ht'];
+  const leak = hidden.filter((id) => shown.includes(id));
+  ok(leak.length === 0, `Arnès motor hides body/rear fichas incl. EVAP T21/T20 + fuel pump (leak: ${leak.join(',') || 'none'})`);
+  ok(shown.includes('ix_e11_f2') && shown.includes('evap_purge'), 'Arnès motor keeps E11/F2 and F5 EVAP purge (engine loom)');
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+  await clickPin(32);
+  const ids = await hlConns();
+  ok(await pinMarked(32), 'Arnès motor: ECM 32 (EVAP press SIG) still selectable on the ECM side');
+  ok(!ids.includes('evap_press') && !ids.includes('ix_t2_b44') && !ids.includes('ix_b1_m12'),
+    `Arnès motor: ECM 32 lights no rear EVAP ficha (${ids.join(',')})`);
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+}
 await page.evaluate(() => {
   const sel = document.getElementById('loomView');
   sel.value = 'all';
   sel.dispatchEvent(new Event('change', { bubbles: true }));
 });
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await clickPin(32);
+{
+  const ids = await hlConns();
+  ok(ids.includes('evap_press') && ids.includes('ix_t2_b44') && ids.includes('ix_b1_m12'),
+    `Completo: ECM 32 still lights T21 EVAP press + T2/B44 + B1/M12 path (${ids.join(',')})`);
+}
 await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
 
 console.log('\nECM 117 vent control vs 12V path');

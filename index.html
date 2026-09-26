@@ -2523,6 +2523,9 @@ const TRANS_MT_ONLY = new Set(['backup_sw', 'ascd_clutch', 'f35_pnp', 'f242_eot'
 const LOOM_BODY_EXTRA = new Set([
   /* not on pulled engine-control harness (bench) */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
+  /* EVAP control system pressure sensor T21 GY/3 sits on the canister by the tank: Tail harness (PG-63),
+     reached via T2/B44 → B1/M12 → F102 18H/19H/20H (EC-379). Same rear harness as T20 vent valve. */
+  'evap_press',
   /* A/C refrigerant pressure sensor is on the A/C line / engine-room side of F1, not the pulled motor loom */
   'ac_press',
   /* SMJ E108 stays at firewall / body (M15) */
