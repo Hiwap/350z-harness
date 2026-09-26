@@ -13,23 +13,18 @@ PRIORIDAD — tu foto del mazo (sin producto usable)
 1. ecm_f101_can    ECM F101 · cara del conector ECM (la grilla EC-123 ya está en el mapa)
 2. ix_f18_f201     F18 ↔ F201 · hay 6-pin genérico; mejor foto del mazo
 3. ix_f221_f33     F33 ↔ F221 · hay 8-pin genérico; mejor foto del mazo
-4. cmp_b1 / cmp_b2  F4 GY/3 (EC-331) · F32 B/3 (EC-333) · fotos WS negro/verde no coinciden con el color FSM
 
 YA HAY FOTO DE PRODUCTO (interina — no hace falta sacar ahora)
 --------------------------------------------------------------
-etc, inj1–6, coil1–6, maf, ckp (F10 · faces/ckp.webp, VQ35 Crank Sensor WRS-VQCRNK-BK), cmp_b1, cmp_b2, knock, ect,
-ho2s_b1, ho2s_b2, iat (2-pin como ECT), vtc_b1, vtc_b2, backup_sw,
+etc, inj1–6, coil1–6, maf, ckp (faces/ckp.webp · VQ35 Crank Sensor WRS-VQCRNK-BK), cmp_b1, cmp_b2, knock, ect,
+af_b1, af_b2 (6-pin, cara etc.webp), ho2s_b1, ho2s_b2, vtc_ex_b1, vtc_ex_b2 (4-pin ho2s.webp),
+psp, evap_press, ect, iat (2-pin como ECT), f38_evtc_b1, f42_evtc_b2 (3-pin F19/F38/F42), vtc_b1, vtc_b2, backup_sw, evap_purge (2-pin como F36),
 ix_e10_f1 (F1), ix_e11_f2 (F2), ix_e12_f3 (F3), e12 (macho, faces/e12.webp),
 ix_f102_m72 (F102), ix_f14_f229 (sub-arnés knock)
 
 YA HAY CARA FSM (reemplazar con foto del mazo cuando puedas)
 ------------------------------------------------------------
 gnd4 (F103 · EC-169)
-af_b1 (F22 · EC-529), af_b2 (F34 · EC-531) — antes usaban etc.webp (cuerpo mariposa, otra pieza)
-vtc_ex_b1 (F40 · EC-198), vtc_ex_b2 (F41 · EC-200) — 4 cav. redondo 2×2, no el HO2S en línea
-psp (F19 · EC-426), f38_evtc_b1 (F38 · EC-445), f42_evtc_b2 (F42 · EC-447) — antes oil.webp genérico
-evap_purge (F5 GY/2 · EC-360) — antes reverse.webp (F36)
-(Completo, no motor) evap_press (T21 · EC-379), ac_press (E252 · EC-717)
 
 DESPUÉS — en el mazo, sin cara FSM usable
 -----------------------------------------
@@ -51,13 +46,10 @@ NO SACAR / skip
 - IPDM E3–E9 — engine room harness (PG-26), no PG-54.
 - evap_press (T21 canister), evap_vent, fuel_pump, APP E113, DLC, cluster.
 - f6_at — skip si M/T.
-- faces/vtc_ex_b1.webp y vtc_ex_b2.webp — catálogo 6 pines; F40/F41 usan la cara FSM (EC-198/200).
-- f21_oilp — usa oil.webp (misma foto WS que CKP: WS la publica para «VQ35 Oil Pressure Sensor»);
-  sin verificar: existe otro conector de presión de aceite VQ35DE marrón redondo. No es del mazo control.
+- faces/vtc_ex_b1.webp y vtc_ex_b2.webp — catálogo 6 pines; F40/F41 usan ho2s.webp (4 pines).
 
 Notas
 -----
 - En tus fotos no hace falta crédito de vendedor.
 - CONN_FACE en index.html: cámara solo si existe faces/<id>.
 - No reemplazar una foto real con un recorte FSM.
-- Una imagen = un conector físico. Solo inj1–6, coil1–6, ho2s_b1/b2, vtc_b1/b2 comparten foto (test FACE_SHARE_OK).
