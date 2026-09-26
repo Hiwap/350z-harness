@@ -103,8 +103,11 @@ for (const p of mapPins) {
     if (b.end.type === 'source' && b.end.map) optional.add(K(b.end.map, b.end.cav));
   }
   const actual = new Map();
-  for (const [cid, c] of Object.entries(CONN_BASE)) for (const pin of c.pins || []) {
-    if (pin.ecm != null && pin.ecm !== '' && Number(pin.ecm) === p) actual.set(K(cid, pin.id), pin.code || null);
+  for (const [cid, c] of Object.entries(CONN_BASE)) {
+    if (TABLE.pseudo_cards[cid]) continue; // declared non-FSM cards (ECM excerpt, feed notes) are not route cavities
+    for (const pin of c.pins || []) {
+      if (pin.ecm != null && pin.ecm !== '' && Number(pin.ecm) === p) actual.set(K(cid, pin.id), pin.code || null);
+    }
   }
   for (const k of expected.keys()) ok(`ECM ${p}: map carries FSM route cavity ${k}`, actual.has(k), `cite ${e.cite.ec.join('/')}`);
   for (const k of actual.keys()) if (!expected.has(k) && !optional.has(k)) ok(`ECM ${p}: map cavity ${k} is on the FSM route`, false, `not in FSM table (cite ${e.cite.ec.join('/')})`);

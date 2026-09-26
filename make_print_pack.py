@@ -342,12 +342,9 @@ def split_ficha_title(title):
         return m.group(1), m.group(2)
     m = re.match(r"^(Coil|Bobina|Inj|Iny|コイル|インジェ)\s*(\d+)\b(.*)$", title, re.I)
     if m:
-        g1 = m.group(1).lower()
-        if g1.startswith(("c", "b")) or m.group(1) == "コイル":
-            kind = "コイル" if LANG == "ja" else "Bob"
-        else:
-            kind = "インジェ" if LANG == "ja" else "Iny"
-        return f"{kind}{m.group(2)}", (m.group(3) or "").strip()
+        # keep the language's own word from I18N title_coil / title_inj (en Coil/Inj, es Bobina/Iny, ja コイル/インジェ)
+        sep = "" if LANG == "ja" else " "
+        return f"{m.group(1)}{sep}{m.group(2)}", (m.group(3) or "").strip()
     m = re.match(r"^(VTC|ETC|MAF|CKP|CMP|ECT|IAT|Knock|HO2S|A/F|SNS|F\d+|E\d+)\b(.*)$", title, re.I)
     if m:
         return m.group(1), (m.group(2) or "").strip(" ·")

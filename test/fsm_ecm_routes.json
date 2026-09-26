@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "title": "FSM-derived ECM terminal routes - 2005 Nissan 350Z (VQ35DE, all variants)",
- "source": "2005 350Z FSM (Revision 2004 December): EC section, PDF page N = EC-N; PG section connector faces (PG-26 IPDM, PG-54/55 engine harness, PG-84/85 SMJ).",
+ "source": "2005 350Z FSM (Revision 2004 December): EC section, PDF page N = EC-N; LAN section (/workspace/fsm_ref/2005_coupe/lan.pdf, PDF page N = LAN-N); PG section connector faces (PG-26 IPDM, PG-54/55 engine harness, PG-84/85 SMJ).",
  "rules": [
   "Every value comes from the FSM. Unknown segments are null with a note; unverified pins are status=pending with a reason.",
   "route = intermediate connectors from the ECM outward; cav is the FSM cavity id; col gives the wire color on each connector half.",
@@ -1666,6 +1666,66 @@
     "EC-742"
    ]
   },
+  "comb_meter": {
+   "fsm": "M48",
+   "half": "M48",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20"
+   ],
+   "wired": [
+    "1",
+    "11"
+   ],
+   "cite": [
+    "LAN-31",
+    "LAN-55",
+    "EC-741"
+   ],
+   "note": "unified meter & A/C amp; only the CAN cavities are drawn"
+  },
+  "f6_at": {
+   "fsm": "F6",
+   "half": "F6",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10"
+   ],
+   "cite": [
+    "LAN-31",
+    "LAN-119"
+   ],
+   "pg": [
+    "PG-54"
+   ],
+   "note": "A/T assembly harness connector GY/10; CAN 3/8 per LAN-31/119, other cavities from AT-186/114 (not re-verified here)"
+  },
   "f242_eot": {
    "fsm": "F242",
    "half": "F242",
@@ -1701,9 +1761,7 @@
   "f21_oilp": "non-ECM connector (DI section), not verified in this pass",
   "f9_starter": "non-ECM connector (SC section), not verified in this pass",
   "f24_comp": "non-ECM connector (ATC section), not verified in this pass",
-  "f6_at": "non-ECM connector (AT section), not verified in this pass",
-  "backup_sw": "non-ECM connector (LT section), not verified in this pass",
-  "comb_meter": "PENDING: CAN pseudo cavities CAN-H/CAN-L; the FSM CAN node on EC-741 is unified meter & A/C amp M48·1/11 and the LAN section was not checked"
+  "backup_sw": "non-ECM connector (LT section), not verified in this pass"
  },
  "sig_click_allowlist": [
   {
@@ -3893,31 +3951,192 @@
        "map": "ix_f102_m72",
        "cav": "27H",
        "col": {
-        "F102": "P"
+        "F102": "P",
+        "M72": "P"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M8 (DLC)",
+      "map": "dlc",
+      "cav": "14",
+      "col": "P",
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "M-side splice after F102"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "27H",
+       "col": {
+        "F102": "P",
+        "M72": "P"
        }
       }
      ],
      "end": {
       "type": "device",
       "conn": "M48 unified meter & A/C amp",
-      "map": null,
+      "map": "comb_meter",
       "cav": "11",
-      "col": null,
+      "col": "P",
       "applies": "all"
      },
      "applies": "all"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "27H",
+       "col": {
+        "F102": "P",
+        "M72": "P"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M90 BCM",
+      "map": null,
+      "cav": "40",
+      "col": "P",
+      "applies": "all",
+      "note": "BCM not drawn on map"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "27H",
+       "col": {
+        "F102": "P",
+        "M72": "P"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M22 steering angle sensor",
+      "map": null,
+      "cav": "5",
+      "col": "P",
+      "applies": "all",
+      "note": "VDC models only (CAN types 4/5); not drawn on map"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "27H",
+       "col": {
+        "F102": "P",
+        "M72": "P"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "7G",
+       "col": {
+        "E108": "P",
+        "M15": "P"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E9 IPDM E/R",
+      "map": "ipdm_e9",
+      "cav": "49",
+      "col": "P",
+      "applies": "all"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "27H",
+       "col": {
+        "F102": "P",
+        "M72": "P"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "7G",
+       "col": {
+        "E108": "P",
+        "M15": "P"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E51 ABS actuator and electric unit",
+      "map": null,
+      "cav": "23",
+      "col": "P",
+      "applies": "all",
+      "note": "ABS/TCS models (types 1-3); VDC models use E118 VDC/TCS/ABS control unit cavity 63; not drawn on map"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F6 (A/T assembly)",
+      "map": "f6_at",
+      "cav": "8",
+      "col": "P",
+      "applies": "at",
+      "note": "ECM-side splice before F102; inside the A/T assembly L/Y to TCM F502·2"
+     },
+     "applies": "at"
     }
    ],
    "cite": {
     "ec": [
-     "EC-741"
+     "EC-741",
+     "EC-177"
     ],
     "pg": [
+     "PG-84",
      "PG-85"
+    ],
+    "lan": [
+     "LAN-21",
+     "LAN-31",
+     "LAN-32",
+     "LAN-55",
+     "LAN-56",
+     "LAN-76",
+     "LAN-77",
+     "LAN-97",
+     "LAN-98",
+     "LAN-119",
+     "LAN-120"
     ]
    },
-   "status": "pending",
-   "reason": "EC-741 shows only ECM -> F102·27H -> unified meter & A/C amp M48; map branches to IPDM E9·49, E108·7G, DLC·14 and the combination meter come from the LAN section, which was not verified in this pass."
+   "status": "verified",
+   "note": "The combination meter M19 is not a CAN node (EC-741: it talks to the unified meter M48 via its own lines)."
   },
   "90": {
    "color": "LG",
@@ -4010,31 +4229,192 @@
        "map": "ix_f102_m72",
        "cav": "26H",
        "col": {
-        "F102": "L"
+        "F102": "L",
+        "M72": "L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M8 (DLC)",
+      "map": "dlc",
+      "cav": "6",
+      "col": "L",
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "M-side splice after F102"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "26H",
+       "col": {
+        "F102": "L",
+        "M72": "L"
        }
       }
      ],
      "end": {
       "type": "device",
       "conn": "M48 unified meter & A/C amp",
-      "map": null,
+      "map": "comb_meter",
       "cav": "1",
-      "col": null,
+      "col": "L",
       "applies": "all"
      },
      "applies": "all"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "26H",
+       "col": {
+        "F102": "L",
+        "M72": "L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M90 BCM",
+      "map": null,
+      "cav": "39",
+      "col": "L",
+      "applies": "all",
+      "note": "BCM not drawn on map"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "26H",
+       "col": {
+        "F102": "L",
+        "M72": "L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M22 steering angle sensor",
+      "map": null,
+      "cav": "4",
+      "col": "L",
+      "applies": "all",
+      "note": "VDC models only (CAN types 4/5); not drawn on map"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "26H",
+       "col": {
+        "F102": "L",
+        "M72": "L"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "2G",
+       "col": {
+        "E108": "L",
+        "M15": "L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E9 IPDM E/R",
+      "map": "ipdm_e9",
+      "cav": "48",
+      "col": "L",
+      "applies": "all"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "26H",
+       "col": {
+        "F102": "L",
+        "M72": "L"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "2G",
+       "col": {
+        "E108": "L",
+        "M15": "L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E51 ABS actuator and electric unit",
+      "map": null,
+      "cav": "20",
+      "col": "L",
+      "applies": "all",
+      "note": "ABS/TCS models (types 1-3); VDC models use E118 VDC/TCS/ABS control unit cavity 61; not drawn on map"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F6 (A/T assembly)",
+      "map": "f6_at",
+      "cav": "3",
+      "col": "L",
+      "applies": "at",
+      "note": "ECM-side splice before F102; inside the A/T assembly BR to TCM F502·1"
+     },
+     "applies": "at"
     }
    ],
    "cite": {
     "ec": [
-     "EC-741"
+     "EC-741",
+     "EC-177"
     ],
     "pg": [
+     "PG-84",
      "PG-85"
+    ],
+    "lan": [
+     "LAN-21",
+     "LAN-31",
+     "LAN-32",
+     "LAN-55",
+     "LAN-56",
+     "LAN-76",
+     "LAN-77",
+     "LAN-97",
+     "LAN-98",
+     "LAN-119",
+     "LAN-120"
     ]
    },
-   "status": "pending",
-   "reason": "EC-741 shows only ECM -> F102·26H -> unified meter & A/C amp M48; map branches to IPDM E9·48, E108·2G, DLC·6 and the combination meter come from the LAN section, which was not verified in this pass."
+   "status": "verified",
+   "note": "The combination meter M19 is not a CAN node (EC-741: it talks to the unified meter M48 via its own lines)."
   },
   "98": {
    "color": "G/B",

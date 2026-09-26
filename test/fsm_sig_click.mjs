@@ -103,6 +103,16 @@ for (const sc of scenarios) {
     if (al.size) ok(`ECM ${p}: allowlisted cavities are real FSM citations`, (TABLE.sig_click_allowlist || []).filter((a) => a.pin === String(p)).every((a) => a.cite && a.cite.length));
   }
 }
+// CAN (LAN-31/119): on A/T, ECM 94 reaches the TCM via F6·3 and the unified meter M48·1.
+await page.select('#model', 'de_early');
+await page.select('#transView', 'at');
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await page.click('#blocks .pin[data-pin="94"]');
+{
+  const lit = await page.evaluate(() => [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].map((c) => c.dataset.conn + '·' + c.dataset.cav));
+  ok('A/T ECM 94 CAN-H lights F6·3 (TCM) + M48·1 + E9·48 + DLC·6 (LAN-31/32)', ['f6_at·3', 'comb_meter·1', 'ipdm_e9·48', 'dlc·6'].every((k) => lit.includes(k)), lit.join(','));
+}
+await page.select('#transView', 'mt');
 // Positive control: with "related power" on, the coil 12V feed (E7·17 → E12/F3·5) still lights (EC-689).
 await page.select('#model', 'de_early');
 await page.evaluate(() => { const el = document.getElementById('railRelPower'); if (el && !el.checked) { el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); } if (typeof clearSelection === 'function') clearSelection(); });

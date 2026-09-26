@@ -1565,8 +1565,8 @@ function buildCircuits(model){
       ecm:[85], conn:['dlc','ix_f102_m72'], f102:['4H'],
       path:{ix_f102_m72:['4H'],dlc:['7']},
       notes:'Línea K (CONSULT / GST). FSM EC-742: ECM 85 (LG) → F102·4H → DLC pin 7. Arnès motor: F102; Completo: también DLC.'},
-    {id:'can', title:'CAN / DLC / cluster', color:'#7e57c2',
-      ecm:[86,94], conn:['ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','comb_meter'], notes:'Red CAN del auto (diagnóstico, cluster, ABS…). Ruta: ECM 94/86 → F102·26H/27H → DLC 6/14 · también E9 48/49 y rama E108 2G/7G.'},
+    {id:'can', title:'CAN / DLC / unified meter', color:'#7e57c2',
+      ecm:[86,94], conn:['ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','comb_meter'], notes:'Red CAN del auto (FSM LAN-31/55/76/97/119). CAN-H ECM 94 (L) / CAN-L 86 (P) → F102·26H/27H → DLC M8·6/14 · unified meter y A/C amp M48·1/11 · BCM M90·39/40 (sensor de ángulo de dirección M22·4/5 con VDC) → E108/M15·2G/7G → IPDM E9·48/49 · ABS E51·20/23 (VDC: E118·61/63). A/T: TCM por F6·3/8 (lado ECM de F102). El combination meter M19 no está en el CAN.'},
     {id:'maf', title:'MAF', color:'#fb8c00',
       ecm:[51], conn:['maf'], path:{feed_ckp_maf_12v:['MAF+']}, notes:'Caudal de aire (MAF). Ruta: señal → ECM 51.'},
     {id:'tb', title:'ETC · cuerpo de mariposa', color:'#029eb7',
@@ -1606,6 +1606,8 @@ function buildCircuits(model){
       ecm:[102], conn:['f35_pnp'], path:{f35_pnp:['1']}, notes:'Interruptor park/neutral M/T F35 (en la caja). Señal: ECM 102 (BR/Y) → F35·1 directo, sin pasar por F102. Neutral = interruptor cerrado a masa (ECM 102 ≈ 0V); otras marchas = 12V. Masa F35·2 → F103·3 → F152 en Masa o clic en F35·2. EC-646/648.'},
     {id:'pnp_mt_gnd', trans:'mt', gndRel:true, title:'PNP (M/T) · masa F35·2', color:'#ab47bc',
       ecm:[], conn:['f35_pnp','gnd4','f152'], path:{f35_pnp:['2'],gnd4:['3'],f152:['ring']}, notes:'Masa del PNP M/T. Ruta: F35·2 (B) → F103/F151·3 → masa motor F152. EC-646.'},
+    {id:'can_tcm', trans:'at', title:'CAN · TCM (A/T) · F6', color:'#7e57c2',
+      ecm:[94,86], conn:['f6_at'], path:{f6_at:['3','8']}, notes:'A/T: el TCM (F502 dentro del conjunto A/T) cuelga del CAN entre el ECM y F102. Ruta: ECM 94 (L) → F6·3 (L; BR dentro) → TCM F502·1 CAN-H · ECM 86 (P) → F6·8 (P; L/Y dentro) → F502·2 CAN-L. LAN-31/119.'},
     {id:'pnp_at', trans:'at', title:'PNP · Park/Neutral (A/T) · vía medidor', color:'#ab47bc',
       ecm:[102], conn:['f6_at','ix_f102_m72'], f102:['28H','23H'], path:{ix_f102_m72:['28H','23H'],f6_at:['9']}, notes:'A/T: el PNP está dentro del conjunto A/T (F6, AT-118) y lo lee el TCM; no hay interruptor aparte ni masa PNP en el arnés motor. Ruta: ECM 102 (BR/Y) → F102·28H → M72 (G/W) → medidor unificado/A/C amp M49·25. El medidor toma AT-P RANGE (M49·32, GY/R) ← F102·23H ← F6·9 (TCM START-RLY). EC-644/647.'},
 
@@ -2002,16 +2004,16 @@ const CONN_BASE = {
     pins:[
       {id:'1',code:'R/W',lab:'BATT',rail:'12v'},
       {id:'2',code:'R/W',lab:'BATT',rail:'12v'},
-      {id:'3',code:'—',ecm:null},
+      {id:'3',code:'L',ecm:94,lab:'CAN-H',circ:'can_tcm'},
       {id:'4',code:'—',ecm:null},
       {id:'5',code:'B',lab:'GND',rail:'gnd',src:'F23',srcSub:'power'},
       {id:'6',code:'Y/R',lab:'IGN',rail:'12v'},
       {id:'7',code:'—',ecm:null},
-      {id:'8',code:'—',ecm:null},
+      {id:'8',code:'P',ecm:86,lab:'CAN-L',circ:'can_tcm'},
       {id:'9',code:'GY/R',lab:'START',circ:'pnp_at',note:'TCM START-RLY (F502·8) GY/R → F102·23H → medidor M49·32 (AT-P RANGE) · rama a SC-START (relé arranque). EC-644 / AT-112.',note_en:'TCM START-RLY (F502·8) GY/R → F102·23H → unified meter M49·32 (AT-P RANGE) · branch to SC-START (starter relay). EC-644 / AT-112.',note_ja:'TCM START-RLY (F502·8) GY/R → F102·23H → メータ M49·32 (AT-P RANGE) · SC-START（スタータリレー）へ分岐。EC-644 / AT-112。'},
       {id:'10',code:'B',lab:'GND',rail:'gnd',src:'F23',srcSub:'power'}
     ],
-    note:'F6 GY/10 TCM (A/T). 1/2 R/W BATT · 5/10 B F23 · 6 Y/R IGN · 9 GY/R relé arranque E9-53 · AT-186/114.'},
+    note:'F6 GY/10 TCM (A/T). 1/2 R/W BATT · 3 L CAN-H ECM 94 · 5/10 B F23 · 6 Y/R IGN · 8 P CAN-L ECM 86 · 9 GY/R relé arranque E9-53 · AT-186/114 · LAN-31.'},
 
   /* —— Actuadores motor —— */
   coil1:{group:'motor', sub:'bobinas', name:'Bobina 1', meta:'ECM62 Y/R · F203', accent:'#f57f17', shape:'tab3',
@@ -2365,10 +2367,10 @@ const CONN_BASE = {
   /* —— Red / otros —— */
   fuel_tank_temp:{group:'body', sub:'ascd_dlc', name:'FTT · temp. tanque', meta:'unidad nivel · ECM 107 · P0181/182/183', accent:'#7e57c2', shape:'tab2',
     pins:[{id:'4',code:'PU/W',ecm:107,lab:'FTT'},{id:'5',code:'B/R',ecm:null,rail:'gnd',lab:'GND',src:'M49',srcSub:'ascd_dlc'}],
-    note:'Temp. del tanque (en la bomba/nivel). Ruta: señal → F102 → ECM 107 · masa al cluster (M49).'},
-  comb_meter:{group:'body', sub:'ascd_dlc', name:'Cluster (combination meter)', meta:'CAN · nivel · CRUISE · masa FTT (M49)', accent:'#7e57c2', shape:'note',
-    pins:[{id:'CAN-H',code:'L',ecm:94,lab:'CAN-H'},{id:'CAN-L',code:'P',ecm:86,lab:'CAN-L'}],
-    note:'Cluster: habla por CAN (nivel, CRUISE). También junta la masa M49 del sensor de tanque.'},
+    note:'Temp. del tanque (en la bomba/nivel). Ruta: señal → F102 → ECM 107 · masa al unified meter M49·36 (EC-291).'},
+  comb_meter:{group:'body', sub:'ascd_dlc', name:'Unified meter y A/C amp · M48', meta:'M48 GY/20 · CAN 1/11 · LAN-31/55 · masa FTT M49·36', accent:'#7e57c2', shape:'note',
+    pins:[{id:'1',code:'L',ecm:94,lab:'CAN-H'},{id:'11',code:'P',ecm:86,lab:'CAN-L'}],
+    note:'Unified meter y A/C amp (detrás del tablero): nodo CAN M48·1 CAN-H (L) y M48·11 CAN-L (P), LAN-31/55. El combination meter M19 no está en el CAN (lo maneja el unified meter). La masa del sensor de tanque va a M49·36 (EC-291).'},
 };
 
 let CONN = {};
@@ -4176,7 +4178,8 @@ const TITLES_I18N = {
 
   fp_relay: {en:'Fuel pump relay', ja:'フューエルポンプリレー'},
   ftt: {en:'Fuel tank temperature', ja:'燃料タンク温度'},
-    can: {en:'CAN / DLC / combination meter', ja:'CAN / DLC / コンビネーションメータ'},
+    can: {en:'CAN / DLC / unified meter', ja:'CAN / DLC / ユニファイドメータ'},
+    can_tcm: {en:'CAN · TCM (A/T) · F6', ja:'CAN · TCM（A/T）· F6'},
   maf: {en:'MAF', ja:'MAF'},
   tb: {en:'ETC throttle body', ja:'ETCスロットルボディ'},
   ho2s_b1: {en:'HO2S2 Bank 1', ja:'HO2S2 バンク1'},
@@ -4263,7 +4266,8 @@ const NOTES_I18N = {
   ecm_relay_ss: {en:'ECM holds/drops the ignition relay inside the IPDM (fuse 77). Path: ECM 111 → F102·11H → E108·69G → E9-46 (SSOFF).', ja:'ECMはIPDM内イグニッションリレー（ヒューズ77）を保持/切断。経路: ECM 111 → F102·11H → E108·69G → E9-46。'},
   vmot: {en:'Throttle-motor 12V (G) after the ETC relay. FSM EC-472 path: IPDM E8-42 (G) → E12/F3·8 (G) → ECM 3.', ja:'ETCリレー後のスロットルモータ12V (G)。FSM EC-472 経路: IPDM E8-42 (G) → E12/F3·8 (G) → ECM 3。'},
   ftt: {en:'FTT → ECM 107 (GY/R) via M72/F102 · fuel level sensor unit term. 4.', ja:'FTT → ECM 107 (GY/R) · M72/F102経由。'},
-    can: {en:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · path ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · also IPDM E9 48/49 · branch E108 2G/7G → ABS/DLC · nodes: combination meter (fuel level / CRUISE) + DLC.', ja:'CAN-H ECM 94 (L) · CAN-L ECM 86 (P) · 経路 ECM F101 → … → F102 26H/27H → M72 → DLC M8 6/14 · IPDM E9 48/49 · 分岐 E108 2G/7G → ABS/DLC · ノード: コンビネーションメータ（残量/CRUISE）+ DLC。'},
+    can: {en:'Vehicle CAN (FSM LAN-31/55/76/97/119). CAN-H ECM 94 (L) / CAN-L 86 (P) → F102·26H/27H → DLC M8·6/14 · unified meter & A/C amp M48·1/11 · BCM M90·39/40 (steering angle sensor M22·4/5 with VDC) → E108/M15·2G/7G → IPDM E9·48/49 · ABS E51·20/23 (VDC: E118·61/63). A/T: TCM via F6·3/8 (ECM side of F102). The combination meter M19 is not on CAN.', ja:'車両CAN（FSM LAN-31/55/76/97/119）。CAN-H ECM 94 (L) / CAN-L 86 (P) → F102·26H/27H → DLC M8·6/14 · ユニファイドメータ&A/Cアンプ M48·1/11 · BCM M90·39/40（VDC車は舵角センサ M22·4/5）→ E108/M15·2G/7G → IPDM E9·48/49 · ABS E51·20/23（VDC: E118·61/63）。A/T: TCM は F6·3/8 経由（F102のECM側）。コンビネーションメータ M19 はCANに非接続。'},
+    can_tcm: {en:'A/T: the TCM (F502 inside the A/T assembly) taps the CAN between the ECM and F102. Path: ECM 94 (L) → F6·3 (L; BR inside) → TCM F502·1 CAN-H · ECM 86 (P) → F6·8 (P; L/Y inside) → F502·2 CAN-L. LAN-31/119.', ja:'A/T: TCM（A/Tアッセンブリ内 F502）はECMとF102の間でCANに接続。経路: ECM 94 (L) → F6·3 (L; 内部BR) → TCM F502·1 CAN-H · ECM 86 (P) → F6·8 (P; 内部L/Y) → F502·2 CAN-L。LAN-31/119。'},
   maf: {en:'MAF signal → ECM 51 (OR).', ja:'MAF信号 → ECM 51 (OR)。'},
   tb: {en:'F31 GY/6. 1 5V→47 · 2 T2→69 · 3 M- close→4 · 4 T1→50 · 5 GND→66 · 6 M+ open→5. EC-238/304/468.', ja:'F31 GY/6。1 5V→47 · 2 T2→69 · 3 M- close→4 · 4 T1→50 · 5 GND→66 · 6 M+ open→5。EC-238/304/468。'},
   evap_press: {en:'T21: 5V=L · SIG=W · GND=B/W. Path EC-379: T21·3 → T2/B44·10 → B1/M12·40J → F102·18H PU → ECM 48 · T21·2 → B44·11 → M12·39J → F102·19H BR/W → 32 · T21·1 → B44·8 → M12·38J → F102·20H B/W → 67 (GND-A).', ja:'信号 ECM 32 (F102 19H) · 5V ECM 48 (F102 18H) · GND ECM 67 B/W（SNS共用 MAF/IAT/PSP/EVAP · F102 20H）。'},
@@ -4757,7 +4761,7 @@ function connShortLabel(cid){
     ipdm_e6:'IPDM E6', ipdm_e7:'IPDM E7', ipdm_e8:'IPDM E8', ipdm_e9:'IPDM E9',
     af_b1:'A/F B1', af_b2:'A/F B2', ho2s_b1:'HO2S2 B1', ho2s_b2:'HO2S2 B2',
     ix_t2_b44:'T2/B44', ix_b1_m12:'B1/M12', dlc:'OBD/DLC',
-    comb_meter:'Comb. meter', fuel_tank_temp:'FTT'
+    comb_meter:'Unified meter', fuel_tank_temp:'FTT'
   };
   if(common[cid]) return common[cid];
   const pack = SHORT[lang] || SHORT.es;
@@ -4998,15 +5002,15 @@ const CONN_I18N = {
   dlc: { en:{name:'DLC · OBD-II', meta:'under dash · 16-pin J1962 · K-line ECM 85', note:'OBD plug. Path: 6/14 CAN · 7 K-line · 16 B+ · 4/5 grounds.'}, ja:{name:'DLC · OBD-II診断', meta:'ダッシュ下 · 16ピン · K線 ECM 85', note:'OBD。経路: 6/14 CAN · 7 K線 · 16 B+ · 4/5アース。'} },
   fuel_tank_temp: {
     en: { name:'Fuel tank temp (FTT)', meta:'fuel level sensor unit · ECM 107 GY/R',
-      note:'Signal → ECM 107 (GY/R) hard-wired. Ground (term. 5) → unified meter M49 — see Combination meter (not CAN).' },
+      note:'Signal → ECM 107 (GY/R) hard-wired. Ground (term. 5) → unified meter M49·36 — see the Unified meter & A/C amp card (not CAN). EC-291.' },
     ja: { name:'燃料タンク温度 (FTT)', meta:'燃料センダ · ECM 107 GY/R',
-      note:'信号 → ECM 107 (GY/R) 直結。アース (term.5) → メータ M49 — Combination meter 参照（CANではない）。' },
+      note:'信号 → ECM 107 (GY/R) 直結。アース (term.5) → ユニファイドメータ M49·36 — ユニファイドメータ&A/Cアンプ参照（CANではない）。EC-291。' },
   },
   comb_meter: {
-    en: { name:'Combination meter', meta:'CAN · fuel level · CRUISE · FTT GND (M49)',
-      note:'Cabin CAN node (ECM 94/86). Via meter/CAN (no dedicated ECM cavity): fuel level · ASCD CRUISE lamp. Also unified ground M49 for FTT / fuel level sensor unit (hard wire, not CAN). Face shows CAN-H/L only.' },
-    ja: { name:'コンビネーションメータ', meta:'CAN · 残量 · CRUISE · FTT GND (M49)',
-      note:'車室内CANノード (ECM 94/86)。メータ/CAN経由（専用ECMキャビティなし）: 燃料残量 · ASCD CRUISE表示。FTT/燃料センダの共通アース M49（ハード線、CANではない）。面は CAN-H/L のみ。' },
+    en: { name:'Unified meter & A/C amp · M48', meta:'M48 GY/20 · CAN 1/11 · LAN-31/55 · FTT ground M49·36',
+      note:'Unified meter & A/C amp (behind the dash): CAN node M48·1 CAN-H (L) and M48·11 CAN-L (P), LAN-31/55. The combination meter M19 is not on CAN (the unified meter drives it). Fuel tank temp sensor ground goes to M49·36 (EC-291).' },
+    ja: { name:'ユニファイドメータ&A/Cアンプ · M48', meta:'M48 GY/20 · CAN 1/11 · LAN-31/55 · FTTアース M49·36',
+      note:'ユニファイドメータ&A/Cアンプ（ダッシュ裏）: CANノード M48·1 CAN-H (L)、M48·11 CAN-L (P)、LAN-31/55。コンビネーションメータ M19 はCANに非接続（ユニファイドメータが駆動）。燃料タンク温度センサのアースは M49·36（EC-291）。' },
   },
 
 };

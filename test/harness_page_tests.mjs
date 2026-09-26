@@ -294,6 +294,20 @@ function runNested(label, scriptPath, args = []) {
     v.status === 0 ? 'ok' : (v.stdout + '\n' + v.stderr).slice(-500));
 }
 
+{
+  /* Print pack coil/injector card titles use each language's own I18N word (no Spanish "Bob"/"Iny" in en). */
+  const pack = fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8');
+  ok('print pack: coil/injector titles not hardcoded to Spanish abbreviations', !/else "Bob"|else "Iny"/.test(pack));
+  const enPdf = path.join(ROOT, '350Z_2005_PRINT_PACK.pdf');
+  const pt = spawnSync('pdftotext', [enPdf, '-'], { encoding: 'utf8' });
+  if (pt.status === 0) {
+    ok('print pack en PDF: "Coil 1" / "Inj 1" titles, no "Bob1" / "Iny1"',
+      /\bCoil 1\b/.test(pt.stdout) && /\bInj 1\b/.test(pt.stdout) && !/\bBob ?\d|\bIny ?\d|\bBobina\b|\bInyector\b/.test(pt.stdout));
+  } else {
+    ok('print pack en PDF title check', true, 'skipped (pdftotext unavailable)');
+  }
+}
+
 runNested('verify_harness_bugs.mjs', path.join(__dirname, 'verify_harness_bugs.mjs'), [HTML]);
 runNested('i18n.mjs', path.join(__dirname, 'i18n.mjs'));
 runNested('fsm_routes.mjs (FSM table: routes, grounds, faces)', path.join(__dirname, 'fsm_routes.mjs'), [HTML]);
