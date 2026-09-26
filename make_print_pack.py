@@ -426,7 +426,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         return (lab, code, note)
     by = {str(p[0]): p for p in pins}
 
-    # ---- RING (E17 body ground) ----
+    # ---- RING (E17 body ground / F152 engine ground) ----
     if shape == "ring":
         card_shell(x, y, w, h, accent=accent or GRP["power"], rail_5v=rail_5v, radius=4)
         draw_ficha_header(x, y, w, h, title, subtitle or qty, accent or GRP["power"], qty)
@@ -1231,18 +1231,21 @@ y -= ch_inj + gap_v
 section_label(ML, y - 9, usable_w, t("path_joints"))
 y -= label_h
 
-# Row A: F103 | E17 | condenser | SNS GND
-w4 = (usable_w - 3 * GAP) / 4
+# Row A: F103 | F152 | E17 | condenser | SNS GND  (EC-169: ECM 115/1/116 → F103·2/3/4 → F152; F103·1 → F3·6 → E17)
+w4 = (usable_w - 4 * GAP) / 5
 ficha(ML, y - ch_ja, w4, ch_ja, t("title_f103"),
-      [("A", "B", "1"), ("B", "B/W", "115"), ("C", "B/R", "116"), ("D", "B", "E17")],
+      [("1", "B", "F3·6"), ("2", "B/W", "115"), ("3", "B", "1"), ("4", "B/R", "116")],
       "rect4", subtitle=t("sub_f103"), accent=GRP["power"])
-ficha(ML + w4 + GAP, y - ch_ja, w4, ch_ja, t("title_e17"),
+ficha(ML + w4 + GAP, y - ch_ja, w4, ch_ja, t("title_f152"),
       [("ring", "B", "gnd")],
-      "ring", qty=t("qty_body"), accent=GRP["power"])
-ficha(ML + 2 * (w4 + GAP), y - ch_ja, w4, ch_ja, t("title_f16"),
+      "ring", subtitle=t("sub_f152"), qty=t("qty_engine"), accent=GRP["power"])
+ficha(ML + 2 * (w4 + GAP), y - ch_ja, w4, ch_ja, t("title_e17"),
+      [("ring", "B", "gnd")],
+      "ring", subtitle=t("sub_e17"), qty=t("qty_body"), accent=GRP["power"])
+ficha(ML + 3 * (w4 + GAP), y - ch_ja, w4, ch_ja, t("title_f16"),
       [("~2µF", "—", "cyl3")],
       "tab2", subtitle=t("sub_f16"), accent=GRP["actuators"])
-ficha(ML + 3 * (w4 + GAP), y - ch_ja, w4, ch_ja, t("title_sns"),
+ficha(ML + 4 * (w4 + GAP), y - ch_ja, w4, ch_ja, t("title_sns"),
       [("66", "B", "66"), ("67", "B", "67"), ("78", "B", "78")],
       "tab3", subtitle=t("sub_sns"), accent=GRP["power"])
 y -= ch_ja + gap_v

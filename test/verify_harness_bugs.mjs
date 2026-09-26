@@ -248,6 +248,71 @@ ok('actuators render no longer nests bobinas under actuators',
 }
 
 
+{
+  /* EC-169: ECM grounds 115/1/116 → F103/F151 cav 2/3/4 → engine ground F152 (not E17).
+     E17 is only reached via F151·1 → F103·1 → F3/E12·6. No A/B/C/D cavities on F103. */
+  const gnd4Body = (html.match(/\n  gnd4:\{[\s\S]*?\n  f152:\{/) || [''])[0];
+  ok('gnd4 ficha block found', !!gnd4Body);
+  const gnd4Ids = [...gnd4Body.matchAll(/\{id:'([^']+)'/g)].map((m) => m[1]);
+  ok('gnd4 cavities are FSM 1-2-3-4 (no A/B/C/D)',
+    JSON.stringify(gnd4Ids) === JSON.stringify(['1', '2', '3', '4']), gnd4Ids.join(','));
+  ok('gnd4 cav 2 = B/W ECM 115', /\{id:'2',code:'B\/W',ecm:115,/.test(gnd4Body));
+  ok('gnd4 cav 3 = B ECM 1', /\{id:'3',code:'B',ecm:1,/.test(gnd4Body));
+  ok('gnd4 cav 4 = B/R ECM 116', /\{id:'4',code:'B\/R',ecm:116,/.test(gnd4Body));
+  ok('gnd4 cav 1 = B link → F3·6 (no ECM pin)', /\{id:'1',code:'B',ecm:null,rail:'gnd',src:'F3·6'/.test(gnd4Body));
+  ok('gnd4 cites EC-169', /EC-169/.test(gnd4Body));
+  ok('f152 engine ground ficha (motor/power ring)',
+    /\n  f152:\{group:'motor', sub:'power', name:'Masa motor · F152', meta:'punto de masa F152 · EC-169'[^\n]*shape:'ring'/.test(html));
+  ok('f152 not hidden from Arnès motor (LOOM_BODY_EXTRA)',
+    !html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0].includes("'f152'"));
+  ok('f152 has CONN_I18N en/ja', /\n  f152: \{\n    en: \{ name:'Engine ground · F152'/.test(html) && /ja: \{ name:'エンジンアース · F152'/.test(html));
+  ok('no stale F103·A/B/C/D or "→ D → E17" strings',
+    !/F103·[ABCD]\b/.test(html) && !/→ D → E17/.test(html) && !/D→E17/.test(html) && !/A\/B\/C/.test(html));
+  const pp = fs.existsSync(path.join(ROOT, 'make_print_pack.py')) ? fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8') : '';
+  ok('print pack F103 uses cavities 1-4 (not A/B/C/D)',
+    !pp || (!/\("A", "B", "1"\)/.test(pp) && /\("4", "B\/R", "116"\)/.test(pp)));
+  try {
+    const ctx = { result: {} };
+    vm.createContext(ctx);
+    const loomSrc = html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0]
+      + "\nconst LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);\nconst CONN_BASE = { f152:{group:'motor'}, e17:{group:'motor'} }; const CONN = {};\n"
+      + script.match(/function loomOfConn\([\s\S]*?\n\}/)[0];
+    vm.runInContext(loomSrc + "; result.f152 = loomOfConn('f152');", ctx);
+    ok('loomOfConn(f152) === motor (visible in Arnès motor)', ctx.result.f152 === 'motor', ctx.result.f152);
+    const buildFn = script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/);
+    vm.runInContext(buildFn[0] + '; result.circs = buildCircuits("de_early");', ctx);
+    const circs = ctx.result.circs;
+    const byId = (id) => circs.find((c) => c.id === id);
+    const expect = { gnd_ecm_1: [1, '3'], gnd_ecm_115: [115, '2'], gnd_ecm_116: [116, '4'] };
+    for (const [id, [pin, cav]] of Object.entries(expect)) {
+      const c = byId(id);
+      ok(`${id} exists`, !!c);
+      if (!c) continue;
+      ok(`${id} ecm === [${pin}]`, JSON.stringify(c.ecm) === JSON.stringify([pin]));
+      ok(`${id} path gnd4 === ['${cav}'] + f152 ring`,
+        c.path && JSON.stringify(c.path.gnd4) === JSON.stringify([cav]) && JSON.stringify(c.path.f152) === JSON.stringify(['ring']),
+        JSON.stringify(c.path));
+      ok(`${id} does not touch E17 or gnd4 cav 1`,
+        !(c.conn || []).includes('e17') && !(c.path && c.path.e17) && !(c.path.gnd4 || []).includes('1'),
+        JSON.stringify({ conn: c.conn, path: c.path }));
+    }
+    const ecmGndCircs = circs.filter((c) => (c.ecm || []).some((p) => [1, 115, 116].includes(Number(p))));
+    ok('no circuit reached from ECM 1/115/116 marks E17',
+      ecmGndCircs.every((c) => !(c.conn || []).includes('e17') && !(c.path && c.path.e17)),
+      ecmGndCircs.map((c) => c.id).join(','));
+    const bond = byId('gnd_f152_e17');
+    ok('gnd_f152_e17 bond: F152 → gnd4·1 → F3·6 → E17, no ECM pins',
+      bond && (bond.ecm || []).length === 0
+        && JSON.stringify(bond.path.gnd4) === JSON.stringify(['1'])
+        && JSON.stringify(bond.path.ix_e12_f3) === JSON.stringify(['6'])
+        && JSON.stringify(bond.path.e17) === JSON.stringify(['ring']));
+  } catch (e) {
+    ok('eval F103/F152 ground circuits', false, String(e.message || e));
+  }
+  ok('CMP B1/B2 GND → F152 (EC-331/333 via F103·3)',
+    /cmp_b1:\{[^\n]*\n    pins:\[[^\n]*src:'F152'/.test(html) && /cmp_b2:\{[^\n]*\n    pins:\[[^\n]*src:'F152'/.test(html));
+}
+
 console.log('\n---');
 console.log(`${passes.length} passed, ${failures.length} failed`);
 if (failures.length) {

@@ -32,6 +32,7 @@ DESPUÉS — en el mazo, sin cara FSM usable
 2. f23_gnd             F23 masa motor (PG-35, no es cara de ficha)
 3. f24_comp            F24 Compresor A/C — no está en el mazo control (Completo)
 4. f232_eot            F232 Temp. aceite (Rev-Up; sin diagrama de cara)
+5. f152                F152 masa motor (EC-169; punto de masa, no es cara de ficha)
 
 NO SACAR / skip
 ---------------

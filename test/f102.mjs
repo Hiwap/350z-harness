@@ -250,6 +250,70 @@ await clickPin(116);
   ok(!(await pinMarked(1)) && !(await pinMarked(115)), '1 and 115 stay isolated from 116 pack');
 }
 
+console.log('\nECM grounds 1/115/116 → F103/F151 cav 3/2/4 → F152 (EC-169), never E17');
+async function cavState(cid, cav) {
+  return page.evaluate((cid, cav) => {
+    const els = [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)];
+    return {
+      n: els.length,
+      hl: els.some((el) => el.classList.contains('hl')),
+      marked: els.some((el) => el.classList.contains('hl') || el.classList.contains('hl-group') || el.classList.contains('hl-end')),
+    };
+  }, cid, cav);
+}
+for (const [pin, cav] of [[116, '4'], [115, '2'], [1, '3']]) {
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+  await clickPin(pin);
+  const ids = await hlConns();
+  ok(ids.includes('gnd4') && ids.includes('f152'), `pin ${pin} opens F103/gnd4 + F152 (${ids.join(',')})`);
+  ok(!ids.includes('e17'), `pin ${pin} does NOT mark E17 (${ids.join(',')})`);
+  const c = await cavState('gnd4', cav);
+  ok(c.n > 0 && c.hl, `pin ${pin} → gnd4 cav ${cav} yellow (n=${c.n})`);
+  const c1 = await cavState('gnd4', '1');
+  ok(c1.n > 0 && !c1.marked, `pin ${pin} → gnd4 cav 1 (F3·6/E17 link) not marked`);
+  const r = await cavState('f152', 'ring');
+  ok(r.marked, `pin ${pin} → F152 ring marked`);
+  const e = await cavState('e17', 'ring');
+  ok(!e.marked, `pin ${pin} → E17 ring not marked`);
+  for (const other of ['1', '2', '3', '4'].filter((x) => x !== cav)) {
+    const o = await cavState('gnd4', other);
+    ok(!o.marked, `pin ${pin} → gnd4 cav ${other} not marked`);
+  }
+}
+{
+  const ids = await page.evaluate(() => [...document.querySelectorAll('.cav-hit[data-conn="gnd4"]')].map((el) => el.dataset.cav));
+  ok(ids.length > 0 && ids.every((x) => ['1', '2', '3', '4'].includes(x)), `gnd4 rendered cavities are 1-4 only (${[...new Set(ids)].join(',')})`);
+}
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await page.evaluate(() => { if (typeof selectConnPin === 'function') selectConnPin('gnd4', '1'); });
+{
+  const ids = await hlConns();
+  ok(ids.includes('e17') && ids.includes('f152') && ids.includes('ix_e12_f3'), `gnd4 cav 1 → F152 ↔ F3·6 ↔ E17 bond (${ids.join(',')})`);
+  ok(!(await pinMarked(1)) && !(await pinMarked(115)) && !(await pinMarked(116)), 'gnd4 cav 1 bond marks no ECM ground pin');
+}
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+await page.evaluate(() => {
+  const sel = document.getElementById('loomView');
+  sel.value = 'motor';
+  sel.dispatchEvent(new Event('change', { bubbles: true }));
+});
+{
+  const vis = await page.evaluate(() => {
+    const el = document.querySelector('#fichas [data-conn="f152"]');
+    return !!el && el.getClientRects().length > 0;
+  });
+  ok(vis, 'F152 ficha visible in Arnès motor view');
+  await clickPin(116);
+  const ids = await hlConns();
+  ok(ids.includes('f152') && !ids.includes('e17'), `Arnès motor: pin 116 → F152, not E17 (${ids.join(',')})`);
+}
+await page.evaluate(() => {
+  const sel = document.getElementById('loomView');
+  sel.value = 'all';
+  sel.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+
 console.log('\nECM 117 vent control vs 12V path');
 await page.evaluate(() => {
   const pwr = document.getElementById('railRelPower');
