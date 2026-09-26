@@ -167,7 +167,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       coil1: 3, coil2: 3, coil3: 3, coil4: 3, coil5: 3, coil6: 3,
       maf: 6,
       ckp: 3,
-      cmp_b1: 2, cmp_b2: 2, /* SIG+GND in CONN; face photo may show 3-cavity shell */
+      cmp_b1: 3, cmp_b2: 3, /* FSM EC-331/333: F4 GY/3, F32 B/3 */
       knock: 2,
       ect: 2,
       ho2s_b1: 4, ho2s_b2: 4,
@@ -178,7 +178,6 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       psp: 3,
       ac_press: 3,
       evap_press: 3,
-      iat: 2,
       f21_oilp: 3,
       vtc_b1: 2, vtc_b2: 2,
       backup_sw: 2,
@@ -297,6 +296,7 @@ function runNested(label, scriptPath, args = []) {
 
 runNested('verify_harness_bugs.mjs', path.join(__dirname, 'verify_harness_bugs.mjs'), [HTML]);
 runNested('i18n.mjs', path.join(__dirname, 'i18n.mjs'));
+runNested('fsm_routes.mjs (FSM table: routes, grounds, faces)', path.join(__dirname, 'fsm_routes.mjs'), [HTML]);
 
 const skipBrowser = process.env.HARNESS_SKIP_BROWSER === '1';
 if (skipBrowser) {
@@ -304,6 +304,7 @@ if (skipBrowser) {
 } else {
   runNested('ui-lang.mjs', path.join(__dirname, 'ui-lang.mjs'));
   runNested('f102.mjs', path.join(__dirname, 'f102.mjs'));
+  runNested('fsm_sig_click.mjs (FSM table: SIG clicks light no rail-only cavity)', path.join(__dirname, 'fsm_sig_click.mjs'));
 }
 
 console.log('---');

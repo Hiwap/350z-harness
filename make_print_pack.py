@@ -1184,12 +1184,12 @@ draw_mate_pair(ML + kn_sens_w + 1, y - ch_ks + 1, kn_mate_w - 1, ch_ks - 2,
 
 w6 = (w_rest - 5 * GAP) / 6
 items_s = [
-    (t("title_f25"), [("12V", "R", "pwr"), ("GND", "B", "gnd"), ("SIG", "OR", "51")], "tab3", t("sub_maf")),
+    (t("title_f25"), [("12V", "R/W", "pwr"), ("GND", "B/W", "67"), ("SIG", "OR", "51")], "tab3", t("sub_maf")),
     (t("title_f10"), [("PWR", "R/W", "12V"), ("SIG", "W/L", "13"), ("GND", "B", "gnd")], "tab3", t("sub_ckp")),
-    (t("title_cmp_b1"), [("SIG", "R", "33"), ("GND", "B", "gnd")], "tab2", t("sub_cmp_b1")),
-    (t("title_cmp_b2"), [("SIG", "R/L", "14"), ("GND", "B", "gnd")], "tab2", t("sub_cmp_b2")),
-    (t("title_ect"), [("SIG", "BR/Y", "73"), ("GND", "B", "SNS")], "tab2", t("sub_ect")),
-    (t("title_iat"), [("SIG", "Y/G", "34"), ("GND", "B", "SNS")], "tab2", t("sub_iat")),
+    (t("title_cmp_b1"), [("GND", "B", "gnd"), ("SIG", "R", "33"), ("12V", "R/W", "12V")], "tab3", t("sub_cmp_b1")),
+    (t("title_cmp_b2"), [("GND", "B", "gnd"), ("SIG", "R/L", "14"), ("12V", "R/W", "12V")], "tab3", t("sub_cmp_b2")),
+    (t("title_ect"), [("SIG", "BR/Y", "73"), ("GND", "B/W", "67")], "tab2", t("sub_ect")),
+    (t("title_iat"), [("IAT", "Y/G", "34"), ("GND", "B/W", "67")], "tab2", t("sub_iat")),
 ]
 xx = ML + w_kn + GAP
 for title, pins, sh, sub in items_s:
@@ -1204,10 +1204,10 @@ ficha(ML, y - ch_act, cw3, ch_act, t("title_etc"),
       "rect6", face="rect6", subtitle=t("sub_etc"),
       accent=GRP["sensors"], rail_5v=True)
 ficha(ML + cw3 + GAP, y - ch_act, cw3, ch_act, t("title_vtc_b1"),
-      [("ECM", "P", "11"), ("12V", "R", "ign")], "tab2", subtitle=t("sub_vtc_b1"),
+      [("ECM", "W/R", "11"), ("12V", "W/L", "ign")], "tab2", subtitle=t("sub_vtc_b1"),
       accent=GRP["actuators"])
 ficha(ML + 2 * (cw3 + GAP), y - ch_act, cw3, ch_act, t("title_vtc_b2"),
-      [("ECM", "W/G", "10"), ("12V", "R", "ign")], "tab2", subtitle=t("sub_vtc_b2"),
+      [("ECM", "W/G", "10"), ("12V", "W/L", "ign")], "tab2", subtitle=t("sub_vtc_b2"),
       accent=GRP["actuators"])
 y -= ch_act + gap_v
 
@@ -1217,13 +1217,14 @@ cw_c = (usable_w - 5 * GAP) / 6
 xx = ML
 for cyl, pin, code in coils:
     ficha(xx, y - ch_coil, cw_c, ch_coil, t("title_coil", n=cyl),
-          [("ECM", code, str(pin)), ("12V", "R", "ign")],
-          "tab2", subtitle=t("sub_ecm_pin", pin=pin), accent=GRP["actuators"])
+          [("SIG", code, str(pin)), ("GND", "B", "F23"), ("12V", "W/L", "ign")],
+          "tab3", subtitle=t("sub_ecm_pin", pin=pin), accent=GRP["actuators"])
     xx += cw_c + GAP
 y -= ch_coil + gap_v
 
 # --- Injectors ---
-injs = [(1, 23, "R/B"), (2, 42, "B/R"), (3, 22, "R/Y"), (4, 41, "W/B"), (5, 21, "SB"), (6, 40, "LG")]
+# injector-side wire colors (EC-702); the ECM-side color changes at F33/F221
+injs = [(1, 23, "R/B"), (2, 42, "R/W"), (3, 22, "R/Y"), (4, 41, "R/L"), (5, 21, "L/W"), (6, 40, "PU/R")]
 xx = ML
 for cyl, pin, code in injs:
     ficha(xx, y - ch_inj, cw_c, ch_inj, t("title_inj", n=cyl),

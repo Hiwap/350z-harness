@@ -12,6 +12,7 @@
     "test:i18n": "node test/i18n.mjs",
     "test:ui": "node test/ui-lang.mjs",
     "test:f102": "node test/f102.mjs",
+    "test:fsm": "node test/fsm_routes.mjs && node test/fsm_sig_click.mjs",
     "test:browser": "node test/ui-lang.mjs && node test/f102.mjs",
     "print-pack": "python3 make_print_pack.py"
   },

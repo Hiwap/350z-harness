@@ -119,12 +119,11 @@ ok('updateSelectedTop allows ≥2 fichas same sub',
   if (block) {
     ok('vmot.conn is E12/F3 (motor loom; IPDM is Completo/Alim.)',
       /conn:\['ix_e12_f3'\]/.test(block) && !/conn:\['ipdm_e8'\]/.test(block));
-    ok('vmot.path has E8-42', /path:\{ipdm_e8:\['42'\]\}/.test(block));
-    ok('vmot notes mention FSM E12/F3 cavity not invented',
-      /E12\/F3/.test(block) && /no inventar/i.test(block));
+    ok('vmot.path = IPDM E8-42 → E12/F3·8 (EC-472)', /path:\{ipdm_e8:\['42'\],ix_e12_f3:\['8'\]\}/.test(block));
+    ok('vmot notes cite EC-472 E12/F3·8', /E12\/F3·8/.test(block) && /EC-472/.test(block));
   }
   const f3Body = (html.split(/ix_e12_f3:\{/)[1] || '').slice(0, 1500);
-  ok('ix_e12_f3 has no ecm:3 cavity (not invented)', !/ecm:3/.test(f3Body));
+  ok('ix_e12_f3 cav 8 = G VMOT → ECM 3 (EC-472)', /\{id:'8',lab:'VMOT',code:'G',ecm:3,rail:'12v'\}/.test(f3Body));
 }
 
 ok('applyCollapseIdleSubs force-closes idle nests',
@@ -320,11 +319,11 @@ ok('actuators render no longer nests bobinas under actuators',
   const kn = circuitBlock('knock');
   ok('knock circuit notes: shield → 116 → F103/F151·4 → F152 (EC-317)',
     kn && /116/.test(kn) && /F103\/F151·4/.test(kn) && /F152/.test(kn) && /EC-317/.test(kn));
-  ok('knock circuit path = F14·SH + F103·4 + F152 (SH on 116)',
-    kn && /path:\{ix_f14_f229:\['SH'\],gnd4:\['4'\],f152:\['ring'\]\}/.test(kn));
-  ok('knock + F14/F229 fichas keep SH → ECM 116 GND',
-    /\n  knock:\{[^\n]*\n    pins:\[[^\n]*\{id:'SH',code:'B',ecm:116,rail:'gnd'/.test(html)
-    && /\n  ix_f14_f229:\{[^\n]*\n    pins:\[[^\n]*\{id:'SH',code:'B',ecm:116,rail:'gnd'/.test(html));
+  ok('knock circuit path = F14/F229·1 shield + F103·4 + F152 (EC-317)',
+    kn && /path:\{ix_f14_f229:\['1'\],gnd4:\['4'\],f152:\['ring'\]\}/.test(kn));
+  ok('knock F228·2 + F14/F229·1 shield → ECM 116 GND (FSM cavity ids)',
+    /\n  knock:\{[^\n]*\n    pins:\[[^\n]*\{id:'2',code:'B',ecm:116,rail:'gnd'/.test(html)
+    && /\n  ix_f14_f229:\{[^\n]*\n    pins:\[[^\n]*\{id:'1',code:'B',ecm:116,rail:'gnd'/.test(html));
   const pk = [...html.matchAll(/path_knock: "([^"]*)"/g)].map((m) => m[1]);
   ok('path_knock es/en/ja mention B/R 116 → F103·4 → F152',
     pk.length === 3 && pk.every((x) => /116/.test(x) && /F103·4/.test(x) && /F152/.test(x)), pk.join(' | '));

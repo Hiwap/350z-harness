@@ -1,0 +1,4896 @@
+{
+ "schema": 1,
+ "title": "FSM-derived ECM terminal routes - 2005 Nissan 350Z (VQ35DE, all variants)",
+ "source": "2005 350Z FSM (Revision 2004 December): EC section, PDF page N = EC-N; PG section connector faces (PG-26 IPDM, PG-54/55 engine harness, PG-84/85 SMJ).",
+ "rules": [
+  "Every value comes from the FSM. Unknown segments are null with a note; unverified pins are status=pending with a reason.",
+  "route = intermediate connectors from the ECM outward; cav is the FSM cavity id; col gives the wire color on each connector half.",
+  "map = id of the card in index.html CONN_BASE that depicts the connector (null = not drawn); connectors[map].half says which half's wire color the card shows.",
+  "end.type: device (sensor/actuator/module pin), ground (key into ground_points), source (fuse/relay; optional on the map).",
+  "applies: all | revup | at | mt.",
+  "sensor_return=true marks ECM sensor-ground terminals (gnd rail returning to the ECM, not to a ground point).",
+  "To add ECM wiring to the map: add/extend the pin here first with EC/PG citations; npm test enforces the map against this table."
+ ],
+ "ground_points": {
+  "F152": {
+   "map": "f152",
+   "desc": "Engine ground (ECM ground point)",
+   "cite": [
+    "EC-169",
+    "EC-317",
+    "EC-323",
+    "EC-331",
+    "EC-333",
+    "EC-445",
+    "EC-447",
+    "EC-646",
+    "EC-742"
+   ],
+   "feeds": [
+    {
+     "conn": "F103/F151",
+     "map": "gnd4",
+     "cav": "1",
+     "col": {
+      "F103": "B"
+     }
+    },
+    {
+     "conn": "F103/F151",
+     "map": "gnd4",
+     "cav": "2"
+    },
+    {
+     "conn": "F103/F151",
+     "map": "gnd4",
+     "cav": "3"
+    },
+    {
+     "conn": "F103/F151",
+     "map": "gnd4",
+     "cav": "4"
+    }
+   ],
+   "fed_via_F103_3": [
+    "F10·3 CKP",
+    "F4·1 CMP B1",
+    "F32·1 CMP B2",
+    "F38·1 EVT pos B1 (Rev-Up)",
+    "F42·1 EVT pos B2 (Rev-Up)",
+    "F35·2 PNP (M/T)"
+   ],
+   "fed_via_F103_4": [
+    "F228·2 knock shield -> F14/F229·1 -> ECM 116 line"
+   ],
+   "fed_via_F103_2": [
+    "DLC M8·5 -> F102·10H -> F103·2"
+   ]
+  },
+  "E17": {
+   "map": "e17",
+   "desc": "Body ground (with E43)",
+   "cite": [
+    "EC-169"
+   ],
+   "feeds": [
+    {
+     "conn": "E12/F3",
+     "map": "ix_e12_f3",
+     "cav": "6",
+     "col": {
+      "F3": "B"
+     }
+    }
+   ],
+   "note": "F103·1 splice also runs to F3·6 -> E12·6 -> E17/E43"
+  },
+  "E43": {
+   "map": null,
+   "desc": "Body ground bonded with E17",
+   "cite": [
+    "EC-169"
+   ],
+   "feeds": []
+  },
+  "F23": {
+   "map": "f23_gnd",
+   "desc": "Engine ground (ignition coils, condenser)",
+   "cite": [
+    "EC-689",
+    "EC-691",
+    "EC-693"
+   ],
+   "feeds": [
+    {
+     "conn": "F18/F201",
+     "map": "ix_f18_f201",
+     "cav": "1",
+     "col": {
+      "F18": "B",
+      "F201": "B"
+     }
+    },
+    {
+     "conn": "F203",
+     "map": "coil1",
+     "cav": "2"
+    },
+    {
+     "conn": "F202",
+     "map": "coil3",
+     "cav": "2"
+    },
+    {
+     "conn": "F15",
+     "map": "coil5",
+     "cav": "2"
+    },
+    {
+     "conn": "F27",
+     "map": "coil2",
+     "cav": "2"
+    },
+    {
+     "conn": "F28",
+     "map": "coil4",
+     "cav": "2"
+    },
+    {
+     "conn": "F29",
+     "map": "coil6",
+     "cav": "2"
+    },
+    {
+     "conn": "F16",
+     "map": "f16_cond",
+     "cav": "2"
+    }
+   ]
+  },
+  "M30": {
+   "map": null,
+   "desc": "Body ground (instrument area)",
+   "cite": [
+    "EC-742"
+   ],
+   "feeds": [
+    {
+     "conn": "M8",
+     "map": "dlc",
+     "cav": "4"
+    }
+   ]
+  },
+  "M66": {
+   "map": null,
+   "desc": "Body ground (instrument area)",
+   "cite": [
+    "EC-742"
+   ],
+   "feeds": []
+  }
+ },
+ "supply_feeds": [
+  {
+   "id": "ecm_relay_e7_18",
+   "source": "IPDM E/R E7·18 R/W (ECM relay)",
+   "cite": [
+    "EC-167",
+    "EC-207",
+    "EC-323",
+    "EC-331",
+    "EC-333",
+    "EC-360",
+    "EC-445",
+    "EC-447"
+   ],
+   "cavities": [
+    {
+     "conn": "E7",
+     "map": "ipdm_e7",
+     "cav": "18"
+    },
+    {
+     "conn": "E12/F3",
+     "map": "ix_e12_f3",
+     "cav": "7"
+    },
+    {
+     "conn": "E12/F3",
+     "map": "ix_e12_f3",
+     "cav": "4"
+    },
+    {
+     "conn": "F25",
+     "map": "maf",
+     "cav": "2"
+    },
+    {
+     "conn": "F10",
+     "map": "ckp",
+     "cav": "1"
+    },
+    {
+     "conn": "F4",
+     "map": "cmp_b1",
+     "cav": "3"
+    },
+    {
+     "conn": "F32",
+     "map": "cmp_b2",
+     "cav": "3"
+    },
+    {
+     "conn": "F38",
+     "map": "f38_evtc_b1",
+     "cav": "3"
+    },
+    {
+     "conn": "F42",
+     "map": "f42_evtc_b2",
+     "cav": "3"
+    },
+    {
+     "conn": "F5",
+     "map": "evap_purge",
+     "cav": "1"
+    }
+   ]
+  },
+  {
+   "id": "ign_e7_17",
+   "source": "IPDM E/R E7·17 W/L (ignition coil relay)",
+   "cite": [
+    "EC-689",
+    "EC-691",
+    "EC-693",
+    "EC-455",
+    "EC-457",
+    "EC-198",
+    "EC-200",
+    "EC-367"
+   ],
+   "cavities": [
+    {
+     "conn": "E7",
+     "map": "ipdm_e7",
+     "cav": "17"
+    },
+    {
+     "conn": "E12/F3",
+     "map": "ix_e12_f3",
+     "cav": "5"
+    },
+    {
+     "conn": "F18/F201",
+     "map": "ix_f18_f201",
+     "cav": "5"
+    },
+    {
+     "conn": "F18/F201",
+     "map": "ix_f18_f201",
+     "cav": "6"
+    },
+    {
+     "conn": "F203",
+     "map": "coil1",
+     "cav": "3"
+    },
+    {
+     "conn": "F202",
+     "map": "coil3",
+     "cav": "3"
+    },
+    {
+     "conn": "F15",
+     "map": "coil5",
+     "cav": "3"
+    },
+    {
+     "conn": "F27",
+     "map": "coil2",
+     "cav": "3"
+    },
+    {
+     "conn": "F28",
+     "map": "coil4",
+     "cav": "3"
+    },
+    {
+     "conn": "F29",
+     "map": "coil6",
+     "cav": "3"
+    },
+    {
+     "conn": "F16",
+     "map": "f16_cond",
+     "cav": "1"
+    },
+    {
+     "conn": "F204",
+     "map": "vtc_b1",
+     "cav": "2"
+    },
+    {
+     "conn": "F26",
+     "map": "vtc_b2",
+     "cav": "2"
+    },
+    {
+     "conn": "F40",
+     "map": "vtc_ex_b1",
+     "cav": "4"
+    },
+    {
+     "conn": "F41",
+     "map": "vtc_ex_b2",
+     "cav": "1"
+    },
+    {
+     "conn": "E106/B2",
+     "map": "ix_e106_b2",
+     "cav": "13"
+    },
+    {
+     "conn": "B43/T1",
+     "map": "ix_b43_t1",
+     "cav": "2"
+    },
+    {
+     "conn": "T20",
+     "map": "evap_vent",
+     "cav": "1"
+    }
+   ]
+  },
+  {
+   "id": "heater_fuse15",
+   "source": "Fuse block (J/B) M4 fuse 15 (15A) R/B",
+   "cite": [
+    "EC-252",
+    "EC-254",
+    "EC-529",
+    "EC-531"
+   ],
+   "cavities": [
+    {
+     "conn": "E108/M15",
+     "map": "ix_e108_m15",
+     "cav": "65G"
+    },
+    {
+     "conn": "E12/F3",
+     "map": "ix_e12_f3",
+     "cav": "3"
+    },
+    {
+     "conn": "F11",
+     "map": "ho2s_b1",
+     "cav": "2"
+    },
+    {
+     "conn": "F12",
+     "map": "ho2s_b2",
+     "cav": "2"
+    },
+    {
+     "conn": "F22",
+     "map": "af_b1",
+     "cav": "3"
+    },
+    {
+     "conn": "F34",
+     "map": "af_b2",
+     "cav": "3"
+    }
+   ]
+  },
+  {
+   "id": "inj_fuse1",
+   "source": "Fuse block (J/B) M4 fuse 1 (10A) W/B",
+   "cite": [
+    "EC-702",
+    "EC-167"
+   ],
+   "cavities": [
+    {
+     "conn": "F102/M72",
+     "map": "ix_f102_m72",
+     "cav": "17H"
+    },
+    {
+     "conn": "F33/F221",
+     "map": "ix_f221_f33",
+     "cav": "5"
+    },
+    {
+     "conn": "F222",
+     "map": "inj1",
+     "cav": "1"
+    },
+    {
+     "conn": "F223",
+     "map": "inj3",
+     "cav": "1"
+    },
+    {
+     "conn": "F224",
+     "map": "inj5",
+     "cav": "1"
+    },
+    {
+     "conn": "F225",
+     "map": "inj2",
+     "cav": "1"
+    },
+    {
+     "conn": "F226",
+     "map": "inj4",
+     "cav": "1"
+    },
+    {
+     "conn": "F227",
+     "map": "inj6",
+     "cav": "1"
+    }
+   ]
+  },
+  {
+   "id": "vmot_e8_42",
+   "source": "IPDM E/R E8·42 G (throttle control motor relay)",
+   "cite": [
+    "EC-472"
+   ],
+   "cavities": [
+    {
+     "conn": "E8",
+     "map": "ipdm_e8",
+     "cav": "42"
+    },
+    {
+     "conn": "E12/F3",
+     "map": "ix_e12_f3",
+     "cav": "8"
+    }
+   ]
+  },
+  {
+   "id": "backup_fuse34",
+   "source": "IPDM E/R fuse 34 (15A) battery",
+   "cite": [
+    "EC-167",
+    "EC-742"
+   ],
+   "cavities": [
+    {
+     "conn": "E108/M15",
+     "map": "ix_e108_m15",
+     "cav": "68G"
+    },
+    {
+     "conn": "F102/M72",
+     "map": "ix_f102_m72",
+     "cav": "5H"
+    },
+    {
+     "conn": "M8",
+     "map": "dlc",
+     "cav": "16"
+    }
+   ]
+  }
+ ],
+ "connectors": {
+  "gnd4": {
+   "fsm": "F103/F151",
+   "half": "F103",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "cite": [
+    "EC-169"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "ix_e12_f3": {
+   "fsm": "E12/F3",
+   "half": "F3",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "cite": [
+    "EC-167",
+    "EC-169",
+    "EC-472"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "ix_e10_f1": {
+   "fsm": "E10/F1",
+   "half": "F1",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+   ],
+   "cite": [
+    "EC-717"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "ix_e11_f2": {
+   "fsm": "E11/F2",
+   "half": "F2",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10"
+   ],
+   "cite": [
+    "EC-523"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "ix_e108_m15": {
+   "fsm": "E108/M15",
+   "half": "E108",
+   "cav": [
+    "1G",
+    "2G",
+    "3G",
+    "4G",
+    "5G",
+    "6G",
+    "7G",
+    "8G",
+    "9G",
+    "10G",
+    "11G",
+    "12G",
+    "13G",
+    "14G",
+    "15G",
+    "16G",
+    "17G",
+    "18G",
+    "19G",
+    "20G",
+    "21G",
+    "22G",
+    "23G",
+    "24G",
+    "25G",
+    "26G",
+    "27G",
+    "28G",
+    "29G",
+    "30G",
+    "31G",
+    "32G",
+    "33G",
+    "34G",
+    "35G",
+    "36G",
+    "37G",
+    "38G",
+    "39G",
+    "40G",
+    "41G",
+    "42G",
+    "43G",
+    "44G",
+    "45G",
+    "46G",
+    "47G",
+    "48G",
+    "49G",
+    "50G",
+    "51G",
+    "52G",
+    "53G",
+    "54G",
+    "55G",
+    "56G",
+    "57G",
+    "58G",
+    "59G",
+    "60G",
+    "61G",
+    "62G",
+    "63G",
+    "64G",
+    "65G",
+    "66G",
+    "67G",
+    "68G",
+    "69G"
+   ],
+   "cite": [
+    "EC-167",
+    "EC-472"
+   ],
+   "pg": [
+    "PG-84"
+   ]
+  },
+  "ix_f102_m72": {
+   "fsm": "F102/M72",
+   "half": "F102",
+   "cav": [
+    "1H",
+    "2H",
+    "3H",
+    "4H",
+    "5H",
+    "6H",
+    "7H",
+    "8H",
+    "9H",
+    "10H",
+    "11H",
+    "12H",
+    "13H",
+    "14H",
+    "15H",
+    "16H",
+    "17H",
+    "18H",
+    "19H",
+    "20H",
+    "21H",
+    "22H",
+    "23H",
+    "24H",
+    "25H",
+    "26H",
+    "27H",
+    "28H",
+    "29H",
+    "30H",
+    "31H",
+    "32H",
+    "33H",
+    "34H",
+    "35H",
+    "36H",
+    "37H",
+    "38H",
+    "39H",
+    "40H",
+    "41H",
+    "42H",
+    "43H",
+    "44H",
+    "45H",
+    "46H"
+   ],
+   "cite": [
+    "EC-167",
+    "EC-379"
+   ],
+   "pg": [
+    "PG-85"
+   ]
+  },
+  "ix_b1_m12": {
+   "fsm": "B1/M12",
+   "half": "M12",
+   "cav": [
+    "1J",
+    "2J",
+    "3J",
+    "4J",
+    "5J",
+    "6J",
+    "7J",
+    "8J",
+    "9J",
+    "10J",
+    "11J",
+    "12J",
+    "13J",
+    "14J",
+    "15J",
+    "16J",
+    "17J",
+    "18J",
+    "19J",
+    "20J",
+    "21J",
+    "22J",
+    "23J",
+    "24J",
+    "25J",
+    "26J",
+    "27J",
+    "28J",
+    "29J",
+    "30J",
+    "31J",
+    "32J",
+    "33J",
+    "34J",
+    "35J",
+    "36J",
+    "37J",
+    "38J",
+    "39J",
+    "40J",
+    "41J",
+    "42J",
+    "43J",
+    "44J",
+    "45J",
+    "46J",
+    "47J",
+    "48J",
+    "49J",
+    "50J",
+    "51J",
+    "52J",
+    "53J",
+    "54J",
+    "55J",
+    "56J",
+    "57J",
+    "58J",
+    "59J",
+    "60J",
+    "61J",
+    "62J",
+    "63J",
+    "64J",
+    "65J",
+    "66J",
+    "67J",
+    "68J",
+    "69J"
+   ],
+   "cite": [
+    "EC-367",
+    "EC-379"
+   ],
+   "pg": [
+    "PG-84"
+   ]
+  },
+  "ix_t2_b44": {
+   "fsm": "T2/B44",
+   "half": "B44",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16"
+   ],
+   "cite": [
+    "EC-367",
+    "EC-379"
+   ]
+  },
+  "ix_e106_b2": {
+   "fsm": "E106/B2",
+   "half": "B2",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18"
+   ],
+   "cite": [
+    "EC-367"
+   ]
+  },
+  "ix_b43_t1": {
+   "fsm": "B43/T1",
+   "half": "T1",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "cite": [
+    "EC-367"
+   ]
+  },
+  "ix_f14_f229": {
+   "fsm": "F14/F229",
+   "half": "F14",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-317"
+   ],
+   "pg": [
+    "PG-54",
+    "PG-55"
+   ]
+  },
+  "ix_f18_f201": {
+   "fsm": "F18/F201",
+   "half": "F18",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "cite": [
+    "EC-455",
+    "EC-691"
+   ],
+   "pg": [
+    "PG-54",
+    "PG-55"
+   ]
+  },
+  "ix_f221_f33": {
+   "fsm": "F33/F221",
+   "half": "F33",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "cite": [
+    "EC-702"
+   ],
+   "pg": [
+    "PG-54",
+    "PG-55"
+   ]
+  },
+  "ipdm_e7": {
+   "fsm": "E7",
+   "half": "E7",
+   "cav": [
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32"
+   ],
+   "cite": [
+    "EC-167"
+   ],
+   "pg": [
+    "PG-26"
+   ]
+  },
+  "ipdm_e8": {
+   "fsm": "E8",
+   "half": "E8",
+   "cav": [
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+    "41",
+    "42",
+    "43",
+    "44"
+   ],
+   "cite": [
+    "EC-472",
+    "EC-710"
+   ],
+   "pg": [
+    "PG-26"
+   ]
+  },
+  "ipdm_e9": {
+   "fsm": "E9",
+   "half": "E9",
+   "cav": [
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50",
+    "51",
+    "52",
+    "53",
+    "54",
+    "55",
+    "56",
+    "57",
+    "58",
+    "59",
+    "60"
+   ],
+   "cite": [
+    "EC-167",
+    "EC-472"
+   ],
+   "pg": [
+    "PG-26"
+   ]
+  },
+  "af_b1": {
+   "fsm": "F22",
+   "half": "F22",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "cite": [
+    "EC-529"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "af_b2": {
+   "fsm": "F34",
+   "half": "F34",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "cite": [
+    "EC-531"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "ho2s_b1": {
+   "fsm": "F11",
+   "half": "F11",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "cite": [
+    "EC-252"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "ho2s_b2": {
+   "fsm": "F12",
+   "half": "F12",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "cite": [
+    "EC-254"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "maf": {
+   "fsm": "F25",
+   "half": "F25",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "cite": [
+    "EC-207",
+    "EC-223"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "knock": {
+   "fsm": "F228",
+   "half": "F228",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-317"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "ckp": {
+   "fsm": "F10",
+   "half": "F10",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-323"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "cmp_b1": {
+   "fsm": "F4",
+   "half": "F4",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-331"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "cmp_b2": {
+   "fsm": "F32",
+   "half": "F32",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-333"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "ect": {
+   "fsm": "F13",
+   "half": "F13",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-229"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "etc": {
+   "fsm": "F31",
+   "half": "F31",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "cite": [
+    "EC-235",
+    "EC-472"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "ac_press": {
+   "fsm": "E252",
+   "half": "E252",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-717"
+   ]
+  },
+  "evap_press": {
+   "fsm": "T21",
+   "half": "T21",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-379"
+   ]
+  },
+  "psp": {
+   "fsm": "F19",
+   "half": "F19",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-426"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "f38_evtc_b1": {
+   "fsm": "F38",
+   "half": "F38",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-445"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "f42_evtc_b2": {
+   "fsm": "F42",
+   "half": "F42",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-447"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "f35_pnp": {
+   "fsm": "F35",
+   "half": "F35",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-646"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "f16_cond": {
+   "fsm": "F16",
+   "half": "F16",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-689"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "coil1": {
+   "fsm": "F203",
+   "half": "F203",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-691"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "coil3": {
+   "fsm": "F202",
+   "half": "F202",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-691"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "coil5": {
+   "fsm": "F15",
+   "half": "F15",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-691"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "coil2": {
+   "fsm": "F27",
+   "half": "F27",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-693"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "coil4": {
+   "fsm": "F28",
+   "half": "F28",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-693"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "coil6": {
+   "fsm": "F29",
+   "half": "F29",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "cite": [
+    "EC-693"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "inj1": {
+   "fsm": "F222",
+   "half": "F222",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-702"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "inj3": {
+   "fsm": "F223",
+   "half": "F223",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-702"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "inj5": {
+   "fsm": "F224",
+   "half": "F224",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-702"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "inj2": {
+   "fsm": "F225",
+   "half": "F225",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-702"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "inj4": {
+   "fsm": "F226",
+   "half": "F226",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-702"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "inj6": {
+   "fsm": "F227",
+   "half": "F227",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-702"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "vtc_b1": {
+   "fsm": "F204",
+   "half": "F204",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-455"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "vtc_b2": {
+   "fsm": "F26",
+   "half": "F26",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-457"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "vtc_ex_b1": {
+   "fsm": "F40",
+   "half": "F40",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "wired": [
+    "3",
+    "4"
+   ],
+   "cite": [
+    "EC-198"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "vtc_ex_b2": {
+   "fsm": "F41",
+   "half": "F41",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "wired": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-200"
+   ],
+   "pg": [
+    "PG-55"
+   ]
+  },
+  "evap_purge": {
+   "fsm": "F5",
+   "half": "F5",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-360"
+   ],
+   "pg": [
+    "PG-54"
+   ]
+  },
+  "evap_vent": {
+   "fsm": "T20",
+   "half": "T20",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-367"
+   ]
+  },
+  "fuel_tank_temp": {
+   "fsm": "B27",
+   "half": "B27",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+   ],
+   "wired": [
+    "4",
+    "5"
+   ],
+   "cite": [
+    "EC-291"
+   ]
+  },
+  "fuel_pump": {
+   "fsm": "B27",
+   "half": "B27",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+   ],
+   "wired": [
+    "1",
+    "3"
+   ],
+   "cite": [
+    "EC-710"
+   ]
+  },
+  "app": {
+   "fsm": "E113",
+   "half": "E113",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "cite": [
+    "EC-523"
+   ]
+  },
+  "stop_lamp": {
+   "fsm": "E111 (A/T) / E112 (M/T)",
+   "half": "E111",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-626",
+    "EC-628"
+   ],
+   "note": "E111 is W/4 (A/T, pins 1-2 used by the stop lamp circuit); E112 is B/2 (M/T)",
+   "wired": [
+    "1",
+    "2"
+   ]
+  },
+  "ascd_brake": {
+   "fsm": "E110",
+   "half": "E110",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-626",
+    "EC-628"
+   ]
+  },
+  "ascd_clutch": {
+   "fsm": "E122",
+   "half": "E122",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "EC-628"
+   ]
+  },
+  "clock_spring": {
+   "fsm": "M23",
+   "half": "M23",
+   "cav": [
+    "33",
+    "34"
+   ],
+   "wired": [
+    "33",
+    "34"
+   ],
+   "cite": [
+    "EC-618"
+   ],
+   "note": "only the ASCD steering switch cavities 33/34 are drawn"
+  },
+  "dlc": {
+   "fsm": "M8",
+   "half": "M8",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16"
+   ],
+   "cite": [
+    "EC-742"
+   ]
+  },
+  "f242_eot": {
+   "fsm": "F242",
+   "half": "F242",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "PG-55"
+   ],
+   "status": "pending",
+   "reason": "GY/2 per PG-55 sub-harness 3; no ECM wiring diagram in EC for this sensor"
+  }
+ },
+ "pseudo_cards": {
+  "f152": "ground point F152 (ring) - see ground_points",
+  "e17": "ground point E17 (ring) - see ground_points",
+  "f23_gnd": "ground point F23 (ring) - see ground_points",
+  "ipdm_legend": "IPDM relay/fuse legend, not a connector",
+  "ecm_f101_can": "excerpt of ECM connector F101 (CAN pins) - ECM itself, not an intermediate",
+  "ix_f103_f151": "hidden duplicate of gnd4 (F103/F151)",
+  "feed_af_12v": "synthetic 12V feed card (A/F heater supply)",
+  "feed_ho2s_12v": "synthetic 12V feed card (HO2S2 heater supply)",
+  "jb_10a_inj": "fuse card (J/B fuse 1 10A)",
+  "jb_15a_ht": "fuse card (J/B fuse 15 15A)",
+  "feed_inj_coil_12v": "synthetic 12V feed card (injector/coil rail)",
+  "feed_ckp_maf_12v": "synthetic 12V feed card (E7·18 splice)",
+  "ipdm_e3": "IPDM connector with no ECM wiring (not verified in this pass)",
+  "ipdm_e4": "IPDM connector with no ECM wiring (not verified in this pass)",
+  "ipdm_e5": "IPDM connector with no ECM wiring (not verified in this pass)",
+  "ipdm_e6": "IPDM connector with no ECM wiring (not verified in this pass)",
+  "f20_alt": "non-ECM connector (SC section), not verified in this pass",
+  "f21_oilp": "non-ECM connector (DI section), not verified in this pass",
+  "f9_starter": "non-ECM connector (SC section), not verified in this pass",
+  "f24_comp": "non-ECM connector (ATC section), not verified in this pass",
+  "f6_at": "non-ECM connector (AT section), not verified in this pass",
+  "backup_sw": "non-ECM connector (LT section), not verified in this pass",
+  "comb_meter": "PENDING: CAN pseudo cavities CAN-H/CAN-L; the FSM CAN node on EC-741 is unified meter & A/C amp M48·1/11 and the LAN section was not checked"
+ },
+ "sig_click_allowlist": [
+  {
+   "pin": "15",
+   "map": "ix_f14_f229",
+   "cav": "1",
+   "reason": "knock sensor shield drain (F228·2 -> F14/F229·1 -> ECM 116 B/R -> F103·4 -> F152), drawn on the knock signal path by design",
+   "cite": [
+    "EC-317"
+   ]
+  },
+  {
+   "pin": "15",
+   "map": "knock",
+   "cav": "2",
+   "reason": "knock sensor shield drain (sensor side)",
+   "cite": [
+    "EC-317"
+   ]
+  },
+  {
+   "pin": "15",
+   "map": "gnd4",
+   "cav": "4",
+   "reason": "knock shield continues to F103·4 (ECM 116 line)",
+   "cite": [
+    "EC-317",
+    "EC-169"
+   ]
+  },
+  {
+   "pin": "15",
+   "map": "f152",
+   "cav": "ring",
+   "reason": "knock shield ends at engine ground F152",
+   "cite": [
+    "EC-317"
+   ]
+  }
+ ],
+ "pins": {
+  "1": {
+   "color": "B",
+   "function": "ECM ground (GND)",
+   "rail": "gnd",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F103/F151",
+       "map": "gnd4",
+       "cav": "3",
+       "col": {
+        "F103": "B"
+       }
+      }
+     ],
+     "end": {
+      "type": "ground",
+      "point": "F152"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-169",
+     "EC-129"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "2": {
+   "color": "GY/R",
+   "function": "A/F sensor 1 heater bank 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F22",
+      "map": "af_b1",
+      "cav": "4",
+      "col": "GY/R",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-529"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "3": {
+   "color": "G",
+   "function": "Throttle control motor relay power supply (VMOT)",
+   "rail": "12v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E12/F3",
+       "map": "ix_e12_f3",
+       "cav": "8",
+       "col": {
+        "F3": "G"
+       }
+      }
+     ],
+     "end": {
+      "type": "source",
+      "source": "IPDM E/R E8·42 (throttle control motor relay)",
+      "map": "ipdm_e8",
+      "cav": "42",
+      "optional": true,
+      "col": "G",
+      "conn": "E8"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-472"
+    ],
+    "pg": [
+     "PG-26",
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "4": {
+   "color": "L/B",
+   "function": "Throttle control motor (close)",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F31",
+      "map": "etc",
+      "cav": "3",
+      "col": "L/B",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-472"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "5": {
+   "color": "L/Y",
+   "function": "Throttle control motor (open)",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F31",
+      "map": "etc",
+      "cav": "6",
+      "col": "L/Y",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-472"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "6": {
+   "color": "P/L",
+   "function": "Heated oxygen sensor 2 heater bank 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F12",
+      "map": "ho2s_b2",
+      "cav": "3",
+      "col": "P/L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-254"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "8": {
+   "color": "P",
+   "function": "Exhaust valve timing control magnet retarder bank 2",
+   "rail": "sig",
+   "applies": "revup",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F41",
+      "map": "vtc_ex_b2",
+      "cav": "2",
+      "col": "P",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-200"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "9": {
+   "color": "SB",
+   "function": "Exhaust valve timing control magnet retarder bank 1",
+   "rail": "sig",
+   "applies": "revup",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F40",
+      "map": "vtc_ex_b1",
+      "cav": "3",
+      "col": "SB",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-198"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "10": {
+   "color": "W/G",
+   "function": "Intake valve timing control solenoid valve bank 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F26",
+      "map": "vtc_b2",
+      "cav": "1",
+      "col": "W/G",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-457"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "11": {
+   "color": "P",
+   "function": "Intake valve timing control solenoid valve bank 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F18/F201",
+       "map": "ix_f18_f201",
+       "cav": "4",
+       "col": {
+        "F18": "P",
+        "F201": "W/R"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F204",
+      "map": "vtc_b1",
+      "cav": "1",
+      "col": "W/R",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-455"
+    ],
+    "pg": [
+     "PG-54",
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "12": {
+   "color": "L/W",
+   "function": "Power steering pressure sensor",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F19",
+      "map": "psp",
+      "cav": "2",
+      "col": "L/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-426"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "13": {
+   "color": "W/L",
+   "function": "Crankshaft position sensor (POS)",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F10",
+      "map": "ckp",
+      "cav": "2",
+      "col": "W/L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-323"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "14": {
+   "color": "R/L",
+   "function": "Camshaft position sensor (PHASE) bank 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F32",
+      "map": "cmp_b2",
+      "cav": "2",
+      "col": "R/L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-333"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "15": {
+   "color": "W",
+   "function": "Knock sensor",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F14/F229",
+       "map": "ix_f14_f229",
+       "cav": "2",
+       "col": {
+        "F14": "W",
+        "F229": "W"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F228",
+      "map": "knock",
+      "cav": "1",
+      "col": "W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-317"
+    ],
+    "pg": [
+     "PG-54",
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "16": {
+   "color": "LG/B",
+   "function": "A/F sensor 1 bank 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F22",
+      "map": "af_b1",
+      "cav": "1",
+      "col": "LG/B",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-529",
+     "EC-434"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "21": {
+   "color": "SB",
+   "function": "Fuel injector No.5",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F33/F221",
+       "map": "ix_f221_f33",
+       "cav": "1",
+       "col": {
+        "F33": "SB",
+        "F221": "L/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F224",
+      "map": "inj5",
+      "cav": "2",
+      "col": "L/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-702"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "22": {
+   "color": "R/Y",
+   "function": "Fuel injector No.3",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F33/F221",
+       "map": "ix_f221_f33",
+       "cav": "2",
+       "col": {
+        "F33": "R/Y",
+        "F221": "R/Y"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F223",
+      "map": "inj3",
+      "cav": "2",
+      "col": "R/Y",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-702"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "23": {
+   "color": "R/B",
+   "function": "Fuel injector No.1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F33/F221",
+       "map": "ix_f221_f33",
+       "cav": "6",
+       "col": {
+        "F33": "R/B",
+        "F221": "R/B"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F222",
+      "map": "inj1",
+      "cav": "2",
+      "col": "R/B",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-702"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "24": {
+   "color": "GY",
+   "function": "A/F sensor 1 heater bank 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F34",
+      "map": "af_b2",
+      "cav": "4",
+      "col": "GY",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-531",
+     "EC-436",
+     "EC-437"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified",
+   "color_pending": "EC-436, EC-531 and the EC-437 terminal table print GY; the EC-127 master terminal table prints G/Y. Map keeps G/Y until confirmed."
+  },
+  "25": {
+   "color": "P/B",
+   "function": "Heated oxygen sensor 2 heater bank 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F11",
+      "map": "ho2s_b1",
+      "cav": "3",
+      "col": "P/B",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-252"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "32": {
+   "color": "BR/W",
+   "function": "EVAP control system pressure sensor",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "19H",
+       "col": {
+        "F102": "BR/W",
+        "M72": "BR/W"
+       }
+      },
+      {
+       "conn": "B1/M12",
+       "map": "ix_b1_m12",
+       "cav": "39J",
+       "col": {
+        "M12": "BR/W",
+        "B1": "W"
+       }
+      },
+      {
+       "conn": "T2/B44",
+       "map": "ix_t2_b44",
+       "cav": "11",
+       "col": {
+        "B44": "W",
+        "T2": "W"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "T21",
+      "map": "evap_press",
+      "cav": "2",
+      "col": "W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-379"
+    ],
+    "pg": [
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "33": {
+   "color": "R",
+   "function": "Camshaft position sensor (PHASE) bank 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F4",
+      "map": "cmp_b1",
+      "cav": "2",
+      "col": "R",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-331"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "34": {
+   "color": "Y/G",
+   "function": "Intake air temperature sensor (built into MAF)",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F25",
+      "map": "maf",
+      "cav": "5",
+      "col": "Y/G",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-223"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "35": {
+   "color": "L/W",
+   "function": "A/F sensor 1 bank 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F22",
+      "map": "af_b1",
+      "cav": "5",
+      "col": "L/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-529",
+     "EC-434"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "40": {
+   "color": "LG",
+   "function": "Fuel injector No.6",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F33/F221",
+       "map": "ix_f221_f33",
+       "cav": "7",
+       "col": {
+        "F33": "LG",
+        "F221": "PU/R"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F227",
+      "map": "inj6",
+      "cav": "2",
+      "col": "PU/R",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-702"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "41": {
+   "color": "W/B",
+   "function": "Fuel injector No.4",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F33/F221",
+       "map": "ix_f221_f33",
+       "cav": "3",
+       "col": {
+        "F33": "W/B",
+        "F221": "R/L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F226",
+      "map": "inj4",
+      "cav": "2",
+      "col": "R/L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-702"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "42": {
+   "color": "B/R",
+   "function": "Fuel injector No.2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F33/F221",
+       "map": "ix_f221_f33",
+       "cav": "4",
+       "col": {
+        "F33": "B/R",
+        "F221": "R/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F225",
+      "map": "inj2",
+      "cav": "2",
+      "col": "R/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-702"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "45": {
+   "color": "G/W",
+   "function": "EVAP canister purge volume control solenoid valve",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F5",
+      "map": "evap_purge",
+      "cav": "2",
+      "col": "G/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-360"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "47": {
+   "color": "W/R",
+   "function": "Throttle position sensor power supply (5V)",
+   "rail": "5v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F31",
+      "map": "etc",
+      "cav": "1",
+      "col": "W/R",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-235"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "48": {
+   "color": "PU",
+   "function": "Sensor power supply (5V, AVCC): EVAP control system pressure sensor",
+   "rail": "5v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "18H",
+       "col": {
+        "F102": "PU",
+        "M72": "L/Y"
+       }
+      },
+      {
+       "conn": "B1/M12",
+       "map": "ix_b1_m12",
+       "cav": "40J",
+       "col": {
+        "M12": "L/Y",
+        "B1": "L"
+       }
+      },
+      {
+       "conn": "T2/B44",
+       "map": "ix_t2_b44",
+       "cav": "10",
+       "col": {
+        "B44": "L",
+        "T2": "L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "T21",
+      "map": "evap_press",
+      "cav": "3",
+      "col": "L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-379",
+     "EC-523"
+    ],
+    "pg": [
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "49": {
+   "color": "B",
+   "function": "Sensor power supply (5V): refrigerant pressure sensor",
+   "rail": "5v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E10/F1",
+       "map": "ix_e10_f1",
+       "cav": "5",
+       "col": {
+        "F1": "B",
+        "E10": "B/Y"
+       }
+      },
+      {
+       "conn": "E31/E251",
+       "map": null,
+       "cav": "1",
+       "col": {
+        "E31": "B/Y"
+       },
+       "note": "E31/E251 not drawn on map"
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E252",
+      "map": "ac_press",
+      "cav": "1",
+      "col": null,
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-717",
+     "EC-523",
+     "EC-129"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "50": {
+   "color": "G",
+   "function": "Throttle position sensor 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F31",
+      "map": "etc",
+      "cav": "4",
+      "col": "G",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-235"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "51": {
+   "color": "OR",
+   "function": "Mass air flow sensor",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F25",
+      "map": "maf",
+      "cav": "4",
+      "col": "OR",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-207"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "53": {
+   "color": "L/B",
+   "function": "Exhaust valve timing control position sensor bank 1",
+   "rail": "sig",
+   "applies": "revup",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F38",
+      "map": "f38_evtc_b1",
+      "cav": "2",
+      "col": "L/B",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-445"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "55": {
+   "color": "L/B",
+   "function": "Heated oxygen sensor 2 bank 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F12",
+      "map": "ho2s_b2",
+      "cav": "1",
+      "col": "L/B",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-254"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "56": {
+   "color": "W/L",
+   "function": "A/F sensor 1 bank 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F22",
+      "map": "af_b1",
+      "cav": "6",
+      "col": "W/L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-529",
+     "EC-434"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "57": {
+   "color": "L",
+   "function": "A/F sensor 1 bank 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F34",
+      "map": "af_b2",
+      "cav": "5",
+      "col": "L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-531",
+     "EC-436"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "58": {
+   "color": "W",
+   "function": "A/F sensor 1 bank 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F34",
+      "map": "af_b2",
+      "cav": "6",
+      "col": "W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-531",
+     "EC-436"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "60": {
+   "color": "PU/W",
+   "function": "Ignition signal No.5",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F15",
+      "map": "coil5",
+      "cav": "1",
+      "col": "PU/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-691"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "61": {
+   "color": "L/R",
+   "function": "Ignition signal No.3",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F18/F201",
+       "map": "ix_f18_f201",
+       "cav": "2",
+       "col": {
+        "F18": "L/R",
+        "F201": "L/R"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F202",
+      "map": "coil3",
+      "cav": "1",
+      "col": "L/R",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-691"
+    ],
+    "pg": [
+     "PG-54",
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "62": {
+   "color": "Y/R",
+   "function": "Ignition signal No.1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F18/F201",
+       "map": "ix_f18_f201",
+       "cav": "3",
+       "col": {
+        "F18": "Y/R",
+        "F201": "Y/R"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F203",
+      "map": "coil1",
+      "cav": "1",
+      "col": "Y/R",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-691"
+    ],
+    "pg": [
+     "PG-54",
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "66": {
+   "color": "L",
+   "function": "Sensor ground (throttle position sensor)",
+   "rail": "gnd",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F31",
+      "map": "etc",
+      "cav": "5",
+      "col": "L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-235"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified",
+   "sensor_return": true
+  },
+  "67": {
+   "color": "B/W",
+   "function": "Sensor ground (MAF, IAT, ECT, PSP, refrigerant pressure, EVAP pressure, ASCD steering switch)",
+   "rail": "gnd",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F25",
+      "map": "maf",
+      "cav": "3",
+      "col": "B/W",
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "MAF ground EC-207"
+    },
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F25",
+      "map": "maf",
+      "cav": "6",
+      "col": "B/W",
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "IAT ground EC-223"
+    },
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F13",
+      "map": "ect",
+      "cav": "2",
+      "col": "B/W",
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "ECT ground EC-229"
+    },
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F19",
+      "map": "psp",
+      "cav": "3",
+      "col": "B/W",
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "PSP ground EC-426"
+    },
+    {
+     "route": [
+      {
+       "conn": "E10/F1",
+       "map": "ix_e10_f1",
+       "cav": "8",
+       "col": {
+        "F1": "B/W",
+        "E10": "B/W"
+       }
+      },
+      {
+       "conn": "E31/E251",
+       "map": null,
+       "cav": "3",
+       "col": {
+        "E31": "B/W"
+       },
+       "note": "E31/E251 not drawn on map"
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E252",
+      "map": "ac_press",
+      "cav": "3",
+      "col": null,
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "refrigerant pressure sensor ground EC-717"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "20H",
+       "col": {
+        "F102": "B/W",
+        "M72": "LG/B"
+       }
+      },
+      {
+       "conn": "B1/M12",
+       "map": "ix_b1_m12",
+       "cav": "38J",
+       "col": {
+        "M12": "LG/B",
+        "B1": "B/W"
+       }
+      },
+      {
+       "conn": "T2/B44",
+       "map": "ix_t2_b44",
+       "cav": "8",
+       "col": {
+        "B44": "B/W",
+        "T2": "B/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "T21",
+      "map": "evap_press",
+      "cav": "1",
+      "col": "B/W",
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "EVAP control system pressure sensor ground EC-379"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "1H",
+       "col": {
+        "F102": "B/W",
+        "M72": "B/Y"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M23",
+      "map": "clock_spring",
+      "cav": "33",
+      "col": "B/Y",
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "ASCD steering switch ground EC-618"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-207",
+     "EC-223",
+     "EC-229",
+     "EC-426",
+     "EC-717",
+     "EC-379",
+     "EC-618"
+    ],
+    "pg": [
+     "PG-54",
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified",
+   "sensor_return": true
+  },
+  "68": {
+   "color": "R/W",
+   "function": "PSP sensor power supply (5V)",
+   "rail": "5v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F19",
+      "map": "psp",
+      "cav": "1",
+      "col": "R/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-426"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "69": {
+   "color": "Y",
+   "function": "Throttle position sensor 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F31",
+      "map": "etc",
+      "cav": "2",
+      "col": "Y",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-235"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "70": {
+   "color": "G/R",
+   "function": "Refrigerant pressure sensor",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E10/F1",
+       "map": "ix_e10_f1",
+       "cav": "9",
+       "col": {
+        "F1": "G/R",
+        "E10": "W"
+       }
+      },
+      {
+       "conn": "E31/E251",
+       "map": null,
+       "cav": "2",
+       "col": {
+        "E31": "W"
+       },
+       "note": "E31/E251 not drawn on map"
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E252",
+      "map": "ac_press",
+      "cav": "2",
+      "col": null,
+      "applies": "all",
+      "note": "E251->E252 segment color not printed in EC-717; map device color unverified"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-717"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "72": {
+   "color": "L/W",
+   "function": "Exhaust valve timing control position sensor bank 2",
+   "rail": "sig",
+   "applies": "revup",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F42",
+      "map": "f42_evtc_b2",
+      "cav": "2",
+      "col": "L/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-447"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "73": {
+   "color": "BR/Y",
+   "function": "Engine coolant temperature sensor",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F13",
+      "map": "ect",
+      "cav": "1",
+      "col": "BR/Y",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-229"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "74": {
+   "color": "OR",
+   "function": "Heated oxygen sensor 2 bank 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F11",
+      "map": "ho2s_b1",
+      "cav": "1",
+      "col": "OR",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-252"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "75": {
+   "color": "P/B",
+   "function": "A/F sensor 1 bank 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F22",
+      "map": "af_b1",
+      "cav": "2",
+      "col": "P/B",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-529",
+     "EC-434"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "76": {
+   "color": "LG",
+   "function": "A/F sensor 1 bank 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F34",
+      "map": "af_b2",
+      "cav": "1",
+      "col": "LG",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-531",
+     "EC-436"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "77": {
+   "color": "P",
+   "function": "A/F sensor 1 bank 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F34",
+      "map": "af_b2",
+      "cav": "2",
+      "col": "P",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-531",
+     "EC-436"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "78": {
+   "color": "B/Y",
+   "function": "Sensor ground (heated oxygen sensor 2)",
+   "rail": "gnd",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F11",
+      "map": "ho2s_b1",
+      "cav": "4",
+      "col": "B/Y",
+      "applies": "all"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F12",
+      "map": "ho2s_b2",
+      "cav": "4",
+      "col": "B/Y",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-252",
+     "EC-254"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified",
+   "sensor_return": true
+  },
+  "79": {
+   "color": "GY/R",
+   "function": "Ignition signal No.6",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F29",
+      "map": "coil6",
+      "cav": "1",
+      "col": "GY/R",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-693"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "80": {
+   "color": "GY",
+   "function": "Ignition signal No.4",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F28",
+      "map": "coil4",
+      "cav": "1",
+      "col": "GY",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-693"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "81": {
+   "color": "G/B",
+   "function": "Ignition signal No.2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F27",
+      "map": "coil2",
+      "cav": "1",
+      "col": "G/B",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-693"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "82": {
+   "color": "G/Y",
+   "function": "Sensor ground (APP sensor 1)",
+   "rail": "gnd",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E11/F2",
+       "map": "ix_e11_f2",
+       "cav": "4",
+       "col": {
+        "F2": "G/Y",
+        "E11": "B/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E113",
+      "map": "app",
+      "cav": "3",
+      "col": "B/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-523"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified",
+   "sensor_return": true
+  },
+  "83": {
+   "color": "G/R",
+   "function": "Sensor ground (APP sensor 2)",
+   "rail": "gnd",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E11/F2",
+       "map": "ix_e11_f2",
+       "cav": "2",
+       "col": {
+        "F2": "G/R",
+        "E11": "G/R"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E113",
+      "map": "app",
+      "cav": "1",
+      "col": "G/R",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-523"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified",
+   "sensor_return": true
+  },
+  "85": {
+   "color": "LG",
+   "function": "Data link connector (K-line)",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "4H",
+       "col": {
+        "F102": "LG",
+        "M72": "LG"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M8",
+      "map": "dlc",
+      "cav": "7",
+      "col": "LG",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-742"
+    ],
+    "pg": [
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "86": {
+   "color": "P",
+   "function": "CAN communication line (CAN-L)",
+   "rail": "can",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "27H",
+       "col": {
+        "F102": "P"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M48 unified meter & A/C amp",
+      "map": null,
+      "cav": "11",
+      "col": null,
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-741"
+    ],
+    "pg": [
+     "PG-85"
+    ]
+   },
+   "status": "pending",
+   "reason": "EC-741 shows only ECM -> F102·27H -> unified meter & A/C amp M48; map branches to IPDM E9·49, E108·7G, DLC·14 and the combination meter come from the LAN section, which was not verified in this pass."
+  },
+  "90": {
+   "color": "LG",
+   "function": "APP sensor 1 power supply (5V)",
+   "rail": "5v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E11/F2",
+       "map": "ix_e11_f2",
+       "cav": "10",
+       "col": {
+        "F2": "LG",
+        "E11": "L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E113",
+      "map": "app",
+      "cav": "6",
+      "col": "L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-523"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "91": {
+   "color": "B/OR",
+   "function": "APP sensor 2 power supply (5V)",
+   "rail": "5v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E11/F2",
+       "map": "ix_e11_f2",
+       "cav": "9",
+       "col": {
+        "F2": "B/OR",
+        "E11": "B/OR"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E113",
+      "map": "app",
+      "cav": "4",
+      "col": "B/OR",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-523"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "94": {
+   "color": "L",
+   "function": "CAN communication line (CAN-H)",
+   "rail": "can",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "26H",
+       "col": {
+        "F102": "L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M48 unified meter & A/C amp",
+      "map": null,
+      "cav": "1",
+      "col": null,
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-741"
+    ],
+    "pg": [
+     "PG-85"
+    ]
+   },
+   "status": "pending",
+   "reason": "EC-741 shows only ECM -> F102·26H -> unified meter & A/C amp M48; map branches to IPDM E9·48, E108·2G, DLC·6 and the combination meter come from the LAN section, which was not verified in this pass."
+  },
+  "98": {
+   "color": "G/B",
+   "function": "APP sensor 2",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E11/F2",
+       "map": "ix_e11_f2",
+       "cav": "3",
+       "col": {
+        "F2": "G/B",
+        "E11": "R/Y"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E113",
+      "map": "app",
+      "cav": "2",
+      "col": "R/Y",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-523"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "99": {
+   "color": "G/Y",
+   "function": "ASCD steering switch",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "7H",
+       "col": {
+        "F102": "G/Y",
+        "M72": "G/Y"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M23",
+      "map": "clock_spring",
+      "cav": "34",
+      "col": "G/Y",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-618"
+    ],
+    "pg": [
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "101": {
+   "color": "L/OR",
+   "function": "Stop lamp switch",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "21H",
+       "col": {
+        "F102": "L/OR",
+        "M72": "P/L"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "38G",
+       "col": {
+        "E108": "P/L",
+        "M15": "P/L"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E111 (A/T) / E112 (M/T)",
+      "map": "stop_lamp",
+      "cav": "2",
+      "col": "P/L",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-626",
+     "EC-628"
+    ],
+    "pg": [
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "102": {
+   "color": "BR/Y",
+   "function": "Park/neutral position (PNP) signal",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [],
+     "end": {
+      "type": "device",
+      "conn": "F35",
+      "map": "f35_pnp",
+      "cav": "1",
+      "col": "BR/Y",
+      "applies": "mt"
+     },
+     "applies": "mt"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "28H",
+       "col": {
+        "F102": "BR/Y",
+        "M72": "G/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "M49 unified meter & A/C amp",
+      "map": null,
+      "cav": "25",
+      "col": "G/W",
+      "applies": "at",
+      "note": "M49 not drawn on map"
+     },
+     "applies": "at"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-644",
+     "EC-646"
+    ],
+    "pg": [
+     "PG-55",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "104": {
+   "color": "SB",
+   "function": "Throttle control motor relay control",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "12H",
+       "col": {
+        "F102": "SB",
+        "M72": "BR"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "30G",
+       "col": {
+        "E108": "OR",
+        "M15": "BR"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "IPDM E/R E9",
+      "map": "ipdm_e9",
+      "cav": "47",
+      "col": "OR",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-472"
+    ],
+    "pg": [
+     "PG-26",
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "106": {
+   "color": "G/OR",
+   "function": "APP sensor 1",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E11/F2",
+       "map": "ix_e11_f2",
+       "cav": "5",
+       "col": {
+        "F2": "G/OR",
+        "E11": "Y"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E113",
+      "map": "app",
+      "cav": "5",
+      "col": "Y",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-523"
+    ],
+    "pg": [
+     "PG-54"
+    ]
+   },
+   "status": "verified"
+  },
+  "107": {
+   "color": "GY/R",
+   "function": "Fuel tank temperature sensor",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "25H",
+       "col": {
+        "F102": "GY/R",
+        "M72": "PU/W"
+       }
+      },
+      {
+       "conn": "B1/M12",
+       "map": "ix_b1_m12",
+       "cav": "36J",
+       "col": {
+        "M12": "PU/W",
+        "B1": "PU/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "B27",
+      "map": "fuel_tank_temp",
+      "cav": "4",
+      "col": "PU/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-291"
+    ],
+    "pg": [
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "108": {
+   "color": "B/R",
+   "function": "ASCD brake switch",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "2H",
+       "col": {
+        "F102": "B/R",
+        "M72": "L/OR"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "3G",
+       "col": {
+        "E108": "B/R",
+        "M15": "L/OR"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E110",
+      "map": "ascd_brake",
+      "cav": "2",
+      "col": "B/R",
+      "applies": "at"
+     },
+     "applies": "at"
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "2H",
+       "col": {
+        "F102": "B/R",
+        "M72": "L/OR"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "3G",
+       "col": {
+        "E108": "B/R",
+        "M15": "L/OR"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E122",
+      "map": "ascd_clutch",
+      "cav": "2",
+      "col": "B/R",
+      "applies": "mt"
+     },
+     "applies": "mt",
+     "note": "M/T: ASCD clutch switch E122 pin 2 B/R -> ECM line; E122 pin 1 L -> ASCD brake switch E110 pin 2 L."
+    },
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "2H",
+       "col": {
+        "F102": "B/R",
+        "M72": "L/OR"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "3G",
+       "col": {
+        "E108": "B/R",
+        "M15": "L/OR"
+       }
+      },
+      {
+       "conn": "E122",
+       "map": "ascd_clutch",
+       "cav": "2",
+       "note": "through the clutch switch (E122 2 -> 1)"
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "E110",
+      "map": "ascd_brake",
+      "cav": "2",
+      "col": "L",
+      "applies": "mt"
+     },
+     "applies": "mt",
+     "note": "M/T: ASCD brake switch pin 2 is L, reached through the clutch switch"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-626",
+     "EC-628"
+    ],
+    "pg": [
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "109": {
+   "color": "W/B",
+   "function": "Ignition switch (IGN ON sense)",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "17H",
+       "col": {
+        "F102": "W/B",
+        "M72": "W/B"
+       }
+      }
+     ],
+     "end": {
+      "type": "source",
+      "source": "Fuse block (J/B) M4 fuse 1 (10A)",
+      "map": null,
+      "cav": null,
+      "optional": true
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-167",
+     "EC-702"
+    ],
+    "pg": [
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "111": {
+   "color": "GY/L",
+   "function": "ECM relay (self shut-off) control",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "11H",
+       "col": {
+        "F102": "GY/L",
+        "M72": "W/B"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "69G",
+       "col": {
+        "E108": "W/B",
+        "M15": "W/B"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "IPDM E/R E9",
+      "map": "ipdm_e9",
+      "cav": "46",
+      "col": "W/B",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-167"
+    ],
+    "pg": [
+     "PG-26",
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "113": {
+   "color": "LG/B",
+   "function": "Fuel pump relay control",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "6H",
+       "col": {
+        "F102": "LG/B",
+        "M72": "B/R"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "28G",
+       "col": {
+        "E108": "L/W",
+        "M15": "B/R"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "IPDM E/R E8",
+      "map": "ipdm_e8",
+      "cav": "40",
+      "col": "L/W",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-710"
+    ],
+    "pg": [
+     "PG-26",
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "115": {
+   "color": "B/W",
+   "function": "ECM ground (GND)",
+   "rail": "gnd",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F103/F151",
+       "map": "gnd4",
+       "cav": "2",
+       "col": {
+        "F103": "B/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "ground",
+      "point": "F152"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-169",
+     "EC-129"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "116": {
+   "color": "B/R",
+   "function": "ECM ground (GND); also knock-sensor shield drain",
+   "rail": "gnd",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F103/F151",
+       "map": "gnd4",
+       "cav": "4",
+       "col": {
+        "F103": "B/R"
+       }
+      }
+     ],
+     "end": {
+      "type": "ground",
+      "point": "F152"
+     },
+     "applies": "all"
+    },
+    {
+     "route": [
+      {
+       "conn": "F14/F229",
+       "map": "ix_f14_f229",
+       "cav": "1"
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "F228",
+      "map": "knock",
+      "cav": "2",
+      "col": null,
+      "applies": "all"
+     },
+     "applies": "all",
+     "note": "knock sensor shield: F228·2 -> F14/F229·1 -> splice on the ECM 116 B/R line (EC-317)"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-169",
+     "EC-317",
+     "EC-129"
+    ],
+    "pg": [
+     "PG-55"
+    ]
+   },
+   "status": "verified"
+  },
+  "117": {
+   "color": "G/W",
+   "function": "EVAP canister vent control valve",
+   "rail": "sig",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "29H",
+       "col": {
+        "F102": "G/W",
+        "M72": "G/B"
+       }
+      },
+      {
+       "conn": "B1/M12",
+       "map": "ix_b1_m12",
+       "cav": "37J",
+       "col": {
+        "M12": "G/B",
+        "B1": "G"
+       }
+      },
+      {
+       "conn": "T2/B44",
+       "map": "ix_t2_b44",
+       "cav": "9",
+       "col": {
+        "B44": "G",
+        "T2": "G"
+       }
+      }
+     ],
+     "end": {
+      "type": "device",
+      "conn": "T20",
+      "map": "evap_vent",
+      "cav": "2",
+      "col": "G",
+      "applies": "all"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-367"
+    ],
+    "pg": [
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  },
+  "119": {
+   "color": "R/W",
+   "function": "Power supply for ECM (VB, ECM relay)",
+   "rail": "12v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E12/F3",
+       "map": "ix_e12_f3",
+       "cav": "7",
+       "col": {
+        "F3": "R/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "source",
+      "source": "IPDM E/R E7·18 (ECM relay)",
+      "map": "ipdm_e7",
+      "cav": "18",
+      "optional": true,
+      "col": "R/W",
+      "conn": "E7"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-167",
+     "EC-169"
+    ],
+    "pg": [
+     "PG-26"
+    ]
+   },
+   "status": "verified"
+  },
+  "120": {
+   "color": "P",
+   "function": "Power supply for ECM (VB, ECM relay)",
+   "rail": "12v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "E12/F3",
+       "map": "ix_e12_f3",
+       "cav": "4",
+       "col": {
+        "F3": "P",
+        "E12": "R/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "source",
+      "source": "IPDM E/R E7·18 (ECM relay)",
+      "map": "ipdm_e7",
+      "cav": "18",
+      "optional": true,
+      "col": "R/W",
+      "conn": "E7"
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-167",
+     "EC-169"
+    ],
+    "pg": [
+     "PG-26"
+    ]
+   },
+   "status": "verified"
+  },
+  "121": {
+   "color": "R/W",
+   "function": "Power supply (back-up, battery)",
+   "rail": "12v",
+   "applies": "all",
+   "branches": [
+    {
+     "route": [
+      {
+       "conn": "F102/M72",
+       "map": "ix_f102_m72",
+       "cav": "5H",
+       "col": {
+        "F102": "R/W",
+        "M72": "R/W"
+       }
+      },
+      {
+       "conn": "E108/M15",
+       "map": "ix_e108_m15",
+       "cav": "68G",
+       "col": {
+        "E108": "R/W",
+        "M15": "R/W"
+       }
+      }
+     ],
+     "end": {
+      "type": "source",
+      "source": "IPDM E/R fuse 34 (15A), battery",
+      "map": null,
+      "cav": null,
+      "optional": true
+     },
+     "applies": "all"
+    }
+   ],
+   "cite": {
+    "ec": [
+     "EC-441"
+    ],
+    "pg": [
+     "PG-84",
+     "PG-85"
+    ]
+   },
+   "status": "verified"
+  }
+ }
+}
