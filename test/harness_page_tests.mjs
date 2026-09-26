@@ -199,6 +199,12 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       ok('svgHo2s4 (HO2S2 F11/F12): fixed 2×2 order top 3-1 / bot 4-2 (EC-191/193/195 T.S.), no flipRow; both banks use it',
         /const orderTop = \['3','1'\], orderBot = \['4','2'\];/.test(fnHo) && !/flipRow/.test(fnHo)
         && /ho2s_b1:\{[^\n]*shape:'ho2s4'/.test(html) && /ho2s_b2:\{[^\n]*shape:'ho2s4'/.test(html));
+      const fnAf = (html.match(/function svgAf6\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
+      ok('svgAf6 (A/F F22/F34): fixed order top 5-3-1 / bot 6-4-2 (EC-529/531/533 T.S.), no flipRow',
+        /const orderTop = \['5','3','1'\], orderBot = \['6','4','2'\];/.test(fnAf) && !/flipRow/.test(fnAf));
+      const pp = fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8');
+      ok('print pack af6 uses the same fixed 5-3-1 / 6-4-2 order (no FACE_INV mirror)',
+        /order = \[\["5", "3", "1"\], \["6", "4", "2"\]\]/.test(pp));
       const fn18 = (html.match(/function svgF18\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
       ok('svgF18: fixed F18 female order top 1-2-3 / bot 4-5-6 (EC-691/455 T.S.), no ECM-orient flipRow',
         /const orderTop = \['1','2','3'\], orderBot = \['4','5','6'\];/.test(fn18) && !/flipRow/.test(fn18));

@@ -753,13 +753,15 @@ for (const o of ['invertida', 'fsm']) {
 }
 await page.select('#ecmOrient', 'invertida');
 
-console.log('\nHO2S2 F11/F12 cavity layout = female harness face 2×2 (EC-191/193/195 T.S.), independent of ECM orient');
+console.log('\nHO2S2 F11/F12 (3-1/4-2) + A/F F22/F34 (5-3-1/6-4-2) = FSM T.S. harness faces, independent of ECM orient');
 for (const o of ['invertida', 'fsm']) {
   await page.select('#ecmOrient', o);
   await new Promise((r) => setTimeout(r, 150));
   for (const [cid, want] of [
     ['ho2s_b1', { 1: 'OR>74', 2: 'R/B>JB·15A', 3: 'P/B>25', 4: 'B/Y>78' }],
     ['ho2s_b2', { 1: 'L/B>55', 2: 'R/B>JB·15A', 3: 'P/L>6', 4: 'B/Y>78' }],
+    ['af_b1', { 1: 'LG/B>16', 2: 'P/B>75', 3: 'R/B>E108·65G', 4: 'GY/R>2', 5: 'L/W>35', 6: 'W/L>56' }],
+    ['af_b2', { 1: 'LG>76', 2: 'P>77', 3: 'R/B>E108·65G', 4: 'GY>24', 5: 'L>57', 6: 'W>58' }],
   ]) {
     const r = await page.evaluate((cid) => {
       const card = document.querySelector(`#fichas [data-conn="${cid}"]`);
@@ -772,9 +774,10 @@ for (const o of ['invertida', 'fsm']) {
       const pins = Object.fromEntries((CONN[cid].pins || []).map((p) => [p.id, `${p.code}>${p.ecm ?? p.src ?? '-'}`]));
       return { order, pins };
     }, cid);
-    ok(r && JSON.stringify(r.order) === JSON.stringify(['3 1', '4 2']),
-      `${o}: ${cid} rows 3-1 / 4-2 = FSM T.S. female face (${JSON.stringify(r && r.order)})`);
-    ok(r && JSON.stringify(r.pins) === JSON.stringify(want), `${o}: ${cid} cavities keep wire/ECM (EC-191/193) (${JSON.stringify(r && r.pins)})`);
+    const wantOrder = cid.startsWith('af_') ? ['5 3 1', '6 4 2'] : ['3 1', '4 2'];
+    ok(r && JSON.stringify(r.order) === JSON.stringify(wantOrder),
+      `${o}: ${cid} rows ${wantOrder.join(' / ')} = FSM T.S. harness face (${JSON.stringify(r && r.order)})`);
+    ok(r && JSON.stringify(r.pins) === JSON.stringify(want), `${o}: ${cid} cavities keep wire/ECM (EC-191/193/529/531) (${JSON.stringify(r && r.pins)})`);
   }
 }
 await page.select('#ecmOrient', 'invertida');

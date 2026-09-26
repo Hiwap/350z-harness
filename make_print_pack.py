@@ -500,9 +500,10 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     face_w = w - 7
     face_h = max(18, h - title_band - 3)
 
-    # ---- AF6: FSM top 5-3-1 / bot 6-4-2 · Invertida mirrors each row ----
+    # ---- AF6: fixed harness-plug face as FSM T.S. (EC-529/531/533): top 5-3-1 / bot 6-4-2 ----
+    # Same fixed view as the map (svgAf6); not mirrored by FACE_INV (Ezequiel checked the physical plug).
     if face == "af6" and all(k in by for k in ("1", "2", "3", "4", "5", "6")):
-        order = [_row(["5", "3", "1"]), _row(["6", "4", "2"])]
+        order = [["5", "3", "1"], ["6", "4", "2"]]
         cw, ch = cav_fit(face_w, face_h, 3, 2)
         ox = face_x + max(0, (face_w - 3 * cw) / 2)
         oy = face_y + max(0, (face_h - 2 * ch) / 2)

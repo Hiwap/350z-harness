@@ -5,7 +5,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | file | source vendor | maps to | original product |
 |------|---------------|---------|------------------|
 | etc.webp | Wiring Specialties | etc | VQ35 Throttle 6-pin (F31) |
-| af.webp | Connector Experts | af_b1, af_b2 | "Air Fuel Ratio Sensor" i-26377349 (SKU CE6043F-1), main image F215307345.jpg, https://connectorexperts.com/i-26377349-air-fuel-ratio-sensor.html · black 6-way (FSM F22/F34 B/6). Similar, not identical: Ezequiel says the lock differs on his car. Caption adds the localized note `faceNoteSimilarLock`. |
+| af.webp | Connector Experts | af_b1, af_b2 | "Air Fuel Ratio Sensor" i-26377349 (SKU CE6043F-1), main image F215307345.jpg, https://connectorexperts.com/i-26377349-air-fuel-ratio-sensor.html · black 6-way (FSM F22/F34 B/6). Similar, not identical: Ezequiel says the lock differs on his car. Caption adds the localized note `faceNoteSimilarLock`. Photo = 2×3 face, lock on top, same arrangement as the fixed A/F ficha (EC-529/531/533 T.S.: 5-3-1 / 6-4-2), so no mirror note. |
 | inj.webp | Wiring Specialties | inj1–6 | VQ35 Injector Connector |
 | coil.webp | Wiring Specialties | coil1–6 | VQ35 Coil Connector |
 | maf.webp | Wiring Specialties | maf | VQ35 MAFS |
