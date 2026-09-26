@@ -186,6 +186,10 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       && !FACE_SHARE_OK['faces/oil.webp'].includes('ckp'), faceOf('ckp'));
     ok('A/F B1/B2 (F22/F34) use faces/af.webp, not the throttle-body etc.webp',
       faceOf('af_b1') === 'faces/af.webp' && faceOf('af_b2') === 'faces/af.webp', `${faceOf('af_b1')} / ${faceOf('af_b2')}`);
+    ok('F33/F221 injector splice uses faces/f33.webp = EFI Hardware male 8-pin grey (gallery img 4, F33 GY/8 PG-55/EC-702)',
+      faceOf('ix_f221_f33') === 'faces/f33.webp'
+      && /ix_f221_f33: \{ src: 'faces\/f33\.webp', source: 'EFI Hardware \(Nissan 8 Pin Injector Loom Male Pin Connector, Grey\)' \}/.test(faceBlock[1]),
+      faceOf('ix_f221_f33'));
     ok('A/F face caption carries the localized similar/lock note', /af_b1:[^\n]*note: 'faceNoteSimilarLock'/.test(faceBlock[1])
       && (html.match(/faceNoteSimilarLock: '/g) || []).length === 3 /* es + en + ja packs */);
 

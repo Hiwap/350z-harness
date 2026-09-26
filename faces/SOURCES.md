@@ -24,7 +24,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | f102.webp | Wiring Specialties | ix_f102_m72 | 350Z/G35 Dash Plug SMJ F102 |
 | f14.webp | Wiring Specialties | ix_f14_f229 | VQ35 Knock Sensor Sub Harness (sensor 2-pin + F14/F229) |
 | f18.webp | Ballenger Motorsports | ix_f18_f201 | Sumitomo 6-way 2×3 sealed (CONN-75847) — interim ID for F18 |
-| f33.webp | EFI Hardware | ix_f221_f33 | Nissan 8 Pin Injector Loom Female Grey |
+| f33.webp | EFI Hardware | ix_f221_f33 | "Nissan 8 Pin Injector Loom Male Pin Connector Grey" (SKU C08M-9001, "injector harness engine loom side"), https://www.efihardware.com/products/2207/Nissan-8-Pin-Injector-Loom-Male-Pin-Connector-Grey · 4th gallery thumbnail (images/3090, mating face with orange seal), chosen by Ezequiel. Matches the ficha half F33 GY/8 (PG-55, EC-702); F221 on the injector sub-harness is G/8. Replaced the earlier female-side photo. |
 | reverse.webp | Wiring Specialties | backup_sw, evap_purge | VQ35 Reverse Switch 2-pin (F36 B/2 · F5 GY/2 purge same 2-way) |
 | alt.webp | Wiring Specialties | f20_alt | VQ35 Alternator Plug Connector |
 

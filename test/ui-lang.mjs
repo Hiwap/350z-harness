@@ -256,6 +256,20 @@ for (const [lg, re] of [['es', /^Foto: Connector Experts \(Air Fuel Ratio Sensor
   ok(r.src === 'faces/af.webp' && re.test(r.cap || ''), `${lg} A/F lightbox = af.webp + caption (${JSON.stringify(r)})`);
 }
 
+console.log('\nF33/F221 face caption');
+for (const [lg, lab] of [['es', 'Foto:'], ['en', 'Photo:'], ['ja', '写真:']]) {
+  await page.select('#lang', lg);
+  await page.evaluate(() => { if (typeof applyLang === 'function') applyLang(); });
+  const r = await page.evaluate(() => {
+    openFaceLightbox('ix_f221_f33');
+    const out = { src: document.querySelector('#faceLightbox img')?.getAttribute('src'), cap: document.querySelector('#faceLightbox .face-lb-src')?.textContent };
+    closeFaceLightbox();
+    return out;
+  });
+  ok(r.src === 'faces/f33.webp' && r.cap === `${lab} EFI Hardware (Nissan 8 Pin Injector Loom Male Pin Connector, Grey)`,
+    `${lg} F33 lightbox = f33.webp + EFI caption (${JSON.stringify(r)})`);
+}
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

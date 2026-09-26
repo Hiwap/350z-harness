@@ -12,7 +12,6 @@ PRIORIDAD — tu foto del mazo (sin producto usable)
 -------------------------------------------------
 1. ecm_f101_can    ECM F101 · cara del conector ECM (la grilla EC-123 ya está en el mapa)
 2. ix_f18_f201     F18 ↔ F201 · hay 6-pin genérico; mejor foto del mazo
-3. ix_f221_f33     F33 ↔ F221 · hay 8-pin genérico; mejor foto del mazo
 
 YA HAY FOTO DE PRODUCTO (interina — no hace falta sacar ahora)
 --------------------------------------------------------------
@@ -21,7 +20,8 @@ af_b1, af_b2 (F22/F34 · faces/af.webp, Connector Experts i-26377349 · similar,
 ho2s_b1, ho2s_b2, vtc_ex_b1, vtc_ex_b2 (4-pin ho2s.webp),
 psp, evap_press, ect, iat (2-pin como ECT), f38_evtc_b1, f42_evtc_b2 (3-pin F19/F38/F42), vtc_b1, vtc_b2, backup_sw, evap_purge (2-pin como F36),
 ix_e10_f1 (F1), ix_e11_f2 (F2), ix_e12_f3 (F3), e12 (macho, faces/e12.webp),
-ix_f102_m72 (F102), ix_f14_f229 (sub-arnés knock)
+ix_f102_m72 (F102), ix_f14_f229 (sub-arnés knock),
+ix_f221_f33 (F33 GY/8 · faces/f33.webp, EFI Hardware macho gris C08M-9001, foto 4 de la galería)
 
 YA HAY CARA FSM (reemplazar con foto del mazo cuando puedas)
 ------------------------------------------------------------
