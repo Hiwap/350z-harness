@@ -1956,22 +1956,22 @@ const CONN_BASE = {
       {id:'6',code:'W',ecm:58,lab:'IP'}
     ],
     note:'A/F B2 (F34). FSM: 1 UN→76 · 2 IA→77 · 3 12V · 4 HTR→24 · 5 VM→57 · 6 IP→58.'},
-  ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 1 (post-cat)', meta:'F11 · 4 pines · EC-191', accent:'#8e24aa', shape:'tab4',
+  ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 1 (post-cat)', meta:'F11 B/4 · 4 pines · EC-191', accent:'#8e24aa', shape:'ho2s4',
     pins:[
       {id:'1',lab:'SIG',code:'OR',ecm:74},
       {id:'2',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'feeds'},
       {id:'3',lab:'HTR',code:'P/B',ecm:25},
       {id:'4',lab:'GND',code:'B/Y',ecm:78,rail:'gnd',lab:'SNS'}
     ],
-    note:'HO2S Bank 1. Ruta: señal→74 · heater→25 · 12V pin2 · masa→78.'},
-  ho2s_b2:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 2 (post-cat)', meta:'F12 · 4 pines · EC-191', accent:'#8e24aa', shape:'tab4',
+    note:'HO2S Bank 1. Ruta: señal→74 · heater→25 · 12V pin2 · masa→78. Vista: cara hembra F11 (EC-191/EC-195 T.S.: 3-1 / 4-2).'},
+  ho2s_b2:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 2 (post-cat)', meta:'F12 GY/4 · 4 pines · EC-193', accent:'#8e24aa', shape:'ho2s4',
     pins:[
       {id:'1',lab:'SIG',code:'L/B',ecm:55},
       {id:'2',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'feeds'},
       {id:'3',lab:'HTR',code:'P/L',ecm:6},
       {id:'4',lab:'GND',code:'B/Y',ecm:78,rail:'gnd',lab:'SNS'}
     ],
-    note:'HO2S Bank 2. Ruta: señal→55 · heater→6 · 12V pin2 · masa→78.'},
+    note:'HO2S Bank 2. Ruta: señal→55 · heater→6 · 12V pin2 · masa→78. Vista: cara hembra F12 (EC-193/EC-195 T.S.: 3-1 / 4-2).'},
   maf:{group:'motor', sub:'sensors', name:'MAF · Caudal de aire', meta:'F25 · 6 pines · EC-207', accent:'#fb8c00', shape:'tab6',
     pins:[
       {id:'1',code:'—',ecm:null},
@@ -2927,6 +2927,29 @@ function svgF18(cid, f){
   </svg>`;
 }
 
+/** HO2S2 F11 (B) / F12 (GY) harness plug as drawn in EC-191/193 (and EC-195 T.S.): single outline, white guide =
+    female terminals, round 2×2, lock on top: top 3-1 / bot 4-2 left→right. Fixed view: does not follow the ECM
+    Invertida/FSM toggle (Ezequiel: show his harness plug as the FSM draws it). Cavity ids/wires/ECM pins unchanged. */
+function svgHo2s4(cid, f){
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const orderTop = ['3','1'], orderBot = ['4','2'];
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
+  const padX=18, topY=20;
+  const botY = topY + ch + gap;
+  const W = padX*2 + 2*cw + gap;
+  const H = botY + ch + 14;
+  let cavities='';
+  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
+  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
+  const _c = cornersFromRows(orderTop, orderBot);
+
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="22" style="stroke:${f.accent}"/>
+    ${cavities}
+  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
+  </svg>`;
+}
 function svgAf6(cid, f){
   const byId = Object.fromEntries(f.pins.map(p=>[p.id,p]));
   const orderTop = flipRow(['5','3','1']), orderBot = flipRow(['6','4','2']);
@@ -3703,6 +3726,7 @@ function renderConnSvg(cid, f){
     case 'f33': svg = svgF33(cid,f); break;
     case 'f18': svg = svgF18(cid,f); break;
     case 'af6': svg = svgAf6(cid,f); break;
+    case 'ho2s4': svg = svgHo2s4(cid,f); break;
     case 'rect6': svg = svgRect6(cid,f); break;
     case 'rect10': svg = svgRect10(cid,f); break;
     case 'f1': svg = svgF1(cid,f); break;
@@ -5030,12 +5054,12 @@ const CONN_I18N = {
       note:'エンジンハーネスのヒューズ12Vが各 A/F Sensor 1 (B1/B2) のピン3へ。ECMには入らない — ヒータ駆動のみ（ECM 2 / 24）。' },
   },
   ho2s_b1: {
-    en: { name:'HO2S2 B1', meta:'post-cat R · signal ECM 74', note:'HO2S Bank 1. Path: signal→74 · heater→25 · 12V pin2 · ground→78.' },
-    ja: { name:'HO2S2 B1', meta:'後触媒 R · 信号 ECM 74', note:'HO2S B1。経路: 信号→74 · ヒータ→25 · 12V pin2 · アース→78。' },
+    en: { name:'HO2S2 B1', meta:'post-cat R · signal ECM 74', note:'HO2S Bank 1. Path: signal→74 · heater→25 · 12V pin2 · ground→78. View: F11 female face (EC-191/EC-195 T.S.: 3-1 / 4-2).' },
+    ja: { name:'HO2S2 B1', meta:'後触媒 R · 信号 ECM 74', note:'HO2S B1。経路: 信号→74 · ヒータ→25 · 12V pin2 · アース→78。表示: F11メス側の面（EC-191/EC-195 T.S.: 3-1 / 4-2）。' },
   },
   ho2s_b2: {
-    en: { name:'HO2S2 B2', meta:'post-cat L · signal ECM 55', note:'HO2S Bank 2. Path: signal→55 · heater→6 · 12V pin2 · ground→78.' },
-    ja: { name:'HO2S2 B2', meta:'後触媒 L · 信号 ECM 55', note:'HO2S B2。経路: 信号→55 · ヒータ→6 · 12V pin2 · アース→78。' },
+    en: { name:'HO2S2 B2', meta:'post-cat L · signal ECM 55', note:'HO2S Bank 2. Path: signal→55 · heater→6 · 12V pin2 · ground→78. View: F12 female face (EC-193/EC-195 T.S.: 3-1 / 4-2).' },
+    ja: { name:'HO2S2 B2', meta:'後触媒 L · 信号 ECM 55', note:'HO2S B2。経路: 信号→55 · ヒータ→6 · 12V pin2 · アース→78。表示: F12メス側の面（EC-193/EC-195 T.S.: 3-1 / 4-2）。' },
   },
 
 

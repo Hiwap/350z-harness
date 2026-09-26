@@ -753,6 +753,32 @@ for (const o of ['invertida', 'fsm']) {
 }
 await page.select('#ecmOrient', 'invertida');
 
+console.log('\nHO2S2 F11/F12 cavity layout = female harness face 2×2 (EC-191/193/195 T.S.), independent of ECM orient');
+for (const o of ['invertida', 'fsm']) {
+  await page.select('#ecmOrient', o);
+  await new Promise((r) => setTimeout(r, 150));
+  for (const [cid, want] of [
+    ['ho2s_b1', { 1: 'OR>74', 2: 'R/B>JB·15A', 3: 'P/B>25', 4: 'B/Y>78' }],
+    ['ho2s_b2', { 1: 'L/B>55', 2: 'R/B>JB·15A', 3: 'P/L>6', 4: 'B/Y>78' }],
+  ]) {
+    const r = await page.evaluate((cid) => {
+      const card = document.querySelector(`#fichas [data-conn="${cid}"]`);
+      if (!card) return null;
+      const seen = new Set();
+      const cavs = [...card.querySelectorAll('[data-cav]')].filter((e) => !seen.has(e.dataset.cav) && seen.add(e.dataset.cav))
+        .map((e) => { const bb = e.getBoundingClientRect(); return { id: e.dataset.cav, x: bb.x, y: Math.round(bb.y) }; });
+      const rows = {}; cavs.forEach((c) => (rows[c.y] = rows[c.y] || []).push(c));
+      const order = Object.keys(rows).sort((a, b) => a - b).map((y) => rows[y].sort((a, b) => a.x - b.x).map((c) => c.id).join(' '));
+      const pins = Object.fromEntries((CONN[cid].pins || []).map((p) => [p.id, `${p.code}>${p.ecm ?? p.src ?? '-'}`]));
+      return { order, pins };
+    }, cid);
+    ok(r && JSON.stringify(r.order) === JSON.stringify(['3 1', '4 2']),
+      `${o}: ${cid} rows 3-1 / 4-2 = FSM T.S. female face (${JSON.stringify(r && r.order)})`);
+    ok(r && JSON.stringify(r.pins) === JSON.stringify(want), `${o}: ${cid} cavities keep wire/ECM (EC-191/193) (${JSON.stringify(r && r.pins)})`);
+  }
+}
+await page.select('#ecmOrient', 'invertida');
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

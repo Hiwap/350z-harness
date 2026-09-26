@@ -195,6 +195,10 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       const fn = (html.match(/function svgF33\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
       ok('svgF33: fixed F33 female order top 1-2-3-4 / bot 5-6-7-8 (EC-278 T.S.), no ECM-orient flipRow',
         /const orderTop = \['1','2','3','4'\], orderBot = \['5','6','7','8'\];/.test(fn) && !/flipRow/.test(fn));
+      const fnHo = (html.match(/function svgHo2s4\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
+      ok('svgHo2s4 (HO2S2 F11/F12): fixed 2×2 order top 3-1 / bot 4-2 (EC-191/193/195 T.S.), no flipRow; both banks use it',
+        /const orderTop = \['3','1'\], orderBot = \['4','2'\];/.test(fnHo) && !/flipRow/.test(fnHo)
+        && /ho2s_b1:\{[^\n]*shape:'ho2s4'/.test(html) && /ho2s_b2:\{[^\n]*shape:'ho2s4'/.test(html));
       const fn18 = (html.match(/function svgF18\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
       ok('svgF18: fixed F18 female order top 1-2-3 / bot 4-5-6 (EC-691/455 T.S.), no ECM-orient flipRow',
         /const orderTop = \['1','2','3'\], orderBot = \['4','5','6'\];/.test(fn18) && !/flipRow/.test(fn18));
