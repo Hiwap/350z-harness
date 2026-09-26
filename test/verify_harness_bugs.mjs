@@ -239,8 +239,8 @@ ok('actuators render no longer nests bobinas under actuators',
     b2 && /conn:\['af_b2'\]/.test(b2) && h2 && /conn:\['af_b2'\]/.test(h2));
   ok('af_b1 ficha HTR cavity maps ECM 2',
     /af_b1:\{[\s\S]*?\{id:'4',code:'GY\/R',ecm:2,lab:'HTR'\}/.test(html));
-  ok('af_b2 ficha HTR cavity maps ECM 24',
-    /af_b2:\{[\s\S]*?\{id:'4',code:'G\/Y',ecm:24,lab:'HTR'\}/.test(html));
+  ok('af_b2 ficha HTR cavity F34·4 GY maps ECM 24 (EC-436/531)',
+    /af_b2:\{[\s\S]*?\{id:'4',code:'GY',ecm:24,lab:'HTR'\}/.test(html));
   ok('attachDataRelatedEcm pulls device sibling ECM (Datos)',
     /function attachDataRelatedEcm/.test(html)
     && /attachDataRelatedEcm\(circIds, ecmSet\)/.test(html));

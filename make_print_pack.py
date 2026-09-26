@@ -1147,7 +1147,7 @@ ficha(ML, y - ch_af, cw_af, ch_af, t("title_af_b1"),
       "af6", face="af6", subtitle=t("sub_af_b1"), accent=GRP["sensors"])
 ficha(ML + cw_af + GAP, y - ch_af, cw_af, ch_af, t("title_af_b2"),
       [("1", "LG", "76"), ("2", "P", "77"), ("3", "12V", "fuse"),
-       ("4", "G/Y", "24"), ("5", "L/B", "55"), ("6", "W", "58")],
+       ("4", "GY", "24"), ("5", "L", "57"), ("6", "W", "58")],
       "af6", face="af6", subtitle=t("sub_af_b2"), accent=GRP["sensors"])
 ficha(ML + 2 * (cw_af + GAP), y - ch_af, cw_ho, ch_af, t("title_f11"),
       [("htr", "P/B", "25"), ("12V", "12V", "fuse")],

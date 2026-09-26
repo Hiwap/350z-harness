@@ -2416,8 +2416,8 @@
    ],
    "cite": {
     "ec": [
-     "EC-531",
      "EC-436",
+     "EC-531",
      "EC-437"
     ],
     "pg": [
@@ -2425,7 +2425,7 @@
     ]
    },
    "status": "verified",
-   "color_pending": "EC-436, EC-531 and the EC-437 terminal table print GY; the EC-127 master terminal table prints G/Y. Map keeps G/Y until confirmed."
+   "color_note": "GY per EC-436/EC-531 wiring diagrams and the EC-437 terminal table; the EC-127 master terminal table prints G/Y (outlier). Confirmed GY on a 2005 M/T car by physical inspection."
   },
   "25": {
    "color": "P/B",
