@@ -113,8 +113,8 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   /* Alternator charging (SC-22 / PG-53 / PG-POWER-01/02) */
   ok('alternator B E202: ring, B/GY, 12V, src E201·5, circ alt_charge',
     /alt_b:\{group:'motor', sub:'sensors'[^\n]*shape:'ring'[^\n]*\n\s*pins:\[\{id:'1',lab:'B',code:'B\/GY',ecm:null,rail:'12v',src:'E201·5',srcSub:'power',circ:'alt_charge'/.test(html));
-  ok('alternator E E211: ring, B, GND, src E212/E213, circ alt_charge',
-    /alt_e:\{group:'motor', sub:'sensors'[^\n]*shape:'ring'[^\n]*\n\s*pins:\[\{id:'2',lab:'E',code:'B',ecm:null,rail:'gnd',src:'E212\/E213',srcSub:'power',circ:'alt_charge'/.test(html));
+  ok('alternator E E211: ring, B, GND, src E212 (B/Y link to E213), circ alt_charge',
+    /alt_e:\{group:'motor', sub:'sensors'[^\n]*shape:'ring'[^\n]*\n\s*pins:\[\{id:'2',lab:'E',code:'B',ecm:null,rail:'gnd',src:'E212',srcSub:'power',circ:'alt_charge'/.test(html));
   ok('E11/F2·1 ALT-S fed by fuse 36 10A (E21·36), 12V rail, circ alt_s',
     /\{id:'1',lab:'ALT-S',code:'LG\/B',ecm:null,rail:'12v',src:'E21·36',srcSub:'feeds',circ:'alt_s'/.test(html)
     && /fuse36_alt:\{[^\n]*\n\s*pins:\[\{id:'36',code:'LG\/B',ecm:null,rail:'12v',src:'BAT'[^\n]*circ:'alt_s'/.test(html));
