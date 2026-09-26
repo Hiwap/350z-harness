@@ -63,6 +63,10 @@ const expect = {
   hdrTitle: { es: 'Nissan 350Z · Harness / Fichas OEM', en: 'Nissan 350Z · OEM harness / connectors', ja: 'Nissan 350Z · OEMハーネス / コネクタ' },
   pageTitle: { es: 'Nissan 350Z · Harness / Fichas OEM (FSM)', en: 'Nissan 350Z · OEM harness / connectors (FSM)', ja: 'Nissan 350Z · OEMハーネス / コネクタ (FSM)' },
   railLabel: { es: 'Rieles', en: 'Rails', ja: 'レール' },
+  pathTag12v: { es: 'Alim. 12V', en: 'Power 12V', ja: '電源 12V' },
+  pathTag5v: { es: '5V ref', en: '5V ref', ja: '5V基準' },
+  pathTagGnd: { es: 'Masa', en: 'Ground', ja: 'アース' },
+  pathTagSig: { es: 'Señal', en: 'Signal', ja: '信号' },
 };
 for (const [key, byLang] of Object.entries(expect)) {
   for (const l of LANGS) {

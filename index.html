@@ -1499,7 +1499,7 @@ function buildCircuits(model){
       ecm:[78], conn:[],
       notes:'Masa SNS de las sondas post-cat (HO2S B1/B2). Ruta: ECM 78. El 66 es TPS (ficha ETC); el 67 va con cada sensor (A/C, PSP, EVAP, MAF, ASCD).'},
     {id:'knock', title:'Sensor de detonación (knock)', color:'#42a5f5',
-      ecm:[15,116], conn:['knock','ix_f14_f229'], notes:'Sensor de detonación. Ruta: señal → F14/F229 → ECM 15 · malla a SNS GND.'},
+      ecm:[15,116], conn:['knock','ix_f14_f229'], path:{ix_f14_f229:['SH'],gnd4:['4'],f152:['ring']}, notes:'Sensor de detonación F228. Ruta: señal F228·1 (W) → F14/F229·2 → ECM 15 · malla (F228·2) → F14/F229·1 → empalme en la línea B/R de ECM 116 → F103/F151·4 → masa motor F152. EC-317.'},
     {id:'psp', title:'PSP · presión dirección', color:'#00897b',
       ecm:[12,68,67], conn:['psp'], notes:'Presión de dirección (PSP). Ruta: señal ECM 12 · 5V ECM 68 · GND ECM 67.'},
     {id:'ckp', title:'CKP / POS · cigüeñal', color:'#ab47bc',
@@ -1601,8 +1601,11 @@ function buildCircuits(model){
       ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], f102:['2H'], notes:'Señal de freno del control de crucero; en M/T el embrague va en serie. Ruta: → E108·3G → F102·2H → ECM 108.'},
     {id:'ascd_steer', title:'ASCD volante (reloj / clock spring)', color:'#26c6da',
       ecm:[99,67], conn:['clock_spring','ix_f102_m72'], f102:['1H','7H'], notes:'Botones ASCD del volante. Ruta: reloj / clock spring → F102·1H/7H → ECM 99 · masa ECM 67.'},
-  {id:'pnp_sw', title:'PNP · Park/Neutral (A/T)', color:'#ab47bc',
-      ecm:[102], conn:['pnp','ix_f102_m72'], notes:'Park/Neutral (solo automática). Ruta: interruptor PNP → F102·28H → ECM 102.'},
+    /* PNP depends on transmission (FSM EC-646 M/T vs EC-644 A/T). trans:'mt'|'at' → filtered by circuitVisibleInTrans. */
+    {id:'pnp_mt', trans:'mt', title:'PNP · Park/Neutral (M/T) · F35', color:'#ab47bc',
+      ecm:[102], conn:['f35_pnp','gnd4','f152'], path:{f35_pnp:['2'],gnd4:['3'],f152:['ring']}, notes:'Interruptor park/neutral M/T F35 (en la caja). Ruta: ECM 102 (BR/Y) → F35·1 directo, sin pasar por F102 · F35·2 (B) → F103/F151·3 → masa motor F152. Neutral = interruptor cerrado (ECM 102 ≈ 0V); otras marchas = 12V. EC-646/648.'},
+    {id:'pnp_at', trans:'at', title:'PNP · Park/Neutral (A/T) · vía medidor', color:'#ab47bc',
+      ecm:[102], conn:['f6_at','ix_f102_m72'], f102:['28H','23H'], path:{ix_f102_m72:['28H','23H'],f6_at:['9']}, notes:'A/T: el PNP está dentro del conjunto A/T (F6, AT-118) y lo lee el TCM; no hay interruptor aparte ni masa PNP en el arnés motor. Ruta: ECM 102 (BR/Y) → F102·28H → M72 (G/W) → medidor unificado/A/C amp M49·25. El medidor toma AT-P RANGE (M49·32, GY/R) ← F102·23H ← F6·9 (TCM START-RLY). EC-644/647.'},
 
   ];
   if(model === 'de_early'){
@@ -1802,7 +1805,7 @@ const CONN_BASE = {
     pins:[
       {id:'1',code:'B',ecm:null,rail:'gnd',src:'F3·6',srcSub:'power',lab:'GND',circ:'gnd_f152_e17',note:'Puente de masa: F151·1 (empalme F152) → F103·1 → F3/E12·6 → E17. Ningún pin ECM. EC-169.',note_en:'Ground bond: F151·1 (F152 splice) → F103·1 → F3/E12·6 → E17. No ECM pin. EC-169.',note_ja:'アースブリッジ: F151·1（F152スプライス）→ F103·1 → F3/E12·6 → E17。ECMピンなし。EC-169。'},
       {id:'2',code:'B/W',ecm:115,rail:'gnd',lab:'ECM115'},
-      {id:'3',code:'B',ecm:1,rail:'gnd',lab:'ECM1'},
+      {id:'3',code:'B',ecm:1,rail:'gnd',lab:'ECM1',note:'Cav 3 (B): ECM 1 + masas de sensores que comparten esta cavidad hacia F152 — CKP/CMP, EVT (Rev-Up, EC-445/447) y PNP M/T F35·2 (EC-646). EC-169.',note_en:'Cav 3 (B): ECM 1 + sensor grounds sharing this cavity to F152 — CKP/CMP, EVT (Rev-Up, EC-445/447) and M/T PNP F35·2 (EC-646). EC-169.',note_ja:'Cav 3 (B): ECM 1 + このキャビティを共有してF152へ行くセンサアース — CKP/CMP、EVT（Rev-Up, EC-445/447）、M/T PNP F35·2（EC-646）。EC-169。'},
       {id:'4',code:'B/R',ecm:116,rail:'gnd',lab:'ECM116'}
     ],
     note:'4 pines de tierra, no de potencia (cara W 1-2-3-4). Ruta: 2→ECM 115 · 3→ECM 1 · 4→ECM 116 → masa motor F152 · 1→F3·6/E12·6→E17. EC-169.'},
@@ -1885,7 +1888,7 @@ const CONN_BASE = {
     note:'MAF F25 6 pines (EC-207). Usados: 2 12V R/W · 3 GND B/W→67 · 4 SIG OR→51. Cav 1/5/6 vacías en el diagrama.',},
   knock:{group:'motor', sub:'sensors', name:'Knock · sensor detonación', meta:'2 pines · vía F14/F229', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'1',lab:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd',lab:'GND'}],
-    note:'Sensor knock. Ruta: → F14/F229 → ECM 15.'},
+    note:'Sensor knock F228. Ruta: 1 (W) → F14/F229·2 → ECM 15 · 2 malla → F14/F229·1 → B/R ECM 116 → F103/F151·4 → F152. EC-317.'},
   ckp:{group:'motor', sub:'sensors', name:'CKP · Posición cigüeñal', meta:'F10 · EC-323', accent:'#ab47bc', shape:'tab3',
     pins:[{id:'PWR',code:'R/W',ecm:null,rail:'12v',lab:'12V',src:'E7·18',srcSub:'ipdm'},{id:'SIG',code:'W/L',ecm:13,lab:'SIG'},{id:'GND',code:'B',ecm:null,rail:'gnd',lab:'GND',src:'F152',srcSub:'power'}],
     note:'CKP POS. Ruta: 12V E7-18 → F10·1 · señal F10·2 → ECM 13 · masa F10·3 → F103/F151 → F152 · EC-323.',},
@@ -1966,7 +1969,7 @@ const CONN_BASE = {
       {id:'6',code:'Y/R',lab:'IGN',rail:'12v'},
       {id:'7',code:'—',ecm:null},
       {id:'8',code:'—',ecm:null},
-      {id:'9',code:'GY/R',lab:'START'},
+      {id:'9',code:'GY/R',lab:'START',circ:'pnp_at',note:'TCM START-RLY (F502·8) GY/R → F102·23H → medidor M49·32 (AT-P RANGE) · rama a SC-START (relé arranque). EC-644 / AT-112.',note_en:'TCM START-RLY (F502·8) GY/R → F102·23H → unified meter M49·32 (AT-P RANGE) · branch to SC-START (starter relay). EC-644 / AT-112.',note_ja:'TCM START-RLY (F502·8) GY/R → F102·23H → メータ M49·32 (AT-P RANGE) · SC-START（スタータリレー）へ分岐。EC-644 / AT-112。'},
       {id:'10',code:'B',lab:'GND',rail:'gnd',src:'F23',srcSub:'power'}
     ],
     note:'F6 GY/10 TCM (A/T). 1/2 R/W BATT · 5/10 B F23 · 6 Y/R IGN · 9 GY/R relé arranque E9-53 · AT-186/114.'},
@@ -1990,6 +1993,12 @@ const CONN_BASE = {
       {id:'2',lab:'OUT',code:'OR',ecm:null,rail:'12v',src:'F36',srcSub:'actuators',circ:'backup_lamp',note:'→ F102 22H → luces reversa T10/T18',note_en:'→ F102 22H → reverse lamps T10/T18',note_ja:'→ F102 22H → バックランプ T10/T18'}
     ],
     note:'Switch de marcha atrás (M/T). Ruta: E7-26 → F1·2 → F36 → F102·22H → luces (12V en Alim.).'},
+  f35_pnp:{group:'motor', sub:'sensors', name:'F35 · PNP (M/T)', meta:'B/2 · M/T · ECM 102 BR/Y · EC-646 · PG-55', accent:'#ab47bc', shape:'tab2',
+    pins:[
+      {id:'1',lab:'SIG',code:'BR/Y',ecm:102,circ:'pnp_mt'},
+      {id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'pnp_mt',note:'Masa PNP: F35·2 (B) → F103/F151·3 → masa motor F152. EC-646/648.',note_en:'PNP ground: F35·2 (B) → F103/F151·3 → engine ground F152. EC-646/648.',note_ja:'PNPアース: F35·2 (B) → F103/F151·3 → エンジンアース F152。EC-646/648。'}
+    ],
+    note:'Interruptor park/neutral M/T (en la caja). ECM 102 (BR/Y) → F35·1 directo (sin F102) · F35·2 → F103/F151·3 → F152. EC-646.'},
   inj1:{group:'motor', sub:'inyectores', name:'Inyector 1', meta:'ECM23 R/B', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/B',ecm:23},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
   inj2:{group:'motor', sub:'inyectores', name:'Inyector 2', meta:'ECM42 B/R', accent:'#37474f', shape:'tab2', pins:[{id:'ECM',code:'B/R',ecm:42},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
   inj3:{group:'motor', sub:'inyectores', name:'Inyector 3', meta:'ECM22 R/Y', accent:'#c62828', shape:'tab2', pins:[{id:'ECM',code:'R/Y',ecm:22},{id:'12V',code:'R',ecm:null,rail:'12v',src:'JB·10A',srcSub:'feeds'}]},
@@ -2188,7 +2197,7 @@ const CONN_BASE = {
     note:'Alimentaciones del arnés motor. cav1 R/W BATT TCM F6 · cav7→ECM 119 · cav4→120 · cav5 12V bobinas · cav3 12V A/F+HO2S · cav6→E17 (desde F103·1 · EC-169) · VMOT ECM 3 (G) pasa E12/F3 sin cavidad FSM (EC-474) · AT-186 · EC-167.'},
   ix_f14_f229:{group:'motor', sub:'sensors', name:'F14 ↔ F229 · Knock', meta:'intermedia sub-arnés knock · señal→15 · shield→tierra', accent:'#42a5f5', shape:'tab2',
     pins:[{id:'SIG',code:'W',ecm:15},{id:'SH',code:'B',ecm:116,rail:'gnd',lab:'GND'}],
-    note:'Intermedia del knock. Ruta: señal → ECM 15 · malla a SNS GND.'},
+    note:'Intermedia del knock. Ruta: señal W (·2) → ECM 15 · malla (·1) → B/R ECM 116 → F103/F151·4 → masa motor F152. EC-317.'},
   ix_f103_f151:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4 pines · ECM 1/115/116 → F152 · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Tierras del ECM a la masa motor. Ruta: ECM 115/1/116 → F103/F151·2/3/4 → F152 · cav1 → F3/E12·6 → E17.'},
   ix_f18_f201:{group:'motor', sub:'bobinas', name:'F18 ↔ F201 · Bobinas Bank 1 + VTC', meta:'6 pines · solo Bank 1 · EC-691/455', accent:'#f57f17', shape:'f18',
@@ -2287,12 +2296,10 @@ const CONN_BASE = {
     ],
     note:'Puente motor↔carrocería (SMJ). Ruta: CAN 2G/7G · ASCD-B 3G · FPR 28G · MOTRLY 30G · STOP 38G · 12V A/F 65G · BATT 68G (ECM 121) · SSOFF 69G.'},
   ix_f102_m72:{group:'motor', sub:'intermedias', name:'F102 ↔ M72 · SMJ motor↔carrocería', meta:'SMJ · PG-85', accent:'#90a4ae', shape:'f102', face:'smj_h',
-    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.',note_en:'BATT ECM memory 121 (R/W) · EC-441 / P1065.',note_ja:'BATT ECMメモリ 121 (R/W) · EC-441 / P1065。'},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'—',ecm:null,lab:'',note:'Cavidad vacía en arnés DE visto (FSM a veces lista START GY/R). No cable en H23.',note_en:'Empty cavity on the DE harness seen (FSM sometimes lists START GY/R). No wire on H23.',note_ja:'DEハーネスでは空（FSMはSTART GY/Rを記載することがある）。H23に線なし。'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
+    pins:[{id:'1H',code:'B/W',ecm:67,lab:'ASCD-R'},{id:'2H',code:'B/R',ecm:108,lab:'ASCD-B'},{id:'3H',code:'—',ecm:null},{id:'4H',code:'LG',ecm:85,lab:'K'},{id:'5H',code:'R/W',ecm:121,lab:'BATT',rail:'12v',note:'BATT memoria ECM 121 (R/W) · EC-441 / P1065.',note_en:'BATT ECM memory 121 (R/W) · EC-441 / P1065.',note_ja:'BATT ECMメモリ 121 (R/W) · EC-441 / P1065。'},{id:'6H',code:'LG/B',ecm:113,lab:'FPR'},{id:'7H',code:'G/Y',ecm:99,lab:'ASCD-S'},{id:'8H',code:'—',ecm:null},{id:'9H',code:'—',ecm:null},{id:'10H',code:'—',ecm:null},{id:'11H',code:'GY/L',ecm:111,lab:'SSOFF'},{id:'12H',code:'SB',ecm:104,lab:'MOTRLY'},{id:'13H',code:'W/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors'},{id:'14H',code:'—',ecm:null},{id:'15H',code:'—',ecm:null},{id:'16H',code:'—',ecm:null},{id:'17H',code:'W/B',ecm:109,lab:'IGN/INJ+',rail:'12v'},{id:'18H',code:'PU',ecm:48,lab:'5V',rail:'5v'},{id:'19H',code:'BR/W',ecm:32,lab:'EVAP'},{id:'20H',code:'B/W',ecm:67,lab:'SNS',rail:'gnd'},{id:'21H',code:'L/OR',ecm:101,lab:'STOP'},{id:'22H',code:'OR',ecm:null,rail:'12v',lab:'REV',src:'F36',srcSub:'actuators',circ:'backup_lamp'},{id:'23H',code:'GY/R',ecm:null,lab:'START',src:'F6·9',srcSub:'actuators',trans:'at',circ:'pnp_at',note:'Solo A/T (EC-644): F6·9 (TCM START-RLY) GY/R → F102·23H → M72 → medidor M49·32 AT-P RANGE; rama a SC-START. En M/T vacía (SC-12/13: el arranque M/T va por el interlock de embrague E121, sin F102).',note_en:'A/T only (EC-644): F6·9 (TCM START-RLY) GY/R → F102·23H → M72 → unified meter M49·32 AT-P RANGE; branch to SC-START. Empty on M/T (SC-12/13: M/T start goes through clutch interlock E121, not F102).',note_ja:'A/Tのみ (EC-644): F6·9（TCM START-RLY）GY/R → F102·23H → M72 → メータ M49·32 AT-P RANGE; SC-STARTへ分岐。M/Tでは空（SC-12/13: M/T始動はクラッチインターロック E121経由、F102なし）。',offNote:'Vacía en M/T. Solo A/T: START GY/R F6·9 ↔ medidor M49·32 (EC-644).',offNote_en:'Empty on M/T. A/T only: START GY/R F6·9 ↔ meter M49·32 (EC-644).',offNote_ja:'M/Tでは空。A/Tのみ: START GY/R F6·9 ↔ メータ M49·32 (EC-644)。'},{id:'24H',code:'—',ecm:null},{id:'25H',code:'GY/R',ecm:107,lab:'FTT'},{id:'26H',code:'L',ecm:94,lab:'CAN-H'},{id:'27H',code:'P',ecm:86,lab:'CAN-L'},{id:'28H',code:'BR/Y',ecm:102,lab:'PNP',trans:'at',circ:'pnp_at',note:'Solo A/T (EC-644): ECM 102 BR/Y → F102·28H → M72 G/W → medidor M49·25. En M/T vacía: ECM 102 va directo a F35·1 sin F102 (EC-646).',note_en:'A/T only (EC-644): ECM 102 BR/Y → F102·28H → M72 G/W → unified meter M49·25. Empty on M/T: ECM 102 runs straight to F35·1, not through F102 (EC-646).',note_ja:'A/Tのみ (EC-644): ECM 102 BR/Y → F102·28H → M72 G/W → メータ M49·25。M/Tでは空: ECM 102 はF102を通らず F35·1 へ直結 (EC-646)。',offNote:'Vacía en M/T: ECM 102 va directo a F35·1 sin F102 (EC-646). Solo A/T: PNP BR/Y → medidor (EC-644).',offNote_en:'Empty on M/T: ECM 102 runs straight to F35·1, not through F102 (EC-646). A/T only: PNP BR/Y → meter (EC-644).',offNote_ja:'M/Tでは空: ECM 102 はF102を通らず F35·1 へ直結 (EC-646)。A/Tのみ: PNP BR/Y → メータ (EC-644)。'},{id:'29H',code:'G/W',ecm:117,lab:'VENT'},{id:'30H',code:'nc',ecm:null,lab:'nc'},{id:'31H',code:'nc',ecm:null,lab:'nc'},{id:'32H',code:'nc',ecm:null,lab:'nc'},{id:'33H',code:'nc',ecm:null,lab:'nc'},{id:'34H',code:'nc',ecm:null,lab:'nc'},{id:'35H',code:'nc',ecm:null,lab:'nc'},{id:'36H',code:'nc',ecm:null,lab:'nc'},{id:'37H',code:'nc',ecm:null,lab:'nc'},{id:'38H',code:'nc',ecm:null,lab:'nc'},{id:'39H',code:'nc',ecm:null,lab:'nc'},{id:'40H',code:'nc',ecm:null,lab:'nc'},{id:'41H',code:'nc',ecm:null,lab:'nc'},{id:'42H',code:'nc',ecm:null,lab:'nc'},{id:'43H',code:'nc',ecm:null,lab:'nc'},{id:'44H',code:'nc',ecm:null,lab:'nc'},{id:'45H',code:'nc',ecm:null,lab:'nc'},{id:'46H',code:'nc',ecm:null,lab:'nc'}],
   note:'Puente motor↔carrocería (F102↔M72). Incluye BATT 5H (ECM 121) · FPR 6H · MOTRLY 12H · CAN · freno · ASCD…'},
 
   /* —— Habitáculo / pedales / ASCD —— */
-  pnp:{group:'body', sub:'pedals', name:'PNP / Inhibitor', meta:'A/T · ECM 102 BR/Y', accent:'#ab47bc', shape:'tab2',
-    pins:[{id:'SIG',code:'BR/Y',ecm:102},{id:'GND',code:'B',ecm:null,rail:'gnd',lab:'GND',src:'E17',srcSub:'power'}]},
   app:{group:'body', sub:'pedals', name:'APP · Pedal E113', meta:'6-pin GY · pedal · PATH E113→E11/F2→ECM', accent:'#f9a825', shape:'rect6', face:'e113',
     pins:[{id:'1',code:'G/R',ecm:83,rail:'gnd'},{id:'2',code:'R/Y',ecm:98},{id:'3',code:'B/W',ecm:82,rail:'gnd'},{id:'4',code:'B/OR',ecm:91,rail:'5v'},{id:'5',code:'Y',ecm:106},{id:'6',code:'L',ecm:90,rail:'5v'}],
     note:'Pedal APP. Ruta: E113 → E11/F2 → ECM 90/91/82/83/98/106.'},
@@ -2399,9 +2406,9 @@ const LS_LOOM = 'z33_loomView';
 const LS_TRANS = 'z33_trans';
 const LS_MODEL_BANNER = 'z33_modelBannerOpen';
 /* A/T-only fichas (hide when Manual). F6 TCM is not on M/T engine loom. */
-const TRANS_AT_ONLY = new Set(['f6_at', 'pnp']);
+const TRANS_AT_ONLY = new Set(['f6_at']);
 /* M/T-only fichas (hide when Automático). Backup SW F36 / ASCD clutch. */
-const TRANS_MT_ONLY = new Set(['backup_sw', 'ascd_clutch']);
+const TRANS_MT_ONLY = new Set(['backup_sw', 'ascd_clutch', 'f35_pnp']);
 const LOOM_BODY_EXTRA = new Set([
   /* not on pulled engine-control harness (bench) */
   'evap_vent', 'ix_e106_b2', 'ix_t2_b44', 'fuel_pump',
@@ -2447,6 +2454,29 @@ function connVisibleInTrans(id){
   if(t === 'mt' && TRANS_AT_ONLY.has(id)) return false;
   if(t === 'at' && TRANS_MT_ONLY.has(id)) return false;
   return true;
+}
+/** Circuits tagged trans:'mt'|'at' only exist on that transmission (e.g. PNP EC-646 vs EC-644). */
+function circuitVisibleInTrans(cir){
+  return !cir || !cir.trans || cir.trans === transView();
+}
+function circuitsForView(model){
+  return buildCircuits(model).filter(circuitVisibleInTrans);
+}
+/** F102 cavities tagged trans:'at' (28H PNP, 23H START) are empty on the other transmission. */
+function transGatePin(p, tv){
+  if(!p || !p.trans || p.trans === tv) return p;
+  return { id:p.id, code:'—', ecm:null, lab:'', transOff:p.trans,
+    note:p.offNote || '', note_en:p.offNote_en || p.offNote || '', note_ja:p.offNote_ja || p.offNote_en || '' };
+}
+let _f102ConfCache = { tv:null, conf:null };
+function f102Conf(){
+  const base = CONN_BASE['ix_f102_m72'];
+  if(!base) return null;
+  const tv = transView();
+  if(_f102ConfCache.tv === tv && _f102ConfCache.conf) return _f102ConfCache.conf;
+  const conf = Object.assign({}, base, { pins:(base.pins || []).map(p => transGatePin(p, tv)) });
+  _f102ConfCache = { tv, conf };
+  return conf;
 }
 function connVisibleInLoom(id, conf){
   if(!connVisibleInTrans(id)) return false;
@@ -3620,6 +3650,10 @@ const I18N = {
     railRelGnd: 'Tierras',
     railRelPower: 'Alim.',
     railRelData: 'Datos',
+    pathTag12v: 'Alim. 12V',
+    pathTag5v: '5V ref',
+    pathTagGnd: 'Masa',
+    pathTagSig: 'Señal',
     hlLegRelData: 'Datos / señales relacionadas',
     nestBobinas: 'Bobinas',
     nestInyectores: 'Inyectores',
@@ -3679,13 +3713,14 @@ const I18N = {
     rail_gnd_body: "ECM 1=B · 115=B/W · 116=B/R (→F103·3/2/4→F152)  ·  SNS 66/67/78/82/83  ·  señales: KNK15 · CKP13 · CAN 86/94 · AFh 2/24",
     f102_header: "F102 · SMJ  (ENGINE CONTROL HARNESS · PG-85)  ·  no invertida  ·  cara motor del arnés",
     f102_cavities: "{n} cavidades",
+    f102_at_note: "A/T = solo automática: 28H PNP · 23H START (EC-644); vacías en M/T (EC-646)",
     f102_subtitle: "arnés control ↔ carrocería · 1H–29H + stub 30H–46H",
     f102_stub: "PG-85 H.S. · stub R 30H–46H vacías",
     page1_footer: "Pág. 1/2 · portada + EC-123 + rieles + F102 · arnés motor",
     page2_title: "2 · Fichas motor · sensor → intermedia F → ECM · contorno grupo · 5V ámbar · Invertida",
     page2_sub: "cavidad: id · color · →ECM · 5V=anillo ámbar · 12V rojo / GND verde",
     path_af: "PATH A/F + HO2S  ·  sensores → E12⟷F3 (calentadores / potencia) → ECM  ·  calentadores ECM 2 / 24",
-    path_knock: "PATH Knock  ·  sensor → F14/F229 → ECM 15 / GND 116   ·   otros sensores motor (directo → ECM)",
+    path_knock: "PATH Knock  ·  sensor → F14/F229 → ECM 15  ·  malla → B/R 116 → F103·4 → F152   ·   otros sensores motor (directo → ECM)",
     path_joints: "Juntas motor  ·  F103/gnd4 → F152 (·1→F3·6→E17)  ·  Condensador Ign  ·  SNS GND  ·  E12⟷F3  ·  E10⟷F1 (bandeja batería)",
     af_heaters_note: "Calentadores A/F / riel 12V bobina·iny: E12⟷F3 (mate en juntas abajo)",
     title_af_b1: "A/F B1 · sensor",
@@ -3770,6 +3805,10 @@ const I18N = {
     railRelGnd: 'Grounds',
     railRelPower: 'Power',
     railRelData: 'Data',
+    pathTag12v: 'Power 12V',
+    pathTag5v: '5V ref',
+    pathTagGnd: 'Ground',
+    pathTagSig: 'Signal',
     hlLegRelData: 'Related data / signals',
     nestBobinas: 'Coils',
     nestInyectores: 'Injectors',
@@ -3829,13 +3868,14 @@ const I18N = {
     rail_gnd_body: "ECM 1=B · 115=B/W · 116=B/R (→F103·3/2/4→F152)  ·  SNS 66/67/78/82/83  ·  signals: KNK15 · CKP13 · CAN 86/94 · AFh 2/24",
     f102_header: "F102 · SMJ  (ENGINE CONTROL HARNESS · PG-85)  ·  not inverted  ·  motor face of harness",
     f102_cavities: "{n} cavities",
+    f102_at_note: "A/T = automatic only: 28H PNP · 23H START (EC-644); empty on M/T (EC-646)",
     f102_subtitle: "control harness ↔ body · 1H–29H + stub 30H–46H",
     f102_stub: "PG-85 H.S. · R stub 30H–46H empty",
     page1_footer: "Page 1/2 · cover + EC-123 + rails + F102 · engine harness",
     page2_title: "2 · Motor cards · sensor → intermediate F → ECM · group outline · 5V amber · Inverted",
     page2_sub: "cavity: id · color · →ECM · 5V=amber ring · 12V red / GND green",
     path_af: "PATH A/F + HO2S  ·  sensors → E12⟷F3 (heaters / power) → ECM  ·  heaters ECM 2 / 24",
-    path_knock: "PATH Knock  ·  sensor → F14/F229 → ECM 15 / GND 116   ·   other motor sensors (direct → ECM)",
+    path_knock: "PATH Knock  ·  sensor → F14/F229 → ECM 15  ·  shield → B/R 116 → F103·4 → F152   ·   other motor sensors (direct → ECM)",
     path_joints: "Motor joints  ·  F103/gnd4 → F152 (·1→F3·6→E17)  ·  Ign condenser  ·  SNS GND  ·  E12⟷F3  ·  E10⟷F1 (battery tray)",
     af_heaters_note: "A/F heaters / coil·inj 12V rail: E12⟷F3 (mate in joints below)",
     title_af_b1: "A/F B1 · sensor",
@@ -3920,6 +3960,10 @@ const I18N = {
     railRelGnd: 'アース',
     railRelPower: '電源',
     railRelData: 'データ',
+    pathTag12v: '電源 12V',
+    pathTag5v: '5V基準',
+    pathTagGnd: 'アース',
+    pathTagSig: '信号',
     hlLegRelData: '関連データ / 信号',
     nestBobinas: 'コイル',
     nestInyectores: 'インジェクタ',
@@ -3979,13 +4023,14 @@ const I18N = {
     rail_gnd_body: "ECM 1=B · 115=B/W · 116=B/R (→F103·3/2/4→F152)  ·  SNS 66/67/78/82/83  ·  信号: KNK15 · CKP13 · CAN 86/94 · AFh 2/24",
     f102_header: "F102 · SMJ  (ENGINE CONTROL HARNESS · PG-85)  ·  非反転  ·  ハーネスのモータ側",
     f102_cavities: "{n} キャビティ",
+    f102_at_note: "A/T = ATのみ: 28H PNP · 23H START (EC-644)、M/Tでは空 (EC-646)",
     f102_subtitle: "制御ハーネス ↔ ボディ · 1H–29H + stub 30H–46H",
     f102_stub: "PG-85 H.S. · 右stub 30H–46H 空き",
     page1_footer: "1/2ページ · 表紙 + EC-123 + レール + F102 · エンジンハーネス",
     page2_title: "2 · モータカード · センサ → 中間F → ECM · グループ外形 · 5V琥珀 · 反転",
     page2_sub: "キャビティ: id · 色 · →ECM · 5V=琥珀リング · 12V赤 / GND緑",
     path_af: "PATH A/F + HO2S  ·  センサ → E12⟷F3（ヒータ/電源）→ ECM  ·  ヒータ ECM 2 / 24",
-    path_knock: "PATH Knock  ·  センサ → F14/F229 → ECM 15 / GND 116   ·   他モータセンサ（直接 → ECM）",
+    path_knock: "PATH Knock  ·  センサ → F14/F229 → ECM 15  ·  シールド → B/R 116 → F103·4 → F152   ·   他モータセンサ（直接 → ECM）",
     path_joints: "モータジョイント  ·  F103/gnd4 → F152 (·1→F3·6→E17)  ·  Ignコンデンサ  ·  SNS GND  ·  E12⟷F3  ·  E10⟷F1（バッテリトレイ）",
     af_heaters_note: "A/Fヒータ / コイル·インジェ12Vレール: E12⟷F3（下のジョイントでメイト）",
     title_af_b1: "A/F B1 · センサ",
@@ -4111,7 +4156,8 @@ const TITLES_I18N = {
   brake_stop: {en:'Stop lamp switch', ja:'ストップランプスイッチ'},
   ascd_brake: {en:'ASCD brake (+ clutch M/T)', ja:'ASCDブレーキ（+クラッチ M/T）'},
   ascd_steer: {en:'ASCD steering (clock spring)', ja:'ASCDステアリング（クロックスプリング）'},
-  pnp_sw: {en:'PNP / park-neutral (A/T)', ja:'PNP / パーキング・ニュートラル（A/T）'},
+  pnp_mt: {en:'PNP · Park/Neutral (M/T) · F35', ja:'PNP · パーキング/ニュートラル（M/T）· F35'},
+  pnp_at: {en:'PNP · Park/Neutral (A/T) · via meter', ja:'PNP · パーキング/ニュートラル（A/T）· メータ経由'},
   vtc_adm_b1: {en:'VTC intake B1', ja:'VTC吸気 B1'},
   vtc_adm_b2: {en:'VTC intake B2', ja:'VTC吸気 B2'},
   vtc_ex_b1: {en:'VTC exhaust B1', ja:'VTC排気 B1'},
@@ -4138,7 +4184,7 @@ const NOTES_I18N = {
   gnd_ecm_116: {en:'Power ground ECM 116 (B/R). Path: ECM 116 → F103/F151·4 → engine ground F152. EC-169. Knock shield splices into this B/R line (EC-317, separate circuit).', ja:'パワーGND ECM 116 (B/R)。経路: ECM 116 → F103/F151·4 → エンジンアース F152。EC-169。ノックのシールドはこのB/R線に合流（EC-317、別回路）。'},
   gnd_f152_e17: {en:'Engine ↔ body ground bond. Path: F152 → F151/F103·1 (B) → F3/E12·6 → E17 (bonded to E43). No ECM pin on this path. EC-169.', ja:'エンジン↔ボディのアースブリッジ。経路: F152 → F151/F103·1 (B) → F3/E12·6 → E17（E43と接続）。ECMピンなし。EC-169。'},
 
-  knock: {en:'Signal ECM 15 (W) via intermediate F14/F229 · shield to SNS GND (FSM EC).', ja:'信号 ECM 15 (W) は中間F14/F229経由 · シールドはSNS GNDへ（FSM EC）。'},
+  knock: {en:'Knock sensor F228. Path: signal F228·1 (W) → F14/F229·2 → ECM 15 · shield (F228·2) → F14/F229·1 → splices into the ECM 116 B/R line → F103/F151·4 → engine ground F152. EC-317.', ja:'ノックセンサ F228。経路: 信号 F228·1 (W) → F14/F229·2 → ECM 15 · シールド (F228·2) → F14/F229·1 → ECM 116 のB/R線にスプライス → F103/F151·4 → エンジンアース F152。EC-317。'},
   psp: {en:'5V ECM 68 (R/W) · signal ECM 12 (L/W) · GND ECM 67 B/W (shared SNS MAF/IAT/PSP/EVAP). FSM EC-401.', ja:'5V ECM 68 (R/W) · 信号 ECM 12 (L/W) · GND ECM 67 B/W（SNS共用）。FSM EC-401。'},
   ckp: {en:'CKP signal → ECM 13 (W/L). 12V feed on connector.', ja:'CKP信号 → ECM 13 (W/L)。コネクタに12V供給。'},
   cmp_b1: {en:'PHASE bank 1 → ECM 33 (R).', ja:'PHASE B1 → ECM 33 (R)。'},
@@ -4189,7 +4235,8 @@ const NOTES_I18N = {
   brake_stop: {en:'Brake signal → ECM 101 (L/OR). Stop lamp switch under pedal.', ja:'ブレーキ信号 → ECM 101 (L/OR)。ストップランプSWはペダル下。'},
   ascd_brake: {en:'ASCD brake → ECM 108 (B/R). On M/T the clutch switch is in series on the same signal path.', ja:'ASCDブレーキ → ECM 108 (B/R)。MTではクラッチSWが同信号経路に直列。'},
   ascd_steer: {en:'ASCD steering → ECM 99 (G/Y) via combination switch / clock spring (term. 14). Ground via ECM 67 (B/W) (term. 15).', ja:'ASCDステア → ECM 99 (G/Y)（コンビスイッチ/クロックスプリング端子14）。アースは ECM 67 (B/W)（端子15）。'},
-  pnp_sw: {en:'PNP switch → ECM 102 (BR/Y). A/T only.', ja:'PNPスイッチ → ECM 102 (BR/Y)。ATのみ。'},
+  pnp_mt: {en:'M/T park/neutral switch F35 (on the transmission). Path: ECM 102 (BR/Y) → F35·1 directly, not through F102 · F35·2 (B) → F103/F151·3 → engine ground F152. Neutral = switch closed (ECM 102 ≈ 0V); other gears = 12V. EC-646/648.', ja:'M/Tパーキング/ニュートラルSW F35（トランスミッション上）。経路: ECM 102 (BR/Y) → F35·1 直結（F102を通らない）· F35·2 (B) → F103/F151·3 → エンジンアース F152。ニュートラル＝SW閉（ECM 102 ≈ 0V）、その他＝12V。EC-646/648。'},
+  pnp_at: {en:'A/T: the PNP switch is inside the A/T assembly (F6, AT-118) and read by the TCM; there is no separate switch and no PNP ground on the engine harness. Path: ECM 102 (BR/Y) → F102·28H → M72 (G/W) → unified meter/A/C amp M49·25. The meter takes AT-P RANGE (M49·32, GY/R) ← F102·23H ← F6·9 (TCM START-RLY). EC-644/647.', ja:'A/T: PNPスイッチはA/Tアッセンブリ内部（F6, AT-118）でTCMが読む。単体SWもエンジンハーネス上のPNPアースもなし。経路: ECM 102 (BR/Y) → F102·28H → M72 (G/W) → ユニファイドメータ/A/Cアンプ M49·25。メータは AT-P RANGE（M49·32, GY/R）← F102·23H ← F6·9（TCM START-RLY）。EC-644/647。'},
   vtc: {
     en_early:'VQ35DE without exhaust VTC: intake only (2 solenoids). ECM 11 B1 · ECM 10 B2.',
     ja_early:'VQ35DE 排気VTCなし: 吸気のみ（2ソレノイド）。ECM 11 B1 · ECM 10 B2。',
@@ -4422,7 +4469,8 @@ function makeF102PinEl(pin){
   /* ECM # · wire · rail/CAN/id (same as fichas) */
   d.innerHTML = `<span class="pn">${esc(ecmTop)}</span><small class="pw">${midHtml}</small><span class="dest${blc?' '+blc:''}">${esc(bot)}</span>`;
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
-  d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}`;
+  d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}` + (pin.transOff && pinNote(pin) ? ` · ${pinNote(pin)}` : '');
+  if(pin.transOff) d.dataset.transOff = pin.transOff;
   if(hasWire && cavClickable('ix_f102_m72', pin)){
     d.onclick = (ev) => { ev.stopPropagation(); selectConnPin('ix_f102_m72', pin.id); };
   }
@@ -4457,7 +4505,7 @@ function renderF102(){
     legendEl.textContent = lg || '';
     legendEl.style.display = lg ? '' : 'none';
   }
-  const conf = CONN['ix_f102_m72'] || CONN_BASE['ix_f102_m72'];
+  const conf = f102Conf();
   const byId = {};
   (conf && conf.pins || []).forEach(p => {
     if(p) byId[String(p.id)] = p;
@@ -4713,9 +4761,9 @@ const CONN_I18N = {
 
   ix_f14_f229: {
     en: { name:'F14 ↔ F229 · Knock path', meta:'knock sub-harness intermediate · signal→15 · shield→ground',
-      note:'Knock-path intermediate F14/F229 (FSM): signal W→ECM 15 · shield→SNS GND. Circuit reference; face pin numbers: see service manual.' },
+      note:'Knock-path intermediate F14/F229 (EC-317): signal W (·2) → ECM 15 · shield (·1) → ECM 116 B/R line → F103/F151·4 → engine ground F152.' },
     ja: { name:'F14 ↔ F229 · ノック経路', meta:'ノックサブハーネス中間 · 信号→15 · シールド→アース',
-      note:'ノック経路中間 F14/F229 (FSM): 信号 W→ECM 15 · シールド→SNS GND。回路参照; 端子番号: サービスマニュアル参照。' },
+      note:'ノック経路中間 F14/F229 (EC-317): 信号 W (·2) → ECM 15 · シールド (·1) → ECM 116 B/R線 → F103/F151·4 → エンジンアース F152。' },
   },
   ix_f103_f151: {
     en: { name:'F103 ↔ F151 · ECM grounds → F152', meta:'4-pin · ECM 1/115/116 → engine ground F152 · EC-169/171',
@@ -4839,9 +4887,9 @@ const CONN_I18N = {
   maf: { en:{name:'MAF · Mass air flow', meta:'F25 · 6-pin · EC-207', note:'MAF F25 6-pin (EC-207). Used: 2 12V R/W · 3 GND B/W→67 · 4 SIG OR→51. Cav 1/5/6 empty on the diagram.'}, ja:{name:'MAF · エアフロ', meta:'F25 · 6ピン · EC-207', note:'MAF F25 6ピン。2 12V · 3 GND→67 · 4 SIG→51。1/5/6は空。'} },
   knock: {
     en: { name:'Knock sensor', meta:'2-pin · via intermediate F14/F229',
-      note:'Knock path (FSM): signal W → ECM 15 via F14/F229; shield → SNS GND.' },
+      note:'Knock sensor F228 (EC-317): pin 1 signal W → F14/F229 → ECM 15; pin 2 shield → F14/F229·1 → ECM 116 B/R line → F103/F151·4 → F152.' },
     ja: { name:'ノックセンサ', meta:'2ピン · 中間 F14/F229 経由',
-      note:'ノック経路 (FSM): 信号 W → ECM 15（F14/F229経由）; シールド → SNS GND。' },
+      note:'ノックセンサ F228 (EC-317): pin1 信号 W → F14/F229 → ECM 15; pin2 シールド → F14/F229·1 → ECM 116 B/R線 → F103/F151·4 → F152。' },
   },
   ckp: { en:{name:'CKP · Crank position', meta:'3-pin', note:'CKP POS. Path: 12V E7-18 → F10·1 · signal F10·2 → ECM 13 · ground F10·3 → F103/F151 → F152 · EC-323.'}, ja:{name:'CKP · クランク角', meta:'3ピン', note:'CKP。経路: 12V E7-18 → F10·1 · 信号→13 · アース F10·3 → F103/F151 → F152 · EC-323。'} },
   cmp_b1: { en:{name:'CMP · Cam phase B1', meta:'cam RH'}, ja:{name:'CMP · カム角 B1', meta:'カム 右'} },
@@ -4883,7 +4931,7 @@ const CONN_I18N = {
   ix_b43_t1: { en:{name:'B43 ↔ T1', meta:'6-pin W · 1/6 GND · 2 vent+ · 3/4 turn · 5 fuel lid', note:'B43/T1 (6-pin). 1/6 B ground · 2 W/R vent 12V · 3 R/W turn RH · 4 G/Y turn LH · 5 W/L fuel-lid. LT-153/154/179 · BL-54 · EC-367.'}, ja:{name:'B43 ↔ T1', meta:'6ピン · 1/6 GND · 2ベント+ · 3/4ウインカ · 5給油口', note:'B43/T1（6ピン）。1/6 GND · 2ベント12V · 3/4ウインカ · 5給油口。'} },
   ix_t2_b44: { en:{name:'T2 ↔ B44', meta:'16-pin W · 9 vent · 12 backup · 13 tail · 14 stop', note:'T2/B44 (16-pin). FSM: 9 G vent ECM 117 · 12 LG reverse · 13 R/L tail · 14 P/L stop. EC-367 · LT-179/182/194.'}, ja:{name:'T2 ↔ B44', meta:'16ピン · 9ベント · 12バック · 13テール · 14ストップ', note:'T2/B44（16ピン）。9ベント · 12バック · 13テール · 14ストップ。'} },
   ix_b1_m12: { en:{name:'B1 ↔ M12 · SMJ body', meta:'69J SMJ · pin 37J · PG-84', note:'SMJ B1/M12 (69-pin J). Vent control: 37J (G/B) → F102·29H (G/W) → ECM 117 · EC-367 / PG-84.'}, ja:{name:'B1 ↔ M12 · SMJ', meta:'69J · pin37J · PG-84', note:'SMJ B1/M12。ベント: 37J → F102·29H → ECM 117。'} },
-  pnp: { en:{name:'PNP / inhibitor', meta:'A/T · ECM 102 BR/Y'}, ja:{name:'PNP / インヒビタSW', meta:'A/T · ECM 102 BR/Y'} },
+  f35_pnp: { en:{name:'F35 · PNP (M/T)', meta:'B/2 · M/T · ECM 102 BR/Y · EC-646 · PG-55', note:'M/T park/neutral switch (on the transmission). ECM 102 (BR/Y) → F35·1 directly (no F102) · F35·2 → F103/F151·3 → F152. EC-646.'}, ja:{name:'F35 · PNP (M/T)', meta:'B/2 · M/T · ECM 102 BR/Y · EC-646 · PG-55', note:'M/Tパーキング/ニュートラルSW。ECM 102 (BR/Y) → F35·1 直結（F102なし）· F35·2 → F103/F151·3 → F152。EC-646。'} },
   app: {
     en: { name:'APP pedal E113', meta:'6-pin GY · pedal · PATH E113→E11/F2→ECM',
       note:'APP path: pedal E113 → E11/F2 (10-pin GY) → ECM 90/91/82/83/98/106. Colors here = pedal side (EC-523); on F2→ECM they change (LG, G/OR, G/Y, B/OR, G/B, G/R). FSM face: top 3-2-1 / bot 6-5-4.' },
@@ -5046,7 +5094,7 @@ function renderFichas(){
   CONN = {};
   ids.forEach(id => { CONN[id] = CONN_BASE[id]; });
   /* F102 lives in #f102Panel (hidden from side fichas) but must stay in CONN for click/HL */
-  if(CONN_BASE['ix_f102_m72']) CONN['ix_f102_m72'] = CONN_BASE['ix_f102_m72'];
+  if(CONN_BASE['ix_f102_m72']) CONN['ix_f102_m72'] = f102Conf();
 
   /* Flat list by subcategory only (no outer motor/body split). */
   const bySub = {};
@@ -5724,7 +5772,7 @@ function attachAlimPathFichas(pathCavByConn, connSet){
     if(f.sub === 'intermedias' || f.sub === 'ipdm') connSet.add(cid);
   });
 }
-function attachPowerPathFichas(coreIds, connSet, pathCavByConn){
+function attachPowerPathFichas(coreIds, connSet, pathCavByConn, onPathCir=null){
   if(!railRelPowerEnabled()) return;
   powerRelatedCircuits(coreIds).forEach(id => {
     const cir = CIRCUITS.find(c => c.id === id);
@@ -5738,6 +5786,7 @@ function attachPowerPathFichas(coreIds, connSet, pathCavByConn){
         if(!pathCavByConn.has(cid)) pathCavByConn.set(cid, new Set());
         (cavs || []).forEach(c => pathCavByConn.get(cid).add(String(c)));
       });
+      if(onPathCir) onPathCir(cir);
     }
   });
 }
@@ -6030,7 +6079,7 @@ function toggleRail(rail){
 
 /** F102 cavities for this selection. Focused ECM pin: only that pin on F102 (not sibling 67). */
 function f102HitsForEcm(ecmSet, focusPin=null, allowCavs=null){
-  const conf = CONN['ix_f102_m72'] || CONN_BASE['ix_f102_m72'];
+  const conf = f102Conf();
   const hits = [];
   const focus = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
   const allow = allowCavs instanceof Set ? allowCavs : null;
@@ -6294,6 +6343,35 @@ function clearHlGroupElColor(el){
   if(el && el.style) el.style.removeProperty('--hl-group-color');
 }
 
+/* Info-panel route tag follows the rail of the circuit's .path cavities (not always "Alim. 12V").
+   12V > 5V > GND > signal. Explicit cir.pathRail wins. */
+function pathStepRail(cid, cav){
+  const conf = CONN[cid] || CONN_BASE[cid];
+  const pin = (conf && conf.pins || []).find(x => String(x.id)===String(cav));
+  if(!pin) return null;
+  if(pin.rail) return pin.rail;
+  if(pin.ecm!=null && pin.ecm!=='' && PIN_RAIL[Number(pin.ecm)]) return PIN_RAIL[Number(pin.ecm)];
+  return null;
+}
+function circuitPathRail(cir){
+  if(cir && cir.pathRail) return cir.pathRail;
+  const rails = new Set();
+  Object.entries((cir && cir.path) || {}).forEach(([cid, cavs]) => {
+    (cavs || []).forEach(c => { const r = pathStepRail(cid, c); if(r) rails.add(r); });
+  });
+  if(rails.has('12v')) return '12v';
+  if(rails.has('5v')) return '5v';
+  if(rails.has('gnd')) return 'gnd';
+  return 'sig';
+}
+const PATH_TAG_COLOR = { '12v':'#ffca28', '5v':'#F9A825', gnd:'#66bb6a', sig:'#90a4ae' };
+function pathTagLabel(rail){
+  if(rail === '12v') return t('pathTag12v');
+  if(rail === '5v') return t('pathTag5v');
+  if(rail === 'gnd') return t('pathTagGnd');
+  return t('pathTagSig');
+}
+
 function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   circIds = [...new Set((circIds||[]).filter(Boolean))];
   lastCircIds = circIds.slice();
@@ -6306,6 +6384,26 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   const lines=[];
   const seenCircLine = new Set();
   const pathCavByConn = new Map(); /* cid -> Set(cavId) — feeds sin pin ECM (F3-5, E7-17, rail…) */
+  /* rail -> { seen:Set(cid·cav), chains:[[label…] per circuit] } for the route tag lines */
+  const pathStepsByRail = new Map();
+  const addPathSteps = (cir) => {
+    if(!cir || !cir.path) return;
+    const r = circuitPathRail(cir);
+    if(!pathStepsByRail.has(r)) pathStepsByRail.set(r, { seen:new Set(), chains:[] });
+    const g = pathStepsByRail.get(r);
+    const chain = [];
+    Object.entries(cir.path).forEach(([cid, cavs]) => {
+      const conf = CONN[cid] || CONN_BASE[cid];
+      (cavs || []).forEach(cav => {
+        const k = cid + '·' + cav;
+        if(g.seen.has(k)) return;
+        g.seen.add(k);
+        const pin = (conf && conf.pins || []).find(x => String(x.id)===String(cav));
+        chain.push(esc(pathStepLabel(cid, cav, pin)));
+      });
+    });
+    if(chain.length) g.chains.push(chain);
+  };
   circIds.forEach(id=>{
     const cir=CIRCUITS.find(x=>x.id===id);
     if(!cir) return;
@@ -6317,12 +6415,13 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
         if(!pathCavByConn.has(cid)) pathCavByConn.set(cid, new Set());
         (cavs||[]).forEach(c => pathCavByConn.get(cid).add(String(c)));
       });
+      addPathSteps(cir);
     }
     if(seenCircLine.has(cir.id)) return;
     seenCircLine.add(cir.id);
     lines.push(`<div><b style="color:${cir.color}">${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
-  attachPowerPathFichas(circIds, connSet, pathCavByConn);
+  attachPowerPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
   attachAlimPathFichas(pathCavByConn, connSet);
   attachDataRelatedEcm(circIds, ecmSet);
   /* Loom filter: drop body/rear fichas when viewing pulled engine harness */
@@ -6373,7 +6472,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       });
     } else if(f102Declared.size){
       [...f102Declared].forEach(cav=>{
-        const conf = CONN['ix_f102_m72'] || CONN_BASE['ix_f102_m72'];
+        const conf = f102Conf();
         const p = (conf && conf.pins || []).find(x => String(x.id)===String(cav));
         const lab = p && p.lab ? ` ${esc(p.lab)}` : '';
         const code = p && p.code ? ` · ${esc(p.code)}` : '';
@@ -6455,16 +6554,14 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
       }
     });
   }
-  if(pathCavByConn.size){
-    const bits=[];
-    pathCavByConn.forEach((cavs, cid)=>{
-      const conf = CONN[cid];
-      cavs.forEach(cav=>{
-        const pin = (conf && conf.pins || []).find(x => String(x.id)===String(cav));
-        bits.push(esc(pathStepLabel(cid, cav, pin)));
-      });
+  if(pathStepsByRail.size){
+    ['12v', '5v', 'gnd', 'sig'].forEach(r => {
+      const g = pathStepsByRail.get(r);
+      if(!g || !g.chains.length) return;
+      const col = PATH_TAG_COLOR[r] || '#90a4ae';
+      const body = g.chains.map(ch => ch.join(' → ')).join(' · ');
+      lines.push(`<div class="path-route" data-rail="${r}" style="color:var(--muted);margin-top:4px"><span class="pill path-tag" style="border-color:${col};color:${col}">${esc(pathTagLabel(r))}</span> ${body}</div>`);
     });
-    lines.push(`<div style="color:var(--muted);margin-top:4px"><span class="pill" style="border-color:#ffca28;color:#ffca28">${esc(t('railRelPower'))} 12V</span> ${bits.join(' → ')}</div>`);
   }
   const pinInfo = focusPin!=null
     ? `<div style="margin-bottom:6px"><b>${esc(t('pinEcm'))} ${focusPin}</b> · ${pinName(focusPin)||''} · <code>${PIN_COL[focusPin]||'—'}</code></div>`
@@ -6788,7 +6885,7 @@ function selectConnPin(cid, cavId, opts){
 function applyModel(){
   const model = document.getElementById('model').value;
   localStorage.setItem('z33_model', model);
-  CIRCUITS = buildCircuits(model);
+  CIRCUITS = circuitsForView(model);
   rebuildIndexes();
   renderECM();
   renderFichas();
@@ -6809,7 +6906,10 @@ function applyTransView(){
   if(!el) return;
   const v = el.value === 'at' ? 'at' : 'mt';
   localStorage.setItem(LS_TRANS, v);
+  CIRCUITS = circuitsForView(document.getElementById('model').value);
+  rebuildIndexes();
   renderFichas();
+  renderF102();
   clearSelection();
 }
 
@@ -7090,7 +7190,7 @@ document.getElementById('q').addEventListener('input', e=>{
     });
   }
   applyColorMode();
-  CIRCUITS = buildCircuits(document.getElementById('model').value);
+  CIRCUITS = circuitsForView(document.getElementById('model').value);
   rebuildIndexes();
   applyLang();
 })();

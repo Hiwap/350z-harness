@@ -519,6 +519,89 @@ await page.evaluate(() => {
   }
 });
 
+console.log('\nPNP per transmission (EC-646 M/T F35 → F103·3 → F152; EC-644 A/T via F102·28H)');
+async function setTrans(v) {
+  await page.select('#transView', v);
+  await page.waitForFunction((v) => typeof transView === 'function' && transView() === v, {}, v);
+}
+async function routeTags() {
+  return page.$$eval('#info .path-route', (els) => els.map((e) => ({ rail: e.dataset.rail, text: e.innerText.replace(/\s+/g, ' ') })));
+}
+await setTrans('mt');
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+{
+  const st = await page.evaluate(() => {
+    const p28 = f102PinEl('28H');
+    const p23 = f102PinEl('23H');
+    return {
+      f35: !!document.querySelector('#fichas [data-conn="f35_pnp"]'),
+      f6: !!document.querySelector('#fichas [data-conn="f6_at"]'),
+      p28Empty: !!p28 && p28.classList.contains('empty') && !p28.dataset.ecm,
+      p23Empty: !!p23 && p23.classList.contains('empty'),
+      circs: CIRCUITS.filter((c) => /^pnp/.test(c.id)).map((c) => c.id),
+    };
+  });
+  ok(st.f35 && !st.f6, `Manual: F35 PNP ficha shown, F6 A/T hidden (f35=${st.f35}, f6=${st.f6})`);
+  ok(st.p28Empty, 'Manual: F102·28H empty (ECM 102 does not use F102 on M/T, EC-646)');
+  ok(st.p23Empty, 'Manual: F102·23H empty (START GY/R is A/T only, EC-644)');
+  ok(JSON.stringify(st.circs) === JSON.stringify(['pnp_mt']), `Manual: only pnp_mt circuit (${st.circs.join(',')})`);
+}
+await clickPin(102);
+{
+  ok(!(await f102Open()), 'Manual: pin 102 → F102 collapsed');
+  const tags = await routeTags();
+  const g = tags.find((x) => x.rail === 'gnd');
+  ok(!!g && /F35·2/.test(g.text) && /F103·3/.test(g.text) && /F152/.test(g.text) && !/E17/.test(g.text),
+    `Manual: pin 102 route tag GND F35·2 → F103·3 → F152 (${JSON.stringify(tags)})`);
+  const lit = await page.evaluate(() => [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group')].map((c) => c.dataset.conn + '·' + c.dataset.cav));
+  ok(lit.includes('f35_pnp·1'), `Manual: F35·1 lit for ECM 102 (${lit.join(',')})`);
+}
+await setTrans('at');
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+{
+  const st = await page.evaluate(() => ({
+    f35: !!document.querySelector('#fichas [data-conn="f35_pnp"]'),
+    f6: !!document.querySelector('#fichas [data-conn="f6_at"]'),
+    p28: f102PinEl('28H')?.dataset.ecm || null,
+    circs: CIRCUITS.filter((c) => /^pnp/.test(c.id)).map((c) => c.id),
+  }));
+  ok(!st.f35 && st.f6, `Automático: F35 hidden, F6 A/T shown (f35=${st.f35}, f6=${st.f6})`);
+  ok(st.p28 === '102', `Automático: F102·28H → ECM 102 (${st.p28})`);
+  ok(JSON.stringify(st.circs) === JSON.stringify(['pnp_at']), `Automático: only pnp_at circuit (${st.circs.join(',')})`);
+}
+await clickPin(102);
+{
+  ok(await f102Open(), 'Automático: pin 102 → F102 open (28H)');
+  const hl28 = await page.evaluate(() => { const p = f102PinEl('28H'); return !!p && (p.classList.contains('hl') || p.classList.contains('hl-group')); });
+  ok(hl28, 'Automático: F102·28H highlighted for ECM 102');
+  const tags = await routeTags();
+  ok(!tags.some((x) => x.rail === 'gnd' || x.rail === '12v'), `Automático: PNP route is not tagged GND/12V (${JSON.stringify(tags)})`);
+  ok(tags.some((x) => x.rail === 'sig' && /28H/.test(x.text)), 'Automático: PNP route tagged signal via F102·28H');
+}
+await setTrans('mt');
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+
+console.log('\nRoute tag follows circuit rail (ECM 116 = GND, coil = 12V) + knock shield text');
+for (const [lang, gndTxt, pwrTxt] of [['es', 'Masa', 'Alim. 12V'], ['en', 'Ground', 'Power 12V'], ['ja', 'アース', '電源 12V']]) {
+  await page.select('#lang', lang);
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+  await clickPin(116);
+  const t116 = await routeTags();
+  ok(t116.length > 0 && t116.every((x) => x.rail === 'gnd') && t116[0].text.startsWith(gndTxt) && /F103·4/.test(t116[0].text) && /F152/.test(t116[0].text),
+    `${lang}: pin 116 route tag "${gndTxt}" F103·4 → F152 (${JSON.stringify(t116)})`);
+  ok(!t116.some((x) => x.text.includes(pwrTxt)), `${lang}: pin 116 has no "${pwrTxt}" tag`);
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+  await clickPin(62);
+  const t62 = await routeTags();
+  ok(t62.some((x) => x.rail === '12v' && x.text.startsWith(pwrTxt)), `${lang}: coil pin 62 keeps "${pwrTxt}" tag`);
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+  await clickPin(15);
+  const info15 = await page.$eval('#info', (el) => el.innerText);
+  ok(!/SNS GND/.test(info15) && /116/.test(info15) && /F152/.test(info15), `${lang}: knock (15) shield → ECM 116 B/R → F152, no SNS GND`);
+}
+await page.select('#lang', 'es');
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

@@ -866,6 +866,7 @@ def extract_conn(conn_id, html=None):
         ecm = _field(obj, "ecm")
         src = _field(obj, "src")
         rail = _field(obj, "rail")
+        trans = _field(obj, "trans")
         if ecm and ecm != "null":
             note = str(ecm)
         elif src:
@@ -892,6 +893,9 @@ def extract_conn(conn_id, html=None):
                 disp = "SIG"
         else:
             disp = str(lab)
+        if trans == "at":
+            # FSM EC-644: A/T-only cavity (e.g. F102 28H PNP / 23H START) — empty on M/T (EC-646)
+            disp = "A/T"
         pins.append((str(pid or lab), code, note, disp))
     return pins, subtitle
 
@@ -1092,7 +1096,8 @@ c.setFillColor(TITLE_BLACK)
 c.drawString(14, f102_top + 2, t("f102_header"))
 c.setFont(FONT, 4.8)
 c.setFillColor(MUTED)
-c.drawRightString(W - 14, f102_top + 2, (F102_SUB or "PG-85 H.S.") + " · " + t("f102_cavities", n=len(F102_PINS)))
+c.drawRightString(W - 14, f102_top + 2, (F102_SUB or "PG-85 H.S.") + " · " + t("f102_cavities", n=len(F102_PINS))
+                  + " · " + t("f102_at_note"))
 ficha(14, f102_top - f102_h, W - 28, f102_h - 2, t("f102_title"),
       F102_PINS, shape="f102", face="f102",
       subtitle=t("f102_subtitle"),

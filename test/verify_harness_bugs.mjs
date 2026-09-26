@@ -313,6 +313,103 @@ ok('actuators render no longer nests bobinas under actuators',
     /cmp_b1:\{[^\n]*\n    pins:\[[^\n]*src:'F152'/.test(html) && /cmp_b2:\{[^\n]*\n    pins:\[[^\n]*src:'F152'/.test(html));
 }
 
+{
+  /* Knock shield: EC-317 → F228·2 → F14/F229·1 → ECM 116 B/R splice → F103/F151·4 → F152 (not "SNS GND"). */
+  ok('no knock "shield → SNS GND" text left (es/en/ja)',
+    !/malla a SNS GND|shield ?(→|to) ?SNS GND|シールド ?(→|は)? ?SNS GND/.test(html));
+  const kn = circuitBlock('knock');
+  ok('knock circuit notes: shield → 116 → F103/F151·4 → F152 (EC-317)',
+    kn && /116/.test(kn) && /F103\/F151·4/.test(kn) && /F152/.test(kn) && /EC-317/.test(kn));
+  ok('knock circuit path = F14·SH + F103·4 + F152 (SH on 116)',
+    kn && /path:\{ix_f14_f229:\['SH'\],gnd4:\['4'\],f152:\['ring'\]\}/.test(kn));
+  ok('knock + F14/F229 fichas keep SH → ECM 116 GND',
+    /\n  knock:\{[^\n]*\n    pins:\[[^\n]*\{id:'SH',code:'B',ecm:116,rail:'gnd'/.test(html)
+    && /\n  ix_f14_f229:\{[^\n]*\n    pins:\[[^\n]*\{id:'SH',code:'B',ecm:116,rail:'gnd'/.test(html));
+  const pk = [...html.matchAll(/path_knock: "([^"]*)"/g)].map((m) => m[1]);
+  ok('path_knock es/en/ja mention B/R 116 → F103·4 → F152',
+    pk.length === 3 && pk.every((x) => /116/.test(x) && /F103·4/.test(x) && /F152/.test(x)), pk.join(' | '));
+}
+
+{
+  /* PNP per transmission: M/T F35 (EC-646) vs A/T via F102·28H → meter (EC-644). */
+  ok('stale pnp_sw circuit / body pnp ficha removed',
+    !/id:'pnp_sw'/.test(html) && !/\n  pnp:\{group:'body'/.test(html));
+  ok('TRANS_MT_ONLY has f35_pnp; TRANS_AT_ONLY is F6 only',
+    /const TRANS_MT_ONLY = new Set\(\[[^\]]*'f35_pnp'[^\]]*\]\)/.test(html)
+    && /const TRANS_AT_ONLY = new Set\(\['f6_at'\]\)/.test(html));
+  const f35 = (html.match(/\n  f35_pnp:\{[\s\S]*?\n  inj1:\{/) || [''])[0];
+  ok('f35_pnp ficha: motor loom, 1 BR/Y → ECM 102, 2 B GND → F152',
+    /group:'motor'/.test(f35) && /\{id:'1',lab:'SIG',code:'BR\/Y',ecm:102/.test(f35)
+    && /\{id:'2',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152'/.test(f35) && !/E17/.test(f35));
+  ok('F102 28H is A/T only (trans:at, EC-644)',
+    /\{id:'28H',code:'BR\/Y',ecm:102,lab:'PNP',trans:'at',circ:'pnp_at'/.test(html));
+  ok('F102 23H START GY/R is A/T only (trans:at, EC-644)',
+    /\{id:'23H',code:'GY\/R',ecm:null,lab:'START',src:'F6·9',srcSub:'actuators',trans:'at'/.test(html));
+  ok('applyTransView rebuilds circuits + F102',
+    /localStorage\.setItem\(LS_TRANS, v\);\n  CIRCUITS = circuitsForView\([^\n]*\n  rebuildIndexes\(\);\n  renderFichas\(\);\n  renderF102\(\);/.test(html));
+  try {
+    const ctx = { result: {} };
+    vm.createContext(ctx);
+    const buildFn = script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/)[0];
+    const helpers = ['circuitVisibleInTrans', 'circuitsForView', 'transGatePin']
+      .map((n) => script.match(new RegExp(`function ${n}\\([\\s\\S]*?\\n\\}`))[0]).join('\n');
+    const src = buildFn + '\nlet TV = "mt"; function transView(){ return TV; }\n' + helpers
+      + '\nresult.mt = circuitsForView("de_early"); TV = "at"; result.at = circuitsForView("de_early");'
+      + '\nresult.all = buildCircuits("de_early");'
+      + "\nconst p28 = {id:'28H',code:'BR/Y',ecm:102,lab:'PNP',trans:'at',offNote:'x'};"
+      + "\nresult.g28mt = transGatePin(p28, 'mt'); result.g28at = transGatePin(p28, 'at');";
+    vm.runInContext(src, ctx);
+    const { mt, at, all, g28mt, g28at } = ctx.result;
+    const pmt = mt.filter((c) => (c.ecm || []).includes(102));
+    const pat = at.filter((c) => (c.ecm || []).includes(102));
+    ok('Manual: ECM 102 → only pnp_mt', pmt.length === 1 && pmt[0].id === 'pnp_mt', pmt.map((c) => c.id).join(','));
+    ok('Automático: ECM 102 → only pnp_at', pat.length === 1 && pat[0].id === 'pnp_at', pat.map((c) => c.id).join(','));
+    const m = all.find((c) => c.id === 'pnp_mt');
+    ok('pnp_mt path F35·2 → F103·3 → F152, no F102 / E17',
+      m && m.trans === 'mt' && JSON.stringify(m.path) === JSON.stringify({ f35_pnp: ['2'], gnd4: ['3'], f152: ['ring'] })
+        && !(m.conn || []).includes('ix_f102_m72') && !m.f102 && !(m.conn || []).includes('e17'), JSON.stringify(m));
+    const a = all.find((c) => c.id === 'pnp_at');
+    ok('pnp_at: F102 28H (+23H) → F6, no invented PNP ground',
+      a && a.trans === 'at' && JSON.stringify(a.f102) === JSON.stringify(['28H', '23H'])
+        && (a.conn || []).includes('f6_at') && !(a.conn || []).includes('e17') && !(a.conn || []).includes('f152'), JSON.stringify(a));
+    ok('transGatePin empties A/T cavity on Manual', g28mt.ecm === null && g28mt.code === '—' && g28mt.transOff === 'at' && g28mt.note === 'x');
+    ok('transGatePin keeps A/T cavity on Automático', g28at.ecm === 102 && g28at.code === 'BR/Y');
+  } catch (e) {
+    ok('eval PNP per transmission', false, String(e.message || e));
+  }
+}
+
+{
+  /* Info-panel route tag follows the circuit rail (ECM 116 = GND, not "Alim. 12V"). */
+  ok('route pill no longer hardcodes railRelPower + " 12V"', !/t\('railRelPower'\)\)\} 12V/.test(html));
+  try {
+    const grab = (a, b) => { const i = html.indexOf(a); const j = html.indexOf(b, i + 1); return html.slice(i, j); };
+    const ctx = { result: {} };
+    vm.createContext(ctx);
+    const src = grab('const CONN_BASE = {', 'const CONN_FACE = {')
+      + '\n' + html.match(/const PIN_RAIL = \{[\s\S]*?\};/)[0]
+      + '\n' /* CONN_BASE slice already declares let CONN = {} */
+      + script.match(/function pathStepRail\([\s\S]*?\n\}/)[0] + '\n'
+      + script.match(/function circuitPathRail\([\s\S]*?\n\}/)[0] + '\n'
+      + script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/)[0]
+      + '\nconst C = buildCircuits("de_early"); const r = (id) => circuitPathRail(C.find((c) => c.id === id));'
+      + "\nresult.r = { g116: r('gnd_ecm_116'), g1: r('gnd_ecm_1'), knock: r('knock'), pnp_mt: r('pnp_mt'), pnp_at: r('pnp_at'), coil1: r('coil_1'), backup: r('backup_lamp'), brake: r('brake_stop') };"
+      + "\nresult.v5 = circuitPathRail({ path: { app: ['4'] } });";
+    vm.runInContext(src, ctx);
+    const r = ctx.result.r;
+    ok('route rail: ECM 116 / ECM 1 grounds = gnd', r.g116 === 'gnd' && r.g1 === 'gnd', JSON.stringify(r));
+    ok('route rail: knock shield + PNP M/T = gnd', r.knock === 'gnd' && r.pnp_mt === 'gnd');
+    ok('route rail: coil / backup lamp = 12v', r.coil1 === '12v' && r.backup === '12v');
+    ok('route rail: brake / PNP A/T = sig', r.brake === 'sig' && r.pnp_at === 'sig');
+    ok('route rail: 5V cavity = 5v', ctx.result.v5 === '5v', ctx.result.v5);
+  } catch (e) {
+    ok('eval route rail tag', false, String(e.message || e));
+  }
+  for (const k of ['pathTag12v', 'pathTag5v', 'pathTagGnd', 'pathTagSig']) {
+    ok(`t('${k}') used`, html.includes(`t('${k}')`));
+  }
+}
+
 console.log('\n---');
 console.log(`${passes.length} passed, ${failures.length} failed`);
 if (failures.length) {
