@@ -1043,8 +1043,8 @@ await page.evaluate(() => clearSelection());
   const all = await vis('all');
   const mot = await vis('motor');
   ok(Object.values(all).every(Boolean), `Completo shows E202, E211, fuse 36, F20, E11/F2 (${JSON.stringify(all)})`);
-  ok(!mot.alt_b && !mot.alt_e && !mot.fuse36_alt && !mot.f20_alt && mot.ix_e11_f2,
-    `Arnés motor hides battery-cable E202/E211, fuse 36 (E21) and F20 (on the alternator); keeps E11/F2 (${JSON.stringify(mot)})`);
+  ok(!mot.alt_b && !mot.alt_e && !mot.fuse36_alt && mot.f20_alt && mot.ix_e11_f2,
+    `Arnés motor hides battery-cable E202/E211 and fuse 36 (E21); keeps F20 and E11/F2 (${JSON.stringify(mot)})`);
   await vis('all');
 }
 

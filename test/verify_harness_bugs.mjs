@@ -65,8 +65,10 @@ ok('F9 starter not on pulled motor loom',
   /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'f9_starter'[\s\S]*?\]\)/.test(html));
 ok('F16 condenser and F24 A/C clutch not on pulled motor loom',
   /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'f16_cond'[\s\S]*?'f24_comp'[\s\S]*?\]\)/.test(html));
-ok('F20 alt and F21 oil pressure not on pulled motor loom',
-  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'f20_alt'[\s\S]*?'f21_oilp'[\s\S]*?\]\)/.test(html));
+ok('F21 oil pressure not on pulled motor loom',
+  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'f21_oilp'[\s\S]*?\]\)/.test(html));
+ok('F20 alternator stays on motor loom',
+  !html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0].includes("'f20_alt'"));
 ok('evap_press CONN exists', /\n  evap_press:\{/.test(html));
 
 {

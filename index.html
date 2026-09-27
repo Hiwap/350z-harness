@@ -2561,8 +2561,8 @@ const LOOM_BODY_EXTRA = new Set([
   'f9_starter',
   /* F16 ignition condenser and F24 A/C clutch are not on the pulled control loom */
   'f16_cond', 'f24_comp',
-  /* F20 alternator plug and F21 oil pressure sit on those units, not the control loom */
-  'f20_alt', 'f21_oilp',
+  /* F21 oil pressure sits on the filter/block, not the pulled control loom. F20 (S/L) stays: it is on the engine-control harness. */
+  'f21_oilp',
   /* Alternator B/E ring terminals: Battery cable (PG-53), not the engine-control loom; fuse 36 sits in E21 (engine-room fuse box E18) */
   'alt_b', 'alt_e', 'fuse36_alt'
 ]);
