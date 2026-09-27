@@ -287,6 +287,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       cmp_b1: 3, cmp_b2: 3, /* FSM EC-331/333: F4 GY/3, F32 B/3 */
       knock: 2,
       ect: 2,
+      app: 6,
       ho2s_b1: 4, ho2s_b2: 4,
       /* Round-2 ids — only asserted when present in CONN_FACE */
       ix_e10_f1: 9, ix_e12_f3: 8, ix_e11_f2: 10,
