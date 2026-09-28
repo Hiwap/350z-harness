@@ -721,23 +721,28 @@
   .ficha.hl .cav-empty, .ficha-wrap.hl .cav-empty { opacity: 0.18 !important; }
   details.opts .opts-rail-rel {
     flex: 1 1 100%;
-    display: flex; flex-wrap: nowrap; gap: 8px 12px;
-    align-items: center;
+    display: flex; flex-direction: column; align-items: stretch;
+    gap: 4px;
     padding: 6px 2px 2px;
     border-top: 1px dashed #2a3340;
     margin-top: 2px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
   }
   details.opts .opts-rail-rel-title {
     font-size: 11px; font-weight: 700; color: #90a4ae;
-    margin-right: 2px;
-    flex: 0 0 auto;
     white-space: nowrap;
+  }
+  details.opts .opts-rail-rel-row {
+    display: flex; flex-wrap: wrap; gap: 8px 12px;
+    align-items: center;
   }
   details.opts .opts-rail-rel label.chk {
     flex: 0 0 auto;
     white-space: nowrap;
+  }
+  details.opts .opts-rail-rel-row select {
+    font: inherit;
+    font-size: 12px;
+    max-width: 100%;
   }
 
   .opts-hl-swatch {
@@ -1041,24 +1046,24 @@
       </label>
       <div class="opts-rail-rel" id="optsRailRel">
         <span class="opts-rail-rel-title" id="railRelTitle">Relacionados</span>
-        <label class="chk" id="lblRailRelGnd">
-          <input type="checkbox" id="railRelGnd" checked />
-          <span id="lblRailRelGndTxt">Tierras</span>
-        </label>
-        <label class="chk" id="lblRailRelPower">
-          <input type="checkbox" id="railRelPower" />
-          <span id="lblRailRelPowerTxt">Alim.</span>
-        </label>
-        <label class="chk" id="lblRailRelData">
-          <input type="checkbox" id="railRelData" checked />
-          <span id="lblRailRelDataTxt">Datos</span>
-        </label>
-        <label id="lblRelGroup">Agrupar
-          <select id="relGroup">
+        <div class="opts-rail-rel-row">
+          <label class="chk" id="lblRailRelGnd">
+            <input type="checkbox" id="railRelGnd" checked />
+            <span id="lblRailRelGndTxt">Tierras</span>
+          </label>
+          <label class="chk" id="lblRailRelPower">
+            <input type="checkbox" id="railRelPower" />
+            <span id="lblRailRelPowerTxt">Alim.</span>
+          </label>
+          <label class="chk" id="lblRailRelData">
+            <input type="checkbox" id="railRelData" checked />
+            <span id="lblRailRelDataTxt">Datos</span>
+          </label>
+          <select id="relGroup" aria-label="Agrupar">
             <option value="ficha" id="optRelFicha">Ficha</option>
             <option value="sensor" id="optRelSensor">Sensor</option>
           </select>
-        </label>
+        </div>
       </div>
     </div>
   </details>
@@ -4688,7 +4693,8 @@ function applyLang(){
   if(rrp) rrp.textContent = t('railRelPower');
   const rrd = document.getElementById('lblRailRelDataTxt');
   if(rrd) rrd.textContent = t('railRelData');
-  setLabel('lblRelGroup', 'relGroup');
+  const relSel = document.getElementById('relGroup');
+  if(relSel) relSel.setAttribute('aria-label', t('relGroup'));
   const oFicha = document.getElementById('optRelFicha');
   const oSensor = document.getElementById('optRelSensor');
   if(oFicha) oFicha.textContent = t('relFicha');
