@@ -276,6 +276,28 @@ ok('rail-focus helpers present (stay in rail on re-click)',
     }
     ok('A/F face caption carries the localized similar/lock note', /af_b1:[^\n]*note: 'faceNoteSimilarLock'/.test(faceBlock[1])
       && (html.match(/faceNoteSimilarLock: '/g) || []).length === 3 /* es + en + ja packs */);
+    ok('E108/M15 has no face photo', !/ix_e108_m15\s*:\s*\{\s*src:/.test(faceBlock[1]));
+    ok('IPDM FSM PG-26 image exists and each E3–E9 plug has a mark',
+      fs.existsSync(path.join(ROOT, 'faces/ipdm_pg26.webp'))
+      && /const IPDM_FSM_MARK = \{/.test(html)
+      && ['ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9'].every((id) =>
+        new RegExp(id + ':\\s*\\{l:').test(html)));
+    ok('IPDM PG-26 camera stays on Seleccionados plugs only, not the group or the fuse ficha',
+      /function ipdmFsmBtnHtml\(/.test(html)
+      && /class="ficha-face-btn ipdm-fsm-btn"/.test(html)
+      && (html.match(/makeFichaEl\(id, CONN\[id\], \{ipdmIcon:true\}\)/g) || []).length === 2
+      && !/sum\.insertAdjacentHTML\('beforeend', ipdmFsmBtnHtml/.test(html)
+      && !/showIpdm = id === 'ipdm_cover'/.test(html)
+      && !/ipdm-fsm-group|ipdmFsmFigHtml|class="ipdm-fsm"/.test(html));
+    ok('IPDM cover fuses 71–89 are one ficha, with the amp under the short name',
+      /ipdm_cover:\{group:'motor', sub:'ipdm'/.test(html)
+      && /function svgIpdmCover\(/.test(html)
+      && /if\(n === 10\) return '#ef5350'/.test(html)
+      && /if\(n === 15\) return '#42a5f5'/.test(html)
+      && /if\(n === 20\) return '#ffee58'/.test(html)
+      && Array.from({length:19}, (_,i) => 71+i).every((n) =>
+        new RegExp(`\\{id:'${n}',lab:'`).test(html))
+      && !/ipdm_f71: \{l:/.test(html));
 
     /* Pin-count lock: CONN/CONN_BASE.pins.length must match expected for mapped faces. */
     const EXPECTED_FACE_PINS = {

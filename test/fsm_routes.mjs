@@ -62,7 +62,8 @@ const stepColor = (s) => (s.col && s.map && half(s.map) && s.col[half(s.map)]) |
 const pinOf = (cid, cav) => ((CONN_BASE[cid] && CONN_BASE[cid].pins) || []).find((p) => String(p.id) === String(cav));
 const groundKey = (g) => (TABLE.ground_points[g] && TABLE.ground_points[g].map ? K(TABLE.ground_points[g].map, 'ring') : null);
 const GROUND_RINGS = new Map(Object.entries(TABLE.ground_points).filter(([, g]) => g.map).map(([n, g]) => [K(g.map, 'ring'), n]));
-const pathKeys = (cir) => Object.entries(cir.path || {}).flatMap(([cid, cavs]) => (cavs || []).map((c) => K(cid, c)));
+/* ipdm_cover cells are the lid grid, not an FSM connector hop on the pin route. */
+const pathKeys = (cir) => Object.entries(cir.path || {}).filter(([cid]) => cid !== 'ipdm_cover').flatMap(([cid, cavs]) => (cavs || []).map((c) => K(cid, c)));
 const pathStepRail = (cid, cav) => {
   const p = pinOf(cid, cav);
   if (!p) return null;

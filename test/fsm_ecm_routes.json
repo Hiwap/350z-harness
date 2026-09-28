@@ -1766,7 +1766,8 @@
   "backup_sw": "non-ECM connector (LT section), not verified in this pass",
   "alt_b": "non-ECM ring terminal E202·1 alternator B (SC-22): B/GY -> fusible link holder E201·5 -> battery + (PG-POWER-01 battery bus, no fuse); battery cable PG-53",
   "alt_e": "non-ECM ring terminal E211·2 alternator E (SC-22): B -> body ground E212, B/Y link to engine ground E213; battery cable PG-53",
-  "fuse36_alt": "fuse card (fuse & fusible link block E21 fuse 36 10A, BAT, PG-POWER-02 -> SC-CHARGE) feeding E11/F2·1 -> F20·4 S"
+  "fuse36_alt": "fuse card (fuse & fusible link block E21 fuse 36 10A, BAT, PG-POWER-02 -> SC-CHARGE) feeding E11/F2·1 -> F20·4 S",
+  "ipdm_cover": "IPDM cover fuse grid 71-89 as one ficha. Short labels are the lid text; numbers and amps are PG-26. 88 is marked X (not mounted)."
  },
  "sig_click_allowlist": [
   {

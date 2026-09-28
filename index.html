@@ -796,7 +796,18 @@
   .cav-label.lab-can { fill: #ce93d8 !important; }
 
 
-  /* IPDM uses standard fichas (no static PG-26 image panel) */
+  /* IPDM PG-26 opens from the camera on selected E3–E9 fichas. */
+  .ficha-sec > summary .ipdm-fsm-btn { margin-left: auto; align-self: center; }
+  .ipdm-mark {
+    position: absolute; box-sizing: border-box; pointer-events: none;
+    border: 2px solid #e65100; border-radius: 5px;
+    background: rgba(255, 213, 79, .45);
+    box-shadow: 0 0 0 1px rgba(230, 81, 0, .45);
+  }
+  #faceLightbox .face-lb-frame {
+    position: relative; display: inline-block; max-width: 100%; line-height: 0;
+  }
+  #faceLightbox .face-lb-frame .ipdm-mark { border-width: 3px; }
   footer { padding: 10px 16px 18px; color: #b0b7c3; font-size: 11px; border-top: 1px solid var(--border); }
   code { background: #232a36; padding: 1px 5px; border-radius: 4px; font-size: 11px; }
 
@@ -1565,7 +1576,7 @@ function buildCircuits(model){
 
     {id:'backup_lamp', title:'Luces de marcha atrás (M/T)', color:'#ffb300',
       ecm:[], conn:['backup_sw','ix_f102_m72'], f102:['22H'],
-      path:{ipdm_e7:['26'],ix_e10_f1:['2'],backup_sw:['1','2'],ix_f102_m72:['22H']},
+      path:{ipdm_e7:['26'],ix_e10_f1:['2'],backup_sw:['1','2'],ix_f102_m72:['22H'],ipdm_cover:['83']},
       notes:'Luces de marcha atrás (M/T, LT-183): IGN ON/START → IPDM fusible 83 (10A) → E7·26 G/W → E10/F1·2 Y/R → F36·1 (12V). F36·2 OR = salida conmutada (12V solo en reversa) → F102·22H → M72 → B1/M12·64J → T2/B44·12 LG → luces T10/T18.'},
 
     {id:'gnd_ecm_1', title:'Tierra ECM 1 → F103·3 → F152', color:'#66bb6a',
@@ -1631,22 +1642,22 @@ function buildCircuits(model){
       path:{ix_f102_m72:['5H'], ix_e108_m15:['68G']},
       notes:'Memoria del ECM: 12V siempre, aunque la llave esté off. Ruta: BATT → fusible 15A → E108·68G → F102·5H → ECM 121 (EC-441).'},
     {id:'ign_vb_119', title:'IGN · VB ECM 119', color:'#ef5350',
-      ecm:[119], conn:['ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7']},
-      notes:'VB ECM 119 (R/W). Ruta: F3·7 → ECM 119. 12V (Alim.): E7-18. EC-167. No comparte circuito con ECM 120 (P / F3·4).'},
+      ecm:[119], conn:['ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],ipdm_cover:['77']},
+      notes:'VB ECM 119 (R/W). Ruta: F3·7 → ECM 119. 12V (Alim.): E7-18. Junto al conector del ECM el R/W se junta en cuatro cables: el del pin 119, uno que entra al bloque rojo del arnés y dos que siguen en el manojo (F38·3 y F42·3). El corte no está dentro del bloque. El FSM no numera ese bloque. EC-167. No comparte circuito con ECM 120 (P / F3·4).'},
     {id:'ign_vb_120', title:'IGN · VB ECM 120', color:'#ef5350',
-      ecm:[120], conn:['ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['4']},
+      ecm:[120], conn:['ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['4'],ipdm_cover:['77']},
       notes:'VB ECM 120 (P). Ruta: F3·4 → ECM 120. 12V (Alim.): E7-18. EC-167. No comparte circuito con ECM 119 (R/W / F3·7).'},
     {id:'ign_sw', title:'IGN SW · señal llave → ECM', color:'#ef5350',
       ecm:[109], conn:['ix_f102_m72'], path:{ix_f102_m72:['17H']}, notes:'Señal de llave en ON al ECM (no es el 12V de potencia). Ruta: interruptor → F102·17H → ECM 109.'},
     {id:'ecm_relay_ss', title:'SSOFF · control relé ECM', color:'#ef5350',
-      ecm:[111], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['46'],ix_e108_m15:['69G'],ix_f102_m72:['11H']}, notes:'El ECM mantiene/apaga el relé de encendido que vive dentro del IPDM (fusible 77). Ruta: ECM 111 → F102·11H → E108·69G → E9-46 (SSOFF).'},
+      ecm:[111], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['46'],ix_e108_m15:['69G'],ix_f102_m72:['11H'],ipdm_cover:['77']}, notes:'El ECM mantiene/apaga el relé de encendido que vive dentro del IPDM (fusible 77). Ruta: ECM 111 → F102·11H → E108·69G → E9-46 (SSOFF).'},
     {id:'motrly', title:'MOTRLY', color:'#ef5350',
-      ecm:[104], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H']}, notes:'El ECM solo mira si el relé de la mariposa (dentro del IPDM, F87) entregó 12V; no mueve el motor él solo. Ruta: E9-47 → E108·30G → F102·12H → ECM 104.'},
+      ecm:[104], conn:['ipdm_e9','ix_e108_m15','ix_f102_m72'], path:{ipdm_e9:['47'],ix_e108_m15:['30G'],ix_f102_m72:['12H'],ipdm_cover:['87']}, notes:'El ECM solo mira si el relé de la mariposa (dentro del IPDM, F87) entregó 12V; no mueve el motor él solo. Ruta: E9-47 → E108·30G → F102·12H → ECM 104.'},
     {id:'vmot', title:'VMOT · 12V motor mariposa', color:'#ef5350',
-      ecm:[3], conn:['ix_e12_f3'], path:{ipdm_e8:['42'],ix_e12_f3:['8']},
+      ecm:[3], conn:['ix_e12_f3'], path:{ipdm_e8:['42'],ix_e12_f3:['8'],ipdm_cover:['87']},
       notes:'12V motor mariposa (G) tras relé ETC. Ruta FSM EC-472: IPDM E8-42 (G) → E12/F3·8 (G) → ECM 3.'},
     {id:'fp_relay', title:'Control relé bomba', color:'#ef5350',
-      ecm:[113], conn:['ipdm_e8','ix_e108_m15','ix_f102_m72'], path:{ipdm_e8:['40'],ix_e108_m15:['28G'],ix_f102_m72:['6H']}, notes:'Control del relé de bomba (el relé está en el IPDM). Ruta: ECM 113 → F102·6H → E108·28G → E8-40.'},
+      ecm:[113], conn:['ipdm_e8','ix_e108_m15','ix_f102_m72'], path:{ipdm_e8:['40'],ix_e108_m15:['28G'],ix_f102_m72:['6H'],ipdm_cover:['81']}, notes:'Control del relé de bomba (el relé está en el IPDM). Ruta: ECM 113 → F102·6H → E108·28G → E8-40.'},
         {id:'ftt', title:'FTT · temp. tanque', color:'#7e57c2',
       ecm:[107], conn:['fuel_tank_temp','ix_f102_m72','ix_b1_m12'], f102:['25H'],
       path:{fuel_tank_temp:['4'],ix_b1_m12:['36J'],ix_f102_m72:['25H']},
@@ -1746,7 +1757,7 @@ function buildCircuits(model){
         notes:'Masa sensor EVT B1. Ruta: F38·1 (B) → F103/F151·3 → masa motor F152. EC-445.'},
       {id:'evt_pos_b1_pwr', title:'EVT posición B1 · 12V', color:'#ad1457',
         ecm:[], conn:['f38_evtc_b1','ix_e12_f3'],
-        path:{ipdm_e7:['18'],ix_e12_f3:['7'],f38_evtc_b1:['3']},
+        path:{ipdm_e7:['18'],ix_e12_f3:['7'],f38_evtc_b1:['3'],ipdm_cover:['77']},
         notes:'12V sensor EVT B1. Ruta: IPDM E7·18 (relé ECM, R/W) → E12/F3·7 → F38·3. EC-445.'},
       {id:'evt_pos_b2', title:'EVT posición B2 (escape) · F42', color:'#ad1457',
         ecm:[72], conn:['f42_evtc_b2'],
@@ -1758,7 +1769,7 @@ function buildCircuits(model){
         notes:'Masa sensor EVT B2. Ruta: F42·1 (B) → F103/F151·3 → masa motor F152. EC-447.'},
       {id:'evt_pos_b2_pwr', title:'EVT posición B2 · 12V', color:'#ad1457',
         ecm:[], conn:['f42_evtc_b2','ix_e12_f3'],
-        path:{ipdm_e7:['18'],ix_e12_f3:['7'],f42_evtc_b2:['3']},
+        path:{ipdm_e7:['18'],ix_e12_f3:['7'],f42_evtc_b2:['3'],ipdm_cover:['77']},
         notes:'12V sensor EVT B2. Ruta: IPDM E7·18 (relé ECM, R/W) → E12/F3·7 → F42·3. EC-447.'},
       /* Engine oil temperature sensor F242 (EC-123 (3M) = 35th Anniversary M/T; 2006 EC-110 (M)). Ground = F242·G on the ECM 67 line (no path: sensor return, like ECT). */
       {id:'eot', trans:'mt', title:'Temp. aceite (35th M/T) · F242', color:'#6d4c41',
@@ -1929,6 +1940,29 @@ const CONN_BASE = {
       {id:'15',src:'FL·I',srcSub:'power',code:'B/R',ecm:null,rail:'12v',note:'Entrada batería 40A fusible link I (B/R) · EC-510.',note_en:'Battery in 40A fusible link I (B/R) · EC-510.',note_ja:'バッテリ入力 40A ヒュージブルリンク I (B/R) · EC-510。'},
       {id:'16',src:'FL·H',srcSub:'power',code:'B/W',ecm:null,rail:'12v',note:'Entrada batería 40A fusible link H (B/W) · EC-510.',note_en:'Battery in 40A fusible link H (B/W) · EC-510.',note_ja:'バッテリ入力 40A ヒュージブルリンク H (B/W) · EC-510。'}
     ], note:'IPDM E6 · ventiladores + feeds 40A batería (EC-510). Cara PG-26 H.S.: top 14-15-16 / bot 11-12-13 · vista fija (sin verificar).'},
+  /* One cover ficha. Short lab = text molded on the lid (user photo). Full name is pin.note. Numbers and amps follow PG-26. */
+  ipdm_cover:{group:'motor', sub:'ipdm', name:'Tapa IPDM · fusibles', meta:'PG-26 · 71–89', accent:'#ffca28', shape:'ipdm_cover', view:{unv:{es:'la grilla es la tapa impresa, con los números de PG-26; no hay cara T.S. de arnés.',en:'the grid is the printed cover, numbered from PG-26; there is no harness-plug face.',ja:'印刷カバーの格子。番号はPG-26。ハーネス側の面はない。'}}, note:'Los 71–89 están en esta tapa. El recuadro lleva el nombre corto impreso. El nombre completo sale al elegir el fusible.',
+    pins:[
+      {id:'71',lab:'TAIL',code:'10A',ecm:null,note:'Tapa: TAIL LAMP, 10A. Luces de cola.',note_en:'Cover: TAIL LAMP, 10A. Tail lamps.',note_ja:'カバー: TAIL LAMP、10A。テールランプ。'},
+      {id:'72',lab:'HI-RH',code:'10A',ecm:null,note:'Tapa: H/L HI-RH, 10A. Luz alta del faro derecho.',note_en:'Cover: H/L HI-RH, 10A. Right headlamp high beam.',note_ja:'カバー: H/L HI-RH、10A。右ヘッドランプハイ。'},
+      {id:'73',lab:'WIP',code:'20A',ecm:null,note:'Tapa: FR WIP, 20A. Limpia parabrisas.',note_en:'Cover: FR WIP, 20A. Front wiper.',note_ja:'カバー: FR WIP、20A。フロントワイパー。'},
+      {id:'74',lab:'HI-LH',code:'10A',ecm:null,note:'Tapa: H/L HI-LH, 10A. Luz alta del faro izquierdo.',note_en:'Cover: H/L HI-LH, 10A. Left headlamp high beam.',note_ja:'カバー: H/L HI-LH、10A。左ヘッドランプハイ。'},
+      {id:'75',lab:'DEF',code:'20A',ecm:null,note:'Tapa: RR DEF, 20A. Desempañador de luneta. Sale por E4·6.',note_en:'Cover: RR DEF, 20A. Rear-window defogger. Leaves through E4·6.',note_ja:'カバー: RR DEF、20A。リヤデフォッガ。E4·6から出る。'},
+      {id:'76',lab:'LO-RH',code:'15A',ecm:null,note:'Tapa: H/L LO-RH, 15A. Luz baja del faro derecho.',note_en:'Cover: H/L LO-RH, 15A. Right headlamp low beam.',note_ja:'カバー: H/L LO-RH、15A。右ヘッドランプロー。'},
+      {id:'77',lab:'IGN',code:'15A',ecm:null,note:'Tapa: IGN & ECCS CONT, 15A. Relé del ECM. Sale por E7·18 (R/W) hacia ECM 119 y 120.',note_en:'Cover: IGN & ECCS CONT, 15A. ECM relay. Leaves through E7·18 (R/W) to ECM 119 and 120.',note_ja:'カバー: IGN & ECCS CONT、15A。ECMリレー。E7·18（R/W）から ECM 119 と 120 へ。'},
+      {id:'78',lab:'DEICE',code:'15A',ecm:null,note:'Tapa: WIPER DEICER, 15A. Deshielo del limpia.',note_en:'Cover: WIPER DEICER, 15A. Wiper deicer.',note_ja:'カバー: WIPER DEICER、15A。ワイパーデアイサー。'},
+      {id:'79',lab:'A/C',code:'10A',ecm:null,note:'Tapa: AIR CON, 10A. Aire acondicionado.',note_en:'Cover: AIR CON, 10A. Air conditioner.',note_ja:'カバー: AIR CON、10A。エアコン。'},
+      {id:'80',lab:'DEF',code:'20A',ecm:null,note:'Tapa: RR DEF, 20A. Desempañador de luneta. Sale por E4·5.',note_en:'Cover: RR DEF, 20A. Rear-window defogger. Leaves through E4·5.',note_ja:'カバー: RR DEF、20A。リヤデフォッガ。E4·5から出る。'},
+      {id:'81',lab:'FUEL',code:'15A',ecm:null,note:'Tapa: FUEL PUMP, 15A. Salida del relé de bomba. E8·39 (B/Y) hacia la bomba pin 1.',note_en:'Cover: FUEL PUMP, 15A. Fuel-pump relay output. E8·39 (B/Y) to pump pin 1.',note_ja:'カバー: FUEL PUMP、15A。燃料ポンプリレー出力。E8·39（B/Y）→ ポンプ pin 1。'},
+      {id:'82',lab:'ABS',code:'10A',ecm:null,note:'Tapa: ABS CONT, 10A. Control del ABS.',note_en:'Cover: ABS CONT, 10A. ABS control.',note_ja:'カバー: ABS CONT、10A。ABS制御。'},
+      {id:'83',lab:'A/T',code:'10A',ecm:null,note:'Tapa: AT CONT, 10A. En el arnés, E7·26 (G/W) alimenta la marcha atrás (interruptor F36, LT-183) y ese pin está numerado fusible 83.',note_en:'Cover: AT CONT, 10A. On this harness E7·26 (G/W) feeds the back-up lamps (switch F36, LT-183), and that pin is numbered fuse 83.',note_ja:'カバー: AT CONT、10A。このハーネスでは E7·26（G/W）がバックランプ（F36、LT-183）を給電し、そのピンはヒューズ83。'},
+      {id:'84',lab:'WASH',code:'10A',ecm:null,note:'Tapa: WASH MTR, 10A. Motor del lavaparabrisas.',note_en:'Cover: WASH MTR, 10A. Washer motor.',note_ja:'カバー: WASH MTR、10A。ウォッシャーモータ。'},
+      {id:'85',lab:'O2',code:'15A',ecm:null,note:'Tapa: O2 SENS, 15A. Sensores de oxígeno.',note_en:'Cover: O2 SENS, 15A. Oxygen sensors.',note_ja:'カバー: O2 SENS、15A。O2センサ。'},
+      {id:'86',lab:'LO-LH',code:'15A',ecm:null,note:'Tapa: H/L LO-LH, 15A. Luz baja del faro izquierdo.',note_en:'Cover: H/L LO-LH, 15A. Left headlamp low beam.',note_ja:'カバー: H/L LO-LH、15A。左ヘッドランプロー。'},
+      {id:'87',lab:'THR',code:'15A',ecm:null,note:'Tapa: THROTTLE MTR, 15A. Relé del motor de la mariposa. El ECM lo vigila por E9·47.',note_en:'Cover: THROTTLE MTR, 15A. Throttle-motor relay. The ECM watches it at E9·47.',note_ja:'カバー: THROTTLE MTR、15A。スロットルモータリレー。ECMは E9·47 で監視。'},
+      {id:'88',lab:'FOG',code:'15A',ecm:null,note:'Tapa: FR FOG, 15A. PG-26 marca el 88 con una X: ese lugar no lleva fusible.',note_en:'Cover: FR FOG, 15A. PG-26 marks 88 with an X: that socket has no fuse.',note_ja:'カバー: FR FOG、15A。PG-26は88をXで示す。ヒューズは入らない。'},
+      {id:'89',lab:'SOL',code:'10A',ecm:null,note:'Tapa: ENG SOL, 10A. En SC-13 el fusible 89 alimenta el interlock de embrague M/T por E7·25 (G/Y).',note_en:'Cover: ENG SOL, 10A. SC-13 fuse 89 feeds the M/T clutch interlock through E7·25 (G/Y).',note_ja:'カバー: ENG SOL、10A。SC-13のヒューズ89は M/T クラッチインターロックを E7·25（G/Y）へ給電。'}
+    ]},
   ipdm_legend:{group:'motor', sub:'ipdm', name:'IPDM · Relés y fusibles', meta:'PG-26 · layout FSM', accent:'#ef5350', shape:'ixnote',
     pins:[],
     note:'Referencia rápida del IPDM: relés internos y fusibles. Clave: 77=relé ECM · 81=bomba · 87=mariposa.'},
@@ -2577,6 +2611,8 @@ const LOOM_BODY_EXTRA = new Set([
   'ix_e108_m15',
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
   'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9',
+  /* Cover fuse grid lives in the IPDM, same as E3–E9: not on the pulled engine-control loom. */
+  'ipdm_cover',
   /* Fuse Block (cabin M4) — not on the pulled PG-54/55 motor loom */
   'jb_10a_inj', 'jb_15a_ht',
   /* F9 sits on the starter motor; the control loom only has START at F1·1 */
@@ -3824,6 +3860,59 @@ function svgF102(cid, f){
 }
 
 
+function svgIpdmCover(cid, f){
+  /* Lid grid from the cover photo, numbered from PG-26. Left 71–80, right 81–89, gap before 77. */
+  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
+  const rows = [
+    ['71', null],
+    ['72', '81'],
+    ['73', '82'],
+    ['74', '83'],
+    ['75', '84'],
+    ['76', '85'],
+    [null, '86'],
+    ['77', '87'],
+    ['78', '88'],
+    ['79', '89'],
+    ['80', null],
+  ];
+  const cw = 54, ch = 26, gap = 2, colGap = 5, padX = 5, padTop = 6;
+  const W = padX * 2 + cw * 2 + colGap;
+  const H = padTop + rows.length * (ch + gap) + 4;
+  const ampColor = (code) => {
+    const n = parseInt(code, 10);
+    if(n === 10) return '#ef5350';
+    if(n === 15) return '#42a5f5';
+    if(n === 20) return '#ffee58';
+    return '#cfd8dc';
+  };
+  let cells = '';
+  rows.forEach((row, ri)=>{
+    const y = padTop + ri * (ch + gap);
+    row.forEach((id, ci)=>{
+      const x = padX + ci * (cw + colGap);
+      if(!id){
+        cells += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="3" fill="none" stroke="#2a3140" stroke-dasharray="2 2"/>`;
+        return;
+      }
+      const p = byId[id] || {id, lab:id, code:''};
+      const empty = id === '88';
+      const col = ampColor(p.code);
+      cells += `<g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(id)}" role="button">
+        <rect class="cavity cav-face" x="${x}" y="${y}" width="${cw}" height="${ch}" rx="3" style="stroke:${empty ? '#546e7a' : col}"/>
+        ${empty ? `<line x1="${x+3}" y1="${y+3}" x2="${x+cw-3}" y2="${y+ch-3}" stroke="#ef9a9a" stroke-width="1.2" opacity="0.7"/><line x1="${x+cw-3}" y1="${y+3}" x2="${x+3}" y2="${y+ch-3}" stroke="#ef9a9a" stroke-width="1.2" opacity="0.7"/>` : ''}
+        <text x="${x+cw/2}" y="${y+8}" text-anchor="middle" font-size="6.5" fill="#ffe082" font-weight="700">${esc(id)}</text>
+        <text x="${x+cw/2}" y="${y+16.5}" text-anchor="middle" font-size="8" fill="#e8eaed" font-weight="700">${esc(p.lab||'')}</text>
+        <text x="${x+cw/2}" y="${y+24}" text-anchor="middle" font-size="6.5" fill="${col}" font-weight="700">${esc(p.code||'')}</text>
+      </g>`;
+    });
+  });
+  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <rect class="shell" x="3" y="3" width="${W-6}" height="${H-6}" rx="6" style="stroke:${f.accent}"/>
+    ${cells}
+  </svg>`;
+}
+
 function renderConnSvg(cid, f){
   f = Object.assign({}, f, { accent: accentForConn(f, cid) });
   let svg;
@@ -3854,6 +3943,7 @@ function renderConnSvg(cid, f){
     case 'box': svg = svgBox(cid,f); break;
     case 'clock': svg = svgClock(cid,f); break;
     case 'note': svg = svgNote(cid,f); break; /* feed notes have cavities → scale */
+    case 'ipdm_cover': svg = svgIpdmCover(cid,f); break;
     case 'ixnote': return svgIxNote(cid,f); /* no cavities; leave flexible */
     case 'b2': svg = svgB2(cid,f); break;
     case 'b43': svg = svgB43(cid,f); break;
@@ -3928,6 +4018,9 @@ const I18N = {
     faceNoteMateMirror: 'mitad macho F221 que acopla; espejo de la ficha (F33 hembra)',
     facePhotoOpen: 'Ver foto del conector',
     facePhotoClose: 'Cerrar foto',
+    ipdmFsmAlt: 'IPDM del FSM, disposición de terminales PG-26',
+    ipdmFsmCap: 'FSM 2005 · PG-26 · IPDM E/R',
+    ipdmFuses: 'Fusibles del IPDM',
     selTopTitle: 'Grupos seleccionados',
     selTopFichas: 'seleccionados',
     selTopGroups: 'grupos',
@@ -4111,6 +4204,9 @@ const I18N = {
     faceNoteMateMirror: 'mating male half F221; mirrored vs the pin diagram (F33 female)',
     facePhotoOpen: 'View connector photo',
     facePhotoClose: 'Close photo',
+    ipdmFsmAlt: 'FSM IPDM terminal arrangement, PG-26',
+    ipdmFsmCap: 'FSM 2005 · PG-26 · IPDM E/R',
+    ipdmFuses: 'IPDM fuses',
     selTopTitle: 'Selected groups',
     selTopFichas: 'selected',
     selTopGroups: 'groups',
@@ -4294,6 +4390,9 @@ const I18N = {
     faceNoteMateMirror: '相手側F221オス；ピン図（F33メス）とは左右反転',
     facePhotoOpen: 'コネクタ写真を見る',
     facePhotoClose: '写真を閉じる',
+    ipdmFsmAlt: 'FSMのIPDM端子配置、PG-26',
+    ipdmFsmCap: 'FSM 2005 · PG-26 · IPDM E/R',
+    ipdmFuses: 'IPDMのヒューズ',
     selTopTitle: '選択グループ',
     selTopFichas: '選択',
     selTopGroups: 'グループ',
@@ -4565,7 +4664,7 @@ const NOTES_I18N = {
   inj_4: {en:'ECM 41 drive + common 12V.', ja:'ECM 41 + 共通12V。'},
   inj_5: {en:'ECM 21 drive + common 12V.', ja:'ECM 21 + 共通12V。'},
   inj_6: {en:'ECM 40 drive + common 12V.', ja:'ECM 40 + 共通12V。'},
-  ign_vb_119: {en:'VB ECM 119 (R/W). Path: F3·7 → ECM 119. 12V (Power): E7-18. EC-167. Not the same circuit as ECM 120 (P / F3·4).', ja:'VB ECM 119 (R/W)。経路: F3·7→ECM 119。12V（電源）: E7-18。EC-167。ECM 120（P / F3·4）とは別回路。'},
+  ign_vb_119: {en:'VB ECM 119 (R/W). Path: F3·7 → ECM 119. 12V (Power): E7-18. Next to the ECM connector the R/W wire is joined as four cables: the pin 119 wire, one that enters the red joint block, and two that continue in the loom (F38·3 and F42·3). The split is not inside the block. The FSM does not number that block. EC-167. Not the same circuit as ECM 120 (P / F3·4).', ja:'VB ECM 119 (R/W)。経路: F3·7→ECM 119。12V（電源）: E7-18。ECMコネクタ横でR/Wは4本で接合: ピン119の線、赤のジョイントブロックに入る1本、ハーネス内を続く2本（F38·3とF42·3）。分岐はブロックの中ではない。そのブロックのキャビティ番号はFSMに未記載。EC-167。ECM 120（P / F3·4）とは別回路。'},
   ign_vb_120: {en:'VB ECM 120 (P). Path: F3·4 → ECM 120. 12V (Power): E7-18. EC-167. Not the same circuit as ECM 119 (R/W / F3·7).', ja:'VB ECM 120 (P)。経路: F3·4→ECM 120。12V（電源）: E7-18。EC-167。ECM 119（R/W / F3·7）とは別回路。'},
   batt_ecm: {en:'ECM memory: always-hot 12V. Path: BATT → 15A fuse → E108·68G → F102·5H → ECM 121 (EC-441).', ja:'ECMメモリ: 常時12V。経路: BATT → 15Aヒューズ → E108·68G → F102·5H → ECM 121（EC-441）。'},
 
@@ -5126,6 +5225,7 @@ const CONN_I18N = {
   fuel_pump: { en:{name:'Fuel pump', meta:'B27 · EC-710', note:'Fuel pump. Path: E8-39 → pin 1 · ground pin 3 → D105.'}, ja:{name:'フューエルポンプ', meta:'B27 · EC-710', note:'燃料ポンプ。経路: E8-39 → pin1 · アース pin3 → D105。'} },
   jb_10a_inj: { en:{name:'JB · 10A injector fuse', meta:'Fuse Block M4 · IGN · EC-702', note:'Injector 10A fuse (cabin fuse block). Path: JB 10A → F102·17H → F33·5 → injector 12V rail.'}, ja:{name:'JB · 10A インジェクタヒューズ', meta:'ヒューズブロック M4', note:'インジェクタ10A。経路: JB 10A → F102·17H → F33·5。'} },
   jb_15a_ht: { en:{name:'JB · 15A A/F+HO2S fuse', meta:'Fuse Block M4 · IGN · EC-191', note:'A/F+HO2S 15A fuse. Path: JB 15A → E108·65G → F3·3.'}, ja:{name:'JB · 15A A/F+HO2Sヒューズ', meta:'ヒューズブロック M4', note:'A/F+HO2S 15A。経路: JB 15A → E108·65G → F3·3。'} },
+  ipdm_cover: { en:{name:'IPDM cover · fuses', meta:'PG-26 · 71–89', note:'Fuses 71–89 sit on this cover. Each cell shows the short name printed on the lid. The full name appears when that fuse is selected.'}, ja:{name:'IPDMカバー · ヒューズ', meta:'PG-26 · 71–89', note:'ヒューズ71–89はこのカバー上。各マスはカバーの短い名称。選ぶと正式名が出る。'} },
   ix_e11_f2: {
     en: { name:'E11 ↔ F2 · APP path (pedal)', meta:'10-pin GY · E113→E11/F2→ECM · EC-523',
       note:'APP path: pedal E113 → E11/F2 → ECM. APP uses 6 circuits (cavities 2,3,4,5,9,10). Unused for APP: 1,6,7,8. F2 face H.S. FSM: top 1–5 / bot 6–10. Colors = F2→ECM. 5V/GND labels on APP rails.' },
@@ -5363,7 +5463,7 @@ function ensureFaceLightbox(){
   root.setAttribute('aria-modal', 'true');
   root.innerHTML = `<div class="face-lb-panel" tabindex="-1">
     <button type="button" class="face-lb-close" aria-label="">×</button>
-    <img class="face-lb-img" alt="" />
+    <div class="face-lb-frame"><img class="face-lb-img" alt="" /><span class="ipdm-mark" hidden></span></div>
     <p class="face-lb-src" hidden></p>
   </div>`;
   document.body.appendChild(root);
@@ -5392,6 +5492,7 @@ function openFaceLightbox(cid){
   img.src = face.src;
   img.alt = (CONN[cid] && connField(cid, CONN[cid], 'name')) || cid;
   closeBtn.setAttribute('aria-label', t('facePhotoClose'));
+  setLightboxIpdmMark(null);
   if(face.source){
     srcEl.hidden = false;
     /* face.note = I18N key for a localized caveat (e.g. similar part, lock may differ) */
@@ -5410,10 +5511,60 @@ function closeFaceLightbox(){
   root.classList.remove('open');
   const img = root.querySelector('.face-lb-img');
   if(img) img.removeAttribute('src');
+  setLightboxIpdmMark(null);
   if(_faceLbPrevFocus && _faceLbPrevFocus.focus){
     try { _faceLbPrevFocus.focus(); } catch(_){}
   }
   _faceLbPrevFocus = null;
+}
+
+/* FSM PG-26 terminal arrangement. Boxes are % of faces/ipdm_pg26.webp (callout + E# oval). */
+const IPDM_FSM_SRC = 'faces/ipdm_pg26.webp';
+const IPDM_FSM_MARK = {
+  ipdm_e3: {l:21.6, t:80.67, w:8.58, h:9.03},
+  ipdm_e4: {l:15.98, t:64.29, w:7.69, h:7.35},
+  ipdm_e5: {l:36.09, t:82.14, w:8.28, h:7.35},
+  ipdm_e6: {l:48.82, t:81.3, w:8.58, h:8.19},
+  ipdm_e7: {l:8.58, t:48.11, w:7.99, h:17.02},
+  ipdm_e8: {l:73.67, t:57.56, w:7.99, h:14.08},
+  ipdm_e9: {l:60.95, t:80.88, w:18.05, h:8.61},
+};
+function ipdmFsmLabel(connId){
+  if(!connId) return '';
+  return String(connId).replace(/^ipdm_/i, '').toUpperCase();
+}
+function ipdmFsmBtnHtml(connId){
+  const label = ipdmFsmLabel(connId);
+  const alt = t('ipdmFsmAlt') + (label ? ' · ' + label : '');
+  return `<button type="button" class="ficha-face-btn ipdm-fsm-btn" data-ipdm-conn="${esc(connId || '')}" aria-label="${esc(alt)}" title="${esc(alt)}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>`;
+}
+function setLightboxIpdmMark(connId){
+  const root = document.getElementById('faceLightbox');
+  const mark = root && root.querySelector('.ipdm-mark');
+  if(!mark) return;
+  const box = connId && IPDM_FSM_MARK[connId];
+  if(!box){ mark.hidden = true; return; }
+  mark.hidden = false;
+  mark.style.left = box.l + '%';
+  mark.style.top = box.t + '%';
+  mark.style.width = box.w + '%';
+  mark.style.height = box.h + '%';
+}
+function openIpdmFsm(connId){
+  const root = ensureFaceLightbox();
+  const img = root.querySelector('.face-lb-img');
+  const srcEl = root.querySelector('.face-lb-src');
+  const closeBtn = root.querySelector('.face-lb-close');
+  const label = ipdmFsmLabel(connId);
+  img.src = IPDM_FSM_SRC;
+  img.alt = t('ipdmFsmAlt') + (label ? ' · ' + label : '');
+  closeBtn.setAttribute('aria-label', t('facePhotoClose'));
+  srcEl.hidden = false;
+  srcEl.textContent = t('ipdmFsmCap') + (label ? ' · ' + label : '');
+  setLightboxIpdmMark(connId);
+  _faceLbPrevFocus = document.activeElement;
+  root.classList.add('open');
+  closeBtn.focus();
 }
 
 /** Localized fixed-view note from f.view / f.viewByTrans (FSM T.S. face) — Ezequiel's rule. */
@@ -5440,7 +5591,7 @@ function viewNoteText(id, f){
   const face = vw.g === 'f' ? `cara hembra ${vw.c}` : vw.g === 'm' ? `cara macho ${vw.c}` : vw.g === 'r' ? `terminal de ojal ${vw.c}` : `cara del conector ${vw.c} del arnés`;
   return `Vista: ${face} (${par}${ex}).`;
 }
-function makeFichaEl(id, f){
+function makeFichaEl(id, f, opts){
   const wrap=document.createElement('div');
   wrap.className = 'ficha-wrap';
   wrap.dataset.conn=id;
@@ -5457,10 +5608,18 @@ function makeFichaEl(id, f){
   }
   const viewTxt = viewNoteText(id, f);
   if(viewTxt) extra += `<div class="note-body view-note">${esc(viewTxt)}</div>`;
-  const faceBtn = faceBtnHtml(id);
+  const showIpdm = !!(opts && opts.ipdmIcon && IPDM_FSM_MARK[id]);
+  const faceBtn = showIpdm ? ipdmFsmBtnHtml(id) : faceBtnHtml(id);
   el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
   wrap.addEventListener('click', e=>{
+    const ipdmBtn = e.target.closest && e.target.closest('.ipdm-fsm-btn');
+    if(ipdmBtn && wrap.contains(ipdmBtn)){
+      e.preventDefault();
+      e.stopPropagation();
+      openIpdmFsm(ipdmBtn.dataset.ipdmConn || id);
+      return;
+    }
     const faceBtnEl = e.target.closest && e.target.closest('.ficha-face-btn');
     if(faceBtnEl && wrap.contains(faceBtnEl)){
       e.preventDefault();
@@ -5484,7 +5643,7 @@ function makeFichaEl(id, f){
 
 let _fichaOrd = 0;
 /* IPDM: small E3–E6 first; large E7–E9 horizontal last; legend */
-const IPDM_DISPLAY_ORDER = ['ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9','ipdm_legend'];
+const IPDM_DISPLAY_ORDER = ['ipdm_cover','ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9','ipdm_legend'];
 function sortIpdmIds(ids){
   const rank = new Map(IPDM_DISPLAY_ORDER.map((id,i)=>[id,i]));
   return ids.slice().sort((a,b)=>{
@@ -5527,7 +5686,7 @@ function renderFichas(){
     nest.dataset.nest = nestKey;
     const lsNest = 'z33_nest_' + nestKey;
     const savedNest = localStorage.getItem(lsNest);
-    nest.open = savedNest === null ? true : savedNest === '1';
+    nest.open = savedNest === null ? nestKey !== 'ipdm_fuses' : savedNest === '1';
     const nsum = document.createElement('summary');
     nsum.innerHTML = `<span class="sub-label">${esc(t(labelKey))}</span>`;
     if(accent) nsum.style.borderLeft = '3px solid ' + accent;
@@ -5845,7 +6004,7 @@ function updateSelectedTop(connIds){
       ngrid.className = 'fichas-grid';
       const ordered = lineIds.slice().sort((a,b)=> String(CONN[a].name).localeCompare(String(CONN[b].name)));
       ordered.forEach(id=>{
-        const el = makeFichaEl(id, CONN[id]);
+        const el = makeFichaEl(id, CONN[id], {ipdmIcon:true});
         el.classList.add('hl');
         el.classList.remove('dim');
         ngrid.appendChild(el);
@@ -5895,7 +6054,7 @@ function updateSelectedTop(connIds){
   body.className = 'fichas-body';
 
   function appendFicha(grid, id){
-    const el = makeFichaEl(id, CONN[id]);
+    const el = makeFichaEl(id, CONN[id], {ipdmIcon:true});
     el.classList.add('hl');
     el.classList.remove('dim');
     grid.appendChild(el);
@@ -6132,6 +6291,8 @@ function pinOnKnownCircuit(cid, pin){
   });
 }
 function cavClickable(cid, pin){
+  /* Cover fuse cells are the lid itself: each one opens its description even with no harness circuit yet. */
+  if(cid === 'ipdm_cover') return !!(pin && !pin.unknown);
   if(!cavHasWire(pin)) return false;
   return pinOnKnownCircuit(cid, pin);
 }
@@ -6187,15 +6348,21 @@ function circuitHasPowerPath(cir){
 function powerRelatedCircuits(coreIds){
   const core = new Set(coreIds || []);
   const devices = new Set();
+  const chans = new Set();
   core.forEach(id => {
     const cir = CIRCUITS.find(c => c.id === id);
-    (cir && cir.conn || []).forEach(cid => { if(connIsDevice(cid)) devices.add(cid); });
+    if(!cir) return;
+    (cir.conn || []).forEach(cid => { if(connIsDevice(cid)) devices.add(cid); });
+    if(cir.chan) chans.add(cir.chan);
   });
   if(!devices.size) return [];
+  /* Sensor: a shared shell is not one device. E11·1 is alternator 12V, not APP 2. */
+  const sensorMode = relGroupMode() === 'sensor' && chans.size > 0;
   const extra = [];
   CIRCUITS.forEach(cir => {
     if(core.has(cir.id)) return;
     if(!(cir.conn || []).some(cid => devices.has(cid))) return;
+    if(sensorMode && !chans.has(cir.chan)) return;
     if(circuitHasPowerPath(cir)) extra.push(cir.id);
   });
   return extra;
@@ -6919,6 +7086,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   });
   attachPowerPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
   attachAlimPathFichas(pathCavByConn, connSet);
+  if(focusConn === 'ipdm_cover') connSet.add('ipdm_cover');
   attachDataRelatedEcm(circIds, ecmSet);
   /* Loom filter: drop body/rear fichas when viewing pulled engine harness */
   [...connSet].forEach(cid => { if(!connVisibleInLoom(cid)) connSet.delete(cid); });
@@ -7004,7 +7172,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     }
     const conf=CONN[cid];
     if(!conf) return;
-    conf.pins.forEach(p=>{
+    (conf.pins || []).forEach(p=>{
       const isFocusCav = focusConn===cid && String(focusCav)===String(p.id);
       const onFocusEcm = focusPin!=null && p.ecm!=null && Number(p.ecm)===Number(focusPin);
       const onPathEcm = p.ecm!=null && ecmSet.has(Number(p.ecm));
@@ -7343,7 +7511,27 @@ function selectConnPin(cid, cavId, opts){
     selKey = key;
     selFocusPin = ecmN;
   } else {
-    if(pin && pin.circ){
+    if(cid === 'ipdm_cover'){
+      const related = (CIRCUITS || []).filter(cir => {
+        const cavs = cir.path && cir.path.ipdm_cover;
+        return cavs && cavs.map(String).includes(String(cavId));
+      }).map(cir => cir.id);
+      if(related.length){
+        selectCircuits(related, null, cid, String(cavId));
+      } else {
+        activeRails.clear(); updateRailButtons();
+        clearHL(); dimAll();
+        markFichaHL(cid, true);
+        document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(cavId))}"]`).forEach(cav=>{
+          cav.classList.remove('dim'); cav.classList.add('hl');
+        });
+        const infoEl=document.getElementById('info');
+        infoEl.dataset.locked='1';
+        delete infoEl.dataset.railMode;
+        infoEl.innerHTML = `<b>${esc(connField(cid, conf, 'name'))}</b> · <code>${esc(String(cavId))}</code>`;
+        revealConns([cid]);
+      }
+    } else if(pin && pin.circ){
       selectCircuits([pin.circ], null, cid, String(cavId));
     } else {
     let circs = connToCirc[cid] || [];

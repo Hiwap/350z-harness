@@ -125,7 +125,7 @@ ok('updateSelectedTop allows ≥2 fichas same sub',
   if (block) {
     ok('vmot.conn is E12/F3 (motor loom; IPDM is Completo/Alim.)',
       /conn:\['ix_e12_f3'\]/.test(block) && !/conn:\['ipdm_e8'\]/.test(block));
-    ok('vmot.path = IPDM E8-42 → E12/F3·8 (EC-472)', /path:\{ipdm_e8:\['42'\],ix_e12_f3:\['8'\]\}/.test(block));
+    ok('vmot.path = IPDM E8-42 → E12/F3·8 (EC-472), fuse 87 on the IPDM cover', /path:\{ipdm_e8:\['42'\],ix_e12_f3:\['8'\],ipdm_cover:\['87'\]\}/.test(block));
     ok('vmot notes cite EC-472 E12/F3·8', /E12\/F3·8/.test(block) && /EC-472/.test(block));
   }
   const f3Body = (html.split(/ix_e12_f3:\{/)[1] || '').slice(0, 1500);
@@ -462,7 +462,7 @@ ok('actuators render no longer nests bobinas under actuators',
           && !(gnd.conn || []).includes('e17'), JSON.stringify(gnd));
       ok(`evt_pos_b${b}_pwr: E7·18 → F3·7 → pin 3, no ECM pin`,
         pwr && pwr.ecm.length === 0
-          && JSON.stringify(pwr.path) === JSON.stringify({ ipdm_e7: ['18'], ix_e12_f3: ['7'], [conn]: ['3'] }), JSON.stringify(pwr));
+          && JSON.stringify(pwr.path) === JSON.stringify({ ipdm_e7: ['18'], ix_e12_f3: ['7'], [conn]: ['3'], ipdm_cover: ['77'] }), JSON.stringify(pwr));
     }
   } catch (e) {
     ok('eval EVT circuits', false, String(e.message || e));
