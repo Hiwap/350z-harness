@@ -1,0 +1,29 @@
+name: Slack on new issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_USER: ${{ github.event.issue.user.login }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "Repository secret SLACK_WEBHOOK_URL is not set."
+            exit 1
+          fi
+          payload=$(jq -n \
+            --arg title "$ISSUE_TITLE" \
+            --arg url "$ISSUE_URL" \
+            --arg num "$ISSUE_NUMBER" \
+            --arg user "$ISSUE_USER" \
+            '{text: ("New issue in 350z-harness: <" + $url + "|#" + $num + " " + $title + "> by " + $user)}')
+          curl -sS -f -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
