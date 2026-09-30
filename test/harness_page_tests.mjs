@@ -149,6 +149,18 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('pins fed straight from a fuse colour their source tag with the fuses accent', !/src:'(?:JB·10A|JB·15A|E21·36|F83|F89|F80|F75)',srcSub:'feeds'/.test(html));
 }
 
+{
+  /* F102·10H = DLC signal ground (EC-742): DLC M8·5 B/W → M72·10H → F102·10H → F103·2 (ECM 115 splice) → F152 */
+  ok('F102·10H B/W GND rail, src F103·2, circ dlc_gnd (EC-742)',
+    /\{id:'10H',code:'B\/W',ecm:null,rail:'gnd',lab:'GND',src:'F103·2',srcSub:'power',circ:'dlc_gnd',note:'[^']*EC-742[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html));
+  ok('F102·9H still empty (not in 2005 FSM)', /\{id:'9H',code:'—',ecm:null\}/.test(html));
+  ok('DLC pin 5 B/W signal ground → F102·10H, circ dlc_gnd',
+    /\{id:'5',code:'B\/W',ecm:null,rail:'gnd',lab:'GND',src:'F102·10H',srcSub:'intermedias',circ:'dlc_gnd'/.test(html));
+  ok('circuit dlc_gnd: no ECM pin; path DLC 5 → F102·10H → F103·2 → F152, f102 10H',
+    /\{id:'dlc_gnd',[^\n]*\n\s*ecm:\[\], conn:\['dlc','ix_f102_m72','gnd4','f152'\], f102:\['10H'\],\n\s*path:\{dlc:\['5'\],ix_f102_m72:\['10H'\],gnd4:\['2'\],f152:\['ring'\]\}/.test(html));
+  ok('dlc_gnd circuit title/notes translated en/ja', (html.match(/\n  dlc_gnd: \{en:'[^']+', ja:'[^']+'\},/g) || []).length === 2);
+}
+
 const helperSrc = [
   extractConstObject(script, 'PIN_RAIL'),
   extractConstObject(script, 'PIN_CAN'),

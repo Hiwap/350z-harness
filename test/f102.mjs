@@ -795,6 +795,8 @@ const FSM_FACE = {
   ipdm_e5: { mt: "9 7 / 10 8", at: "9 7 / 10 8" },
   ipdm_e6: { mt: "16 15 14 / 13 12 11", at: "16 15 14 / 13 12 11" },
   ipdm_e7: { mt: "24 25 26 27 28 29 30 31 32 / 17 18 19 20 21 22 23", at: "24 25 26 27 28 29 30 31 32 / 17 18 19 20 21 22 23" },
+  /* IPDM cover fuses 71–89: printed lid grid numbered as PG-26 (no harness T.S. face; view.unv) */
+  ipdm_cover: { mt: "71 / 72 81 / 73 82 / 74 83 / 75 84 / 76 85 / 86 / 77 87 / 78 88 / 79 89 / 80", at: "71 / 72 81 / 73 82 / 74 83 / 75 84 / 76 85 / 86 / 77 87 / 78 88 / 79 89 / 80" },
   ipdm_e8: { mt: "37 36 42 41 35 34 33 / 44 43 40 39 38", at: "37 36 42 41 35 34 33 / 44 43 40 39 38" },
   ipdm_e9: { mt: "60 59 58 57 56 55 54 53 / 52 51 50 49 48 47 46 45", at: "60 59 58 57 56 55 54 53 / 52 51 50 49 48 47 46 45" },
   feed_af_12v: { mt: "AF2-3 AF1-3", at: "AF2-3 AF1-3" },
@@ -1046,6 +1048,45 @@ await page.evaluate(() => clearSelection());
   ok(!mot.alt_b && !mot.alt_e && !mot.fuse36_alt && mot.f20_alt && mot.ix_e11_f2,
     `Arnés motor hides battery-cable E202/E211 and fuse 36 (E21); keeps F20 and E11/F2 (${JSON.stringify(mot)})`);
   await vis('all');
+}
+
+console.log('\nF102·10H DLC signal ground (EC-742): DLC 5 → F102·10H → F103·2 → F152');
+{
+  const setLoom = (v) => page.evaluate((v) => { const s = document.getElementById('loomView'); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })); }, v);
+  await setLoom('all');
+  const lit = () => page.evaluate(() => {
+    const on = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains('hl') || e.classList.contains('hl-group'));
+    const p10 = f102PinEl('10H'); const p9 = f102PinEl('9H');
+    return { circs: [...lastCircIds].sort().join(','), dlc5: on('dlc', '5'), f103_2: on('gnd4', '2'), f152: on('f152', 'ring'),
+      h10: !!p10 && (p10.classList.contains('hl') || p10.classList.contains('hl-group')), h10wired: !!p10 && p10.dataset.wired === '1',
+      h9wired: !!p9 && p9.dataset.wired === '1', lab: cavBottomLabel(CONN.ix_f102_m72.pins.find((p) => p.id === '10H')) };
+  });
+  for (const [cid, cav] of [['ix_f102_m72', '10H'], ['dlc', '5']]) {
+    await page.evaluate(() => clearSelection());
+    await page.evaluate((c, v) => selectConnPin(c, v), cid, cav);
+    const r = await lit();
+    ok(r.circs.split(',').includes('dlc_gnd') && r.dlc5 && r.f103_2 && r.f152 && r.h10, `${cid}·${cav} click lights DLC 5 → F102·10H → F103·2 → F152 (${JSON.stringify(r)})`);
+    ok(r.h10wired && !r.h9wired && r.lab === 'GND', `F102 face: 10H wired (GND), 9H still empty (${JSON.stringify(r)})`);
+  }
+  await page.evaluate(() => clearSelection());
+  const rail = await page.evaluate(() => {
+    toggleRail('gnd');
+    const has = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains('hl-rail'));
+    const p10 = f102PinEl('10H');
+    const v = { f103_2: has('gnd4', '2'), h10: !!p10 && [...p10.classList].some((c) => /hl-rail|rail-gnd/.test(c)) };
+    toggleRail('gnd');
+    return v;
+  });
+  ok(rail.f103_2 && !rail.h10, `GND rail (ECM grounds only) lights F103·2 (ECM 115) but not the non-ECM DLC ground 10H, like E17/F23 (${JSON.stringify(rail)})`);
+  await page.evaluate(() => clearSelection());
+  await page.evaluate(() => selectConnPin('gnd4', '2'));
+  let sh = await lit();
+  ok(sh.circs === 'dlc_gnd,gnd_ecm_115' && sh.h10 && sh.dlc5 && sh.f152, `F103·2 (shared splice) click → ECM 115 ground + DLC ground via F102·10H (${JSON.stringify(sh)})`);
+  await page.evaluate(() => clearSelection());
+  await page.evaluate(() => selectPin(115));
+  sh = await lit();
+  ok(sh.circs === 'gnd_ecm_115' && !sh.h10 && !sh.dlc5 && sh.f103_2, `ECM 115 click → its own ground only (DLC wire joins at the splice) (${JSON.stringify(sh)})`);
+  await page.evaluate(() => clearSelection());
 }
 
 console.log('\nFusibles group: every fuse card in one top-level ficha group, collapsed by default, hidden in Arnés motor, auto-opens when lit');
