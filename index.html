@@ -796,7 +796,7 @@
   .cav-label.lab-can { fill: #ce93d8 !important; }
 
 
-  /* IPDM PG-26 opens from the camera on selected E3–E9 fichas. */
+  /* IPDM PG-26 opens from the camera on the IPDM group header only. */
   .ficha-sec > summary .ipdm-fsm-btn { margin-left: auto; align-self: center; }
   .ipdm-mark {
     position: absolute; box-sizing: border-box; pointer-events: none;
@@ -1859,13 +1859,13 @@ const CONN_BASE = {
   /* —— Poder / tierras · ficha del plug ECM (EC-123) —— */
 
 
-  ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 1 / 2 · PG-14; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 1 / 2 · PG-14; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 1 / 2 · PG-14。PG-26は同じ面を回転。端子側からは左右反転。'}},
+  ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3', view:{hs:{es:'lado CABLES, orientada como en el IPDM (PG-26), traba abajo: 2 / 1 · dibujo H.S. PG-14 girada 180°, sin espejo. Desde el lado de los terminales se ve en espejo.',en:'WIRE side, oriented as on the IPDM (PG-26), lock down: 2 / 1 · FSM H.S. drawing PG-14 turned 180°, not mirrored. From the terminal side it is mirrored.',ja:'配線側、IPDM上の向き（PG-26）、ロック下: 2 / 1 · FSM H.S.図 PG-14 を180°回転、鏡像なし。端子側からは左右反転。'}},
     pins:[
       {id:'1',src:'BATT',srcSub:'power',code:'W',ecm:null,rail:'12v',note:'Entrada batería 12V (W) desde fusible link 80A E (E1/E2·3) · PG-14 / PG-27.',note_en:'Battery 12V in (W) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W) · ヒュージブルリンク · PG-27。'},
       {id:'2',src:'BATT',srcSub:'power',code:'W/L',ecm:null,rail:'12v',note:'Entrada batería 12V (W/L) desde fusible links · PG-27.',note_en:'Battery 12V in (W/L) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W/L) · ヒュージブルリンク · PG-27。'}
     ],
     note:'Entrada de batería al IPDM (2 pines).'},
-  ipdm_e7:{group:'motor', sub:'ipdm', name:'IPDM E7 · Luces / limpia / ECM', meta:'VB / back-up / faros / limpia · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 23 22 21 20 [traba] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192; PG-26 es la misma cara girada 90°. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 23 22 21 20 [lock] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192; PG-26 is the same face turned 90°. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 23 22 21 20 [ロック] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192。PG-26は同じ面を90°回転。端子側からは左右反転。'}},
+  ipdm_e7:{group:'motor', sub:'ipdm', name:'IPDM E7 · Luces / limpia / ECM', meta:'VB / back-up / faros / limpia · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7', view:{hs:{es:'lado CABLES, orientada como en el IPDM (PG-26), traba a la izquierda: 17 24 / 18 25 / 19 26 / [traba] / 20 29 / 21 30 / 22 31 / 23 32 · dibujo H.S. PG-15 / EC-167 girada 90° antihorario, sin espejo. Desde el lado de los terminales se ve en espejo.',en:'WIRE side, oriented as on the IPDM (PG-26), lock left: 17 24 / 18 25 / 19 26 / [lock] / 20 29 / 21 30 / 22 31 / 23 32 · FSM H.S. drawing PG-15 / EC-167 turned 90° counter-clockwise, not mirrored. From the terminal side it is mirrored.',ja:'配線側、IPDM上の向き（PG-26）、ロック左: 17 24 / 18 25 / 19 26 / [ロック] / 20 29 / 21 30 / 22 31 / 23 32 · FSM H.S.図 PG-15 / EC-167 を反時計回りに90°回転、鏡像なし。端子側からは左右反転。'}},
     pins:[
       {id:'17',code:'W/L',ecm:null,rail:'12v',src:'ECM-RLY',srcSub:'ipdm',note:'Salida relé ECM (W/L): bobinas/VTC adm vía E7-17 → F3 · VTC escape (magnet retarder) · venteo EVAP vía E106/B2 → B43/T1 · EC-167 / EC-198 / EC-367.',note_en:'ECM relay out (W/L): coils via E7-17 → F3; also EVAP vent 12V via E106/B2 → B43/T1 · EC-167 / EC-367.',note_ja:'ECMリレー出力 (W/L): コイルはE7-17→F3、EVAPベントはE106/B2→B43/T1 · EC-167/EC-367。'},
       {id:'18',code:'R/W',ecm:119,rail:'12v',note:'VB alimentación ECM (R/W) → ECM 119; también ECM 120 vía E12/F3 (P) · EC-167.',note_en:'ECM VB power (R/W) → ECM 119; also ECM 120 via E12/F3 (P) · EC-167.',note_ja:'ECM VB電源 (R/W) → ECM 119; E12/F3経由で ECM 120 (P) · EC-167。'},
@@ -1885,7 +1885,7 @@ const CONN_BASE = {
       {id:'32',src:'WIP·AS',srcSub:'ipdm',code:'L/Y',ecm:null,rail:'12v',note:'Señal auto-stop limpia (L/Y) · WW-15.',note_en:'Wiper auto-stop signal (L/Y) · WW-15.',note_ja:'ワイパーオートストップ (L/Y) · WW-15。'}
     ],
     note:'IPDM E7: encendido, luces, limpia, marcha atrás (cav 26), etc.'},
-  ipdm_e8:{group:'motor', sub:'ipdm', name:'IPDM E8 · Bomba / mariposa / A/C', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 37 36 [traba] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12; PG-26 es la misma cara girada 90°. Desde el lado de los terminales (frente que encaja en el IPDM) se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 37 36 [lock] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12; PG-26 is the same face turned 90°. From the terminal side (face that plugs into the IPDM) it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 37 36 [ロック] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12。PG-26は同じ面を90°回転。端子側（IPDMに差し込む面）から見ると左右反転。'}},
+  ipdm_e8:{group:'motor', sub:'ipdm', name:'IPDM E8 · Bomba / mariposa / A/C', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8', view:{hs:{es:'lado CABLES, orientada como en el IPDM (PG-26), traba a la derecha: 44 37 / 43 36 / 42 [traba] / 41 / 40 35 / 39 34 / 38 33 · dibujo H.S. EC-710 / PG-15 girada 90° horario, sin espejo. Desde el lado de los terminales se ve en espejo.',en:'WIRE side, oriented as on the IPDM (PG-26), lock right: 44 37 / 43 36 / 42 [lock] / 41 / 40 35 / 39 34 / 38 33 · FSM H.S. drawing EC-710 / PG-15 turned 90° clockwise, not mirrored. From the terminal side it is mirrored.',ja:'配線側、IPDM上の向き（PG-26）、ロック右: 44 37 / 43 36 / 42 [ロック] / 41 / 40 35 / 39 34 / 38 33 · FSM H.S.図 EC-710 / PG-15 を時計回りに90°回転、鏡像なし。端子側からは左右反転。'}},
     pins:[
       {id:'33',src:'A/C·RLY',srcSub:'ipdm',code:'L/Y',ecm:null,rail:'12v',note:'Embrague magnético del compresor A/C (L/Y) → compresor F24·1 · ATC-81 / PG-25.',note_en:'A/C compressor magnet clutch (L/Y) → compressor pin1 · ATC-81.',note_ja:'A/Cマグネットクラッチ (L/Y) · ATC-81。'},
       {id:'34',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
@@ -1900,8 +1900,8 @@ const CONN_BASE = {
       {id:'43',src:'IGN',srcSub:'power',code:'G/R',ecm:null,rail:'12v',note:'IGN ON vía fusible IPDM 82 (10A) (G/R) → ABS/TCS/VDC (y DTRL Canadá) · PG-15 / PG-25 / LT-80.',note_en:'Ign ON via IPDM fuse 82 (10A) (G/R) → ABS/TCS/VDC (and Canada DTRL) · PG-15 / PG-25 / LT-80.',note_ja:'IPDMヒューズ82 (10A) 経由IGN ON (G/R) → ABS/TCS/VDC（カナダDTRL）· PG-15 / PG-25 / LT-80。'},
       {id:'44',src:'WASH',srcSub:'ipdm',code:'OR',ecm:null,rail:'12v',note:'Alimentación motor lavaparabrisas E29·2 vía fusible IPDM 84 (10A) (OR) · WW-12 / WW-15 / PG-15.',note_en:'Washer motor E29·2 power via IPDM fuse 84 (10A) (OR) · WW-12 / WW-15 / PG-15.',note_ja:'ウォッシャーモータ電源 (OR) · WW-15。'}
     ],
-    note:'IPDM E8 (W, 12 vías): A/C · masa · bomba · VMOT · IGN ABS · lavador. Cara = FSM H.S. lado cables, traba arriba (EC-710).'},
-  ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba sobre 50–47): 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56; PG-26 es la misma cara girada 180°. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up over 50–47): 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56; PG-26 is the same face turned 180°. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロックは50–47の上）: 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56。PG-26は同じ面を180°回転。端子側からは左右反転。'}},
+    note:'IPDM E8 (W, 12 vías): A/C · masa · bomba · VMOT · IGN ABS · lavador. Cara: lado cables, orientada como en el IPDM (traba a la derecha) · EC-710 / PG-26.'},
+  ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9', view:{hs:{es:'lado CABLES, orientada como en el IPDM (PG-26), traba abajo: 53 54 55 56 57 58 59 60 / 45 46 47 48 49 50 51 52 · dibujo H.S. EC-472 / EC-167 girada 180°, sin espejo. Desde el lado de los terminales se ve en espejo.',en:'WIRE side, oriented as on the IPDM (PG-26), lock down: 53 54 55 56 57 58 59 60 / 45 46 47 48 49 50 51 52 · FSM H.S. drawing EC-472 / EC-167 turned 180°, not mirrored. From the terminal side it is mirrored.',ja:'配線側、IPDM上の向き（PG-26）、ロック下: 53 54 55 56 57 58 59 60 / 45 46 47 48 49 50 51 52 · FSM H.S.図 EC-472 / EC-167 を180°回転、鏡像なし。端子側からは左右反転。'}},
     pins:[
       {id:'45',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'46',code:'W/B',ecm:111,rail:'12v',lab:'SSOFF',note:'SSOFF auto-apagado relé ECM (W/B) → ECM 111 vía E108/M15 · M72/F102 · EC-167.',note_en:'ECM relay self shut-off SSOFF (W/B) → ECM 111 via E108/M15 · M72/F102 · EC-167.',note_ja:'ECMリレー自己遮断 SSOFF (W/B) → ECM 111 · EC-167。'},
@@ -1921,21 +1921,21 @@ const CONN_BASE = {
       {id:'60',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra señal IPDM → body E17 (B) · PG-27 / LT-16.',note_en:'IPDM signal ground → body E17 (B) · PG-27 / LT-16.',note_ja:'IPDM信号アース → ボディ E17 (B) · PG-27。'}
     ],
     note:'IPDM E9: SSOFF · MOTRLY · CAN · masas · arranque/defog.'},
-  ipdm_e4:{group:'motor', sub:'ipdm', name:'IPDM E4 · Arranque', meta:'arranque · PG-26 · SC-13/14 · cara fija', accent:'#ef5350', shape:'ipdm_e4', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 4 3 / 6 5 · SC-13 / PG-13; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 4 3 / 6 5 · SC-13 / PG-13; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 4 3 / 6 5 · SC-13 / PG-13。PG-26は同じ面を回転。端子側からは左右反転。'}},
+  ipdm_e4:{group:'motor', sub:'ipdm', name:'IPDM E4 · Arranque', meta:'arranque · PG-26 · SC-13/14 · cara fija', accent:'#ef5350', shape:'ipdm_e4', view:{hs:{es:'lado CABLES, orientada como en el IPDM (PG-26), traba a la izquierda: 3 5 / 4 6 · dibujo H.S. SC-13 / PG-13 girada 90° antihorario, sin espejo. Desde el lado de los terminales se ve en espejo.',en:'WIRE side, oriented as on the IPDM (PG-26), lock left: 3 5 / 4 6 · FSM H.S. drawing SC-13 / PG-13 turned 90° counter-clockwise, not mirrored. From the terminal side it is mirrored.',ja:'配線側、IPDM上の向き（PG-26）、ロック左: 3 5 / 4 6 · FSM H.S.図 SC-13 / PG-13 を反時計回りに90°回転、鏡像なし。端子側からは左右反転。'}},
     pins:[
       {id:'3',src:'STR·RLY',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',circ:'starter',note:'Salida relé arranque B/Y → motor arranque pin1 vía E10/F1 cav1 · SC-13/14.',note_en:'Starter relay out → starter motor pin1 via E10/F1 cav1 (B/Y) · SC-13/14.',note_ja:'スタータリレー出力 → スタータ pin1（E10/F1経由）(B/Y) · SC-13/14。'},
       {id:'4',src:'IGN·SW',srcSub:'power',code:'W/R',ecm:null,rail:'12v',note:'Entrada START desde interruptor de encendido pin5 (W/R) · SC-13/14.',note_en:'START input from ignition switch pin5 (W/R) · SC-13/14.',note_ja:'イグニッションSW pin5 からの START 入力 (W/R) · SC-13/14。'},
       {id:'5',src:'F80',srcSub:'fuses',code:'P',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 80) → B34 vía E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 80) → B34 via E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ80）→ B34（E107/B3経由）· CP:P / RS:R · PG-13 / GW-63。'},
       {id:'6',src:'F75',srcSub:'fuses',code:'W',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 75) W → B34 pin3 vía E107/B3 · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 75) W → B34 pin3 via E107/B3 · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ75）W → B34 pin3（E107/B3経由）· PG-13 / GW-63。'}
-    ], note:'IPDM E4 (W) · arranque 3/4 (SC-13/14) + desempañador 5/6 (PG-13). Cara = FSM H.S. lado cables, traba arriba: 4 3 / 6 5.'},
-  ipdm_e5:{group:'motor', sub:'ipdm', name:'IPDM E5 · Ventiladores', meta:'ventiladores · PG-26 · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e5', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 8 7 / 10 9 · EC-510 / PG-14; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 8 7 / 10 9 · EC-510 / PG-14; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 8 7 / 10 9 · EC-510 / PG-14。PG-26は同じ面を回転。端子側からは左右反転。'}},
+    ], note:'IPDM E4 (W) · arranque 3/4 (SC-13/14) + desempañador 5/6 (PG-13). Cara: lado cables, orientada como en el IPDM (traba a la izquierda): 3 5 / 4 6.'},
+  ipdm_e5:{group:'motor', sub:'ipdm', name:'IPDM E5 · Ventiladores', meta:'ventiladores · PG-26 · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e5', view:{hs:{es:'lado CABLES, orientada como en el IPDM (PG-26), traba a la izquierda: 7 9 / 8 10 · dibujo H.S. EC-510 / PG-14 girada 90° antihorario, sin espejo. Desde el lado de los terminales se ve en espejo.',en:'WIRE side, oriented as on the IPDM (PG-26), lock left: 7 9 / 8 10 · FSM H.S. drawing EC-510 / PG-14 turned 90° counter-clockwise, not mirrored. From the terminal side it is mirrored.',ja:'配線側、IPDM上の向き（PG-26）、ロック左: 7 9 / 8 10 · FSM H.S.図 EC-510 / PG-14 を反時計回りに90°回転、鏡像なし。端子側からは左右反転。'}},
     pins:[
       {id:'7',src:'IGN·RLY',srcSub:'ipdm',code:'B/R',ecm:null,rail:'12v',note:'Salida relé de encendido (+IG) B/R → PG-POWER-07 · PG-14.',note_en:'IPDM ignition relay output (+IG) B/R → PG-POWER-07 · PG-14.',note_ja:'IPDMイグニッションリレー出力 (+IG) B/R → PG-POWER-07 · PG-14。'},
       {id:'8',src:'FAN3',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',note:'Relé ventilador-3 → motor ventilador-1 pin1 (B/Y) · EC-510.',note_en:'Cooling fan relay-3 → fan motor-1 pin1 (B/Y) · EC-510.',note_ja:'冷却ファンリレー3 → ファンモータ1 pin1 (B/Y) · EC-510。'},
       {id:'9',src:'FAN2',srcSub:'ipdm',code:'Y',ecm:null,rail:'12v',note:'Relé ventilador-2 → motores pin4 (Y) · EC-510.',note_en:'Cooling fan relay-2 → motors pin4 (Y) · EC-510.',note_ja:'冷却ファンリレー2 → モータ pin4 (Y) · EC-510。'},
       {id:'10',src:'FAN1',srcSub:'ipdm',code:'R/W',ecm:null,rail:'12v',note:'Relé ventilador-1 → motor ventilador-2 pin2 (R/W) · EC-510.',note_en:'Cooling fan relay-1 → fan motor-2 pin2 (R/W) · EC-510.',note_ja:'冷却ファンリレー1 → ファンモータ2 pin2 (R/W) · EC-510。'}
-    ], note:'IPDM E5 (B) · ventiladores 8/9/10 (EC-510) + 7 = salida relé IGN B/R (PG-14). Cara = FSM H.S. lado cables, traba arriba: 8 7 / 10 9.'},
-  ipdm_e6:{group:'motor', sub:'ipdm', name:'IPDM E6 · Ventiladores + 40A', meta:'ventiladores / 40A · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e6', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 13 12 11 / 16 15 14 · EC-510; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 13 12 11 / 16 15 14 · EC-510; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 13 12 11 / 16 15 14 · EC-510。PG-26は同じ面を回転。端子側からは左右反転。'}},
+    ], note:'IPDM E5 (B) · ventiladores 8/9/10 (EC-510) + 7 = salida relé IGN B/R (PG-14). Cara: lado cables, orientada como en el IPDM (traba a la izquierda): 7 9 / 8 10.'},
+  ipdm_e6:{group:'motor', sub:'ipdm', name:'IPDM E6 · Ventiladores + 40A', meta:'ventiladores / 40A · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e6', view:{hs:{es:'lado CABLES, orientada como en el IPDM (PG-26), traba abajo: 14 15 16 / 11 12 13 · dibujo H.S. EC-510 girada 180°, sin espejo. Desde el lado de los terminales se ve en espejo.',en:'WIRE side, oriented as on the IPDM (PG-26), lock down: 14 15 16 / 11 12 13 · FSM H.S. drawing EC-510 turned 180°, not mirrored. From the terminal side it is mirrored.',ja:'配線側、IPDM上の向き（PG-26）、ロック下: 14 15 16 / 11 12 13 · FSM H.S.図 EC-510 を180°回転、鏡像なし。端子側からは左右反転。'}},
     pins:[
       {id:'11',src:'FAN3',srcSub:'ipdm',code:'L',ecm:null,rail:'12v',note:'Relé ventilador-3 → motor ventilador-1 pin2 (L) · EC-510.',note_en:'Cooling fan relay-3 → fan motor-1 pin2 (L) · EC-510.',note_ja:'冷却ファンリレー3 → ファンモータ1 pin2 (L) · EC-510。'},
       {id:'12',src:'FAN2/3',srcSub:'ipdm',code:'Y/R',ecm:null,rail:'12v',note:'Empalme relés ventilador 2/3 → motores pin4 (Y/R) · EC-510.',note_en:'Fan relay-2/3 junction → motors pin4 (Y/R) · EC-510.',note_ja:'ファンリレー2/3合流 → モータ pin4 (Y/R) · EC-510。'},
@@ -1943,7 +1943,7 @@ const CONN_BASE = {
       {id:'14',src:'E43',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra circuito ventiladores → body E43 (B) · EC-510.',note_en:'Cooling fan circuit ground → body E43 (B) · EC-510.',note_ja:'冷却ファン回路アース → ボディ E43 (B) · EC-510。'},
       {id:'15',src:'FL·I',srcSub:'power',code:'B/R',ecm:null,rail:'12v',note:'Entrada batería 40A fusible link I (B/R) · EC-510.',note_en:'Battery in 40A fusible link I (B/R) · EC-510.',note_ja:'バッテリ入力 40A ヒュージブルリンク I (B/R) · EC-510。'},
       {id:'16',src:'FL·H',srcSub:'power',code:'B/W',ecm:null,rail:'12v',note:'Entrada batería 40A fusible link H (B/W) · EC-510.',note_en:'Battery in 40A fusible link H (B/W) · EC-510.',note_ja:'バッテリ入力 40A ヒュージブルリンク H (B/W) · EC-510。'}
-    ], note:'IPDM E6 (W) · ventiladores + entradas 40A batería (EC-510). Cara = FSM H.S. lado cables, traba arriba: 13 12 11 / 16 15 14.'},
+    ], note:'IPDM E6 (W) · ventiladores + entradas 40A batería (EC-510). Cara: lado cables, orientada como en el IPDM (traba abajo): 14 15 16 / 11 12 13.'},
   /* One cover ficha. Short lab = text molded on the lid (user photo). Full name is pin.note. Numbers and amps follow PG-26. */
   ipdm_cover:{group:'motor', sub:'ipdm', name:'Tapa IPDM · fusibles', meta:'PG-26 · 71–89', accent:'#ffca28', shape:'ipdm_cover', view:{unv:{es:'la grilla es la tapa impresa, con los números de PG-26; no hay cara T.S. de arnés.',en:'the grid is the printed cover, numbered from PG-26; there is no harness-plug face.',ja:'印刷カバーの格子。番号はPG-26。ハーネス側の面はない。'}}, note:'Los 71–89 están en esta tapa. El recuadro lleva el nombre corto impreso. El nombre completo sale al elegir el fusible.',
     pins:[
@@ -1967,11 +1967,6 @@ const CONN_BASE = {
       {id:'88',lab:'FOG',code:'15A',ecm:null,note:'Tapa: FR FOG, 15A. PG-26 marca el 88 con una X: ese lugar no lleva fusible.',note_en:'Cover: FR FOG, 15A. PG-26 marks 88 with an X: that socket has no fuse.',note_ja:'カバー: FR FOG、15A。PG-26は88をXで示す。ヒューズは入らない。'},
       {id:'89',lab:'SOL',code:'10A',ecm:null,note:'Tapa: ENG SOL, 10A. En SC-13 el fusible 89 alimenta el interlock de embrague M/T por E7·25 (G/Y).',note_en:'Cover: ENG SOL, 10A. SC-13 fuse 89 feeds the M/T clutch interlock through E7·25 (G/Y).',note_ja:'カバー: ENG SOL、10A。SC-13のヒューズ89は M/T クラッチインターロックを E7·25（G/Y）へ給電。'}
     ]},
-  /* IPDM module view: E3–E9 placed and turned as PG-26 draws them around the IPDM (same H.S. wire-side faces,
-     rotated, never mirrored). Cavities carry their real data-conn, so a click acts exactly like the plug's own card. */
-  ipdm_module:{group:'motor', sub:'ipdm', name:'IPDM · fichas como en el módulo', meta:'E3–E9 · lado cables · PG-26', accent:'#ef5350', shape:'ipdm_module', view:{hs:{es:'las 7 fichas como están en el IPDM según PG-26 (posición aproximada): cada una es su dibujo H.S. (lado CABLES) girado como en PG-26 — E7/E4/E5 ⟲ 90° (traba a la izquierda), E8 ⟳ 90° (traba a la derecha), E3/E6/E9 180° (traba abajo). Nada en espejo. Desde el lado de los terminales cada ficha se ve en espejo.',en:'the 7 plugs as they sit on the IPDM per PG-26 (approximate position): each one is its H.S. (WIRE side) drawing turned as in PG-26 — E7/E4/E5 ⟲ 90° (lock left), E8 ⟳ 90° (lock right), E3/E6/E9 180° (lock down). Nothing mirrored. From the terminal side each plug is mirrored.',ja:'PG-26どおりIPDM上の7個のコネクタ（位置は概略）: 各コネクタはH.S.（配線側）図をPG-26のとおり回転 — E7/E4/E5 ⟲90°（ロック左）、E8 ⟳90°（ロック右）、E3/E6/E9 180°（ロック下）。鏡像なし。端子側からは各コネクタが左右反転。'}},
-    pins:[],
-    note:'Click en una cavidad = igual que en la ficha individual. Las fichas individuales siguen en lado cables con la traba arriba.'},
   ipdm_legend:{group:'motor', sub:'ipdm', name:'IPDM · Relés y fusibles', meta:'PG-26 · layout FSM', accent:'#ef5350', shape:'ixnote',
     pins:[],
     note:'Referencia rápida del IPDM: relés internos y fusibles. Clave: 77=relé ECM · 81=bomba · 87=mariposa.'},
@@ -2621,7 +2616,7 @@ const LOOM_BODY_EXTRA = new Set([
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
   'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9',
   /* Cover fuse grid lives in the IPDM, same as E3–E9: not on the pulled engine-control loom. */
-  'ipdm_cover', 'ipdm_module',
+  'ipdm_cover',
   /* Fuse Block (cabin M4) — not on the pulled PG-54/55 motor loom */
   'jb_10a_inj', 'jb_15a_ht',
   /* F9 sits on the starter motor; the control loom only has START at F1·1 */
@@ -3283,263 +3278,68 @@ function cavOrEmpty(cid, byId, id, x, y, w, h){
   return cavEmpty(x, y, w, h, id);
 }
 
-/* IPDM E3–E9 harness plugs: the 2005 FSM draws them only from the WIRE side (H.S. badge, double outline,
-   GI-14), lock up: E3 PG-14, E4 SC-13/PG-13, E5/E6 EC-510/PG-14, E7 PG-15/EC-167, E8 EC-710/PG-15,
-   E9 EC-472/EC-167. PG-26 shows the same faces rotated (not mirrored) around the IPDM. Every IPDM ficha is
-   drawn exactly as that H.S. drawing, lock tab up; from the terminal side the plug is the mirror image. */
-/** IPDM E3 · FSM H.S. PG-14: vertical, lock on top, 1 over 2 */
-function svgIpdmE3(cid, f){
-  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const top = ['1'];
-  const bot = ['2'];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=10, topY=18;
-  const botY = topY + ch + gap;
-  const W = padX*2 + cw;
-  const H = botY + ch + 12;
-  let cavities = '';
-  cavities += cavOrEmpty(cid, byId, '1', padX, topY, cw, ch);
-  cavities += cavOrEmpty(cid, byId, '2', padX, botY, cw, ch);
-  const _c = cornersFromRows(top, bot);
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-12} 2 h24 l4 10 H${W/2-16} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
-
-/** IPDM E4 (W) · FSM H.S. SC-13 / PG-13: lock up, 4 3 / 6 5 */
-function svgIpdmE4(cid, f){
-  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const top = ['4','3'];
-  const bot = ['6','5'];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=8, topY=18;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 2*cw + 1*gap;
-  const H = botY + ch + 12;
-  let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
-  const _c = cornersFromRows(top, bot);
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
-
-/** IPDM E5 (B) · FSM H.S. EC-510 / PG-14: lock up, 8 7 / 10 9 */
-function svgIpdmE5(cid, f){
-  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const top = ['8','7'];
-  const bot = ['10','9'];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=8, topY=18;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 2*cw + 1*gap;
-  const H = botY + ch + 12;
-  let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
-  const _c = cornersFromRows(top, bot);
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
-
-/** IPDM E6 (W) · FSM H.S. EC-510: lock up, 13 12 11 / 16 15 14 */
-function svgIpdmE6(cid, f){
-  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const top = ['13','12','11'];
-  const bot = ['16','15','14'];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=8, topY=18;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 3*cw + 2*gap;
-  const H = botY + ch + 12;
-  let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
-  const _c = cornersFromRows(top, bot);
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
-
-/* IPDM module view. Each plug = its verified H.S. grid (wire side, lock up; 'L' = lock cell inside the grid),
-   rotated as PG-26 draws it on the IPDM. rot: 0 · 90 (clockwise) · -90 (counter-clockwise) · 180.
-   Rotation is a pure grid turn (no mirror): CW (r,c)→(c,R-1-r) · CCW (r,c)→(C-1-c,r) · 180 (r,c)→(R-1-r,C-1-c). */
-const IPDM_MODULE_PLUGS = [
-  { cid:'ipdm_e4', hs:[['4','3'],['6','5']], rot:-90, col:0, row:0 },
-  { cid:'ipdm_e7', hs:[['23','22','21','20','L','L','19','18','17'],['32','31','30','29','28','27','26','25','24']], rot:-90, col:1, row:0 },
-  { cid:'ipdm_e8', hs:[['37','36','L','L','35','34','33'],['44','43','42','41','40','39','38']], rot:90, col:2, row:0 },
-  { cid:'ipdm_e3', hs:[['1'],['2']], rot:180, col:0, row:1 },
-  { cid:'ipdm_e5', hs:[['8','7'],['10','9']], rot:-90, col:1, row:1 },
-  { cid:'ipdm_e6', hs:[['13','12','11'],['16','15','14']], rot:180, col:2, row:1 },
-  { cid:'ipdm_e9', hs:[['52','51','50','49','48','47','46','45'],['60','59','58','57','56','55','54','53']], rot:180, col:3, row:1 },
-];
+/* IPDM E3–E9 harness plugs. The 2005 FSM draws them only from the WIRE side (H.S. badge, double outline, GI-14),
+   lock up: E3 PG-14, E4 SC-13/PG-13, E5/E6 EC-510/PG-14, E7 PG-15/EC-167, E8 EC-710/PG-15, E9 EC-472/EC-167.
+   Each ficha shows that H.S. face TURNED the way it sits on the IPDM in PG-26 (Ezequiel: match the module):
+   E4/E5/E7 −90 (counter-clockwise, lock left) · E8 +90 (clockwise, lock right) · E3/E6/E9 180 (lock down).
+   Pure grid turn, never mirrored: CW (r,c)→(c,R−1−r) · CCW (r,c)→(C−1−c,r) · 180 (r,c)→(R−1−r,C−1−c).
+   'L' = lock cell inside the grid (E7 between 20/19, E8 above 42/41). */
+const IPDM_PLUG_FACES = {
+  ipdm_e3: { hs:[['1'],['2']], rot:180 },
+  ipdm_e4: { hs:[['4','3'],['6','5']], rot:-90 },
+  ipdm_e5: { hs:[['8','7'],['10','9']], rot:-90 },
+  ipdm_e6: { hs:[['13','12','11'],['16','15','14']], rot:180 },
+  ipdm_e7: { hs:[['23','22','21','20','L','L','19','18','17'],['32','31','30','29','28','27','26','25','24']], rot:-90 },
+  ipdm_e8: { hs:[['37','36','L','L','35','34','33'],['44','43','42','41','40','39','38']], rot:90 },
+  ipdm_e9: { hs:[['52','51','50','49','48','47','46','45'],['60','59','58','57','56','55','54','53']], rot:180 },
+};
 function ipdmRotateGrid(hs, rot){
   const R = hs.length, C = hs[0].length;
-  const cw = rot === 90 || rot === -90;
-  const out = Array.from({length: cw ? C : R}, () => Array(cw ? R : C).fill(null));
+  const q = rot === 90 || rot === -90;
+  const out = Array.from({length: q ? C : R}, () => Array(q ? R : C).fill(null));
   for(let r=0;r<R;r++) for(let c=0;c<C;c++){
-    const v = hs[r][c];
     let rr, cc;
     if(rot === 90){ rr = c; cc = R-1-r; }
     else if(rot === -90){ rr = C-1-c; cc = r; }
     else if(rot === 180){ rr = R-1-r; cc = C-1-c; }
     else { rr = r; cc = c; }
-    out[rr][cc] = v;
+    out[rr][cc] = hs[r][c];
   }
   return out;
 }
 /* side of the lock tab after turning a lock-up face */
 function ipdmLockSide(rot){ return rot === 90 ? 'right' : rot === -90 ? 'left' : rot === 180 ? 'bottom' : 'top'; }
-function svgIpdmModule(cid, f){
-  const cw = 34, ch = 30, gap = 3, pad = 14, tab = 9, labH = 16;
-  const blocks = IPDM_MODULE_PLUGS.map(pl => {
-    const g = ipdmRotateGrid(pl.hs, pl.rot);
-    const w = g[0].length*cw + (g[0].length-1)*gap, h = g.length*ch + (g.length-1)*gap;
-    return { pl, g, w, h, side: ipdmLockSide(pl.rot) };
-  });
-  /* columns/rows: approximate PG-26 placement (top: E4 · E7 · E8 · bottom: E3 · E5 · E6 · E9) */
-  const colGap = 22, rowGap = 26;
-  const rows = [0,1].map(r => blocks.filter(b => b.pl.row === r).sort((a,b)=>a.pl.col-b.pl.col));
-  const rowH = rows.map(rb => Math.max(...rb.map(b => b.h + 2*tab)) + labH);
-  const rowW = rows.map(rb => rb.reduce((a,b)=>a + b.w + 2*tab, 0) + colGap*(rb.length-1));
-  const W = pad*2 + Math.max(...rowW);
-  const H = pad*2 + 18 + rowH[0] + rowGap + rowH[1];
-  let body = '';
-  let y0 = pad + 18;
-  rows.forEach((rb, ri) => {
-    let x0 = pad + (W - pad*2 - rowW[ri]) / 2;
-    rb.forEach(b => {
-      const bx = x0 + tab, by = y0 + labH + tab + (rowH[ri] - labH - 2*tab - b.h) / 2;
-      const conf = CONN[b.pl.cid] || CONN_BASE[b.pl.cid] || {pins:[]};
-      const byId = Object.fromEntries((conf.pins||[]).map(p=>[String(p.id),p]));
-      const lbl = ipdmFsmLabel(b.pl.cid);
-      body += `<g class="ipdm-mod-plug" data-plug="${esc(b.pl.cid)}" data-rot="${b.pl.rot}">`;
-      body += `<text x="${bx + b.w/2}" y="${y0 + 11}" text-anchor="middle" font-size="11" font-weight="800" fill="#ef9a9a">${esc(lbl)}</text>`;
-      body += `<rect class="shell" x="${bx-4}" y="${by-4}" width="${b.w+8}" height="${b.h+8}" rx="4" style="stroke:${f.accent}"/>`;
-      /* outer lock tab on the turned side */
-      const tw = 22, th = 6;
-      if(b.side === 'top') body += `<rect class="lock-tab" x="${bx+b.w/2-tw/2}" y="${by-4-th}" width="${tw}" height="${th}" rx="2"/>`;
-      if(b.side === 'bottom') body += `<rect class="lock-tab" x="${bx+b.w/2-tw/2}" y="${by+b.h+4}" width="${tw}" height="${th}" rx="2"/>`;
-      if(b.side === 'left') body += `<rect class="lock-tab" x="${bx-4-th}" y="${by+b.h/2-tw/2}" width="${th}" height="${tw}" rx="2"/>`;
-      if(b.side === 'right') body += `<rect class="lock-tab" x="${bx+b.w+4}" y="${by+b.h/2-tw/2}" width="${th}" height="${tw}" rx="2"/>`;
-      b.g.forEach((rowArr, r) => rowArr.forEach((id, c) => {
-        const x = bx + c*(cw+gap), y = by + r*(ch+gap);
-        if(id === 'L'){ body += `<rect class="lock-tab ipdm-mod-lock" x="${x+4}" y="${y+4}" width="${cw-8}" height="${ch-8}" rx="2"><title>LOCK</title></rect>`; return; }
-        if(id == null) return;
-        body += cavOrEmpty(b.pl.cid, byId, id, x, y, cw, ch);
-      }));
-      body += `</g>`;
-      x0 += b.w + 2*tab + colGap;
-    });
-    y0 += rowH[ri] + rowGap;
-  });
-  const L = (lang === 'en' || lang === 'ja') ? lang : 'es';
-  const head = L === 'en' ? 'IPDM E/R · PG-26 · wire side' : L === 'ja' ? 'IPDM E/R · PG-26 · 配線側' : 'IPDM E/R · PG-26 · lado cables';
-  return `<svg class="conn-svg ipdm-module-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <rect class="shell" x="3" y="3" width="${W-6}" height="${H-6}" rx="10" style="stroke:${f.accent};stroke-dasharray:6 4"/>
-    <text x="${pad}" y="${pad+6}" font-size="11" font-weight="700" fill="#b0bec5">${esc(head)}</text>
-    ${body}
-  </svg>`;
-}
-
-/** IPDM E7 · FSM H.S. (wire side, lock up): 23 22 21 20 [lock] 19 18 17 / 32–24 (PG-15) */
-function svgIpdmE7(cid, f){
+function svgIpdmPlug(cid, f){
+  const def = IPDM_PLUG_FACES[cid];
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  /* E7 (GY, 16 cav) exactly as the 2005 FSM H.S. drawing (wire side, lock up): PG-15 / EC-167 / SC-13 /
-     LT-192 all draw  23 22 21 20 [LOCK] 19 18 17  over  32 31 30 29 28 27 26 25 24.
-     PG-26 is the same face turned 90° (17–23 left column, 24–32 right column). */
-  const top = [23,22,21,20,null,null,19,18,17];
-  const bot = [32,31,30,29,28,27,26,25,24];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=8, topY=14;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 9*cw + 8*gap;
-  const H = botY + ch + 12;
-  let cavities='';
-  top.forEach((id,i)=>{ if(id != null) cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
-  const _c = cornersFromRows(top, bot);
-  const lx = padX + 4*(cw+gap) + 3, lw = 2*cw + gap - 6, ly = topY + ch*0.28, lh = ch*0.44;
-  const tx = lx + lw/2;
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${tx-14} 2 h28 l5 9 H${tx-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="11" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
-    <rect class="lock-tab" x="${lx}" y="${ly}" width="${lw}" height="${lh}" rx="2" style="stroke:${f.accent}"><title>LOCK</title></rect>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
-
-/** IPDM E8 · FSM H.S. (wire side, lock up): 37 36 [lock] 35 34 33 / 44–38 (EC-710) */
-function svgIpdmE8(cid, f){
-  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  /* E8 (W, 12 cav) exactly as the 2005 FSM H.S. drawing (wire side, lock up): EC-710 / EC-472 / PG-15 /
-     WW-12 / WW-56 all draw  37 36 [LOCK] 35 34 33  over  44 43 42 41 40 39 38.
-     PG-26 is the same face turned 90° (44–38 left column, 37–33 right column, lock beside 42/41).
-     The lock occupies the two middle top positions; 42/41 sit BELOW it in the 7-wide row. */
-  const top = [37,36,null,null,35,34,33];
-  const bot = [44,43,42,41,40,39,38];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=8, topY=14;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 7*cw + 6*gap;
-  const H = botY + ch + 12;
-  let cavities='';
-  top.forEach((id,i)=>{ if(id != null) cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
-  const _c = cornersFromRows(top, bot);
-  const lx = padX + 2*(cw+gap) + 3, lw = 2*cw + gap - 6, ly = topY + ch*0.28, lh = ch*0.44;
-  const tx = lx + lw/2;
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${tx-14} 2 h28 l5 9 H${tx-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="11" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
-    <rect class="lock-tab" x="${lx}" y="${ly}" width="${lw}" height="${lh}" rx="2" style="stroke:${f.accent}"><title>LOCK</title></rect>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
-
-/** IPDM E9 · FSM H.S. (wire side, lock up over 50–47): 52–45 / 60–53 (EC-472) */
-function svgIpdmE9(cid, f){
-  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  /* E9 (W, 16 cav) exactly as the 2005 FSM H.S. drawing (wire side, lock up): EC-472 / EC-167 / SC-12..14 /
-     WW-56 / LT-192 all draw the lock ABOVE 50–47 with  52 51 50 49 48 47 46 45  on top and
-     60 59 58 57 56 55 54 53  below. PG-26 is the same face turned 180° (lock under 47–50). */
-  const top = ['52','51','50','49','48','47','46','45'];
-  const bot = ['60','59','58','57','56','55','54','53'];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=8, topY=18;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 8*cw + 7*gap;
-  const H = botY + ch + 12;
-  let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
-  bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
-  const _c = cornersFromRows(top, bot);
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="3" y="12" width="${W-6}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
+  const g = ipdmRotateGrid(def.hs, def.rot);
+  const side = ipdmLockSide(def.rot);
+  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP, tab=12;
+  const nR = g.length, nC = g[0].length;
+  const gw = nC*cw + (nC-1)*gap, gh = nR*ch + (nR-1)*gap;
+  const padL = 8 + (side === 'left' ? tab : 0), padR = 8 + (side === 'right' ? tab : 0);
+  const padT = 8 + (side === 'top' ? tab : 0), padB = 8 + (side === 'bottom' ? tab : 0);
+  const W = padL + gw + padR, H = padT + gh + padB;
+  let cavities = '', locks = '';
+  const rowIds = g.map(row => row.filter(id => id && id !== 'L'));
+  g.forEach((row, r) => row.forEach((id, c) => {
+    const x = padL + c*(cw+gap), y = padT + r*(ch+gap);
+    if(id === 'L'){ locks += `<rect class="lock-tab ipdm-lock-cell" x="${x+5}" y="${y+5}" width="${cw-10}" height="${ch-10}" rx="2" style="stroke:${f.accent}"><title>LOCK</title></rect>`; return; }
+    if(id == null) return;
+    cavities += cavOrEmpty(cid, byId, id, x, y, cw, ch);
+  }));
+  const sx = padL - 5, sy = padT - 5, sw = gw + 10, sh = gh + 10;
+  const tw = 28, th = 9;
+  let tabSvg = '';
+  if(side === 'top') tabSvg = `<path class="lock-tab" d="M${W/2-tw/2} ${sy} l4 -${th} h${tw-8} l4 ${th} Z" style="stroke:${f.accent}"/>`;
+  if(side === 'bottom') tabSvg = `<path class="lock-tab" d="M${W/2-tw/2} ${sy+sh} l4 ${th} h${tw-8} l4 -${th} Z" style="stroke:${f.accent}"/>`;
+  if(side === 'left') tabSvg = `<path class="lock-tab" d="M${sx} ${H/2-tw/2} l-${th} 4 v${tw-8} l${th} 4 Z" style="stroke:${f.accent}"/>`;
+  if(side === 'right') tabSvg = `<path class="lock-tab" d="M${sx+sw} ${H/2-tw/2} l${th} 4 v${tw-8} l-${th} 4 Z" style="stroke:${f.accent}"/>`;
+  const _c = cornersFromRows(rowIds[0], rowIds[rowIds.length-1]);
+  return `<svg class="conn-svg ipdm-plug-svg" data-rot="${def.rot}" data-lock="${side}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    ${tabSvg}
+    <rect class="shell" x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="5" style="stroke:${f.accent}"/>
+    ${locks}
     ${cavities}
   ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
@@ -4039,14 +3839,13 @@ function renderConnSvg(cid, f){
     case 'tab6': svg = svgTabN(cid,f,6); break;
     case 'rect4': svg = svgRect4(cid,f); break;
     case 'ring': svg = svgRing(cid,f); break;
-    case 'ipdm_e3': svg = svgIpdmE3(cid,f); break;
-    case 'ipdm_e4': svg = svgIpdmE4(cid,f); break;
-    case 'ipdm_e5': svg = svgIpdmE5(cid,f); break;
-    case 'ipdm_e6': svg = svgIpdmE6(cid,f); break;
-    case 'ipdm_e7': svg = svgIpdmE7(cid,f); break;
-    case 'ipdm_e8': svg = svgIpdmE8(cid,f); break;
-    case 'ipdm_e9': svg = svgIpdmE9(cid,f); break;
-    case 'ipdm_module': svg = svgIpdmModule(cid,f); break;
+    case 'ipdm_e3': svg = svgIpdmPlug(cid,f); break;
+    case 'ipdm_e4': svg = svgIpdmPlug(cid,f); break;
+    case 'ipdm_e5': svg = svgIpdmPlug(cid,f); break;
+    case 'ipdm_e6': svg = svgIpdmPlug(cid,f); break;
+    case 'ipdm_e7': svg = svgIpdmPlug(cid,f); break;
+    case 'ipdm_e8': svg = svgIpdmPlug(cid,f); break;
+    case 'ipdm_e9': svg = svgIpdmPlug(cid,f); break;
     case 'dlc': svg = svgDlc(cid,f); break;
     case 'box': svg = svgBox(cid,f); break;
     case 'clock': svg = svgClock(cid,f); break;
@@ -4976,13 +4775,7 @@ function markFichaHL(cid, on){
     if(on){ el.classList.remove('dim'); el.classList.add('hl'); }
     else { el.classList.remove('hl'); }
   });
-  /* IPDM module view mirrors its plugs: lit while any E3–E9 card is lit */
-  if(/^ipdm_e[3-9]$/.test(id)){
-    const anyPlug = on || !!document.querySelector('.ficha.hl[data-conn^="ipdm_e"], .ficha-wrap.hl[data-conn^="ipdm_e"]');
-    document.querySelectorAll('.ficha-wrap[data-conn="ipdm_module"], .ficha[data-conn="ipdm_module"]').forEach(el=>{
-      if(anyPlug){ el.classList.remove('dim'); el.classList.add('hl'); } else el.classList.remove('hl');
-    });
-  }
+
 }
 
 
@@ -5468,12 +5261,11 @@ const CONN_I18N = {
   /* —— remaining connectors —— */
   ipdm_e3: { en:{name:'IPDM E3 · Battery', meta:'2-pin · 12V in · PG-26', note:'Battery feed into the IPDM (2-pin).'}, ja:{name:'IPDM E3 · バッテリ', meta:'2ピン · 12V入力 · PG-26', note:'IPDMへのバッテリ入力（2ピン）。'} },
   ipdm_e7: { en:{name:'IPDM E7 · Lamps / wiper / ECM', meta:'VB / back-up / lamps / wiper · PG-26 · EC/LT/WW/SC', note:'IPDM E7: ignition, lamps, wiper, reverse (cav 26).'}, ja:{name:'IPDM E7 · ランプ / ワイパー / ECM', meta:'VB / ランプ / ワイパー · PG-26', note:'IPDM E7: 点火・ランプ・ワイパー・リバース（cav 26）。'} },
-  ipdm_e8: { en:{name:'IPDM E8 · Pump / throttle / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8 (W, 12-way): A/C · ground · fuel pump · VMOT · IGN ABS · washer. Face = FSM H.S. wire side, lock up (EC-710).'}, ja:{name:'IPDM E8 · ポンプ / スロットル / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8 (W, 12極): A/C · アース · ポンプ · VMOT · IGN ABS · ウォッシャー。面 = FSM H.S.配線側・ロック上 (EC-710)。'} },
+  ipdm_e8: { en:{name:'IPDM E8 · Pump / throttle / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8 (W, 12-way): A/C · ground · fuel pump · VMOT · IGN ABS · washer. Face: wire side, oriented as on the IPDM (lock right) · EC-710 / PG-26.'}, ja:{name:'IPDM E8 · ポンプ / スロットル / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8 (W, 12極): A/C · アース · ポンプ · VMOT · IGN ABS · ウォッシャー。面: 配線側、IPDM上の向き（ロック右）· EC-710 / PG-26。'} },
   ipdm_e9: { en:{name:'IPDM E9 · ECM relays + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', note:'IPDM E9: SSOFF · MOTRLY · CAN · grounds · starter/defog.'}, ja:{name:'IPDM E9 · ECMリレー + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', note:'IPDM E9: SSOFF · MOTRLY · CAN · アース。'} },
-  ipdm_e4: { en:{name:'IPDM E4 · Starter', meta:'starter · PG-26 · SC-13/14 · fixed face', note:'IPDM E4 (W) · starter 3/4 (SC-13/14) + defogger power 5/6 (PG-13). Face = FSM H.S. wire side, lock up: 4 3 / 6 5.'}, ja:{name:'IPDM E4 · スタータ', meta:'スタータ · PG-26 · 固定面', note:'IPDM E4 · スタータ + デフォッガ電源 5/6。'} },
-  ipdm_e5: { en:{name:'IPDM E5 · Cooling fans', meta:'cooling fan · PG-26 · EC-510 · fixed face', note:'IPDM E5 (B) · fans 8/9/10 (EC-510) + 7 = ign relay out B/R (PG-14). Face = FSM H.S. wire side, lock up: 8 7 / 10 9.'}, ja:{name:'IPDM E5 · 冷却ファン', meta:'冷却ファン · PG-26 · 固定面', note:'IPDM E5 · 冷却ファン（EC-510）。'} },
+  ipdm_e4: { en:{name:'IPDM E4 · Starter', meta:'starter · PG-26 · SC-13/14 · fixed face', note:'IPDM E4 (W) · starter 3/4 (SC-13/14) + defogger power 5/6 (PG-13). Face: wire side, oriented as on the IPDM (lock left): 3 5 / 4 6.'}, ja:{name:'IPDM E4 · スタータ', meta:'スタータ · PG-26 · 固定面', note:'IPDM E4 · スタータ + デフォッガ電源 5/6。'} },
+  ipdm_e5: { en:{name:'IPDM E5 · Cooling fans', meta:'cooling fan · PG-26 · EC-510 · fixed face', note:'IPDM E5 (B) · fans 8/9/10 (EC-510) + 7 = ign relay out B/R (PG-14). Face: wire side, oriented as on the IPDM (lock left): 7 9 / 8 10.'}, ja:{name:'IPDM E5 · 冷却ファン', meta:'冷却ファン · PG-26 · 固定面', note:'IPDM E5 · 冷却ファン（EC-510）。'} },
   ipdm_e6: { en:{name:'IPDM E6 · Fans + 40A', meta:'cooling fan / 40A in · EC-510 · fixed face', note:'IPDM E6 · fans + 40A battery feeds (EC-510).'}, ja:{name:'IPDM E6 · ファン + 40A', meta:'冷却ファン / 40A入力 · 固定面', note:'IPDM E6 · ファン + 40Aバッテリ供給。'} },
-  ipdm_module: { en:{name:'IPDM · plugs as on the module', meta:'E3–E9 · wire side · PG-26', note:'Click a cavity = same as on the individual card. The individual cards stay wire side, lock up.'}, ja:{name:'IPDM · モジュール上の配置', meta:'E3–E9 · 配線側 · PG-26', note:'キャビティをクリック = 個別カードと同じ。個別カードは配線側・ロック上のまま。'} },
   ipdm_legend: {
     en: { name:'IPDM · Relays & fuses', meta:'PG-26 · FSM layout',
       note:'Integrated relays: ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog (empty). Fuse map: see PG-26.' },
@@ -5685,6 +5477,21 @@ function openIpdmFsm(connId){
   closeBtn.focus();
 }
 
+/* IPDM PG-26 image: camera ONLY on the IPDM group header (Ezequiel), same image + lightbox as before.
+   If one E3–E9 plug is lit, its PG-26 box is marked; otherwise the whole module is shown. */
+function addIpdmGroupBtn(sum){
+  sum.insertAdjacentHTML('beforeend', ipdmFsmBtnHtml(''));
+  const btn = sum.querySelector('.ipdm-fsm-btn');
+  btn.classList.add('ipdm-fsm-group-btn');
+  btn.addEventListener('click', e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    const lit = [...document.querySelectorAll('#fichas .ficha-sec[data-sub="ipdm"] .ficha.hl[data-conn]')]
+      .map(el => el.dataset.conn).filter(id => IPDM_FSM_MARK[id]);
+    openIpdmFsm(lit.length === 1 ? lit[0] : '');
+  });
+}
+
 /** Localized fixed-view note from f.view / f.viewByTrans (FSM T.S. face) — Ezequiel's rule. */
 function viewNoteText(id, f){
   const vw = (f && f.viewByTrans && f.viewByTrans[transView()]) || (f && f.view);
@@ -5730,18 +5537,10 @@ function makeFichaEl(id, f, opts){
   }
   const viewTxt = viewNoteText(id, f);
   if(viewTxt) extra += `<div class="note-body view-note">${esc(viewTxt)}</div>`;
-  const showIpdm = !!(opts && opts.ipdmIcon && IPDM_FSM_MARK[id]);
-  const faceBtn = showIpdm ? ipdmFsmBtnHtml(id) : faceBtnHtml(id);
+  const faceBtn = faceBtnHtml(id);
   el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
   wrap.addEventListener('click', e=>{
-    const ipdmBtn = e.target.closest && e.target.closest('.ipdm-fsm-btn');
-    if(ipdmBtn && wrap.contains(ipdmBtn)){
-      e.preventDefault();
-      e.stopPropagation();
-      openIpdmFsm(ipdmBtn.dataset.ipdmConn || id);
-      return;
-    }
     const faceBtnEl = e.target.closest && e.target.closest('.ficha-face-btn');
     if(faceBtnEl && wrap.contains(faceBtnEl)){
       e.preventDefault();
@@ -5754,11 +5553,9 @@ function makeFichaEl(id, f, opts){
       e.preventDefault();
       e.stopPropagation();
       const cavId = cav.dataset.cav;
-      const cavConn = cav.dataset.conn || id;
-      const cavConf = (cavConn !== id && CONN[cavConn]) ? CONN[cavConn] : f;
-      const pin = (cavConf.pins || []).find(x => String(x.id) === String(cavId));
-      if(!cavClickable(cavConn, pin)) return;
-      selectConnPin(cavConn, cavId);
+      const pin = (f.pins || []).find(x => String(x.id) === String(cavId));
+      if(!cavClickable(id, pin)) return;
+      selectConnPin(cav.dataset.conn || id, cavId);
     }
   });
   wrap.appendChild(el);
@@ -5767,7 +5564,7 @@ function makeFichaEl(id, f, opts){
 
 let _fichaOrd = 0;
 /* IPDM: small E3–E6 first; large E7–E9 horizontal last; legend */
-const IPDM_DISPLAY_ORDER = ['ipdm_module','ipdm_cover','ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9','ipdm_legend'];
+const IPDM_DISPLAY_ORDER = ['ipdm_cover','ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9','ipdm_legend'];
 function sortIpdmIds(ids){
   const rank = new Map(IPDM_DISPLAY_ORDER.map((id,i)=>[id,i]));
   return ids.slice().sort((a,b)=>{
@@ -5839,6 +5636,7 @@ function renderFichas(){
     const subCol = SUB_ACCENT[sk] || '#546e7a';
     sec.style.borderColor = subCol;
     sum.style.borderLeft = '3px solid ' + subCol;
+    if(sk === 'ipdm') addIpdmGroupBtn(sum);
     sec.appendChild(sum);
 
     {
@@ -6128,7 +5926,7 @@ function updateSelectedTop(connIds){
       ngrid.className = 'fichas-grid';
       const ordered = lineIds.slice().sort((a,b)=> String(CONN[a].name).localeCompare(String(CONN[b].name)));
       ordered.forEach(id=>{
-        const el = makeFichaEl(id, CONN[id], {ipdmIcon:true});
+        const el = makeFichaEl(id, CONN[id]);
         el.classList.add('hl');
         el.classList.remove('dim');
         ngrid.appendChild(el);
@@ -6178,7 +5976,7 @@ function updateSelectedTop(connIds){
   body.className = 'fichas-body';
 
   function appendFicha(grid, id){
-    const el = makeFichaEl(id, CONN[id], {ipdmIcon:true});
+    const el = makeFichaEl(id, CONN[id]);
     el.classList.add('hl');
     el.classList.remove('dim');
     grid.appendChild(el);

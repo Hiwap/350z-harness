@@ -159,29 +159,26 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     ok('IPDM E8·42 G VMOT → ECM 3, 43 G/R, 44 OR, 39 B/Y, 38 B, 33 L/Y',
       /id:'42',code:'G',ecm:3/.test(e8) && /id:'43',src:'IGN',srcSub:'power',code:'G\/R'/.test(e8) && /id:'44',src:'WASH',srcSub:'ipdm',code:'OR'/.test(e8)
       && /id:'39',src:'F81',srcSub:'ipdm',code:'B\/Y'/.test(e8) && /id:'38',src:'E17',srcSub:'power',code:'B'/.test(e8) && /id:'33',src:'A\/C·RLY',srcSub:'ipdm',code:'L\/Y'/.test(e8));
-    ok('IPDM E8 face rows = FSM H.S. (42/41 under the lock)',
-      /const top = \[37,36,null,null,35,34,33\];\s*const bot = \[44,43,42,41,40,39,38\];/.test(html));
+    ok('IPDM E8 H.S. rows (42/41 under the lock), turned +90 (PG-26)',
+      /ipdm_e8: \{ hs:\[\['37','36','L','L','35','34','33'\],\['44','43','42','41','40','39','38'\]\], rot:90 \}/.test(html));
   }
   /* IPDM E7 / E9 faces = FSM H.S. (PG-15 / EC-472), E9·56 LG/B hood (BL-159), E8·43 fuse 82 (PG-15) */
-  ok('IPDM E7 face rows = FSM H.S. (lock between 20 and 19)',
-    /const top = \[23,22,21,20,null,null,19,18,17\];\s*const bot = \[32,31,30,29,28,27,26,25,24\];/.test(html));
-  ok('IPDM E9 face rows = FSM H.S. (52–45 under the lock)',
-    /const top = \['52','51','50','49','48','47','46','45'\];\s*const bot = \['60','59','58','57','56','55','54','53'\];/.test(html));
+  ok('IPDM E7 H.S. rows (lock between 20 and 19), turned −90 (PG-26)',
+    /ipdm_e7: \{ hs:\[\['23','22','21','20','L','L','19','18','17'\],\['32','31','30','29','28','27','26','25','24'\]\], rot:-90 \}/.test(html));
+  ok('IPDM E9 H.S. rows (52–45 under the lock), turned 180 (PG-26)',
+    /ipdm_e9: \{ hs:\[\['52','51','50','49','48','47','46','45'\],\['60','59','58','57','56','55','54','53'\]\], rot:180 \}/.test(html));
   ok('IPDM E9·56 hood switch LG/B (BL-159)', /\{id:'56',code:'LG\/B',ecm:null,lab:'HOOD'/.test(html));
   ok('IPDM E8·43 = IPDM fuse 82 (PG-15)', /id:'43',src:'IGN',srcSub:'power',code:'G\/R',ecm:null,rail:'12v',note:'IGN ON vía fusible IPDM 82/.test(html));
-  ok('IPDM E3–E6 faces = FSM H.S. lock up (PG-14 / SC-13 / EC-510)',
-    /function svgIpdmE3[\s\S]*?const top = \['1'\];\s*const bot = \['2'\];/.test(html)
-    && /function svgIpdmE4[\s\S]*?const top = \['4','3'\];\s*const bot = \['6','5'\];/.test(html)
-    && /function svgIpdmE5[\s\S]*?const top = \['8','7'\];\s*const bot = \['10','9'\];/.test(html)
-    && /function svgIpdmE6[\s\S]*?const top = \['13','12','11'\];\s*const bot = \['16','15','14'\];/.test(html));
-  ok('IPDM module view ficha: shape ipdm_module, first in IPDM order, hs view, es/en/ja names',
-    /  ipdm_module:\{group:'motor', sub:'ipdm', name:'IPDM · fichas como en el módulo'[^\n]*shape:'ipdm_module', view:\{hs:\{es:'[^']+',en:'[^']+',ja:'[^']+'\}\}/.test(html)
-    && /const IPDM_DISPLAY_ORDER = \['ipdm_module','ipdm_cover'/.test(html) && /ipdm_module: \{ en:\{name:'IPDM · plugs as on the module'/.test(html)
-    && /case 'ipdm_module': svg = svgIpdmModule\(cid,f\)/.test(html));
-  ok('IPDM module rotations = PG-26 (E7/E4/E5 −90, E8 +90, E3/E6/E9 180)',
-    /cid:'ipdm_e4'[^\n]*rot:-90/.test(html) && /cid:'ipdm_e7'[^\n]*rot:-90/.test(html) && /cid:'ipdm_e8'[^\n]*rot:90,/.test(html)
-    && /cid:'ipdm_e3'[^\n]*rot:180/.test(html) && /cid:'ipdm_e5'[^\n]*rot:-90/.test(html) && /cid:'ipdm_e6'[^\n]*rot:180/.test(html) && /cid:'ipdm_e9'[^\n]*rot:180/.test(html));
-  ok('card click handler uses the cavity\'s own connector (module view)', /const cavConn = cav\.dataset\.conn \|\| id;/.test(html));
+  ok('IPDM E3–E6 H.S. rows + PG-26 turns (E3/E6 180, E4/E5 −90)',
+    /ipdm_e3: \{ hs:\[\['1'\],\['2'\]\], rot:180 \}/.test(html)
+    && /ipdm_e4: \{ hs:\[\['4','3'\],\['6','5'\]\], rot:-90 \}/.test(html)
+    && /ipdm_e5: \{ hs:\[\['8','7'\],\['10','9'\]\], rot:-90 \}/.test(html)
+    && /ipdm_e6: \{ hs:\[\['13','12','11'\],\['16','15','14'\]\], rot:180 \}/.test(html));
+  ok('IPDM E3–E9 cards drawn by svgIpdmPlug (rotated H.S., no mirror)',
+    ['e3','e4','e5','e6','e7','e8','e9'].every(e => new RegExp(`case 'ipdm_${e}': svg = svgIpdmPlug\\(cid,f\\)`).test(html)));
+  ok('no combined IPDM module card', !/ipdm_module|svgIpdmModule|IPDM_MODULE_PLUGS/.test(html));
+  ok('IPDM card view notes = wire side as on the IPDM (es/en/ja)',
+    ['e3','e4','e5','e6','e7','e8','e9'].every(e => new RegExp(`  ipdm_${e}:\\{group:'motor'[^\\n]*view:\\{hs:\\{es:'lado CABLES, orientada como en el IPDM \\(PG-26\\), traba [^']+',en:'WIRE side, oriented as on the IPDM \\(PG-26\\), lock [^']+',ja:'配線側、IPDM上の向き（PG-26）、ロック[^']+'\\}\\}`).test(html)));
   /* F102·10H = DLC signal ground (EC-742): DLC M8·5 B/W → M72·10H → F102·10H → F103·2 (ECM 115 splice) → F152 */
   ok('F102·10H B/W GND rail, src F103·2, circ dlc_gnd (EC-742)',
     /\{id:'10H',code:'B\/W',ecm:null,rail:'gnd',lab:'GND',src:'F103·2',srcSub:'power',circ:'dlc_gnd',note:'[^']*EC-742[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html));
@@ -326,13 +323,13 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       && /const IPDM_FSM_MARK = \{/.test(html)
       && ['ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9'].every((id) =>
         new RegExp(id + ':\\s*\\{l:').test(html)));
-    ok('IPDM PG-26 camera stays on Seleccionados plugs only, not the group or the fuse ficha',
+    ok('IPDM PG-26 camera only on the IPDM group header (same image/lightbox), not on E3–E9 cards',
       /function ipdmFsmBtnHtml\(/.test(html)
       && /class="ficha-face-btn ipdm-fsm-btn"/.test(html)
-      && (html.match(/makeFichaEl\(id, CONN\[id\], \{ipdmIcon:true\}\)/g) || []).length === 2
-      && !/sum\.insertAdjacentHTML\('beforeend', ipdmFsmBtnHtml/.test(html)
-      && !/showIpdm = id === 'ipdm_cover'/.test(html)
-      && !/ipdm-fsm-group|ipdmFsmFigHtml|class="ipdm-fsm"/.test(html));
+      && /function addIpdmGroupBtn\(sum\)\{\s*sum\.insertAdjacentHTML\('beforeend', ipdmFsmBtnHtml\(''\)\);/.test(html)
+      && /if\(sk === 'ipdm'\) addIpdmGroupBtn\(sum\);/.test(html)
+      && !/ipdmIcon/.test(html)
+      && (html.match(/ipdmFsmBtnHtml\(/g) || []).length === 2 /* definition + group header */);
     ok('IPDM cover fuses 71–89 are one ficha, with the amp under the short name',
       /ipdm_cover:\{group:'motor', sub:'ipdm'/.test(html)
       && /function svgIpdmCover\(/.test(html)
