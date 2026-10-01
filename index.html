@@ -1865,18 +1865,18 @@ const CONN_BASE = {
       {id:'2',src:'BATT',srcSub:'power',code:'W/L',ecm:null,rail:'12v',note:'Entrada batería 12V (W/L) desde fusible links · PG-27.',note_en:'Battery 12V in (W/L) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W/L) · ヒュージブルリンク · PG-27。'}
     ],
     note:'Entrada de batería al IPDM (2 pines).'},
-  ipdm_e7:{group:'motor', sub:'ipdm', name:'IPDM E7 · Luces / limpia / ECM', meta:'VB / back-up / faros / limpia · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7', view:{unv:{es:'el FSM 2005 no dibuja la cara T.S. del conector del arnés (solo el zócalo del IPDM en PG-26 y la vista H.S. del lado cables); se mantiene la vista por defecto anterior (espejo de PG-26), fija.',en:'the 2005 FSM has no T.S. drawing of this harness plug (only the IPDM socket on PG-26 and the H.S. wire-side view); the previous default view (mirror of PG-26) is kept, fixed.',ja:'2005 FSMにはこのハーネス側コネクタのT.S.図がない（PG-26のIPDMソケットとH.S.配線側図のみ）。以前の既定表示（PG-26の鏡像）を固定で維持。'}},
+  ipdm_e7:{group:'motor', sub:'ipdm', name:'IPDM E7 · Luces / limpia / ECM', meta:'VB / back-up / faros / limpia · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 23 22 21 20 [traba] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192; PG-26 es la misma cara girada 90°. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 23 22 21 20 [lock] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192; PG-26 is the same face turned 90°. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 23 22 21 20 [ロック] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192。PG-26は同じ面を90°回転。端子側からは左右反転。'}},
     pins:[
       {id:'17',code:'W/L',ecm:null,rail:'12v',src:'ECM-RLY',srcSub:'ipdm',note:'Salida relé ECM (W/L): bobinas/VTC adm vía E7-17 → F3 · VTC escape (magnet retarder) · venteo EVAP vía E106/B2 → B43/T1 · EC-167 / EC-198 / EC-367.',note_en:'ECM relay out (W/L): coils via E7-17 → F3; also EVAP vent 12V via E106/B2 → B43/T1 · EC-167 / EC-367.',note_ja:'ECMリレー出力 (W/L): コイルはE7-17→F3、EVAPベントはE106/B2→B43/T1 · EC-167/EC-367。'},
       {id:'18',code:'R/W',ecm:119,rail:'12v',note:'VB alimentación ECM (R/W) → ECM 119; también ECM 120 vía E12/F3 (P) · EC-167.',note_en:'ECM VB power (R/W) → ECM 119; also ECM 120 via E12/F3 (P) · EC-167.',note_ja:'ECM VB電源 (R/W) → ECM 119; E12/F3経由で ECM 120 (P) · EC-167。'},
       {id:'19',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'20',src:'HL·LO',srcSub:'ipdm',code:'R',ecm:null,rail:'12v',note:'Luz baja faro RH (R) → front combination lamp RH · LT-16/47.',note_en:'Headlamp low RH (R) → front combination lamp RH · LT-16/47.',note_ja:'ヘッドランプLo RH (R) · LT-16/47。'},
       {id:'21',src:'WIP·LO',srcSub:'ipdm',code:'PU',ecm:null,rail:'12v',note:'Limpia parabrisas LO (PU) → motor limpia · WW-15.',note_en:'Front wiper low (PU) → wiper motor · WW-15.',note_ja:'ワイパーLo (PU) · WW-15。'},
-      {id:'22',src:'TAIL',srcSub:'ipdm',code:'R/L',ecm:null,rail:'12v',note:'Luces de posición / matrícula / cola (R/L) · LT-197.',note_en:'Parking / license / tail lamps (R/L) · LT-197.',note_ja:'車幅灯/ライセンス/テール (R/L) · LT-197。'},
+      {id:'22',src:'TAIL',srcSub:'ipdm',code:'R/L',ecm:null,rail:'12v',note:'Relé luces de cola (TAIL/L RLY) R/L → posición / matrícula / cola · LT-192.',note_en:'Tail lamp relay (TAIL/L RLY) R/L → parking / license / tail lamps · LT-192.',note_ja:'車幅灯/ライセンス/テール (R/L) · LT-197。'},
       {id:'23',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'24',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
-      {id:'25',src:'F89',srcSub:'fuses',code:'G/Y',ecm:null,rail:'12v',note:'Alimentación interlock embrague M/T / fusible 89 (G/Y) · SC-13.',note_en:'Clutch interlock power (M/T) / fuse 89 (G/Y) · SC-13.',note_ja:'クラッチインターロック電源 (M/T) / ヒューズ89 (G/Y) · SC-13。'},
-      {id:'26',src:'F83',srcSub:'fuses',code:'G/W',ecm:null,rail:'12v',circ:'backup_lamp',note:'Feed luz marcha atrás (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fusible 83.',note_en:'Back-up lamp feed (G/W) → E10/F1 cav2 Y/R → switch F36 · LT-183 fuse 83.',note_ja:'バックランプ給電 (G/W) → E10/F1 cav2 → F36 · LT-183。'},
+      {id:'25',src:'F89',srcSub:'fuses',code:'G/Y',ecm:null,rail:'12v',note:'Fusible IPDM 89 (10A) G/Y → interlock embrague E121·1 (M/T) · MIL/DLC · PG-15 / SC-13.',note_en:'IPDM fuse 89 (10A) G/Y → clutch interlock E121·1 (M/T) · MIL/DLC · PG-15 / SC-13.',note_ja:'クラッチインターロック電源 (M/T) / ヒューズ89 (G/Y) · SC-13。'},
+      {id:'26',src:'F83',srcSub:'fuses',code:'G/W',ecm:null,rail:'12v',circ:'backup_lamp',note:'Fusible IPDM 83 (10A): M/T G/W (A/T: Y/R) → luz marcha atrás vía E10/F1 cav2 → switch F36 · PG-15 / LT-183.',note_en:'IPDM fuse 83 (10A): M/T G/W (A/T: Y/R) → back-up lamp via E10/F1 cav2 → switch F36 · PG-15 / LT-183.',note_ja:'バックランプ給電 (G/W) → E10/F1 cav2 → F36 · LT-183。'},
       {id:'27',src:'HL·HI',srcSub:'ipdm',code:'BR',ecm:null,rail:'12v',note:'Luz alta faro RH (BR) · LT-16/47.',note_en:'Headlamp high RH (BR) · LT-16/47.',note_ja:'ヘッドランプHi RH (BR) · LT-16/47。'},
       {id:'28',src:'HL·HI',srcSub:'ipdm',code:'R/Y',ecm:null,rail:'12v',note:'Luz alta faro LH (R/Y) · LT-16/47.',note_en:'Headlamp high LH (R/Y) · LT-16/47.',note_ja:'ヘッドランプHi LH (R/Y) · LT-16/47。'},
       {id:'29',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
@@ -1897,24 +1897,24 @@ const CONN_BASE = {
       {id:'40',code:'L/W',ecm:113,rail:'12v',note:'Control bobina relé bomba: E8·40 L/W → E108·28G (L/W) / M15·28G (B/R) → M72·6H (B/R) / F102·6H (LG/B) → ECM 113 LG/B (FPR, masa = bomba ON) · EC-710 / PG-15.',note_en:'Fuel pump relay coil control: E8·40 L/W → E108·28G (L/W) / M15·28G (B/R) → M72·6H (B/R) / F102·6H (LG/B) → ECM 113 LG/B (FPR, grounded = pump ON) · EC-710 / PG-15.',note_ja:'フューエルポンプリレー制御 (L/W) → ECM 113 · EC-710。'},
       {id:'41',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'42',code:'G',ecm:3,rail:'12v',lab:'VMOT',note:'VMOT control relé motor mariposa (G) → ECM 3 vía E12/F3 · EC-472.',note_en:'Throttle motor relay control VMOT (G) → ECM 3 via E12/F3 · EC-472.',note_ja:'スロットルモータリレー制御 VMOT (G) → ECM 3 · EC-472。'},
-      {id:'43',src:'IGN',srcSub:'power',code:'G/R',ecm:null,rail:'12v',note:'IGN ON vía fusible IPDM 83 (10A) (G/R) → ABS/TCS/VDC (y DTRL Canadá) · PG-15 / PG-25 / LT-80.',note_en:'Ign ON via IPDM fuse 83 (10A) (G/R) → ABS/TCS/VDC (and Canada DTRL) · PG-15 / PG-25 / LT-80.',note_ja:'IPDMヒューズ83 (10A) 経由IGN ON (G/R) → ABS/TCS/VDC（カナダDTRL）· PG-15 / PG-25 / LT-80。'},
+      {id:'43',src:'IGN',srcSub:'power',code:'G/R',ecm:null,rail:'12v',note:'IGN ON vía fusible IPDM 82 (10A) (G/R) → ABS/TCS/VDC (y DTRL Canadá) · PG-15 / PG-25 / LT-80.',note_en:'Ign ON via IPDM fuse 82 (10A) (G/R) → ABS/TCS/VDC (and Canada DTRL) · PG-15 / PG-25 / LT-80.',note_ja:'IPDMヒューズ82 (10A) 経由IGN ON (G/R) → ABS/TCS/VDC（カナダDTRL）· PG-15 / PG-25 / LT-80。'},
       {id:'44',src:'WASH',srcSub:'ipdm',code:'OR',ecm:null,rail:'12v',note:'Alimentación motor lavaparabrisas E29·2 vía fusible IPDM 84 (10A) (OR) · WW-12 / WW-15 / PG-15.',note_en:'Washer motor E29·2 power via IPDM fuse 84 (10A) (OR) · WW-12 / WW-15 / PG-15.',note_ja:'ウォッシャーモータ電源 (OR) · WW-15。'}
     ],
     note:'IPDM E8 (W, 12 vías): A/C · masa · bomba · VMOT · IGN ABS · lavador. Cara = FSM H.S. lado cables, traba arriba (EC-710).'},
-  ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9', view:{unv:{es:'el FSM 2005 no dibuja la cara T.S. del conector del arnés (solo el zócalo del IPDM en PG-26 y la vista H.S. del lado cables); se mantiene la vista por defecto anterior (espejo de PG-26), fija.',en:'the 2005 FSM has no T.S. drawing of this harness plug (only the IPDM socket on PG-26 and the H.S. wire-side view); the previous default view (mirror of PG-26) is kept, fixed.',ja:'2005 FSMにはこのハーネス側コネクタのT.S.図がない（PG-26のIPDMソケットとH.S.配線側図のみ）。以前の既定表示（PG-26の鏡像）を固定で維持。'}},
+  ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba sobre 50–47): 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56; PG-26 es la misma cara girada 180°. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up over 50–47): 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56; PG-26 is the same face turned 180°. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロックは50–47の上）: 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56。PG-26は同じ面を180°回転。端子側からは左右反転。'}},
     pins:[
       {id:'45',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'46',code:'W/B',ecm:111,rail:'12v',lab:'SSOFF',note:'SSOFF auto-apagado relé ECM (W/B) → ECM 111 vía E108/M15 · M72/F102 · EC-167.',note_en:'ECM relay self shut-off SSOFF (W/B) → ECM 111 via E108/M15 · M72/F102 · EC-167.',note_ja:'ECMリレー自己遮断 SSOFF (W/B) → ECM 111 · EC-167。'},
       {id:'47',code:'OR',ecm:104,rail:'12v',lab:'MOTRLY',note:'MOTRLY alimentación relé mariposa (OR) → ECM 104 vía E108/M15 · M72/F102 · EC-472.',note_en:'Throttle motor relay power MOTRLY (OR) → ECM 104 via E108/M15 · M72/F102 · EC-472.',note_ja:'スロットルモータリレー電源 MOTRLY (OR) → ECM 104 · EC-472。'},
       {id:'48',code:'L',ecm:94,note:'CAN-H (L) → ECM 94 / bus CAN vía E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_en:'CAN-H (L) → ECM 94 / CAN bus via E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_ja:'CAN-H (L) → ECM 94 · LAN-49 / EC-509。'},
       {id:'49',code:'P',ecm:86,note:'CAN-L (P) → ECM 86 / bus CAN vía E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_en:'CAN-L (P) → ECM 86 / CAN bus via E108/M15 · M72/F102 · LAN-49 / EC-509 / LT-16.',note_ja:'CAN-L (P) → ECM 86 · LAN-49 / EC-509。'},
-      {id:'50',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra IPDM → body E17 (B) · PG-27.',note_en:'IPDM ground → body E17 (B) · PG-27.',note_ja:'IPDMアース → ボディ E17 (B) · PG-27。'},
+      {id:'50',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra IPDM ("PNP SW or GND") → body E17 (B) · PG-27 / SC-12 / SC-14.',note_en:'IPDM ground ("PNP SW or GND") → body E17 (B) · PG-27 / SC-12 / SC-14.',note_ja:'IPDMアース → ボディ E17 (B) · PG-27。'},
       {id:'51',src:'HORN',srcSub:'ipdm',code:'G/B',ecm:null,note:'Control relé bocina (HORN RLY) G/B → E21 · WW-56.',note_en:'Horn relay control (HORN RLY) G/B → E21 · WW-56.',note_ja:'ホーンリレー制御 (HORN RLY) G/B → E21 · WW-56。'},
       {id:'52',src:'DEF',srcSub:'ipdm',code:'G/R',ecm:null,rail:'12v',note:'Desempañador luneta trasera (G/R) · GW-68/76.',note_en:'Rear window defogger (G/R) · GW-68/76.',note_ja:'リヤデフォッガ (G/R) · GW-68/76。'},
-      {id:'53',src:'STR·EN',srcSub:'ipdm',code:'GY/R',ecm:null,rail:'12v',note:'Enable relé arranque (GY/R) · interlock embrague M/T pin2 / TCM A/T · SC-13/14.',note_en:'Starter relay enable (GY/R) · clutch interlock M/T pin2 / TCM A/T · SC-13/14.',note_ja:'スタータリレー許可 (GY/R) · SC-13/14。'},
+      {id:'53',src:'STR·EN',srcSub:'ipdm',code:'GY/R',ecm:null,rail:'12v',note:'Bobina relé arranque (GY/R): M/T → interruptor interlock embrague E121·2 (SC-13) · A/T → E10·7/F1 → TCM F502·9 (SC-14).',note_en:'Starter relay coil (GY/R): M/T → clutch interlock switch E121·2 (SC-13) · A/T → E10·7/F1 → TCM F502·9 (SC-14).',note_ja:'スタータリレー許可 (GY/R) · SC-13/14。'},
       {id:'54',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'55',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
-      {id:'56',code:'—',ecm:null,lab:'HOOD',note:'Interruptor capó · PG-25.',note_en:'Hood switch · PG-25.',note_ja:'フードスイッチ · PG-25。'},
+      {id:'56',code:'LG/B',ecm:null,lab:'HOOD',note:'Interruptor capó (LG/B) → hood switch pin 1 · PG-25 / BL-159.',note_en:'Hood switch (LG/B) → hood switch pin 1 · PG-25 / BL-159.',note_ja:'フードスイッチ (LG/B) → フードスイッチ1番 · PG-25 / BL-159。'},
       {id:'57',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'58',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'59',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
@@ -3371,31 +3371,36 @@ function svgIpdmE6(cid, f){
   </svg>`;
 }
 
-/** IPDM E7 · PG-26 socket 2×9 — L:17,18,19,∅,∅,20–23 · R:24–32 · ficha laid flat, fixed at the mirror (24–32 on top) */
+/** IPDM E7 · FSM H.S. (wire side, lock up): 23 22 21 20 [lock] 19 18 17 / 32–24 (PG-15) */
 function svgIpdmE7(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  /* Acostada: 2 rows × 9 — previous default view (mirror of PG-26), fixed */
-  const top = [24,25,26,27,28,29,30,31,32];
-  const bot = [17,18,19,null,null,20,21,22,23];
+  /* E7 (GY, 16 cav) exactly as the 2005 FSM H.S. drawing (wire side, lock up): PG-15 / EC-167 / SC-13 /
+     LT-192 all draw  23 22 21 20 [LOCK] 19 18 17  over  32 31 30 29 28 27 26 25 24.
+     PG-26 is the same face turned 90° (17–23 left column, 24–32 right column). */
+  const top = [23,22,21,20,null,null,19,18,17];
+  const bot = [32,31,30,29,28,27,26,25,24];
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=8, topY=14;
   const botY = topY + ch + gap;
   const W = padX*2 + 9*cw + 8*gap;
   const H = botY + ch + 12;
   let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
+  top.forEach((id,i)=>{ if(id != null) cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
   bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
   const _c = cornersFromRows(top, bot);
+  const lx = padX + 4*(cw+gap) + 3, lw = 2*cw + gap - 6, ly = topY + ch*0.28, lh = ch*0.44;
+  const tx = lx + lw/2;
 
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-14} 2 h28 l5 9 H${W/2-19} Z" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${tx-14} 2 h28 l5 9 H${tx-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="11" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
+    <rect class="lock-tab" x="${lx}" y="${ly}" width="${lw}" height="${lh}" rx="2" style="stroke:${f.accent}"><title>LOCK</title></rect>
     ${cavities}
   ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
-/** IPDM E8 · PG-26 socket 2×7 — L:44,43,∅,∅,40,39,38 · R:37,36,42,41,35,34,33 · ficha laid flat, fixed at the mirror */
+/** IPDM E8 · FSM H.S. (wire side, lock up): 37 36 [lock] 35 34 33 / 44–38 (EC-710) */
 function svgIpdmE8(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
   /* E8 (W, 12 cav) exactly as the 2005 FSM H.S. drawing (wire side, lock up): EC-710 / EC-472 / PG-15 /
@@ -3425,11 +3430,14 @@ function svgIpdmE8(cid, f){
   </svg>`;
 }
 
-/** IPDM E9 · PG-26 socket: top 53–60 · bot 45–52 · ficha fixed at the mirror 60–53 / 52–45 (previous default) */
+/** IPDM E9 · FSM H.S. (wire side, lock up over 50–47): 52–45 / 60–53 (EC-472) */
 function svgIpdmE9(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const top = ['60','59','58','57','56','55','54','53'];
-  const bot = ['52','51','50','49','48','47','46','45'];
+  /* E9 (W, 16 cav) exactly as the 2005 FSM H.S. drawing (wire side, lock up): EC-472 / EC-167 / SC-12..14 /
+     WW-56 / LT-192 all draw the lock ABOVE 50–47 with  52 51 50 49 48 47 46 45  on top and
+     60 59 58 57 56 55 54 53  below. PG-26 is the same face turned 180° (lock under 47–50). */
+  const top = ['52','51','50','49','48','47','46','45'];
+  const bot = ['60','59','58','57','56','55','54','53'];
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=8, topY=18;
   const botY = topY + ch + gap;

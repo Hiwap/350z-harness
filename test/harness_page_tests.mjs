@@ -162,6 +162,13 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     ok('IPDM E8 face rows = FSM H.S. (42/41 under the lock)',
       /const top = \[37,36,null,null,35,34,33\];\s*const bot = \[44,43,42,41,40,39,38\];/.test(html));
   }
+  /* IPDM E7 / E9 faces = FSM H.S. (PG-15 / EC-472), E9·56 LG/B hood (BL-159), E8·43 fuse 82 (PG-15) */
+  ok('IPDM E7 face rows = FSM H.S. (lock between 20 and 19)',
+    /const top = \[23,22,21,20,null,null,19,18,17\];\s*const bot = \[32,31,30,29,28,27,26,25,24\];/.test(html));
+  ok('IPDM E9 face rows = FSM H.S. (52–45 under the lock)',
+    /const top = \['52','51','50','49','48','47','46','45'\];\s*const bot = \['60','59','58','57','56','55','54','53'\];/.test(html));
+  ok('IPDM E9·56 hood switch LG/B (BL-159)', /\{id:'56',code:'LG\/B',ecm:null,lab:'HOOD'/.test(html));
+  ok('IPDM E8·43 = IPDM fuse 82 (PG-15)', /id:'43',src:'IGN',srcSub:'power',code:'G\/R',ecm:null,rail:'12v',note:'IGN ON vía fusible IPDM 82/.test(html));
   /* F102·10H = DLC signal ground (EC-742): DLC M8·5 B/W → M72·10H → F102·10H → F103·2 (ECM 115 splice) → F152 */
   ok('F102·10H B/W GND rail, src F103·2, circ dlc_gnd (EC-742)',
     /\{id:'10H',code:'B\/W',ecm:null,rail:'gnd',lab:'GND',src:'F103·2',srcSub:'power',circ:'dlc_gnd',note:'[^']*EC-742[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html));
