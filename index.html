@@ -1885,22 +1885,22 @@ const CONN_BASE = {
       {id:'32',src:'WIP·AS',srcSub:'ipdm',code:'L/Y',ecm:null,rail:'12v',note:'Señal auto-stop limpia (L/Y) · WW-15.',note_en:'Wiper auto-stop signal (L/Y) · WW-15.',note_ja:'ワイパーオートストップ (L/Y) · WW-15。'}
     ],
     note:'IPDM E7: encendido, luces, limpia, marcha atrás (cav 26), etc.'},
-  ipdm_e8:{group:'motor', sub:'ipdm', name:'IPDM E8 · Bomba / mariposa / A/C', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8', view:{unv:{es:'el FSM 2005 no dibuja la cara T.S. del conector del arnés (solo el zócalo del IPDM en PG-26 y la vista H.S. del lado cables); se mantiene la vista por defecto anterior (espejo de PG-26), fija.',en:'the 2005 FSM has no T.S. drawing of this harness plug (only the IPDM socket on PG-26 and the H.S. wire-side view); the previous default view (mirror of PG-26) is kept, fixed.',ja:'2005 FSMにはこのハーネス側コネクタのT.S.図がない（PG-26のIPDMソケットとH.S.配線側図のみ）。以前の既定表示（PG-26の鏡像）を固定で維持。'}},
+  ipdm_e8:{group:'motor', sub:'ipdm', name:'IPDM E8 · Bomba / mariposa / A/C', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 37 36 [traba] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12; PG-26 es la misma cara girada 90°. Desde el lado de los terminales (frente que encaja en el IPDM) se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 37 36 [lock] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12; PG-26 is the same face turned 90°. From the terminal side (face that plugs into the IPDM) it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 37 36 [ロック] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12。PG-26は同じ面を90°回転。端子側（IPDMに差し込む面）から見ると左右反転。'}},
     pins:[
-      {id:'33',src:'A/C·RLY',srcSub:'ipdm',code:'L/Y',ecm:null,rail:'12v',note:'Salidas E8: A/C, VMOT, bomba, etc.',note_en:'A/C compressor magnet clutch (L/Y) → compressor pin1 · ATC-81.',note_ja:'A/Cマグネットクラッチ (L/Y) · ATC-81。'},
+      {id:'33',src:'A/C·RLY',srcSub:'ipdm',code:'L/Y',ecm:null,rail:'12v',note:'Embrague magnético del compresor A/C (L/Y) → compresor F24·1 · ATC-81 / PG-25.',note_en:'A/C compressor magnet clutch (L/Y) → compressor pin1 · ATC-81.',note_ja:'A/Cマグネットクラッチ (L/Y) · ATC-81。'},
       {id:'34',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
-      {id:'35',src:'HORN',srcSub:'ipdm',code:'LG',ecm:null,rail:'12v',note:'Relé bocina (E21 fusible/relé) LG · WW-56.',note_en:'Horn relay (E21 fuse/relay block) LG · WW-56.',note_ja:'ホーンリレー（E21）LG · WW-56。'},
+      {id:'35',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25. (El cable LG de bocina sale del fusible 15A nº 35 del bloque de fusibles/fusibles de enlace, no de E8·35 · WW-56.)',note_en:'Not used · PG-25. (The horn LG wire comes from 15A fuse No. 35 in the fuse & fusible-link block, not from E8·35 · WW-56.)',note_ja:'未使用 · PG-25。（ホーンのLGはヒューズ&フュージブルリンクブロックの15A No.35から。E8·35ではない · WW-56）'},
       {id:'36',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'37',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'38',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra de potencia IPDM → body E17 (B) · PG-27 / LT-16.',note_en:'IPDM power ground → body E17 (B) · PG-27 / LT-16.',note_ja:'IPDMパワーアース → ボディ E17 (B) · PG-27。'},
-      {id:'39',src:'F81',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',note:'Salida relé bomba combustible (B/Y) → bomba pin1 / condensador · EC-710.',note_en:'Fuel pump relay output (B/Y) → pump pin1 / condenser · EC-710.',note_ja:'フューエルポンプリレー出力 (B/Y) · EC-710。'},
-      {id:'40',code:'L/W',ecm:113,rail:'12v',note:'Control bobina relé bomba (L/W) → ECM 113 vía E108/M15 · M72/F102 · EC-710.',note_en:'Fuel pump relay coil control (L/W) → ECM 113 via E108/M15 · M72/F102 · EC-710.',note_ja:'フューエルポンプリレー制御 (L/W) → ECM 113 · EC-710。'},
+      {id:'39',src:'F81',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',note:'Salida relé bomba (fusible IPDM 81 15A) B/Y → E107·4 → bomba B27·1 / condensador B26·1 · EC-710 / PG-15.',note_en:'Fuel pump relay output (IPDM fuse 81 15A) B/Y → E107·4 → pump B27·1 / condenser B26·1 · EC-710 / PG-15.',note_ja:'フューエルポンプリレー出力 (B/Y) · EC-710。'},
+      {id:'40',code:'L/W',ecm:113,rail:'12v',note:'Control bobina relé bomba: E8·40 L/W → E108·28G (L/W) / M15·28G (B/R) → M72·6H (B/R) / F102·6H (LG/B) → ECM 113 LG/B (FPR, masa = bomba ON) · EC-710 / PG-15.',note_en:'Fuel pump relay coil control: E8·40 L/W → E108·28G (L/W) / M15·28G (B/R) → M72·6H (B/R) / F102·6H (LG/B) → ECM 113 LG/B (FPR, grounded = pump ON) · EC-710 / PG-15.',note_ja:'フューエルポンプリレー制御 (L/W) → ECM 113 · EC-710。'},
       {id:'41',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'42',code:'G',ecm:3,rail:'12v',lab:'VMOT',note:'VMOT control relé motor mariposa (G) → ECM 3 vía E12/F3 · EC-472.',note_en:'Throttle motor relay control VMOT (G) → ECM 3 via E12/F3 · EC-472.',note_ja:'スロットルモータリレー制御 VMOT (G) → ECM 3 · EC-472。'},
-      {id:'43',src:'IGN',srcSub:'power',code:'G/R',ecm:null,rail:'12v',note:'IGN ON (ruta Canada DTRL) (G/R) · LT-80 · confianza media.',note_en:'Ign ON (Canada DTRL path) (G/R) · LT-80 · medium confidence.',note_ja:'IGN ON（カナダDTRL）(G/R) · LT-80 · 中確度。'},
-      {id:'44',src:'WASH',srcSub:'ipdm',code:'OR',ecm:null,rail:'12v',note:'Alimentación motor lava-parabrisas (OR) · WW-15.',note_en:'Washer motor power (OR) · WW-15.',note_ja:'ウォッシャーモータ電源 (OR) · WW-15。'}
+      {id:'43',src:'IGN',srcSub:'power',code:'G/R',ecm:null,rail:'12v',note:'IGN ON vía fusible IPDM 83 (10A) (G/R) → ABS/TCS/VDC (y DTRL Canadá) · PG-15 / PG-25 / LT-80.',note_en:'Ign ON via IPDM fuse 83 (10A) (G/R) → ABS/TCS/VDC (and Canada DTRL) · PG-15 / PG-25 / LT-80.',note_ja:'IPDMヒューズ83 (10A) 経由IGN ON (G/R) → ABS/TCS/VDC（カナダDTRL）· PG-15 / PG-25 / LT-80。'},
+      {id:'44',src:'WASH',srcSub:'ipdm',code:'OR',ecm:null,rail:'12v',note:'Alimentación motor lavaparabrisas E29·2 vía fusible IPDM 84 (10A) (OR) · WW-12 / WW-15 / PG-15.',note_en:'Washer motor E29·2 power via IPDM fuse 84 (10A) (OR) · WW-12 / WW-15 / PG-15.',note_ja:'ウォッシャーモータ電源 (OR) · WW-15。'}
     ],
-    note:'IPDM E8: VMOT · bomba · A/C · bocina · masa.'},
+    note:'IPDM E8 (W, 12 vías): A/C · masa · bomba · VMOT · IGN ABS · lavador. Cara = FSM H.S. lado cables, traba arriba (EC-710).'},
   ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9', view:{unv:{es:'el FSM 2005 no dibuja la cara T.S. del conector del arnés (solo el zócalo del IPDM en PG-26 y la vista H.S. del lado cables); se mantiene la vista por defecto anterior (espejo de PG-26), fija.',en:'the 2005 FSM has no T.S. drawing of this harness plug (only the IPDM socket on PG-26 and the H.S. wire-side view); the previous default view (mirror of PG-26) is kept, fixed.',ja:'2005 FSMにはこのハーネス側コネクタのT.S.図がない（PG-26のIPDMソケットとH.S.配線側図のみ）。以前の既定表示（PG-26の鏡像）を固定で維持。'}},
     pins:[
       {id:'45',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
@@ -3398,22 +3398,28 @@ function svgIpdmE7(cid, f){
 /** IPDM E8 · PG-26 socket 2×7 — L:44,43,∅,∅,40,39,38 · R:37,36,42,41,35,34,33 · ficha laid flat, fixed at the mirror */
 function svgIpdmE8(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  /* Acostada: 2 rows × 7 — previous default view (mirror of PG-26), fixed */
-  const top = [37,36,42,41,35,34,33];
-  const bot = [44,43,null,null,40,39,38];
+  /* E8 (W, 12 cav) exactly as the 2005 FSM H.S. drawing (wire side, lock up): EC-710 / EC-472 / PG-15 /
+     WW-12 / WW-56 all draw  37 36 [LOCK] 35 34 33  over  44 43 42 41 40 39 38.
+     PG-26 is the same face turned 90° (44–38 left column, 37–33 right column, lock beside 42/41).
+     The lock occupies the two middle top positions; 42/41 sit BELOW it in the 7-wide row. */
+  const top = [37,36,null,null,35,34,33];
+  const bot = [44,43,42,41,40,39,38];
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=8, topY=14;
   const botY = topY + ch + gap;
   const W = padX*2 + 7*cw + 6*gap;
   const H = botY + ch + 12;
   let cavities='';
-  top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
+  top.forEach((id,i)=>{ if(id != null) cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
   bot.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), botY, cw, ch); });
   const _c = cornersFromRows(top, bot);
+  const lx = padX + 2*(cw+gap) + 3, lw = 2*cw + gap - 6, ly = topY + ch*0.28, lh = ch*0.44;
+  const tx = lx + lw/2;
 
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-14} 2 h28 l5 9 H${W/2-19} Z" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${tx-14} 2 h28 l5 9 H${tx-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="3" y="11" width="${W-6}" height="${H-14}" rx="5" style="stroke:${f.accent}"/>
+    <rect class="lock-tab" x="${lx}" y="${ly}" width="${lw}" height="${lh}" rx="2" style="stroke:${f.accent}"><title>LOCK</title></rect>
     ${cavities}
   ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
@@ -5357,7 +5363,7 @@ const CONN_I18N = {
   /* —— remaining connectors —— */
   ipdm_e3: { en:{name:'IPDM E3 · Battery', meta:'2-pin · 12V in · PG-26', note:'Battery feed into the IPDM (2-pin).'}, ja:{name:'IPDM E3 · バッテリ', meta:'2ピン · 12V入力 · PG-26', note:'IPDMへのバッテリ入力（2ピン）。'} },
   ipdm_e7: { en:{name:'IPDM E7 · Lamps / wiper / ECM', meta:'VB / back-up / lamps / wiper · PG-26 · EC/LT/WW/SC', note:'IPDM E7: ignition, lamps, wiper, reverse (cav 26).'}, ja:{name:'IPDM E7 · ランプ / ワイパー / ECM', meta:'VB / ランプ / ワイパー · PG-26', note:'IPDM E7: 点火・ランプ・ワイパー・リバース（cav 26）。'} },
-  ipdm_e8: { en:{name:'IPDM E8 · Pump / throttle / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8: VMOT · fuel pump · A/C · horn · ground.'}, ja:{name:'IPDM E8 · ポンプ / スロットル / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8: VMOT · ポンプ · A/C · ホーン · アース。'} },
+  ipdm_e8: { en:{name:'IPDM E8 · Pump / throttle / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8 (W, 12-way): A/C · ground · fuel pump · VMOT · IGN ABS · washer. Face = FSM H.S. wire side, lock up (EC-710).'}, ja:{name:'IPDM E8 · ポンプ / スロットル / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8 (W, 12極): A/C · アース · ポンプ · VMOT · IGN ABS · ウォッシャー。面 = FSM H.S.配線側・ロック上 (EC-710)。'} },
   ipdm_e9: { en:{name:'IPDM E9 · ECM relays + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', note:'IPDM E9: SSOFF · MOTRLY · CAN · grounds · starter/defog.'}, ja:{name:'IPDM E9 · ECMリレー + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', note:'IPDM E9: SSOFF · MOTRLY · CAN · アース。'} },
   ipdm_e4: { en:{name:'IPDM E4 · Starter', meta:'starter · PG-26 · SC-13/14 · fixed face', note:'IPDM E4 · starter (SC) + defogger power 5/6 (PG-13/GW-63). PG-26 H.S. face: top 3-5 / bot 4-6.'}, ja:{name:'IPDM E4 · スタータ', meta:'スタータ · PG-26 · 固定面', note:'IPDM E4 · スタータ + デフォッガ電源 5/6。'} },
   ipdm_e5: { en:{name:'IPDM E5 · Cooling fans', meta:'cooling fan · PG-26 · EC-510 · fixed face', note:'IPDM E5 · cooling fan (EC-510) + 7 = ign relay out B/R (PG-14).'}, ja:{name:'IPDM E5 · 冷却ファン', meta:'冷却ファン · PG-26 · 固定面', note:'IPDM E5 · 冷却ファン（EC-510）。'} },

@@ -150,6 +150,18 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
 }
 
 {
+  /* IPDM E8 (EC-710 / PG-15 / PG-25 / WW-56): 35 not used (horn LG is from fuse No.35, not E8·35); 40 L/W FPR → ECM 113;
+     face = H.S. 37 36 [lock] 35 34 33 / 44 43 42 41 40 39 38 */
+  {
+    const e8 = (html.match(/  ipdm_e8:\{group:[\s\S]*?\n  ipdm_e9:/) || [''])[0];
+    ok('IPDM E8·35 not used (PG-25), not horn', /\{id:'35',code:'nc',ecm:null,lab:'nc'/.test(e8) && !/id:'35',src:'HORN'/.test(e8));
+    ok('IPDM E8·40 L/W → ECM 113 (EC-710)', /\{id:'40',code:'L\/W',ecm:113,/.test(e8));
+    ok('IPDM E8·42 G VMOT → ECM 3, 43 G/R, 44 OR, 39 B/Y, 38 B, 33 L/Y',
+      /id:'42',code:'G',ecm:3/.test(e8) && /id:'43',src:'IGN',srcSub:'power',code:'G\/R'/.test(e8) && /id:'44',src:'WASH',srcSub:'ipdm',code:'OR'/.test(e8)
+      && /id:'39',src:'F81',srcSub:'ipdm',code:'B\/Y'/.test(e8) && /id:'38',src:'E17',srcSub:'power',code:'B'/.test(e8) && /id:'33',src:'A\/C·RLY',srcSub:'ipdm',code:'L\/Y'/.test(e8));
+    ok('IPDM E8 face rows = FSM H.S. (42/41 under the lock)',
+      /const top = \[37,36,null,null,35,34,33\];\s*const bot = \[44,43,42,41,40,39,38\];/.test(html));
+  }
   /* F102·10H = DLC signal ground (EC-742): DLC M8·5 B/W → M72·10H → F102·10H → F103·2 (ECM 115 splice) → F152 */
   ok('F102·10H B/W GND rail, src F103·2, circ dlc_gnd (EC-742)',
     /\{id:'10H',code:'B\/W',ecm:null,rail:'gnd',lab:'GND',src:'F103·2',srcSub:'power',circ:'dlc_gnd',note:'[^']*EC-742[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html));
