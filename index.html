@@ -806,8 +806,10 @@
   .cav-label.lab-can { fill: #ce93d8 !important; }
 
 
-  /* IPDM PG-26 opens from the camera on the IPDM group header only. */
+  /* IPDM PG-26 opens from the IPDM group header camera and from selected E3–E9 fichas. */
   .ficha-sec > summary .ipdm-fsm-btn { margin-left: auto; align-self: center; }
+  .ficha-sec > summary .ficha-loc-btn { margin-left: auto; align-self: center; }
+  .ficha-sec > summary .ficha-loc-btn + .ipdm-fsm-btn { margin-left: 0; }
   .ipdm-mark {
     position: absolute; box-sizing: border-box; pointer-events: none;
     border: 2px solid #e65100; border-radius: 5px;
@@ -4902,13 +4904,6 @@ function makeF102PinEl(pin){
    of that connector; follow the label's leader line to the plug. Only connectors actually found. */
 const LOC_PAGES = {50:'faces/loc/pg50.webp', 52:'faces/loc/pg52.webp', 54:'faces/loc/pg54.webp', 56:'faces/loc/pg56.webp'};
 const CONN_LOC = {
-  ipdm_e3: {pg:50, m:[[42.6,42.44,4.51,3.23]]},
-  ipdm_e4: {pg:50, m:[[42.42,7.07,4.51,3.23]]},
-  ipdm_e5: {pg:50, m:[[45.35,46.09,4.47,3.23]]},
-  ipdm_e6: {pg:50, m:[[47.25,35.6,4.47,3.23]]},
-  ipdm_e7: {pg:50, m:[[46.08,16.72,4.47,3.28]]},
-  ipdm_e8: {pg:50, m:[[50.66,19.58,4.47,3.23]]},
-  ipdm_e9: {pg:50, m:[[55.53,18.13,4.47,3.28]]},
   ix_e10_f1: {pg:50, m:[[37.36,6.74,4.51,3.23]]},
   ix_e11_f2: {pg:50, m:[[35.24,9.6,4.47,3.28]]},
   ix_e12_f3: {pg:50, m:[[33.15,12.32,4.47,3.23]]},
@@ -4970,19 +4965,22 @@ const CONN_LOC = {
   ix_f102_m72: {pg:56, m:[[70.48,39.02,4.47,3.23]]},
   ecm_f101_can: {pg:56, m:[[52.34,47.4,4.47,3.23]]},
 };
+/* IPDM: location only on the IPDM group header (Ezequiel) — PG-50 with every E3–E9 callout marked. */
+const IPDM_GROUP_LOC = {pg:50, m:[[42.6,42.44,4.51,3.23],[42.42,7.07,4.51,3.23],[45.35,46.09,4.47,3.23],[47.25,35.6,4.47,3.23],[46.08,16.72,4.47,3.28],[50.66,19.58,4.47,3.23],[55.53,18.13,4.47,3.28]]};
+function locOf(cid){ return cid === 'ipdm_group' ? IPDM_GROUP_LOC : CONN_LOC[cid]; }
 function locBtnHtml(cid){
-  if(!CONN_LOC[cid]) return '';
+  if(!locOf(cid)) return '';
   const lab = t('locOpen');
   return `<button type="button" class="ficha-loc-btn" data-loc-conn="${esc(cid)}" aria-label="${esc(lab)}" title="${esc(lab)}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.2 7-12.5A7 7 0 0 0 5 9.5C5 14.8 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>`;
 }
 function openLocLightbox(cid){
-  const loc = CONN_LOC[cid];
+  const loc = locOf(cid);
   if(!loc) return;
   const root = ensureFaceLightbox();
   const img = root.querySelector('.face-lb-img');
   const srcEl = root.querySelector('.face-lb-src');
   const closeBtn = root.querySelector('.face-lb-close');
-  const name = (CONN[cid] && connField(cid, CONN[cid], 'name')) || cid;
+  const name = cid === 'ipdm_group' ? 'IPDM E/R · E3–E9' : ((CONN[cid] && connField(cid, CONN[cid], 'name')) || cid);
   img.src = LOC_PAGES[loc.pg];
   img.alt = t('locOpen') + ' · ' + name;
   closeBtn.setAttribute('aria-label', t('facePhotoClose'));
@@ -5618,9 +5616,15 @@ function openIpdmFsm(connId){
   closeBtn.focus();
 }
 
-/* IPDM PG-26 image: camera ONLY on the IPDM group header (Ezequiel), same image + lightbox as before.
+/* IPDM PG-26 image: camera on the IPDM group header (+ per-plug camera on Seleccionados E3–E9 cards), same lightbox.
    If one E3–E9 plug is lit, its PG-26 box is marked; otherwise the whole module is shown. */
 function addIpdmGroupBtn(sum){
+  sum.insertAdjacentHTML('beforeend', locBtnHtml('ipdm_group'));
+  sum.querySelector('.ficha-loc-btn').addEventListener('click', e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    openLocLightbox('ipdm_group');
+  });
   sum.insertAdjacentHTML('beforeend', ipdmFsmBtnHtml(''));
   const btn = sum.querySelector('.ipdm-fsm-btn');
   btn.classList.add('ipdm-fsm-group-btn');
@@ -5678,7 +5682,8 @@ function makeFichaEl(id, f, opts){
   }
   const viewTxt = viewNoteText(id, f);
   if(viewTxt) extra += `<div class="note-body view-note">${esc(viewTxt)}</div>`;
-  const faceBtn = faceBtnHtml(id);
+  const showIpdm = !!(opts && opts.ipdmIcon && IPDM_FSM_MARK[id]);
+  const faceBtn = showIpdm ? ipdmFsmBtnHtml(id) : faceBtnHtml(id);
   el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
   wrap.addEventListener('click', e=>{
@@ -5687,6 +5692,13 @@ function makeFichaEl(id, f, opts){
       e.preventDefault();
       e.stopPropagation();
       openLocLightbox(locBtnEl.dataset.locConn || id);
+      return;
+    }
+    const ipdmBtn = e.target.closest && e.target.closest('.ipdm-fsm-btn');
+    if(ipdmBtn && wrap.contains(ipdmBtn)){
+      e.preventDefault();
+      e.stopPropagation();
+      openIpdmFsm(ipdmBtn.dataset.ipdmConn || id);
       return;
     }
     const faceBtnEl = e.target.closest && e.target.closest('.ficha-face-btn');
@@ -6074,7 +6086,7 @@ function updateSelectedTop(connIds){
       ngrid.className = 'fichas-grid';
       const ordered = lineIds.slice().sort((a,b)=> String(CONN[a].name).localeCompare(String(CONN[b].name)));
       ordered.forEach(id=>{
-        const el = makeFichaEl(id, CONN[id]);
+        const el = makeFichaEl(id, CONN[id], {ipdmIcon:true});
         el.classList.add('hl');
         el.classList.remove('dim');
         ngrid.appendChild(el);
@@ -6124,7 +6136,7 @@ function updateSelectedTop(connIds){
   body.className = 'fichas-body';
 
   function appendFicha(grid, id){
-    const el = makeFichaEl(id, CONN[id]);
+    const el = makeFichaEl(id, CONN[id], {ipdmIcon:true});
     el.classList.add('hl');
     el.classList.remove('dim');
     grid.appendChild(el);
