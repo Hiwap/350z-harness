@@ -298,7 +298,7 @@ def draw_cavity(px, py, cw, ch, lab, col, note, fs=None):
     c.drawCentredString(px + cw / 2, py + ch * 0.40, str(col)[:8])
     c.setFillColor(lab_fill(lab))
     c.setFont(FONT, max(3.2, fs - 0.9))
-    c.drawCentredString(px + cw / 2, py + max(2.4, ch * 0.08), str(lab)[:6])
+    c.drawCentredString(px + cw / 2, py + max(2.4, ch * 0.08), str(lab)[:7])
     c.setFillColor(black)
 
 

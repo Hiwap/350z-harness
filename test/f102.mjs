@@ -1178,6 +1178,25 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
 }
 
 
+console.log('\nF102·14H/15H/16H = oil pressure sensor F21 ↔ triple meter M44 (DI-34 / DI-66)');
+{
+  await page.evaluate(() => { const s = document.getElementById('loomView'); s.value = 'all'; s.dispatchEvent(new Event('change', { bubbles: true })); });
+  const r = await page.evaluate(() => {
+    document.querySelectorAll('#fichas details').forEach((d) => { d.open = true; });
+    clearSelection();
+    selectConnPin('ix_f102_m72', '14H');
+    const lit = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains('hl') || e.classList.contains('hl-group'));
+    const out = { circs: [...lastCircIds].join(','), f21: ['1', '2', '3'].map((c) => lit('f21_oilp', c)), f14: !!f102PinEl('14H') && f102PinEl('14H').classList.contains('hl') };
+    clearSelection();
+    const p = CONN.ix_f102_m72.pins; const g = (id) => p.find((x) => x.id === id);
+    out.rails = [g('14H').rail, g('15H').rail, g('16H').rail, CONN.f21_oilp.pins[2].rail];
+    out.codes = [g('14H').code, g('15H').code, g('16H').code].join(',');
+    return out;
+  });
+  ok(r.circs === 'oilp_gauge' && r.f21.every(Boolean) && r.f14 && r.codes === 'G,R/L,B' && r.rails.every((x) => x == null),
+    `F102·14H click → oilp_gauge, lights F21·1/2/3 + 14H; 15H/16H/F21·3 carry no 12V/GND rail (${JSON.stringify(r)})`);
+}
+
 console.log('\nLocation icon: FSM PG harness layout with the callout(s) highlighted');
 {
   await page.evaluate(() => { const s = document.getElementById('loomView'); s.value = 'all'; s.dispatchEvent(new Event('change', { bubbles: true })); });

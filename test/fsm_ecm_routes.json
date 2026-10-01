@@ -1760,7 +1760,7 @@
   "ipdm_e5": "IPDM connector with no ECM wiring (not verified in this pass)",
   "ipdm_e6": "IPDM connector with no ECM wiring (not verified in this pass)",
   "f20_alt": "non-ECM connector F20 GY/2 alternator S/L (SC-22): 3 L W/R -> F102·13H -> M72 G/R -> meter M19·17; 4 S LG/B <- E11/F2·1 <- fuse 36 10A (E21, BAT, PG-POWER-02)",
-  "f21_oilp": "non-ECM connector (DI section), not verified in this pass",
+  "f21_oilp": "non-ECM connector F21 B/3 oil pressure sensor (DI-34 / DI-66): 1 R/L <- F102·15H <- M72 R/L <- triple meter M44·9 (~5 V); 2 G -> F102·14H -> M72 LG/R -> M44·8; 3 B -> F102·16H -> M72 G/OR -> M44·7; test DI-45/46",
   "f9_starter": "non-ECM connector (SC section), not verified in this pass",
   "f24_comp": "non-ECM connector (ATC section), not verified in this pass",
   "backup_sw": "non-ECM connector (LT section), not verified in this pass",

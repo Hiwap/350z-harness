@@ -182,6 +182,16 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('no combined IPDM module card', !/ipdm_module|svgIpdmModule|IPDM_MODULE_PLUGS/.test(html));
   ok('IPDM card view notes = wire side as on the IPDM (es/en/ja)',
     ['e3','e4','e5','e6','e7','e8','e9'].every(e => new RegExp(`  ipdm_${e}:\\{group:'motor'[^\\n]*view:\\{hs:\\{es:'lado CABLES, orientada como en el IPDM \\(PG-26\\), traba [^']+',en:'WIRE side, oriented as on the IPDM \\(PG-26\\), lock [^']+',ja:'配線側、IPDM上の向き（PG-26）、ロック[^']+'\\}\\}`).test(html)));
+  /* F102·14H/15H/16H = oil pressure sensor F21 ↔ triple meter M44 (DI-34 / DI-66), Ezequiel's car */
+  ok('F102·14H G OIL-P / 15H R/L SNS-V (no rail) / 16H B SNS-GND (no rail), src F21, circ oilp_gauge (DI-34/DI-66)',
+    /\{id:'14H',code:'G',ecm:null,lab:'OIL-P',src:'F21·2',srcSub:'sensors',circ:'oilp_gauge',note:'[^']*DI-34[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html)
+    && /\{id:'15H',code:'R\/L',ecm:null,lab:'SNS-V',src:'F21·1',srcSub:'sensors',circ:'oilp_gauge',note:'[^']*M44·9[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html)
+    && /\{id:'16H',code:'B',ecm:null,lab:'SNS-GND',src:'F21·3',srcSub:'sensors',circ:'oilp_gauge',note:'[^']*M44·7[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html));
+  ok('circuit oilp_gauge F21 1/2/3 ↔ F102 14H/15H/16H, en/ja, F21 card cites DI-34/66 (es/en/ja)',
+    /\{id:'oilp_gauge',[^\n]*\n\s*ecm:\[\], conn:\['f21_oilp','ix_f102_m72'\], f102:\['14H','15H','16H'\],\n\s*path:\{f21_oilp:\['1','2','3'\],ix_f102_m72:\['14H','15H','16H'\]\}/.test(html)
+    && (html.match(/\n  oilp_gauge: \{en:'[^']+', ja:'[^']+'\},/g) || []).length === 2
+    && /f21_oilp:\{group:'motor'[^\n]*meta:'B\/3 · DI-34\/66'/.test(html) && (html.match(/meta:'B\/3 · DI-34\/66'/g) || []).length === 3
+    && /\{id:'3',code:'B',lab:'SNS-GND',circ:'oilp_gauge'\}/.test(html));
   /* F102·10H = DLC signal ground (EC-742): DLC M8·5 B/W → M72·10H → F102·10H → F103·2 (ECM 115 splice) → F152 */
   ok('F102·10H B/W GND rail, src F103·2, circ dlc_gnd (EC-742)',
     /\{id:'10H',code:'B\/W',ecm:null,rail:'gnd',lab:'GND',src:'F103·2',srcSub:'power',circ:'dlc_gnd',note:'[^']*EC-742[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html));
