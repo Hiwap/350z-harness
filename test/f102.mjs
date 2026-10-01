@@ -864,7 +864,22 @@ const FSM_FACE = {
   ascd_brake: { mt: "2 / 1", at: "2 / 1" },
   ascd_clutch: { mt: "1 2", at: null },
   clock_spring: { mt: "34 33", at: "34 33" },
-  dlc: { mt: "16 14 / 7 6 5 4", at: "16 14 / 7 6 5 4" },
+  /* DLC M8·8 G/Y ignition feed (EC-742 / AT-194) */
+  dlc: { mt: "16 14 / 8 7 6 5 4", at: "16 14 / 8 7 6 5 4" },
+  /* Carrocería body-circuit lists (shape note, one box per circuit; not plug faces). Equipment-only cards
+     (vdc_m51 VDC, body_techo Roadster) are hidden with the default generic OEM coupe. */
+  body_abs: { mt: "RL-VB RL-SIG RR-VB RR-SIG / K-ABS VDC-OFF PKB", at: "RL-VB RL-SIG RR-VB RR-SIG / K-ABS VDC-OFF PKB" },
+  body_luces: { mt: "TURN-L TURN-R ILL STOP / LUG DT-PKB DT-ALT", at: "TURN-L TURN-R ILL STOP / LUG DT-PKB DT-ALT" },
+  body_puertas: { mt: "BAT DOOR-AS BK-DOOR OPEN-SW / OPEN-M F/LID F/LID-R", at: "BAT DOOR-AS BK-DOOR OPEN-SW / OPEN-M F/LID F/LID-R" },
+  body_vidrios: { mt: "DEF-RLY DEF+ DEF SOCKET", at: "DEF-RLY DEF+ DEF SOCKET" },
+  body_asientos: { mt: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND", at: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND" },
+  body_audio: { mt: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT", at: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT" },
+  body_medidores: { mt: "BRK-LV PKB FUEL", at: "BRK-LV PKB FUEL" },
+  body_clima: { mt: "AMB AMB-GND BLW-GND", at: "AMB AMB-GND BLW-GND" },
+  body_limpia: { mt: "WIPER R-WIPE", at: "WIPER R-WIPE" },
+  body_at: { mt: null, at: "IGN-TCM BACK-AT STR-AT / K-TCM SHIFT" },
+  vdc_m51: { mt: null, at: null },
+  body_techo: { mt: null, at: null },
   fuel_tank_temp: { mt: "5 4", at: "5 4" },
   comb_meter: { mt: "11 1", at: "11 1" },
   f6_at: { mt: null, at: "1 2 3 4 5 / 6 7 8 9 10" },

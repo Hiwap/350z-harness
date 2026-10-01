@@ -1743,6 +1743,18 @@
   }
  },
  "pseudo_cards": {
+  "body_abs": "body-circuit list: ABS/TCS/VDC circuits (BRC-15/16/52/100), not a connector",
+  "body_luces": "body-circuit list: lamp circuits (LT), not a connector",
+  "body_puertas": "body-circuit list: BCM door/lock circuits (BL), not a connector",
+  "body_vidrios": "body-circuit list: defogger and 12 V socket (GW/WW), not a connector",
+  "body_asientos": "body-circuit list: heated/power seat and seat belt circuits (SE/SRS), not a connector",
+  "body_audio": "body-circuit list: audio circuits (AV), not a connector",
+  "body_medidores": "body-circuit list: meter warning circuits (DI), not a connector",
+  "body_clima": "body-circuit list: climate circuits (ATC), not a connector",
+  "body_limpia": "body-circuit list: wiper circuits (WW), not a connector",
+  "body_techo": "body-circuit list: Roadster soft top circuits (RF), not a connector",
+  "body_at": "body-circuit list: A/T body-side circuits (AT), not a connector",
+  "vdc_m51": "pin list of VDC yaw rate / side G sensor M51 (BRC-101); plug face not drawn",
   "f152": "ground point F152 (ring) - see ground_points",
   "e17": "ground point E17 (ring) - see ground_points",
   "f23_gnd": "ground point F23 (ring) - see ground_points",

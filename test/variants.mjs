@@ -1,0 +1,197 @@
+#!/usr/bin/env node
+/**
+ * Equipment selectors (body / market / brakes / audio / navigation / power seat / heated seats / rear wiper).
+ * FSM GI-48 splits only body (Coupe/Roadster), transmission and destination (USA/Canada) and names no trims,
+ * so options are separate dropdowns. Defaults = generic OEM coupe (Coupe, USA, ABS, base audio, no options).
+ *  - static: every select matches VARIANT_DIMS (values + default), vif/altIf use only known keys/values,
+ *    vifMatch semantics, every body pin's circ exists and every circuit path cavity exists on its card
+ *  - browser: defaults hide equipment-only cavities/cards, each selector shows/hides them, persists in
+ *    localStorage, relabels es/en/ja, and the transmission filter keeps working next to them
+ */
+import fs from 'fs';
+import path from 'path';
+import vm from 'vm';
+import { createRequire } from 'module';
+import { fileURLToPath, pathToFileURL } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, '..');
+const require = createRequire(import.meta.url);
+const HTML = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+
+let pass = 0; const fails = [];
+const ok = (name, cond, detail = '') => { if (cond) { pass++; console.log('  ok  ' + name); } else { fails.push(name + (detail ? ' — ' + detail : '')); console.log('  FAIL ' + name + (detail ? ' — ' + detail : '')); } };
+
+function loadPuppeteer() {
+  for (const dir of [path.join(root, 'node_modules/puppeteer-core'), path.join(process.env.TEMP || '/tmp', 'z33-verify/node_modules/puppeteer-core'), '/tmp/z33-verify/node_modules/puppeteer-core']) {
+    try { return require(dir); } catch (e) { /* next */ }
+  }
+  return require('puppeteer-core');
+}
+function findChrome() {
+  for (const p of [process.env.CHROME_PATH, 'C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+    '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser'].filter(Boolean)) if (fs.existsSync(p)) return p;
+  throw new Error('Chrome/Edge not found');
+}
+
+/* ---------- static ---------- */
+const script = HTML.match(/<script>([\s\S]*?)<\/script>/)[1];
+const dimsSrc = script.match(/const VARIANT_DIMS = (\{[\s\S]*?\n\});/)[1];
+const DIMS = vm.runInNewContext('(' + dimsSrc + ')');
+const KEYS = Object.keys(DIMS);
+ok('VARIANT_DIMS = body, market, brake, audio, nav, pseat, hseat, rwiper', KEYS.join(',') === 'body,market,brake,audio,nav,pseat,hseat,rwiper', KEYS.join(','));
+const DEF = { body: 'coupe', market: 'usa', brake: 'abs', audio: 'base', nav: 'no', pseat: 'no', hseat: 'no', rwiper: 'no' };
+for (const k of KEYS) {
+  const d = DIMS[k];
+  ok(`${k}: default = generic OEM coupe (${DEF[k]})`, d.def === DEF[k], d.def);
+  const sel = HTML.match(new RegExp(`<select id="${d.el}">([\\s\\S]*?)</select>`));
+  ok(`${k}: <select id="${d.el}"> exists next to the other options`, !!sel);
+  if (sel) {
+    const vals = [...sel[1].matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]);
+    const selected = (sel[1].match(/<option value="([^"]+)"[^>]*selected/) || [])[1];
+    ok(`${k}: options ${d.vals.join('/')}, ${d.def} selected`, vals.join(',') === d.vals.join(',') && selected === d.def, vals.join(',') + ' sel=' + selected);
+  }
+  ok(`${k}: localStorage key z33_${k}`, d.ls === 'z33_' + k, d.ls);
+}
+ok('no trim dropdown (GI-48 names no trims)', !/id="trimView"/.test(HTML));
+ok('transmission filter still a single #transView select', (HTML.match(/<select id="transView">/g) || []).length === 1);
+
+const vifSrc = script.match(/function vifMatch\([\s\S]*?\n\}/)[0];
+const ctx = {}; vm.createContext(ctx);
+vm.runInContext(vifSrc + '\nthis.vifMatch = vifMatch;', ctx);
+const V = { trans: 'mt', ...DEF };
+ok('vifMatch: empty expression always matches', ctx.vifMatch('', V) && ctx.vifMatch(undefined, V));
+ok('vifMatch: single term', !ctx.vifMatch('body=roadster', V) && ctx.vifMatch('body=coupe', V));
+ok('vifMatch: value list (brake=tcs,vdc)', !ctx.vifMatch('brake=tcs,vdc', V) && ctx.vifMatch('brake=tcs,vdc', { ...V, brake: 'tcs' }));
+ok('vifMatch: AND (&)', !ctx.vifMatch('body=roadster&pseat=yes', { ...V, body: 'roadster' }) && ctx.vifMatch('body=roadster&pseat=yes', { ...V, body: 'roadster', pseat: 'yes' }));
+ok('vifMatch: OR (|) incl. trans', ctx.vifMatch('audio=bose|trans=at', { ...V, trans: 'at' }) && !ctx.vifMatch('audio=bose|trans=at', V));
+
+const ci = script.indexOf('const CONN_BASE = {'); const cj = script.indexOf('const CONN_FACE = {', ci + 1);
+const c2 = {}; vm.createContext(c2);
+vm.runInContext(script.slice(ci, cj) + '\nthis.C = CONN_BASE;', c2);
+const C = c2.C;
+const bi = script.indexOf('function buildCircuits('); const bj = script.indexOf('\n/* ========== Connectors', bi);
+const c3 = {}; vm.createContext(c3);
+vm.runInContext(script.slice(bi, bj) + '\nthis.R = buildCircuits("de_early"); this.R2 = buildCircuits("de_revup");', c3);
+const CIRC = Object.fromEntries(c3.R.concat(c3.R2).map((c) => [c.id, c]));
+const checkVif = (expr) => !expr || String(expr).split('|').every((g) => g.split('&').every((t) => {
+  const [k, vals] = t.split('=');
+  if (k === 'trans') return vals.split(',').every((v) => v === 'mt' || v === 'at');
+  return DIMS[k] && vals.split(',').every((v) => DIMS[k].vals.includes(v));
+}));
+const badVif = [];
+for (const [id, c] of Object.entries(C)) {
+  if (!checkVif(c.vif)) badVif.push(id);
+  for (const p of c.pins || []) { if (!checkVif(p.vif) || !checkVif(p.altIf)) badVif.push(id + '·' + p.id); if (p.altIf && !p.altCode) badVif.push(id + '·' + p.id + ' altIf without altCode'); }
+}
+for (const c of c3.R) if (!checkVif(c.vif)) badVif.push('circuit ' + c.id);
+ok('every vif / altIf uses known equipment keys and values', badVif.length === 0, badVif.join(', '));
+const badCirc = [];
+for (const [id, c] of Object.entries(C)) for (const p of c.pins || []) if (p.circ && !CIRC[p.circ]) badCirc.push(`${id}·${p.id} → ${p.circ}`);
+ok('every pin circ points to an existing circuit', badCirc.length === 0, badCirc.join(', '));
+const badPath = [];
+for (const c of c3.R) for (const [cid, cavs] of Object.entries(c.path || {})) {
+  const card = C[cid]; if (!card) { badPath.push(`${c.id}: card ${cid}`); continue; }
+  for (const cav of cavs) if (!(card.pins || []).some((p) => String(p.id) === String(cav)) && !/^(ring)$/.test(cav) && !['ipdm_cover', 'f152', 'e17', 'f23_gnd'].includes(cid)) badPath.push(`${c.id}: ${cid}·${cav}`);
+}
+ok('every circuit path cavity exists on its card', badPath.length === 0, badPath.join(', '));
+const bodyIds = Object.keys(C).filter((id) => C[id].sub === 'carroceria');
+ok('Carrocería groups: ABS, lamps, doors, defogger, seats, audio, gauges, climate, wipers, soft top, A/T',
+  ['abs', 'luces', 'puertas', 'desemp', 'asientos', 'audio', 'medidores', 'clima', 'limpia', 'techo', 'at'].every((n) => bodyIds.some((id) => C[id].nest === n)), bodyIds.join(','));
+const railBody = [];
+for (const id of ['ix_e106_b2', 'ix_t2_b44', 'ix_e108_m15', 'ix_b1_m12', ...bodyIds]) for (const p of C[id].pins || []) if (p.srcSub === 'carroceria' && p.rail) railBody.push(id + '·' + p.id);
+ok('new body pins carry no rail (switched outputs / sensor supplies are not 12V rails)', railBody.length === 0, railBody.join(','));
+const pin = (cid, id) => (C[cid].pins || []).find((p) => String(p.id) === String(id)) || {};
+ok('DLC M8·16 is R/W (AT-194)', pin('dlc', '16').code === 'R/W');
+ok('E108·16G VDC sensor supply is not a rail', !pin('ix_e108_m15', '16G').rail && pin('ix_e108_m15', '16G').vif === 'brake=vdc');
+ok('A/T-only body cavities use trans:at (E10/F1·4/6/7, F102·24H, E108·63G/64G)',
+  ['4', '6', '7'].every((i) => pin('ix_e10_f1', i).trans === 'at') && pin('ix_f102_m72', '24H').trans === 'at' && pin('ix_e108_m15', '63G').trans === 'at');
+ok('rear wiper E108·8G is behind the rear-wiper selector', pin('ix_e108_m15', '8G').vif === 'rwiper=yes');
+ok('Canada DTRL cavities (E106·6, E108·62G) are market=canada', pin('ix_e106_b2', '6').vif === 'market=canada' && pin('ix_e108_m15', '62G').vif === 'market=canada');
+
+/* ---------- browser ---------- */
+const puppeteer = loadPuppeteer();
+const browser = await puppeteer.launch({ executablePath: findChrome(), headless: true, args: ['--no-sandbox', '--disable-gpu'] });
+const page = await browser.newPage();
+await page.setViewport({ width: 1400, height: 900 });
+const url = pathToFileURL(path.join(root, 'index.html')).href;
+await page.goto(url, { waitUntil: 'domcontentloaded' });
+await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+await page.reload({ waitUntil: 'domcontentloaded' });
+await page.waitForSelector('#fichas .ficha');
+const sel = async (id, v) => { await page.select('#' + id, v); await new Promise((r) => setTimeout(r, 80)); };
+const st = () => page.evaluate(() => {
+  const code = (cid, id) => { const c = CONN[cid]; const p = c && c.pins.find((x) => String(x.id) === String(id)); return p ? p.code : null; };
+  const shown = (cid) => !!document.querySelector(`#fichas [data-conn="${cid}"]`);
+  return {
+    vals: Object.fromEntries(Object.keys(VARIANT_DIMS).map((k) => [k, document.getElementById(VARIANT_DIMS[k].el).value])),
+    circs: CIRCUITS.map((c) => c.id),
+    m51: shown('vdc_m51'), techo: shown('body_techo'), at: shown('body_at'), abs: shown('body_abs'), f6: shown('f6_at'),
+    g13: code('ix_e108_m15', '13G'), g35: code('ix_e108_m15', '35G'), j29: code('ix_b1_m12', '29J'), j23: code('ix_b1_m12', '23J'),
+    j46: code('ix_b1_m12', '46J'), t2: code('ix_t2_b44', '2'), b12: code('ix_e106_b2', '12'), b6: code('ix_e106_b2', '6'),
+    j2: code('ix_b1_m12', '2J'), g8: code('ix_e108_m15', '8G'), j1: code('ix_b1_m12', '1J'), j4: code('ix_b1_m12', '4J'),
+    f4: code('ix_e10_f1', '4'), h24: (f102Conf().pins.find((p) => p.id === '24H') || {}).code,
+    note13: (CONN.ix_e108_m15.pins.find((p) => p.id === '13G') || {}).note_en || '',
+  };
+});
+let s = await st();
+ok('defaults: Coupe / USA / ABS / base audio / no options', JSON.stringify(s.vals) === JSON.stringify(DEF), JSON.stringify(s.vals));
+ok('defaults: Carrocería ABS card shown; VDC sensor M51 and Roadster soft top hidden', s.abs && !s.m51 && !s.techo, JSON.stringify([s.abs, s.m51, s.techo]));
+ok('defaults: VDC-only E108·13G empty, with an explanation', s.g13 === '—' && /Not used with the selected equipment/.test(s.note13), s.g13 + ' ' + s.note13.slice(0, 60));
+ok('defaults: no VDC/TCS/Roadster/Canada/option circuits', !['vdc_yaw', 'vdc_off', 'soft_top', 'dtrl_pkb', 'heated_seat', 'rear_wiper', 'blower_gnd', 'pseat_bat', 'audio_bose_ctl'].some((c) => s.circs.includes(c)));
+ok('defaults: circuits common to every coupe are present', ['abs_rl', 'abs_rr', 'abs_kline', 'turn_lh', 'turn_rh', 'stop_lamps', 'bcm_bat', 'rear_defog', 'belt_dr', 'audio_backup', 'brake_fluid', 'ambient', 'dlc_ign'].every((c) => s.circs.includes(c)));
+ok('defaults: Coupe-only cavities present (T2/B44·2 back door switch R)', s.t2 === 'R' && s.j46 === '—' && s.b12 === 'G/R', JSON.stringify([s.t2, s.j46, s.b12]));
+ok('defaults: base audio "BS" colours (M12·29J LG/R, front 23J empty)', s.j29 === 'LG/R' && s.j23 === '—', JSON.stringify([s.j29, s.j23]));
+ok('defaults (M/T): A/T body card and E10/F1·4 / F102·24H empty', !s.at && s.f4 === '—' && s.h24 === '—' && !s.f6, JSON.stringify([s.at, s.f4, s.h24, s.f6]));
+
+await sel('brakeView', 'tcs'); s = await st();
+ok('brakes ABS+TCS: OFF switch (35G L/Y) shown, VDC sensor still hidden', s.g35 === 'L/Y' && s.circs.includes('vdc_off') && !s.m51 && s.g13 === '—');
+await sel('brakeView', 'vdc'); s = await st();
+ok('brakes VDC: M51 card + E108·13G W/R + vdc_yaw circuit', s.m51 && s.g13 === 'W/R' && s.circs.includes('vdc_yaw'), JSON.stringify([s.m51, s.g13]));
+ok('brakes VDC: rear speaker colours switch to the non-"BS" set (29J BR) and front loop appears (23J W)', s.j29 === 'BR' && s.j23 === 'W', JSON.stringify([s.j29, s.j23]));
+await sel('brakeView', 'abs');
+await sel('bodyView', 'roadster'); s = await st();
+ok('Roadster: soft top card + 46J W shown; Coupe back door switch T2·2 empty; defogger E106·12 is G', s.techo && s.j46 === 'W' && s.t2 === '—' && s.b12 === 'G', JSON.stringify([s.techo, s.j46, s.t2, s.b12]));
+await sel('bodyView', 'coupe');
+await sel('marketView', 'canada'); s = await st();
+ok('Canada: DTRL E106·6 G + dtrl circuits', s.b6 === 'G' && s.circs.includes('dtrl_pkb') && s.circs.includes('dtrl_alt'), s.b6);
+await sel('marketView', 'usa');
+await sel('audioView', 'bose'); s = await st();
+ok('Bose: amp-ON circuit + front speaker 23J W/LG', s.circs.includes('audio_bose_ctl') && s.j23 === 'W/LG', s.j23);
+await sel('audioView', 'base');
+await sel('hseatView', 'yes'); s = await st();
+ok('Heated seats: relay output M12·2J G + heated_seat circuits', s.j2 === 'G' && s.circs.includes('heated_seat'), s.j2);
+await sel('pseatView', 'yes'); await sel('navView', 'yes'); await sel('rwiperView', 'yes'); s = await st();
+ok('Power seat / navigation / rear wiper: 4J W, 1J B, 8G LG/B', s.j4 === 'W' && s.j1 === 'B' && s.g8 === 'LG/B', JSON.stringify([s.j4, s.j1, s.g8]));
+
+await page.reload({ waitUntil: 'domcontentloaded' });
+await page.waitForSelector('#fichas .ficha');
+s = await st();
+ok('selectors persist across reload (localStorage)', s.vals.hseat === 'yes' && s.vals.pseat === 'yes' && s.vals.nav === 'yes' && s.vals.rwiper === 'yes' && s.j2 === 'G', JSON.stringify(s.vals));
+for (const k of ['hseatView', 'pseatView', 'navView', 'rwiperView']) await sel(k, 'no');
+
+await sel('transView', 'at'); s = await st();
+ok('Automático: F6 + A/T body card shown, E10/F1·4 Y/R, F102·24H PU/W', s.f6 && s.at && s.f4 === 'Y/R' && s.h24 === 'PU/W', JSON.stringify([s.f6, s.at, s.f4, s.h24]));
+ok('Automático (still ABS / base): rear speakers use the non-"BS" colours (29J BR)', s.j29 === 'BR', s.j29);
+await sel('transView', 'mt'); s = await st();
+ok('Manual again: A/T body card hidden, transmission filter unaffected by the new selectors', !s.at && !s.f6 && s.f4 === '—');
+
+const click = await page.evaluate(() => { clearSelection(); selectConnPin('ix_e108_m15', '36G'); return [...lastCircIds]; });
+ok('click E108·36G → right turn circuit only (no fan-out over the SMJ)', click.length === 1 && click[0] === 'turn_rh', click.join(','));
+const click2 = await page.evaluate(() => { clearSelection(); selectConnPin('body_abs', 'RL-SIG'); return [...lastCircIds]; });
+ok('click Carrocería ABS row → abs_rl', click2.join(',') === 'abs_rl', click2.join(','));
+const nest = await page.evaluate(() => [...document.querySelectorAll('#fichas details.ficha-sec[data-sub="carroceria"] > details.ficha-nest')].map((n) => n.dataset.nest));
+ok('Carrocería section shows one nested group per system', nest.length >= 9 && nest[0] === 'body_abs', nest.join(','));
+
+const labels = {};
+for (const lg of ['en', 'ja', 'es']) {
+  await sel('lang', lg);
+  labels[lg] = await page.evaluate(() => [document.getElementById('lblBody').textContent.trim().split('\n')[0], document.querySelector('#bodyView option[value="roadster"]').textContent, document.querySelector('#hseatView option[value="yes"]').textContent]);
+}
+ok('labels relabel en/ja/es', labels.en[0].startsWith('Body') && labels.ja[0].startsWith('ボディ') && labels.es[0].startsWith('Carrocería') && labels.en[2] === 'Yes' && labels.ja[2] === 'あり' && labels.es[2] === 'Sí', JSON.stringify(labels));
+
+await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+await browser.close();
+console.log(`---\nvariants: ${pass} passed, ${fails.length} failed`);
+if (fails.length) { console.log('FAILED:\n' + fails.join('\n')); process.exit(1); }
+console.log('VARIANTS OK');

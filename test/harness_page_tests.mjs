@@ -542,6 +542,7 @@ if (skipBrowser) {
   runNested('f102.mjs', path.join(__dirname, 'f102.mjs'));
   runNested('fsm_sig_click.mjs (FSM table: SIG clicks light no rail-only cavity)', path.join(__dirname, 'fsm_sig_click.mjs'));
   runNested('feedback.mjs (Send feedback button/dialog, offline)', path.join(__dirname, 'feedback.mjs'));
+  runNested('variants.mjs (equipment selectors: body / market / brakes / options)', path.join(__dirname, 'variants.mjs'));
 }
 
 console.log('---');
