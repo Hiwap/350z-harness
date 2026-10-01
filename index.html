@@ -1859,13 +1859,13 @@ const CONN_BASE = {
   /* —— Poder / tierras · ficha del plug ECM (EC-123) —— */
 
 
-  ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 1 / 2 · PG-14; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 1 / 2 · PG-14; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 1 / 2 · PG-14。PG-26は同じ面を回転。端子側からは左右反転。'}},
+  ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 1 / 2 · PG-14; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 1 / 2 · PG-14; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 1 / 2 · PG-14。PG-26は同じ面を回転。端子側からは左右反転。'}},
     pins:[
       {id:'1',src:'BATT',srcSub:'power',code:'W',ecm:null,rail:'12v',note:'Entrada batería 12V (W) desde fusible link 80A E (E1/E2·3) · PG-14 / PG-27.',note_en:'Battery 12V in (W) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W) · ヒュージブルリンク · PG-27。'},
       {id:'2',src:'BATT',srcSub:'power',code:'W/L',ecm:null,rail:'12v',note:'Entrada batería 12V (W/L) desde fusible links · PG-27.',note_en:'Battery 12V in (W/L) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W/L) · ヒュージブルリンク · PG-27。'}
     ],
     note:'Entrada de batería al IPDM (2 pines).'},
-  ipdm_e7:{group:'motor', sub:'ipdm', name:'IPDM E7 · Luces / limpia / ECM', meta:'VB / back-up / faros / limpia · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 23 22 21 20 [traba] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192; PG-26 es la misma cara girada 90°. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 23 22 21 20 [lock] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192; PG-26 is the same face turned 90°. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 23 22 21 20 [ロック] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192。PG-26は同じ面を90°回転。端子側からは左右反転。'}},
+  ipdm_e7:{group:'motor', sub:'ipdm', name:'IPDM E7 · Luces / limpia / ECM', meta:'VB / back-up / faros / limpia · PG-26 · EC/LT/WW/SC', accent:'#ef5350', shape:'ipdm_e7', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 23 22 21 20 [traba] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192; PG-26 es la misma cara girada 90°. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 23 22 21 20 [lock] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192; PG-26 is the same face turned 90°. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 23 22 21 20 [ロック] 19 18 17 / 32 31 30 29 28 27 26 25 24 · PG-15 / EC-167 / SC-13 / LT-192。PG-26は同じ面を90°回転。端子側からは左右反転。'}},
     pins:[
       {id:'17',code:'W/L',ecm:null,rail:'12v',src:'ECM-RLY',srcSub:'ipdm',note:'Salida relé ECM (W/L): bobinas/VTC adm vía E7-17 → F3 · VTC escape (magnet retarder) · venteo EVAP vía E106/B2 → B43/T1 · EC-167 / EC-198 / EC-367.',note_en:'ECM relay out (W/L): coils via E7-17 → F3; also EVAP vent 12V via E106/B2 → B43/T1 · EC-167 / EC-367.',note_ja:'ECMリレー出力 (W/L): コイルはE7-17→F3、EVAPベントはE106/B2→B43/T1 · EC-167/EC-367。'},
       {id:'18',code:'R/W',ecm:119,rail:'12v',note:'VB alimentación ECM (R/W) → ECM 119; también ECM 120 vía E12/F3 (P) · EC-167.',note_en:'ECM VB power (R/W) → ECM 119; also ECM 120 via E12/F3 (P) · EC-167.',note_ja:'ECM VB電源 (R/W) → ECM 119; E12/F3経由で ECM 120 (P) · EC-167。'},
@@ -1885,7 +1885,7 @@ const CONN_BASE = {
       {id:'32',src:'WIP·AS',srcSub:'ipdm',code:'L/Y',ecm:null,rail:'12v',note:'Señal auto-stop limpia (L/Y) · WW-15.',note_en:'Wiper auto-stop signal (L/Y) · WW-15.',note_ja:'ワイパーオートストップ (L/Y) · WW-15。'}
     ],
     note:'IPDM E7: encendido, luces, limpia, marcha atrás (cav 26), etc.'},
-  ipdm_e8:{group:'motor', sub:'ipdm', name:'IPDM E8 · Bomba / mariposa / A/C', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 37 36 [traba] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12; PG-26 es la misma cara girada 90°. Desde el lado de los terminales (frente que encaja en el IPDM) se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 37 36 [lock] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12; PG-26 is the same face turned 90°. From the terminal side (face that plugs into the IPDM) it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 37 36 [ロック] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12。PG-26は同じ面を90°回転。端子側（IPDMに差し込む面）から見ると左右反転。'}},
+  ipdm_e8:{group:'motor', sub:'ipdm', name:'IPDM E8 · Bomba / mariposa / A/C', meta:'GND / VMOT / FP / A/C · PG-26', accent:'#ef5350', shape:'ipdm_e8', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 37 36 [traba] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12; PG-26 es la misma cara girada 90°. Desde el lado de los terminales (frente que encaja en el IPDM) se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 37 36 [lock] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12; PG-26 is the same face turned 90°. From the terminal side (face that plugs into the IPDM) it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 37 36 [ロック] 35 34 33 / 44 43 42 41 40 39 38 · EC-710 / EC-472 / PG-15 / WW-12。PG-26は同じ面を90°回転。端子側（IPDMに差し込む面）から見ると左右反転。'}},
     pins:[
       {id:'33',src:'A/C·RLY',srcSub:'ipdm',code:'L/Y',ecm:null,rail:'12v',note:'Embrague magnético del compresor A/C (L/Y) → compresor F24·1 · ATC-81 / PG-25.',note_en:'A/C compressor magnet clutch (L/Y) → compressor pin1 · ATC-81.',note_ja:'A/Cマグネットクラッチ (L/Y) · ATC-81。'},
       {id:'34',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
@@ -1901,7 +1901,7 @@ const CONN_BASE = {
       {id:'44',src:'WASH',srcSub:'ipdm',code:'OR',ecm:null,rail:'12v',note:'Alimentación motor lavaparabrisas E29·2 vía fusible IPDM 84 (10A) (OR) · WW-12 / WW-15 / PG-15.',note_en:'Washer motor E29·2 power via IPDM fuse 84 (10A) (OR) · WW-12 / WW-15 / PG-15.',note_ja:'ウォッシャーモータ電源 (OR) · WW-15。'}
     ],
     note:'IPDM E8 (W, 12 vías): A/C · masa · bomba · VMOT · IGN ABS · lavador. Cara = FSM H.S. lado cables, traba arriba (EC-710).'},
-  ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba sobre 50–47): 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56; PG-26 es la misma cara girada 180°. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up over 50–47): 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56; PG-26 is the same face turned 180°. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロックは50–47の上）: 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56。PG-26は同じ面を180°回転。端子側からは左右反転。'}},
+  ipdm_e9:{group:'motor', sub:'ipdm', name:'IPDM E9 · Relés ECM + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', accent:'#ef5350', shape:'ipdm_e9', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba sobre 50–47): 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56; PG-26 es la misma cara girada 180°. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up over 50–47): 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56; PG-26 is the same face turned 180°. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロックは50–47の上）: 52 51 50 49 48 47 46 45 / 60 59 58 57 56 55 54 53 · EC-472 / EC-167 / SC-12..14 / WW-56。PG-26は同じ面を180°回転。端子側からは左右反転。'}},
     pins:[
       {id:'45',code:'nc',ecm:null,lab:'nc',note:'No usado · PG-25.',note_en:'Not used · PG-25.',note_ja:'未使用 · PG-25。'},
       {id:'46',code:'W/B',ecm:111,rail:'12v',lab:'SSOFF',note:'SSOFF auto-apagado relé ECM (W/B) → ECM 111 vía E108/M15 · M72/F102 · EC-167.',note_en:'ECM relay self shut-off SSOFF (W/B) → ECM 111 via E108/M15 · M72/F102 · EC-167.',note_ja:'ECMリレー自己遮断 SSOFF (W/B) → ECM 111 · EC-167。'},
@@ -1921,21 +1921,21 @@ const CONN_BASE = {
       {id:'60',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra señal IPDM → body E17 (B) · PG-27 / LT-16.',note_en:'IPDM signal ground → body E17 (B) · PG-27 / LT-16.',note_ja:'IPDM信号アース → ボディ E17 (B) · PG-27。'}
     ],
     note:'IPDM E9: SSOFF · MOTRLY · CAN · masas · arranque/defog.'},
-  ipdm_e4:{group:'motor', sub:'ipdm', name:'IPDM E4 · Arranque', meta:'arranque · PG-26 · SC-13/14 · cara fija', accent:'#ef5350', shape:'ipdm_e4', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 4 3 / 6 5 · SC-13 / PG-13; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 4 3 / 6 5 · SC-13 / PG-13; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 4 3 / 6 5 · SC-13 / PG-13。PG-26は同じ面を回転。端子側からは左右反転。'}},
+  ipdm_e4:{group:'motor', sub:'ipdm', name:'IPDM E4 · Arranque', meta:'arranque · PG-26 · SC-13/14 · cara fija', accent:'#ef5350', shape:'ipdm_e4', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 4 3 / 6 5 · SC-13 / PG-13; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 4 3 / 6 5 · SC-13 / PG-13; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 4 3 / 6 5 · SC-13 / PG-13。PG-26は同じ面を回転。端子側からは左右反転。'}},
     pins:[
       {id:'3',src:'STR·RLY',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',circ:'starter',note:'Salida relé arranque B/Y → motor arranque pin1 vía E10/F1 cav1 · SC-13/14.',note_en:'Starter relay out → starter motor pin1 via E10/F1 cav1 (B/Y) · SC-13/14.',note_ja:'スタータリレー出力 → スタータ pin1（E10/F1経由）(B/Y) · SC-13/14。'},
       {id:'4',src:'IGN·SW',srcSub:'power',code:'W/R',ecm:null,rail:'12v',note:'Entrada START desde interruptor de encendido pin5 (W/R) · SC-13/14.',note_en:'START input from ignition switch pin5 (W/R) · SC-13/14.',note_ja:'イグニッションSW pin5 からの START 入力 (W/R) · SC-13/14。'},
       {id:'5',src:'F80',srcSub:'fuses',code:'P',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 80) → B34 vía E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 80) → B34 via E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ80）→ B34（E107/B3経由）· CP:P / RS:R · PG-13 / GW-63。'},
       {id:'6',src:'F75',srcSub:'fuses',code:'W',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 75) W → B34 pin3 vía E107/B3 · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 75) W → B34 pin3 via E107/B3 · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ75）W → B34 pin3（E107/B3経由）· PG-13 / GW-63。'}
     ], note:'IPDM E4 (W) · arranque 3/4 (SC-13/14) + desempañador 5/6 (PG-13). Cara = FSM H.S. lado cables, traba arriba: 4 3 / 6 5.'},
-  ipdm_e5:{group:'motor', sub:'ipdm', name:'IPDM E5 · Ventiladores', meta:'ventiladores · PG-26 · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e5', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 8 7 / 10 9 · EC-510 / PG-14; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 8 7 / 10 9 · EC-510 / PG-14; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 8 7 / 10 9 · EC-510 / PG-14。PG-26は同じ面を回転。端子側からは左右反転。'}},
+  ipdm_e5:{group:'motor', sub:'ipdm', name:'IPDM E5 · Ventiladores', meta:'ventiladores · PG-26 · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e5', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 8 7 / 10 9 · EC-510 / PG-14; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 8 7 / 10 9 · EC-510 / PG-14; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 8 7 / 10 9 · EC-510 / PG-14。PG-26は同じ面を回転。端子側からは左右反転。'}},
     pins:[
       {id:'7',src:'IGN·RLY',srcSub:'ipdm',code:'B/R',ecm:null,rail:'12v',note:'Salida relé de encendido (+IG) B/R → PG-POWER-07 · PG-14.',note_en:'IPDM ignition relay output (+IG) B/R → PG-POWER-07 · PG-14.',note_ja:'IPDMイグニッションリレー出力 (+IG) B/R → PG-POWER-07 · PG-14。'},
       {id:'8',src:'FAN3',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',note:'Relé ventilador-3 → motor ventilador-1 pin1 (B/Y) · EC-510.',note_en:'Cooling fan relay-3 → fan motor-1 pin1 (B/Y) · EC-510.',note_ja:'冷却ファンリレー3 → ファンモータ1 pin1 (B/Y) · EC-510。'},
       {id:'9',src:'FAN2',srcSub:'ipdm',code:'Y',ecm:null,rail:'12v',note:'Relé ventilador-2 → motores pin4 (Y) · EC-510.',note_en:'Cooling fan relay-2 → motors pin4 (Y) · EC-510.',note_ja:'冷却ファンリレー2 → モータ pin4 (Y) · EC-510。'},
       {id:'10',src:'FAN1',srcSub:'ipdm',code:'R/W',ecm:null,rail:'12v',note:'Relé ventilador-1 → motor ventilador-2 pin2 (R/W) · EC-510.',note_en:'Cooling fan relay-1 → fan motor-2 pin2 (R/W) · EC-510.',note_ja:'冷却ファンリレー1 → ファンモータ2 pin2 (R/W) · EC-510。'}
     ], note:'IPDM E5 (B) · ventiladores 8/9/10 (EC-510) + 7 = salida relé IGN B/R (PG-14). Cara = FSM H.S. lado cables, traba arriba: 8 7 / 10 9.'},
-  ipdm_e6:{group:'motor', sub:'ipdm', name:'IPDM E6 · Ventiladores + 40A', meta:'ventiladores / 40A · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e6', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 13 12 11 / 16 15 14 · EC-510; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 13 12 11 / 16 15 14 · EC-510; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 13 12 11 / 16 15 14 · EC-510。PG-26は同じ面を回転。端子側からは左右反転。'}},
+  ipdm_e6:{group:'motor', sub:'ipdm', name:'IPDM E6 · Ventiladores + 40A', meta:'ventiladores / 40A · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e6', view:{hs:{es:'dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 13 12 11 / 16 15 14 · EC-510; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'2005 FSM H.S. drawing (WIRE side, lock up): 13 12 11 / 16 15 14 · EC-510; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'2005 FSM H.S.図（配線側・ロック上）: 13 12 11 / 16 15 14 · EC-510。PG-26は同じ面を回転。端子側からは左右反転。'}},
     pins:[
       {id:'11',src:'FAN3',srcSub:'ipdm',code:'L',ecm:null,rail:'12v',note:'Relé ventilador-3 → motor ventilador-1 pin2 (L) · EC-510.',note_en:'Cooling fan relay-3 → fan motor-1 pin2 (L) · EC-510.',note_ja:'冷却ファンリレー3 → ファンモータ1 pin2 (L) · EC-510。'},
       {id:'12',src:'FAN2/3',srcSub:'ipdm',code:'Y/R',ecm:null,rail:'12v',note:'Empalme relés ventilador 2/3 → motores pin4 (Y/R) · EC-510.',note_en:'Fan relay-2/3 junction → motors pin4 (Y/R) · EC-510.',note_ja:'ファンリレー2/3合流 → モータ pin4 (Y/R) · EC-510。'},
@@ -1967,6 +1967,11 @@ const CONN_BASE = {
       {id:'88',lab:'FOG',code:'15A',ecm:null,note:'Tapa: FR FOG, 15A. PG-26 marca el 88 con una X: ese lugar no lleva fusible.',note_en:'Cover: FR FOG, 15A. PG-26 marks 88 with an X: that socket has no fuse.',note_ja:'カバー: FR FOG、15A。PG-26は88をXで示す。ヒューズは入らない。'},
       {id:'89',lab:'SOL',code:'10A',ecm:null,note:'Tapa: ENG SOL, 10A. En SC-13 el fusible 89 alimenta el interlock de embrague M/T por E7·25 (G/Y).',note_en:'Cover: ENG SOL, 10A. SC-13 fuse 89 feeds the M/T clutch interlock through E7·25 (G/Y).',note_ja:'カバー: ENG SOL、10A。SC-13のヒューズ89は M/T クラッチインターロックを E7·25（G/Y）へ給電。'}
     ]},
+  /* IPDM module view: E3–E9 placed and turned as PG-26 draws them around the IPDM (same H.S. wire-side faces,
+     rotated, never mirrored). Cavities carry their real data-conn, so a click acts exactly like the plug's own card. */
+  ipdm_module:{group:'motor', sub:'ipdm', name:'IPDM · fichas como en el módulo', meta:'E3–E9 · lado cables · PG-26', accent:'#ef5350', shape:'ipdm_module', view:{hs:{es:'las 7 fichas como están en el IPDM según PG-26 (posición aproximada): cada una es su dibujo H.S. (lado CABLES) girado como en PG-26 — E7/E4/E5 ⟲ 90° (traba a la izquierda), E8 ⟳ 90° (traba a la derecha), E3/E6/E9 180° (traba abajo). Nada en espejo. Desde el lado de los terminales cada ficha se ve en espejo.',en:'the 7 plugs as they sit on the IPDM per PG-26 (approximate position): each one is its H.S. (WIRE side) drawing turned as in PG-26 — E7/E4/E5 ⟲ 90° (lock left), E8 ⟳ 90° (lock right), E3/E6/E9 180° (lock down). Nothing mirrored. From the terminal side each plug is mirrored.',ja:'PG-26どおりIPDM上の7個のコネクタ（位置は概略）: 各コネクタはH.S.（配線側）図をPG-26のとおり回転 — E7/E4/E5 ⟲90°（ロック左）、E8 ⟳90°（ロック右）、E3/E6/E9 180°（ロック下）。鏡像なし。端子側からは各コネクタが左右反転。'}},
+    pins:[],
+    note:'Click en una cavidad = igual que en la ficha individual. Las fichas individuales siguen en lado cables con la traba arriba.'},
   ipdm_legend:{group:'motor', sub:'ipdm', name:'IPDM · Relés y fusibles', meta:'PG-26 · layout FSM', accent:'#ef5350', shape:'ixnote',
     pins:[],
     note:'Referencia rápida del IPDM: relés internos y fusibles. Clave: 77=relé ECM · 81=bomba · 87=mariposa.'},
@@ -2616,7 +2621,7 @@ const LOOM_BODY_EXTRA = new Set([
   /* IPDM plugs E3–E9 are Engine Room Harness (FSM PG-26/50/51), not Engine Control (PG-54) */
   'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9',
   /* Cover fuse grid lives in the IPDM, same as E3–E9: not on the pulled engine-control loom. */
-  'ipdm_cover',
+  'ipdm_cover', 'ipdm_module',
   /* Fuse Block (cabin M4) — not on the pulled PG-54/55 motor loom */
   'jb_10a_inj', 'jb_15a_ht',
   /* F9 sits on the starter motor; the control loom only has START at F1·1 */
@@ -3374,6 +3379,87 @@ function svgIpdmE6(cid, f){
   </svg>`;
 }
 
+/* IPDM module view. Each plug = its verified H.S. grid (wire side, lock up; 'L' = lock cell inside the grid),
+   rotated as PG-26 draws it on the IPDM. rot: 0 · 90 (clockwise) · -90 (counter-clockwise) · 180.
+   Rotation is a pure grid turn (no mirror): CW (r,c)→(c,R-1-r) · CCW (r,c)→(C-1-c,r) · 180 (r,c)→(R-1-r,C-1-c). */
+const IPDM_MODULE_PLUGS = [
+  { cid:'ipdm_e4', hs:[['4','3'],['6','5']], rot:-90, col:0, row:0 },
+  { cid:'ipdm_e7', hs:[['23','22','21','20','L','L','19','18','17'],['32','31','30','29','28','27','26','25','24']], rot:-90, col:1, row:0 },
+  { cid:'ipdm_e8', hs:[['37','36','L','L','35','34','33'],['44','43','42','41','40','39','38']], rot:90, col:2, row:0 },
+  { cid:'ipdm_e3', hs:[['1'],['2']], rot:180, col:0, row:1 },
+  { cid:'ipdm_e5', hs:[['8','7'],['10','9']], rot:-90, col:1, row:1 },
+  { cid:'ipdm_e6', hs:[['13','12','11'],['16','15','14']], rot:180, col:2, row:1 },
+  { cid:'ipdm_e9', hs:[['52','51','50','49','48','47','46','45'],['60','59','58','57','56','55','54','53']], rot:180, col:3, row:1 },
+];
+function ipdmRotateGrid(hs, rot){
+  const R = hs.length, C = hs[0].length;
+  const cw = rot === 90 || rot === -90;
+  const out = Array.from({length: cw ? C : R}, () => Array(cw ? R : C).fill(null));
+  for(let r=0;r<R;r++) for(let c=0;c<C;c++){
+    const v = hs[r][c];
+    let rr, cc;
+    if(rot === 90){ rr = c; cc = R-1-r; }
+    else if(rot === -90){ rr = C-1-c; cc = r; }
+    else if(rot === 180){ rr = R-1-r; cc = C-1-c; }
+    else { rr = r; cc = c; }
+    out[rr][cc] = v;
+  }
+  return out;
+}
+/* side of the lock tab after turning a lock-up face */
+function ipdmLockSide(rot){ return rot === 90 ? 'right' : rot === -90 ? 'left' : rot === 180 ? 'bottom' : 'top'; }
+function svgIpdmModule(cid, f){
+  const cw = 34, ch = 30, gap = 3, pad = 14, tab = 9, labH = 16;
+  const blocks = IPDM_MODULE_PLUGS.map(pl => {
+    const g = ipdmRotateGrid(pl.hs, pl.rot);
+    const w = g[0].length*cw + (g[0].length-1)*gap, h = g.length*ch + (g.length-1)*gap;
+    return { pl, g, w, h, side: ipdmLockSide(pl.rot) };
+  });
+  /* columns/rows: approximate PG-26 placement (top: E4 · E7 · E8 · bottom: E3 · E5 · E6 · E9) */
+  const colGap = 22, rowGap = 26;
+  const rows = [0,1].map(r => blocks.filter(b => b.pl.row === r).sort((a,b)=>a.pl.col-b.pl.col));
+  const rowH = rows.map(rb => Math.max(...rb.map(b => b.h + 2*tab)) + labH);
+  const rowW = rows.map(rb => rb.reduce((a,b)=>a + b.w + 2*tab, 0) + colGap*(rb.length-1));
+  const W = pad*2 + Math.max(...rowW);
+  const H = pad*2 + 18 + rowH[0] + rowGap + rowH[1];
+  let body = '';
+  let y0 = pad + 18;
+  rows.forEach((rb, ri) => {
+    let x0 = pad + (W - pad*2 - rowW[ri]) / 2;
+    rb.forEach(b => {
+      const bx = x0 + tab, by = y0 + labH + tab + (rowH[ri] - labH - 2*tab - b.h) / 2;
+      const conf = CONN[b.pl.cid] || CONN_BASE[b.pl.cid] || {pins:[]};
+      const byId = Object.fromEntries((conf.pins||[]).map(p=>[String(p.id),p]));
+      const lbl = ipdmFsmLabel(b.pl.cid);
+      body += `<g class="ipdm-mod-plug" data-plug="${esc(b.pl.cid)}" data-rot="${b.pl.rot}">`;
+      body += `<text x="${bx + b.w/2}" y="${y0 + 11}" text-anchor="middle" font-size="11" font-weight="800" fill="#ef9a9a">${esc(lbl)}</text>`;
+      body += `<rect class="shell" x="${bx-4}" y="${by-4}" width="${b.w+8}" height="${b.h+8}" rx="4" style="stroke:${f.accent}"/>`;
+      /* outer lock tab on the turned side */
+      const tw = 22, th = 6;
+      if(b.side === 'top') body += `<rect class="lock-tab" x="${bx+b.w/2-tw/2}" y="${by-4-th}" width="${tw}" height="${th}" rx="2"/>`;
+      if(b.side === 'bottom') body += `<rect class="lock-tab" x="${bx+b.w/2-tw/2}" y="${by+b.h+4}" width="${tw}" height="${th}" rx="2"/>`;
+      if(b.side === 'left') body += `<rect class="lock-tab" x="${bx-4-th}" y="${by+b.h/2-tw/2}" width="${th}" height="${tw}" rx="2"/>`;
+      if(b.side === 'right') body += `<rect class="lock-tab" x="${bx+b.w+4}" y="${by+b.h/2-tw/2}" width="${th}" height="${tw}" rx="2"/>`;
+      b.g.forEach((rowArr, r) => rowArr.forEach((id, c) => {
+        const x = bx + c*(cw+gap), y = by + r*(ch+gap);
+        if(id === 'L'){ body += `<rect class="lock-tab ipdm-mod-lock" x="${x+4}" y="${y+4}" width="${cw-8}" height="${ch-8}" rx="2"><title>LOCK</title></rect>`; return; }
+        if(id == null) return;
+        body += cavOrEmpty(b.pl.cid, byId, id, x, y, cw, ch);
+      }));
+      body += `</g>`;
+      x0 += b.w + 2*tab + colGap;
+    });
+    y0 += rowH[ri] + rowGap;
+  });
+  const L = (lang === 'en' || lang === 'ja') ? lang : 'es';
+  const head = L === 'en' ? 'IPDM E/R · PG-26 · wire side' : L === 'ja' ? 'IPDM E/R · PG-26 · 配線側' : 'IPDM E/R · PG-26 · lado cables';
+  return `<svg class="conn-svg ipdm-module-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <rect class="shell" x="3" y="3" width="${W-6}" height="${H-6}" rx="10" style="stroke:${f.accent};stroke-dasharray:6 4"/>
+    <text x="${pad}" y="${pad+6}" font-size="11" font-weight="700" fill="#b0bec5">${esc(head)}</text>
+    ${body}
+  </svg>`;
+}
+
 /** IPDM E7 · FSM H.S. (wire side, lock up): 23 22 21 20 [lock] 19 18 17 / 32–24 (PG-15) */
 function svgIpdmE7(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
@@ -3960,6 +4046,7 @@ function renderConnSvg(cid, f){
     case 'ipdm_e7': svg = svgIpdmE7(cid,f); break;
     case 'ipdm_e8': svg = svgIpdmE8(cid,f); break;
     case 'ipdm_e9': svg = svgIpdmE9(cid,f); break;
+    case 'ipdm_module': svg = svgIpdmModule(cid,f); break;
     case 'dlc': svg = svgDlc(cid,f); break;
     case 'box': svg = svgBox(cid,f); break;
     case 'clock': svg = svgClock(cid,f); break;
@@ -4889,6 +4976,13 @@ function markFichaHL(cid, on){
     if(on){ el.classList.remove('dim'); el.classList.add('hl'); }
     else { el.classList.remove('hl'); }
   });
+  /* IPDM module view mirrors its plugs: lit while any E3–E9 card is lit */
+  if(/^ipdm_e[3-9]$/.test(id)){
+    const anyPlug = on || !!document.querySelector('.ficha.hl[data-conn^="ipdm_e"], .ficha-wrap.hl[data-conn^="ipdm_e"]');
+    document.querySelectorAll('.ficha-wrap[data-conn="ipdm_module"], .ficha[data-conn="ipdm_module"]').forEach(el=>{
+      if(anyPlug){ el.classList.remove('dim'); el.classList.add('hl'); } else el.classList.remove('hl');
+    });
+  }
 }
 
 
@@ -5376,9 +5470,10 @@ const CONN_I18N = {
   ipdm_e7: { en:{name:'IPDM E7 · Lamps / wiper / ECM', meta:'VB / back-up / lamps / wiper · PG-26 · EC/LT/WW/SC', note:'IPDM E7: ignition, lamps, wiper, reverse (cav 26).'}, ja:{name:'IPDM E7 · ランプ / ワイパー / ECM', meta:'VB / ランプ / ワイパー · PG-26', note:'IPDM E7: 点火・ランプ・ワイパー・リバース（cav 26）。'} },
   ipdm_e8: { en:{name:'IPDM E8 · Pump / throttle / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8 (W, 12-way): A/C · ground · fuel pump · VMOT · IGN ABS · washer. Face = FSM H.S. wire side, lock up (EC-710).'}, ja:{name:'IPDM E8 · ポンプ / スロットル / A/C', meta:'GND / VMOT / FP / A/C · PG-26', note:'IPDM E8 (W, 12極): A/C · アース · ポンプ · VMOT · IGN ABS · ウォッシャー。面 = FSM H.S.配線側・ロック上 (EC-710)。'} },
   ipdm_e9: { en:{name:'IPDM E9 · ECM relays + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', note:'IPDM E9: SSOFF · MOTRLY · CAN · grounds · starter/defog.'}, ja:{name:'IPDM E9 · ECMリレー + CAN', meta:'SSOFF / MOTRLY / CAN / GND · PG-26', note:'IPDM E9: SSOFF · MOTRLY · CAN · アース。'} },
-  ipdm_e4: { en:{name:'IPDM E4 · Starter', meta:'starter · PG-26 · SC-13/14 · fixed face', note:'IPDM E4 · starter (SC) + defogger power 5/6 (PG-13/GW-63). PG-26 H.S. face: top 3-5 / bot 4-6.'}, ja:{name:'IPDM E4 · スタータ', meta:'スタータ · PG-26 · 固定面', note:'IPDM E4 · スタータ + デフォッガ電源 5/6。'} },
-  ipdm_e5: { en:{name:'IPDM E5 · Cooling fans', meta:'cooling fan · PG-26 · EC-510 · fixed face', note:'IPDM E5 · cooling fan (EC-510) + 7 = ign relay out B/R (PG-14).'}, ja:{name:'IPDM E5 · 冷却ファン', meta:'冷却ファン · PG-26 · 固定面', note:'IPDM E5 · 冷却ファン（EC-510）。'} },
+  ipdm_e4: { en:{name:'IPDM E4 · Starter', meta:'starter · PG-26 · SC-13/14 · fixed face', note:'IPDM E4 (W) · starter 3/4 (SC-13/14) + defogger power 5/6 (PG-13). Face = FSM H.S. wire side, lock up: 4 3 / 6 5.'}, ja:{name:'IPDM E4 · スタータ', meta:'スタータ · PG-26 · 固定面', note:'IPDM E4 · スタータ + デフォッガ電源 5/6。'} },
+  ipdm_e5: { en:{name:'IPDM E5 · Cooling fans', meta:'cooling fan · PG-26 · EC-510 · fixed face', note:'IPDM E5 (B) · fans 8/9/10 (EC-510) + 7 = ign relay out B/R (PG-14). Face = FSM H.S. wire side, lock up: 8 7 / 10 9.'}, ja:{name:'IPDM E5 · 冷却ファン', meta:'冷却ファン · PG-26 · 固定面', note:'IPDM E5 · 冷却ファン（EC-510）。'} },
   ipdm_e6: { en:{name:'IPDM E6 · Fans + 40A', meta:'cooling fan / 40A in · EC-510 · fixed face', note:'IPDM E6 · fans + 40A battery feeds (EC-510).'}, ja:{name:'IPDM E6 · ファン + 40A', meta:'冷却ファン / 40A入力 · 固定面', note:'IPDM E6 · ファン + 40Aバッテリ供給。'} },
+  ipdm_module: { en:{name:'IPDM · plugs as on the module', meta:'E3–E9 · wire side · PG-26', note:'Click a cavity = same as on the individual card. The individual cards stay wire side, lock up.'}, ja:{name:'IPDM · モジュール上の配置', meta:'E3–E9 · 配線側 · PG-26', note:'キャビティをクリック = 個別カードと同じ。個別カードは配線側・ロック上のまま。'} },
   ipdm_legend: {
     en: { name:'IPDM · Relays & fuses', meta:'PG-26 · FSM layout',
       note:'Integrated relays: ECM · Headlamp Hi/Lo · Starter · Cooling fan 1/2/3 · Ignition · Throttle motor · Fuel pump · Front fog (empty). Fuse map: see PG-26.' },
@@ -5595,6 +5690,10 @@ function viewNoteText(id, f){
   const vw = (f && f.viewByTrans && f.viewByTrans[transView()]) || (f && f.view);
   if(!vw) return '';
   const L = (lang === 'en' || lang === 'ja') ? lang : 'es';
+  if(vw.hs){
+    const t = vw.hs[L] || vw.hs.en || '';
+    return L === 'en' ? `View: ${t}` : L === 'ja' ? `表示: ${t}` : `Vista: ${t}`;
+  }
   if(vw.unv){
     const why = vw.unv[L] || vw.unv.en || '';
     return L === 'en' ? `View not verified: ${why}` : L === 'ja' ? `表示は未検証: ${why}` : `Vista sin verificar: ${why}`;
@@ -5655,9 +5754,11 @@ function makeFichaEl(id, f, opts){
       e.preventDefault();
       e.stopPropagation();
       const cavId = cav.dataset.cav;
-      const pin = (f.pins || []).find(x => String(x.id) === String(cavId));
-      if(!cavClickable(id, pin)) return;
-      selectConnPin(cav.dataset.conn || id, cavId);
+      const cavConn = cav.dataset.conn || id;
+      const cavConf = (cavConn !== id && CONN[cavConn]) ? CONN[cavConn] : f;
+      const pin = (cavConf.pins || []).find(x => String(x.id) === String(cavId));
+      if(!cavClickable(cavConn, pin)) return;
+      selectConnPin(cavConn, cavId);
     }
   });
   wrap.appendChild(el);
@@ -5666,7 +5767,7 @@ function makeFichaEl(id, f, opts){
 
 let _fichaOrd = 0;
 /* IPDM: small E3–E6 first; large E7–E9 horizontal last; legend */
-const IPDM_DISPLAY_ORDER = ['ipdm_cover','ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9','ipdm_legend'];
+const IPDM_DISPLAY_ORDER = ['ipdm_module','ipdm_cover','ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9','ipdm_legend'];
 function sortIpdmIds(ids){
   const rank = new Map(IPDM_DISPLAY_ORDER.map((id,i)=>[id,i]));
   return ids.slice().sort((a,b)=>{

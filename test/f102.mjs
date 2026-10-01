@@ -876,7 +876,7 @@ const FSM_FACE = {
   vtc_ex_b1: { mt: "4 3", at: "4 3" },
   vtc_ex_b2: { mt: "2 1", at: "2 1" },
 };
-const FACE_ALLOW = new Set(['ecm_f101_can']);
+const FACE_ALLOW = new Set(['ecm_f101_can', 'ipdm_module']); /* module view: checked by its own rotation test */
 async function fichaFaces() {
   return page.evaluate(() => {
     document.querySelectorAll('#fichas details').forEach((d) => { d.open = true; });
@@ -938,7 +938,7 @@ for (const model of ['de_revup', 'de_early']) {
   });
   ok(/^Vista: cara hembra F13 \(EC-229 T\.S\.: 2-1\)/.test(vn.es[0]) && /^View: F13 female face \(EC-229 T\.S\.: 2-1\)/.test(vn.en[0]) && /^表示: F13メス側の面（EC-229 T\.S\.: 2-1/.test(vn.ja[0]),
     `view note localized es/en/ja (${vn.es[0]} | ${vn.en[0]} | ${vn.ja[0]})`);
-  ok(/^Vista sin verificar/.test(vn.es[1]) && /^View not verified/.test(vn.en[1]) && /^表示は未検証/.test(vn.ja[1]), 'IPDM view marked unverified in es/en/ja');
+  ok(/^Vista: dibujo H\.S\. del FSM 2005 \(lado CABLES, traba arriba\)/.test(vn.es[1]) && /^View: 2005 FSM H\.S\. drawing \(WIRE side, lock up\)/.test(vn.en[1]) && /^表示: 2005 FSM H\.S\.図（配線側・ロック上）/.test(vn.ja[1]), 'IPDM view = FSM H.S. wire side, lock up in es/en/ja');
 }
 await page.select('#ecmOrient', 'invertida');
 
@@ -1177,6 +1177,63 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
   ok(!mot2, 'Arnés motor: E11/F2·1 click does not resurrect the hidden fuse card');
   await page.evaluate(() => clearSelection());
   await setLoom('all');
+}
+
+
+console.log('\nIPDM module view: E3–E9 turned as PG-26 (wire side, no mirror) + real-cavity clicks');
+{
+  await page.evaluate(() => { const s = document.getElementById('loomView'); s.value = 'all'; s.dispatchEvent(new Event('change', { bubbles: true })); });
+  const PG26 = {
+    ipdm_e3: '2 / 1', ipdm_e4: '3 5 / 4 6', ipdm_e5: '7 9 / 8 10', ipdm_e6: '14 15 16 / 11 12 13',
+    ipdm_e7: '17 24 / 18 25 / 19 26 / 27 / 28 / 20 29 / 21 30 / 22 31 / 23 32',
+    ipdm_e8: '44 37 / 43 36 / 42 / 41 / 40 35 / 39 34 / 38 33',
+    ipdm_e9: '53 54 55 56 57 58 59 60 / 45 46 47 48 49 50 51 52',
+  };
+  const ROT = { ipdm_e3: '180', ipdm_e4: '-90', ipdm_e5: '-90', ipdm_e6: '180', ipdm_e7: '-90', ipdm_e8: '90', ipdm_e9: '180' };
+  const mod = await page.evaluate(() => {
+    document.querySelectorAll('#fichas details').forEach((d) => { d.open = true; });
+    const card = document.querySelector('#fichas .ficha[data-conn="ipdm_module"]');
+    if (!card) return null;
+    const out = {};
+    card.querySelectorAll('.ipdm-mod-plug').forEach((g) => {
+      const cavs = [...g.querySelectorAll('.cav-hit')].map((e) => { const b = e.getBoundingClientRect(); return { id: e.dataset.cav, conn: e.dataset.conn, x: b.x, y: Math.round(b.y) }; });
+      const rows = {}; cavs.forEach((c) => (rows[c.y] = rows[c.y] || []).push(c));
+      const order = Object.keys(rows).sort((a, b) => a - b).map((y) => rows[y].sort((a, b) => a.x - b.x).map((c) => c.id).join(' ')).join(' / ');
+      out[g.dataset.plug] = { order, rot: g.dataset.rot, conns: [...new Set(cavs.map((c) => c.conn))].join(','), locks: g.querySelectorAll('.ipdm-mod-lock').length };
+    });
+    return out;
+  });
+  ok(!!mod, 'IPDM module ficha rendered');
+  if (mod) {
+    for (const [cid, want] of Object.entries(PG26)) {
+      const m = mod[cid] || {};
+      ok(m.order === want && m.rot === ROT[cid] && m.conns === cid, `module ${cid}: ${m.order} (PG-26 ${want}), rot ${m.rot}, cavities belong to ${m.conns}`);
+    }
+    ok(mod.ipdm_e7.locks === 2 && mod.ipdm_e8.locks === 2, 'module E7/E8: lock cells inside the grid (beside 19/20 and 42/41)');
+    /* pure rotation check: turning each verified H.S. card face reproduces the module grid */
+    const rotOk = await page.evaluate(() => IPDM_MODULE_PLUGS.every((pl) => {
+      const g = ipdmRotateGrid(pl.hs, pl.rot);
+      const back = ipdmRotateGrid(g, pl.rot === 90 ? -90 : pl.rot === -90 ? 90 : pl.rot);
+      return JSON.stringify(back) === JSON.stringify(pl.hs);
+    }) && JSON.stringify(ipdmRotateGrid([['a','b'],['c','d']], 90)) === JSON.stringify([['c','a'],['d','b']])
+       && JSON.stringify(ipdmRotateGrid([['a','b'],['c','d']], -90)) === JSON.stringify([['b','d'],['a','c']])
+       && JSON.stringify(ipdmRotateGrid([['a','b'],['c','d']], 180)) === JSON.stringify([['d','c'],['b','a']]));
+    ok(rotOk, 'ipdmRotateGrid: CW/CCW/180 are pure turns (invertible, never mirrored)');
+  }
+  /* click in the module view = click on the plug card: E8·40 (FPR) lights both copies + E108·28G + F102·6H */
+  await page.evaluate(() => clearSelection());
+  const clk = await page.evaluate(() => {
+    const el = document.querySelector('#fichas .ficha[data-conn="ipdm_module"] .cav-hit[data-conn="ipdm_e8"][data-cav="40"] .cav-face');
+    if (!el) return null;
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    const all = [...document.querySelectorAll('.cav-hit[data-conn="ipdm_e8"][data-cav="40"]')];
+    const e108 = [...document.querySelectorAll('.cav-hit[data-conn="ix_e108_m15"][data-cav="28G"]')].some((e) => e.classList.contains('hl') || e.classList.contains('hl-group'));
+    const p6 = f102PinEl('6H');
+    const modCard = document.querySelector('#fichas .ficha[data-conn="ipdm_module"]');
+    return { modHl: !!modCard && modCard.classList.contains('hl'), n: all.length, lit: all.filter((e) => e.classList.contains('hl') || e.classList.contains('hl-group')).length, circs: [...lastCircIds].join(','), e108, h6: !!p6 && (p6.classList.contains('hl') || p6.classList.contains('hl-group')) };
+  });
+  ok(clk && clk.modHl && clk.n >= 2 && clk.lit === clk.n && clk.circs === 'fp_relay' && clk.e108 && clk.h6, `module E8·40 click lights card + module cavity (module ficha lit, not dimmed), E108·28G, F102·6H (${JSON.stringify(clk)})`);
+  await page.evaluate(() => clearSelection());
 }
 
 await browser.close();

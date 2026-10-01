@@ -1747,6 +1747,7 @@
   "e17": "ground point E17 (ring) - see ground_points",
   "f23_gnd": "ground point F23 (ring) - see ground_points",
   "ipdm_legend": "IPDM relay/fuse legend, not a connector",
+  "ipdm_module": "IPDM module view: the E3-E9 cards turned as PG-26 (same cavities, data-conn = real plug)",
   "ecm_f101_can": "excerpt of ECM connector F101 (CAN pins) - ECM itself, not an intermediate",
   "ix_f103_f151": "hidden duplicate of gnd4 (F103/F151)",
   "feed_af_12v": "synthetic 12V feed card (A/F heater supply)",

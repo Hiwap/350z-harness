@@ -174,6 +174,14 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     && /function svgIpdmE4[\s\S]*?const top = \['4','3'\];\s*const bot = \['6','5'\];/.test(html)
     && /function svgIpdmE5[\s\S]*?const top = \['8','7'\];\s*const bot = \['10','9'\];/.test(html)
     && /function svgIpdmE6[\s\S]*?const top = \['13','12','11'\];\s*const bot = \['16','15','14'\];/.test(html));
+  ok('IPDM module view ficha: shape ipdm_module, first in IPDM order, hs view, es/en/ja names',
+    /  ipdm_module:\{group:'motor', sub:'ipdm', name:'IPDM · fichas como en el módulo'[^\n]*shape:'ipdm_module', view:\{hs:\{es:'[^']+',en:'[^']+',ja:'[^']+'\}\}/.test(html)
+    && /const IPDM_DISPLAY_ORDER = \['ipdm_module','ipdm_cover'/.test(html) && /ipdm_module: \{ en:\{name:'IPDM · plugs as on the module'/.test(html)
+    && /case 'ipdm_module': svg = svgIpdmModule\(cid,f\)/.test(html));
+  ok('IPDM module rotations = PG-26 (E7/E4/E5 −90, E8 +90, E3/E6/E9 180)',
+    /cid:'ipdm_e4'[^\n]*rot:-90/.test(html) && /cid:'ipdm_e7'[^\n]*rot:-90/.test(html) && /cid:'ipdm_e8'[^\n]*rot:90,/.test(html)
+    && /cid:'ipdm_e3'[^\n]*rot:180/.test(html) && /cid:'ipdm_e5'[^\n]*rot:-90/.test(html) && /cid:'ipdm_e6'[^\n]*rot:180/.test(html) && /cid:'ipdm_e9'[^\n]*rot:180/.test(html));
+  ok('card click handler uses the cavity\'s own connector (module view)', /const cavConn = cav\.dataset\.conn \|\| id;/.test(html));
   /* F102·10H = DLC signal ground (EC-742): DLC M8·5 B/W → M72·10H → F102·10H → F103·2 (ECM 115 splice) → F152 */
   ok('F102·10H B/W GND rail, src F103·2, circ dlc_gnd (EC-742)',
     /\{id:'10H',code:'B\/W',ecm:null,rail:'gnd',lab:'GND',src:'F103·2',srcSub:'power',circ:'dlc_gnd',note:'[^']*EC-742[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html));
