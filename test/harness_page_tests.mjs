@@ -353,6 +353,10 @@ ok('rail-focus helpers present (stay in rail on re-click)',
         && ['evap_vent','evap_press'].every((c) => locIds.some((m) => m[1] === c && m[2] === '63'))
         && ['alt_b','alt_e'].every((c) => locIds.some((m) => m[1] === c && m[2] === '53')) && (html.match(/    locPg53: '/g) || []).length === 3
         && (html.match(/    locPg57: '/g) || []).length === 3 && (html.match(/    locPg48: '/g) || []).length === 3 && (html.match(/    locPg63: '/g) || []).length === 3);
+      ok('CKP location = single FSM EC-113 view from under the vehicle, sensor marked, plain es/en/ja note (under the car, engine–transmission joint)',
+        /\n  ckp: \{src:'faces\/loc\/ec113_ckp\.webp', ref:'EC-113', note:'locCkpNote', m:\[\[[\d.,]+\]\]\},/.test(html)
+        && fs.existsSync(path.join(ROOT, 'faces/loc/ec113_ckp.webp'))
+        && /locCkpNote: 'Está ABAJO del auto, en la unión motor–caja/.test(html) && /locCkpNote: 'It is UNDER the car, at the engine–transmission joint/.test(html) && /locCkpNote: '車両の下側、エンジンとトランスミッションの継ぎ目/.test(html));
       ok('IPDM location only on the IPDM group header: PG-50 with the 7 E3–E9 callouts, next to the group camera',
         /const IPDM_GROUP_LOC = \{pg:50, m:\[(\[[\d.]+,[\d.]+,[\d.]+,[\d.]+\],?){7}\]\};/.test(html)
         && /function addIpdmGroupBtn\(sum\)\{\s*sum\.insertAdjacentHTML\('beforeend', locBtnHtml\('ipdm_group'\)\);/.test(html));

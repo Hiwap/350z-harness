@@ -1204,8 +1204,8 @@ console.log('\nLocation icon: FSM PG harness layout with the callout(s) highligh
     const selShown = document.querySelectorAll('#fichas .sel-top .ficha[data-conn="ipdm_e8"]').length;
     clearSelection();
     const interNo = [...document.querySelectorAll('#fichas details.ficha-sec[data-sub="intermedias"]:not(.sel-top) .ficha[data-conn]')].map((f) => f.dataset.conn).filter((c) => !document.querySelector(`#fichas .ficha[data-conn="${c}"] .ficha-loc-btn`));
-    const b1 = open('ix_b1_m12'); const dlcL = open('dlc');
-    return { interNo, b1, dlcL, grp, order, ipdmCardsLoc, ipdmSelLoc, selShown, stay, ect: open('ect'), ho2s: open('ho2s_b1'), e8: grp, f102: open('ix_f102_m72', document.getElementById('f102Panel')), btnCount, noLoc, after: document.getElementById('faceLightbox').querySelectorAll('.ipdm-mark:not([hidden])').length };
+    const b1 = open('ix_b1_m12'); const ckpL = open('ckp'); const dlcL = open('dlc');
+    return { interNo, b1, dlcL, ckpL, grp, order, ipdmCardsLoc, ipdmSelLoc, selShown, stay, ect: open('ect'), ho2s: open('ho2s_b1'), e8: grp, f102: open('ix_f102_m72', document.getElementById('f102Panel')), btnCount, noLoc, after: document.getElementById('faceLightbox').querySelectorAll('.ipdm-mark:not([hidden])').length };
   });
   ok(loc.ect && loc.ect.open && loc.ect.src === 'faces/loc/pg54.webp' && loc.ect.marks === 1 && /^FSM 2005 · PG-54 · /.test(loc.ect.cap) && loc.ect.sel == null,
     `ECT (F13) location → PG-54, 1 callout marked, no selection change (${JSON.stringify(loc.ect)})`);
@@ -1216,6 +1216,8 @@ console.log('\nLocation icon: FSM PG harness layout with the callout(s) highligh
   ok(loc.ipdmCardsLoc === 0 && loc.ipdmSelLoc === 0, `no location icon on IPDM E3–E9 cards, nor in Seleccionados (${loc.ipdmCardsLoc}/${loc.ipdmSelLoc}, sel shown ${loc.selShown})`);
   ok(loc.interNo.length === 0 && loc.b1 && loc.b1.src === 'faces/loc/pg57.webp' && loc.b1.marks === 1 && loc.dlcL && loc.dlcL.src === 'faces/loc/pg48.webp' && /PG-48/.test(loc.dlcL.cap),
     `every intermedias card has a location (missing: ${loc.interNo.join(',')}); B1/M12 → PG-57, DLC M8 → PG-48`);
+  ok(loc.ckpL && loc.ckpL.src === 'faces/loc/ec113_ckp.webp' && loc.ckpL.marks === 1 && /^FSM 2005 · EC-113 · /.test(loc.ckpL.cap) && /ABAJO del auto, en la unión motor–caja/.test(loc.ckpL.cap),
+    `CKP location opens the single EC-113 under-car view with the sensor marked (${JSON.stringify(loc.ckpL)})`);
   ok(loc.btnCount >= 60 && loc.noLoc.length === 0, `location icon only where the FSM shows the connector (${loc.btnCount} fichas; unexpected on: ${loc.noLoc.join(',')})`);
 }
 

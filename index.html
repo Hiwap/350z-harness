@@ -3941,6 +3941,7 @@ const I18N = {
     locPg52: 'Arnés vano motor · habitáculo',
     locPg54: 'Arnés control motor · vano motor',
     locPg56: 'Arnés control motor · habitáculo',
+    locCkpNote: 'Está ABAJO del auto, en la unión motor–caja: parte trasera del cárter, junto a la tapa trasera (EM-28), frente a la placa de señal, justo antes de la campana. Sensor chico con un tornillo y ficha negra de 3 pines (F10 B/3). Vista desde abajo.',
     locPg53: 'Cable de batería · vano motor',
     locPg48: 'Arnés principal · tablero / habitáculo',
     locPg57: 'Arnés de carrocería (Coupé)',
@@ -4137,6 +4138,7 @@ const I18N = {
     locPg52: 'Engine room harness · passenger compartment',
     locPg54: 'Engine control harness · engine compartment',
     locPg56: 'Engine control harness · passenger compartment',
+    locCkpNote: 'It is UNDER the car, at the engine–transmission joint: rear of the oil pan next to the rear cover plate (EM-28), facing the signal plate, just before the bellhousing. Small sensor with one bolt and a black 3-pin connector (F10 B/3). View from below.',
     locPg53: 'Battery cable · engine compartment',
     locPg48: 'Main harness · instrument panel / cabin',
     locPg57: 'Body harness (Coupe)',
@@ -4333,6 +4335,7 @@ const I18N = {
     locPg52: 'エンジンルームハーネス · 車室内',
     locPg54: 'エンジンコントロールハーネス · エンジンルーム',
     locPg56: 'エンジンコントロールハーネス · 車室内',
+    locCkpNote: '車両の下側、エンジンとトランスミッションの継ぎ目：オイルパン後部のリヤカバープレート横（EM-28）、シグナルプレートに面した位置、ベルハウジングの手前。ボルト1本の小さなセンサーと黒い3ピンコネクタ（F10 B/3）。下から見た図。',
     locPg53: 'バッテリケーブル · エンジンルーム',
     locPg48: 'メインハーネス · インパネ / 車室内',
     locPg57: 'ボディハーネス（クーペ）',
@@ -4933,7 +4936,7 @@ const CONN_LOC = {
   ho2s_b2: {pg:54, m:[[67.22,12.41,4.47,3.23],[71.06,16.11,4.47,3.28]]},
   maf: {pg:54, m:[[63.59,73.11,4.51,3.23]]},
   knock: {pg:54, m:[[37.88,72.27,4.47,3.28]]},
-  ckp: {pg:54, m:[[74.47,50.77,4.47,3.23]]},
+  ckp: {src:'faces/loc/ec113_ckp.webp', ref:'EC-113', note:'locCkpNote', m:[[41.5,39.29,9.75,14.16]]},
   cmp_b1: {pg:54, m:[[53.26,6.32,4.47,3.28]]},
   cmp_b2: {pg:54, m:[[73.22,54.19,4.51,3.23]]},
   ect: {pg:54, m:[[50.84,11.33,4.47,3.23]]},
@@ -5005,12 +5008,14 @@ function openLocLightbox(cid){
   const srcEl = root.querySelector('.face-lb-src');
   const closeBtn = root.querySelector('.face-lb-close');
   const name = cid === 'ipdm_group' ? 'IPDM E/R · E3–E9' : ((CONN[cid] && connField(cid, CONN[cid], 'name')) || cid);
-  img.src = LOC_PAGES[loc.pg];
+  img.src = loc.src || LOC_PAGES[loc.pg];
   img.alt = t('locOpen') + ' · ' + name;
   closeBtn.setAttribute('aria-label', t('facePhotoClose'));
   setLightboxMarks(loc.m.map(b => ({l:b[0], t:b[1], w:b[2], h:b[3]})));
   srcEl.hidden = false;
-  srcEl.textContent = `FSM 2005 · PG-${loc.pg} · ${t('locPg' + loc.pg)} · ${name} — ${t('locHint')}`;
+  srcEl.textContent = loc.ref
+    ? `FSM 2005 · ${loc.ref} · ${name} — ${t(loc.note)}`
+    : `FSM 2005 · PG-${loc.pg} · ${t('locPg' + loc.pg)} · ${name} — ${t('locHint')}`;
   _faceLbPrevFocus = document.activeElement;
   root.classList.add('open');
   closeBtn.focus();
