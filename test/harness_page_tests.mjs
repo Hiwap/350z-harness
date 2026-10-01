@@ -176,6 +176,9 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     && /ipdm_e6: \{ hs:\[\['13','12','11'\],\['16','15','14'\]\], rot:180 \}/.test(html));
   ok('IPDM E3–E9 cards drawn by svgIpdmPlug (rotated H.S., no mirror)',
     ['e3','e4','e5','e6','e7','e8','e9'].every(e => new RegExp(`case 'ipdm_${e}': svg = svgIpdmPlug\\(cid,f\\)`).test(html)));
+  ok('selection keeps the clicked card lit + retarget keeps a cav: key (deselect bug: E7·18/26, E8·42, E10·2, F18·5/6)',
+    /if\(focusConn && CONN\[focusConn\] && !SKIP_SEL_CONN\.has\(focusConn\)\) connSet\.add\(focusConn\);/.test(html)
+    && /if\(focusConn && focusCav != null\) selKey = 'cav:' \+ focusConn \+ ':' \+ focusCav;/.test(html));
   ok('no combined IPDM module card', !/ipdm_module|svgIpdmModule|IPDM_MODULE_PLUGS/.test(html));
   ok('IPDM card view notes = wire side as on the IPDM (es/en/ja)',
     ['e3','e4','e5','e6','e7','e8','e9'].every(e => new RegExp(`  ipdm_${e}:\\{group:'motor'[^\\n]*view:\\{hs:\\{es:'lado CABLES, orientada como en el IPDM \\(PG-26\\), traba [^']+',en:'WIRE side, oriented as on the IPDM \\(PG-26\\), lock [^']+',ja:'配線側、IPDM上の向き（PG-26）、ロック[^']+'\\}\\}`).test(html)));

@@ -6099,13 +6099,12 @@ function retargetSelection(focusPin, focusConn, focusCav){
   if(!lastCircIds.length) return false;
   const n = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
   selectCircuits(lastCircIds, n, focusConn || null, focusCav != null ? String(focusCav) : null);
-  if(n!=null){
-    selFocusPin = n;
-    selKey = (focusConn && focusCav != null) ? ('cav:' + focusConn + ':' + focusCav) : ('pin:' + String(n));
-  } else if(focusConn){
-    selFocusPin = null;
-    selKey = 'conn:' + focusConn;
-  }
+  /* Retarget onto a cavity keeps a cav: key even without an ECM pin (F18·5/6 12V), so the
+     same cavity clicked again deselects instead of sticking on 'conn:'. */
+  selFocusPin = n;
+  if(focusConn && focusCav != null) selKey = 'cav:' + focusConn + ':' + focusCav;
+  else if(n!=null) selKey = 'pin:' + String(n);
+  else if(focusConn) selKey = 'conn:' + focusConn;
   return true;
 }
 
@@ -7073,6 +7072,10 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     }
   }
   SKIP_SEL_CONN.forEach(id => connSet.delete(id));
+  /* The clicked card always stays in the selection (lit, its group open), even when the circuit's
+     conn list does not name it (e.g. IPDM E7·18 → ECM 119, E8·42 → ECM 3, E7·26 / E10·2 → backup_lamp).
+     Otherwise its group collapses and the 2nd click that should deselect cannot be made. */
+  if(focusConn && CONN[focusConn] && !SKIP_SEL_CONN.has(focusConn)) connSet.add(focusConn);
   ecmSet.forEach(p=>{
     const el=document.querySelector(`#blocks .pin[data-pin="${p}"]`);
     if(!el) return;

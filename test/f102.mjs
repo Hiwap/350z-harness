@@ -1178,6 +1178,58 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
 }
 
 
+console.log('\nDeselect sweep: every cavity on intermedias / IPDM / F103 cards + F102 panel toggles off (x2, A→B→A→A, Seleccionados copy)');
+{
+  await page.evaluate(() => { const s = document.getElementById('loomView'); s.value = 'all'; s.dispatchEvent(new Event('change', { bubbles: true })); });
+  const sw = await page.evaluate(() => {
+    document.querySelectorAll('#fichas details').forEach((d) => { d.open = true; });
+    const st = () => ({ selKey, circs: lastCircIds.length, rails: activeRails.size,
+      hl: document.querySelectorAll('.hl, .hl-group, .hl-end, .hl-rail').length, dim: document.querySelectorAll('.dim').length,
+      selTop: document.querySelectorAll('#fichas .sel-top').length, locked: !!document.getElementById('info').dataset.locked });
+    const empty = (s) => s.selKey == null && !s.circs && !s.rails && !s.hl && !s.dim && !s.selTop && !s.locked;
+    const elOf = (t, top) => t.f102 ? document.querySelector(`#f102Blocks .pin[data-conn="ix_f102_m72"][data-cav="${CSS.escape(t.cav)}"]`)
+      : document.querySelector(`#fichas details.ficha-sec${top ? '.sel-top' : ':not(.sel-top)'} .ficha-wrap[data-conn="${t.cid}"] .cav-hit[data-cav="${CSS.escape(t.cav)}"] .cav-face`);
+    /* a real user can only click again what is still on screen: every <details> above it open, card not dimmed */
+    const reachable = (el) => { if (!el) return false; for (let d = el.closest('details'); d; d = d.parentElement && d.parentElement.closest('details')) if (!d.open) return false;
+      const card = el.closest('.ficha'); return !(card && card.classList.contains('dim')); };
+    const click = (t, top) => { const el = elOf(t, top); if (!el) return false; el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); return true; };
+    const cids = [...new Set([...document.querySelectorAll('#fichas details.ficha-sec:not(.sel-top) .ficha-wrap[data-conn]')].map((e) => e.dataset.conn))].filter((c) => /^ix_|^ipdm_|^gnd4$/.test(c));
+    const targets = [];
+    cids.forEach((cid) => [...new Set([...document.querySelectorAll(`#fichas details.ficha-sec:not(.sel-top) .ficha-wrap[data-conn="${cid}"] .cav-hit:not(.cav-noclick)`)].map((e) => e.dataset.cav))].forEach((cav) => targets.push({ cid, cav })));
+    document.querySelectorAll('#f102Blocks .pin[data-conn="ix_f102_m72"][data-cav]:not(.empty)').forEach((p) => targets.push({ cid: 'ix_f102_m72', cav: p.dataset.cav, f102: true }));
+    const fails = []; const live = [];
+    for (const t of targets) {
+      clearSelection();
+      click(t, false);
+      if (selKey == null) continue;
+      live.push(t);
+      if (!reachable(elOf(t, false))) fails.push(`${t.cid}·${t.cav}: clicked card hidden/dimmed after select`);
+      click(t, false);
+      if (!empty(st())) fails.push(`${t.cid}·${t.cav}: 2nd click left ${JSON.stringify(st())}`);
+      if (!t.f102) {
+        clearSelection(); click(t, false);
+        if (elOf(t, true)) { click(t, true); if (!empty(st())) fails.push(`${t.cid}·${t.cav}: Seleccionados copy click left ${JSON.stringify(st())}`); }
+      }
+    }
+    let nab = 0;
+    for (let i = 0; i + 1 < live.length; i++) {
+      const A = live[i], B = live[i + 1];
+      if (A.cid !== B.cid || !!A.f102 !== !!B.f102) continue;
+      nab++;
+      clearSelection(); click(A, false); click(B, false); click(A, false);
+      const kA = `cav:${A.cid}:${A.cav}`;
+      if (selKey !== kA && !String(selKey).startsWith('pin:')) fails.push(`${A.cid} ${A.cav}→${B.cav}→${A.cav}: selKey ${selKey}`);
+      if (!reachable(elOf(A, false))) fails.push(`${A.cid} ${A.cav}→${B.cav}→${A.cav}: card hidden/dimmed`);
+      click(A, false);
+      if (!empty(st())) fails.push(`${A.cid} ${A.cav}→${B.cav}→${A.cav}→${A.cav}: left ${JSON.stringify(st())}`);
+    }
+    clearSelection();
+    return { n: targets.length, live: live.length, nab, cards: cids.length, fails };
+  });
+  ok(sw.live >= 100 && sw.nab >= 80 && sw.fails.length === 0,
+    `deselect sweep: ${sw.cards} cards, ${sw.live}/${sw.n} clickable cavities, ${sw.nab} A→B→A→A pairs (${sw.fails.slice(0, 8).join(' | ')})`);
+}
+
 console.log('\nIPDM cards E3–E9 turned as on the IPDM (PG-26): wire side, never mirrored, lock on the right side');
 {
   await page.evaluate(() => { const s = document.getElementById('loomView'); s.value = 'all'; s.dispatchEvent(new Event('change', { bubbles: true })); });
