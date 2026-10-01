@@ -1859,9 +1859,9 @@ const CONN_BASE = {
   /* —— Poder / tierras · ficha del plug ECM (EC-123) —— */
 
 
-  ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3', view:{unv:{es:'el FSM 2005 no dibuja la cara T.S. del conector del arnés (solo el zócalo del IPDM en PG-26 y la vista H.S. del lado cables); se mantiene la vista por defecto anterior (espejo de PG-26), fija.',en:'the 2005 FSM has no T.S. drawing of this harness plug (only the IPDM socket on PG-26 and the H.S. wire-side view); the previous default view (mirror of PG-26) is kept, fixed.',ja:'2005 FSMにはこのハーネス側コネクタのT.S.図がない（PG-26のIPDMソケットとH.S.配線側図のみ）。以前の既定表示（PG-26の鏡像）を固定で維持。'}},
+  ipdm_e3:{group:'motor', sub:'ipdm', name:'IPDM E3 · Batería', meta:'2-pin · entrada 12V · PG-26', accent:'#ef5350', shape:'ipdm_e3', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 1 / 2 · PG-14; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 1 / 2 · PG-14; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 1 / 2 · PG-14。PG-26は同じ面を回転。端子側からは左右反転。'}},
     pins:[
-      {id:'1',src:'BATT',srcSub:'power',code:'W',ecm:null,rail:'12v',note:'Entrada de batería al IPDM.',note_en:'Battery 12V in (W) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W) · ヒュージブルリンク · PG-27。'},
+      {id:'1',src:'BATT',srcSub:'power',code:'W',ecm:null,rail:'12v',note:'Entrada batería 12V (W) desde fusible link 80A E (E1/E2·3) · PG-14 / PG-27.',note_en:'Battery 12V in (W) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W) · ヒュージブルリンク · PG-27。'},
       {id:'2',src:'BATT',srcSub:'power',code:'W/L',ecm:null,rail:'12v',note:'Entrada batería 12V (W/L) desde fusible links · PG-27.',note_en:'Battery 12V in (W/L) from fusible links · PG-27.',note_ja:'バッテリ12V入力 (W/L) · ヒュージブルリンク · PG-27。'}
     ],
     note:'Entrada de batería al IPDM (2 pines).'},
@@ -1921,29 +1921,29 @@ const CONN_BASE = {
       {id:'60',src:'E17',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra señal IPDM → body E17 (B) · PG-27 / LT-16.',note_en:'IPDM signal ground → body E17 (B) · PG-27 / LT-16.',note_ja:'IPDM信号アース → ボディ E17 (B) · PG-27。'}
     ],
     note:'IPDM E9: SSOFF · MOTRLY · CAN · masas · arranque/defog.'},
-  ipdm_e4:{group:'motor', sub:'ipdm', name:'IPDM E4 · Arranque', meta:'arranque · PG-26 · SC-13/14 · cara fija', accent:'#ef5350', shape:'ipdm_e4', view:{unv:{es:'el FSM 2005 no dibuja la cara T.S. del conector del arnés (solo el zócalo del IPDM en PG-26 y la vista H.S. del lado cables); se mantiene la vista por defecto anterior (espejo de PG-26), fija.',en:'the 2005 FSM has no T.S. drawing of this harness plug (only the IPDM socket on PG-26 and the H.S. wire-side view); the previous default view (mirror of PG-26) is kept, fixed.',ja:'2005 FSMにはこのハーネス側コネクタのT.S.図がない（PG-26のIPDMソケットとH.S.配線側図のみ）。以前の既定表示（PG-26の鏡像）を固定で維持。'}},
+  ipdm_e4:{group:'motor', sub:'ipdm', name:'IPDM E4 · Arranque', meta:'arranque · PG-26 · SC-13/14 · cara fija', accent:'#ef5350', shape:'ipdm_e4', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 4 3 / 6 5 · SC-13 / PG-13; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 4 3 / 6 5 · SC-13 / PG-13; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 4 3 / 6 5 · SC-13 / PG-13。PG-26は同じ面を回転。端子側からは左右反転。'}},
     pins:[
-      {id:'3',src:'STR·RLY',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',circ:'starter',note:'Salida de arranque del IPDM.',note_en:'Starter relay out → starter motor pin1 via E10/F1 cav1 (B/Y) · SC-13/14.',note_ja:'スタータリレー出力 → スタータ pin1（E10/F1経由）(B/Y) · SC-13/14。'},
+      {id:'3',src:'STR·RLY',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',circ:'starter',note:'Salida relé arranque B/Y → motor arranque pin1 vía E10/F1 cav1 · SC-13/14.',note_en:'Starter relay out → starter motor pin1 via E10/F1 cav1 (B/Y) · SC-13/14.',note_ja:'スタータリレー出力 → スタータ pin1（E10/F1経由）(B/Y) · SC-13/14。'},
       {id:'4',src:'IGN·SW',srcSub:'power',code:'W/R',ecm:null,rail:'12v',note:'Entrada START desde interruptor de encendido pin5 (W/R) · SC-13/14.',note_en:'START input from ignition switch pin5 (W/R) · SC-13/14.',note_ja:'イグニッションSW pin5 からの START 入力 (W/R) · SC-13/14。'},
       {id:'5',src:'F80',srcSub:'fuses',code:'P',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 80) → B34 vía E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 80) → B34 via E107/B3 · CP:P / RS:R · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ80）→ B34（E107/B3経由）· CP:P / RS:R · PG-13 / GW-63。'},
       {id:'6',src:'F75',srcSub:'fuses',code:'W',ecm:null,rail:'12v',note:'Alimentación relé desempañador luneta (fusible 75) W → B34 pin3 vía E107/B3 · PG-13 / GW-63.',note_en:'Rear window defogger relay power (fuse 75) W → B34 pin3 via E107/B3 · PG-13 / GW-63.',note_ja:'リヤデフォッガリレー電源（ヒューズ75）W → B34 pin3（E107/B3経由）· PG-13 / GW-63。'}
-    ], note:'IPDM E4 · starter (SC) + defogger power 5/6 (PG-13/GW-63). Cara PG-26 H.S.: top 3-5 / bot 4-6 · vista fija (sin verificar).'},
-  ipdm_e5:{group:'motor', sub:'ipdm', name:'IPDM E5 · Ventiladores', meta:'ventiladores · PG-26 · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e5', view:{unv:{es:'el FSM 2005 no dibuja la cara T.S. del conector del arnés (solo el zócalo del IPDM en PG-26 y la vista H.S. del lado cables); se mantiene la vista por defecto anterior (espejo de PG-26), fija.',en:'the 2005 FSM has no T.S. drawing of this harness plug (only the IPDM socket on PG-26 and the H.S. wire-side view); the previous default view (mirror of PG-26) is kept, fixed.',ja:'2005 FSMにはこのハーネス側コネクタのT.S.図がない（PG-26のIPDMソケットとH.S.配線側図のみ）。以前の既定表示（PG-26の鏡像）を固定で維持。'}},
+    ], note:'IPDM E4 (W) · arranque 3/4 (SC-13/14) + desempañador 5/6 (PG-13). Cara = FSM H.S. lado cables, traba arriba: 4 3 / 6 5.'},
+  ipdm_e5:{group:'motor', sub:'ipdm', name:'IPDM E5 · Ventiladores', meta:'ventiladores · PG-26 · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e5', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 8 7 / 10 9 · EC-510 / PG-14; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 8 7 / 10 9 · EC-510 / PG-14; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 8 7 / 10 9 · EC-510 / PG-14。PG-26は同じ面を回転。端子側からは左右反転。'}},
     pins:[
-      {id:'7',src:'IGN·RLY',srcSub:'ipdm',code:'B/R',ecm:null,rail:'12v',note:'Salida +IG / ventiladores (ver pines).',note_en:'IPDM ignition relay output (+IG) B/R → PG-POWER-07 · PG-14.',note_ja:'IPDMイグニッションリレー出力 (+IG) B/R → PG-POWER-07 · PG-14。'},
+      {id:'7',src:'IGN·RLY',srcSub:'ipdm',code:'B/R',ecm:null,rail:'12v',note:'Salida relé de encendido (+IG) B/R → PG-POWER-07 · PG-14.',note_en:'IPDM ignition relay output (+IG) B/R → PG-POWER-07 · PG-14.',note_ja:'IPDMイグニッションリレー出力 (+IG) B/R → PG-POWER-07 · PG-14。'},
       {id:'8',src:'FAN3',srcSub:'ipdm',code:'B/Y',ecm:null,rail:'12v',note:'Relé ventilador-3 → motor ventilador-1 pin1 (B/Y) · EC-510.',note_en:'Cooling fan relay-3 → fan motor-1 pin1 (B/Y) · EC-510.',note_ja:'冷却ファンリレー3 → ファンモータ1 pin1 (B/Y) · EC-510。'},
       {id:'9',src:'FAN2',srcSub:'ipdm',code:'Y',ecm:null,rail:'12v',note:'Relé ventilador-2 → motores pin4 (Y) · EC-510.',note_en:'Cooling fan relay-2 → motors pin4 (Y) · EC-510.',note_ja:'冷却ファンリレー2 → モータ pin4 (Y) · EC-510。'},
       {id:'10',src:'FAN1',srcSub:'ipdm',code:'R/W',ecm:null,rail:'12v',note:'Relé ventilador-1 → motor ventilador-2 pin2 (R/W) · EC-510.',note_en:'Cooling fan relay-1 → fan motor-2 pin2 (R/W) · EC-510.',note_ja:'冷却ファンリレー1 → ファンモータ2 pin2 (R/W) · EC-510。'}
-    ], note:'IPDM E5 · cooling fan (EC-510) + 7 = ign relay out B/R (PG-14). Cara PG-26 H.S.: top 7-9 / bot 8-10 · vista fija (sin verificar).'},
-  ipdm_e6:{group:'motor', sub:'ipdm', name:'IPDM E6 · Ventiladores + 40A', meta:'ventiladores / 40A · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e6', view:{unv:{es:'el FSM 2005 no dibuja la cara T.S. del conector del arnés (solo el zócalo del IPDM en PG-26 y la vista H.S. del lado cables); se mantiene la vista por defecto anterior (espejo de PG-26), fija.',en:'the 2005 FSM has no T.S. drawing of this harness plug (only the IPDM socket on PG-26 and the H.S. wire-side view); the previous default view (mirror of PG-26) is kept, fixed.',ja:'2005 FSMにはこのハーネス側コネクタのT.S.図がない（PG-26のIPDMソケットとH.S.配線側図のみ）。以前の既定表示（PG-26の鏡像）を固定で維持。'}},
+    ], note:'IPDM E5 (B) · ventiladores 8/9/10 (EC-510) + 7 = salida relé IGN B/R (PG-14). Cara = FSM H.S. lado cables, traba arriba: 8 7 / 10 9.'},
+  ipdm_e6:{group:'motor', sub:'ipdm', name:'IPDM E6 · Ventiladores + 40A', meta:'ventiladores / 40A · EC-510 · cara fija', accent:'#ef5350', shape:'ipdm_e6', view:{unv:{es:'cara = dibujo H.S. del FSM 2005 (lado CABLES, traba arriba): 13 12 11 / 16 15 14 · EC-510; PG-26 es la misma cara girada. Desde el lado de los terminales se ve en espejo.',en:'face = 2005 FSM H.S. drawing (WIRE side, lock up): 13 12 11 / 16 15 14 · EC-510; PG-26 is the same face rotated. From the terminal side it is mirrored.',ja:'表示 = 2005 FSM H.S.図（配線側・ロック上）: 13 12 11 / 16 15 14 · EC-510。PG-26は同じ面を回転。端子側からは左右反転。'}},
     pins:[
-      {id:'11',src:'FAN3',srcSub:'ipdm',code:'L',ecm:null,rail:'12v',note:'Salidas de ventiladores del IPDM.',note_en:'Cooling fan relay-3 → fan motor-1 pin2 (L) · EC-510.',note_ja:'冷却ファンリレー3 → ファンモータ1 pin2 (L) · EC-510。'},
+      {id:'11',src:'FAN3',srcSub:'ipdm',code:'L',ecm:null,rail:'12v',note:'Relé ventilador-3 → motor ventilador-1 pin2 (L) · EC-510.',note_en:'Cooling fan relay-3 → fan motor-1 pin2 (L) · EC-510.',note_ja:'冷却ファンリレー3 → ファンモータ1 pin2 (L) · EC-510。'},
       {id:'12',src:'FAN2/3',srcSub:'ipdm',code:'Y/R',ecm:null,rail:'12v',note:'Empalme relés ventilador 2/3 → motores pin4 (Y/R) · EC-510.',note_en:'Fan relay-2/3 junction → motors pin4 (Y/R) · EC-510.',note_ja:'ファンリレー2/3合流 → モータ pin4 (Y/R) · EC-510。'},
       {id:'13',src:'FAN1',srcSub:'ipdm',code:'W',ecm:null,rail:'12v',note:'Relé ventilador-1 → motor ventilador-2 pin1 (W) · EC-510.',note_en:'Cooling fan relay-1 → fan motor-2 pin1 (W) · EC-510.',note_ja:'冷却ファンリレー1 → ファンモータ2 pin1 (W) · EC-510。'},
       {id:'14',src:'E43',srcSub:'power',code:'B',ecm:null,rail:'gnd',lab:'GND',note:'Tierra circuito ventiladores → body E43 (B) · EC-510.',note_en:'Cooling fan circuit ground → body E43 (B) · EC-510.',note_ja:'冷却ファン回路アース → ボディ E43 (B) · EC-510。'},
       {id:'15',src:'FL·I',srcSub:'power',code:'B/R',ecm:null,rail:'12v',note:'Entrada batería 40A fusible link I (B/R) · EC-510.',note_en:'Battery in 40A fusible link I (B/R) · EC-510.',note_ja:'バッテリ入力 40A ヒュージブルリンク I (B/R) · EC-510。'},
       {id:'16',src:'FL·H',srcSub:'power',code:'B/W',ecm:null,rail:'12v',note:'Entrada batería 40A fusible link H (B/W) · EC-510.',note_en:'Battery in 40A fusible link H (B/W) · EC-510.',note_ja:'バッテリ入力 40A ヒュージブルリンク H (B/W) · EC-510。'}
-    ], note:'IPDM E6 · ventiladores + feeds 40A batería (EC-510). Cara PG-26 H.S.: top 14-15-16 / bot 11-12-13 · vista fija (sin verificar).'},
+    ], note:'IPDM E6 (W) · ventiladores + entradas 40A batería (EC-510). Cara = FSM H.S. lado cables, traba arriba: 13 12 11 / 16 15 14.'},
   /* One cover ficha. Short lab = text molded on the lid (user photo). Full name is pin.note. Numbers and amps follow PG-26. */
   ipdm_cover:{group:'motor', sub:'ipdm', name:'Tapa IPDM · fusibles', meta:'PG-26 · 71–89', accent:'#ffca28', shape:'ipdm_cover', view:{unv:{es:'la grilla es la tapa impresa, con los números de PG-26; no hay cara T.S. de arnés.',en:'the grid is the printed cover, numbered from PG-26; there is no harness-plug face.',ja:'印刷カバーの格子。番号はPG-26。ハーネス側の面はない。'}}, note:'Los 71–89 están en esta tapa. El recuadro lleva el nombre corto impreso. El nombre completo sale al elegir el fusible.',
     pins:[
@@ -3278,39 +3278,42 @@ function cavOrEmpty(cid, byId, id, x, y, w, h){
   return cavEmpty(x, y, w, h, id);
 }
 
-/* IPDM E3–E9: the 2005 FSM has NO T.S. drawing of these harness plugs — only the IPDM socket face
-   (PG-26 terminal arrangement, no badge) and the harness plug from the wire side (H.S.: E4 SC-13,
-   E5/E6 EC-510, E7/E9 EC-167/SC-13, E8 EC-464/SC-14). Per Ezequiel's rule the layout is left as it was
-   in the default view (mirror of PG-26), fixed (no ECM-orient flip), and flagged unverified (f.view.unv). */
-/** IPDM E3 · 2-pin horizontal (PG-26 draws it vertical 2 over 1). Fixed 1-2 (previous default). */
+/* IPDM E3–E9 harness plugs: the 2005 FSM draws them only from the WIRE side (H.S. badge, double outline,
+   GI-14), lock up: E3 PG-14, E4 SC-13/PG-13, E5/E6 EC-510/PG-14, E7 PG-15/EC-167, E8 EC-710/PG-15,
+   E9 EC-472/EC-167. PG-26 shows the same faces rotated (not mirrored) around the IPDM. Every IPDM ficha is
+   drawn exactly as that H.S. drawing, lock tab up; from the terminal side the plug is the mirror image. */
+/** IPDM E3 · FSM H.S. PG-14: vertical, lock on top, 1 over 2 */
 function svgIpdmE3(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const row = ['1','2'];
+  const top = ['1'];
+  const bot = ['2'];
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=10, topY=18;
-  const W = padX*2 + 2*cw + gap;
-  const H = topY + ch + 12;
+  const botY = topY + ch + gap;
+  const W = padX*2 + cw;
+  const H = botY + ch + 12;
   let cavities = '';
-  row.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
-  const _c = cornersFromRow(row);
+  cavities += cavOrEmpty(cid, byId, '1', padX, topY, cw, ch);
+  cavities += cavOrEmpty(cid, byId, '2', padX, botY, cw, ch);
+  const _c = cornersFromRows(top, bot);
 
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-16} 2 h32 l5 10 H${W/2-21} Z" style="stroke:${f.accent}"/>
+    <path class="lock-tab" d="M${W/2-12} 2 h24 l4 10 H${W/2-16} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="5" style="stroke:${f.accent}"/>
     ${cavities}
   ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
-/** IPDM E4 · PG-26 socket: top 3-5 / bot 4-6 · ficha fixed at the mirror 5-3 / 6-4 (previous default) */
+/** IPDM E4 (W) · FSM H.S. SC-13 / PG-13: lock up, 4 3 / 6 5 */
 function svgIpdmE4(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const top = ['5','3'];
-  const bot = ['6','4'];
+  const top = ['4','3'];
+  const bot = ['6','5'];
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=8, topY=18;
   const botY = topY + ch + gap;
-  const W = padX*2 + 2*cw + gap;
+  const W = padX*2 + 2*cw + 1*gap;
   const H = botY + ch + 12;
   let cavities='';
   top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
@@ -3325,15 +3328,15 @@ function svgIpdmE4(cid, f){
   </svg>`;
 }
 
-/** IPDM E5 · PG-26 socket: top 7-9 / bot 8-10 · ficha fixed at the mirror 9-7 / 10-8 (previous default) */
+/** IPDM E5 (B) · FSM H.S. EC-510 / PG-14: lock up, 8 7 / 10 9 */
 function svgIpdmE5(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const top = ['9','7'];
-  const bot = ['10','8'];
+  const top = ['8','7'];
+  const bot = ['10','9'];
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=8, topY=18;
   const botY = topY + ch + gap;
-  const W = padX*2 + 2*cw + gap;
+  const W = padX*2 + 2*cw + 1*gap;
   const H = botY + ch + 12;
   let cavities='';
   top.forEach((id,i)=>{ cavities += cavOrEmpty(cid, byId, id, padX+i*(cw+gap), topY, cw, ch); });
@@ -3348,11 +3351,11 @@ function svgIpdmE5(cid, f){
   </svg>`;
 }
 
-/** IPDM E6 · PG-26 socket: top 14-15-16 / bot 11-12-13 · ficha fixed at the mirror 16-15-14 / 13-12-11 */
+/** IPDM E6 (W) · FSM H.S. EC-510: lock up, 13 12 11 / 16 15 14 */
 function svgIpdmE6(cid, f){
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const top = ['16','15','14'];
-  const bot = ['13','12','11'];
+  const top = ['13','12','11'];
+  const bot = ['16','15','14'];
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=8, topY=18;
   const botY = topY + ch + gap;

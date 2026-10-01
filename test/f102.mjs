@@ -790,10 +790,11 @@ const FSM_FACE = {
   f152: { mt: "ring", at: "ring" },
   e17: { mt: "ring", at: "ring" },
   f23_gnd: { mt: "ring", at: "ring" },
-  ipdm_e3: { mt: "1 2", at: "1 2" },
-  ipdm_e4: { mt: "5 3 / 6 4", at: "5 3 / 6 4" },
-  ipdm_e5: { mt: "9 7 / 10 8", at: "9 7 / 10 8" },
-  ipdm_e6: { mt: "16 15 14 / 13 12 11", at: "16 15 14 / 13 12 11" },
+  /* E3–E6: FSM H.S. wire side, lock up (PG-14 / SC-13 / EC-510) */
+  ipdm_e3: { mt: "1 / 2", at: "1 / 2" },
+  ipdm_e4: { mt: "4 3 / 6 5", at: "4 3 / 6 5" },
+  ipdm_e5: { mt: "8 7 / 10 9", at: "8 7 / 10 9" },
+  ipdm_e6: { mt: "13 12 11 / 16 15 14", at: "13 12 11 / 16 15 14" },
   /* E7: FSM H.S. PG-15: 23 22 21 20 [lock] 19 18 17 / 32 … 24 */
   ipdm_e7: { mt: "23 22 21 20 19 18 17 / 32 31 30 29 28 27 26 25 24", at: "23 22 21 20 19 18 17 / 32 31 30 29 28 27 26 25 24" },
   /* IPDM cover fuses 71–89: printed lid grid numbered as PG-26 (no harness T.S. face; view.unv) */
