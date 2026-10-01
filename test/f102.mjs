@@ -1178,6 +1178,31 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
 }
 
 
+console.log('\nLocation icon: FSM PG harness layout with the callout(s) highlighted');
+{
+  await page.evaluate(() => { const s = document.getElementById('loomView'); s.value = 'all'; s.dispatchEvent(new Event('change', { bubbles: true })); });
+  const loc = await page.evaluate(() => {
+    document.querySelectorAll('#fichas details').forEach((d) => { d.open = true; });
+    const open = (cid, root) => {
+      const b = (root || document).querySelector(`.ficha-loc-btn[data-loc-conn="${cid}"]`);
+      if (!b) return null;
+      b.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      const lb = document.getElementById('faceLightbox');
+      const r = { open: lb.classList.contains('open'), src: lb.querySelector('.face-lb-img').getAttribute('src'), marks: lb.querySelectorAll('.ipdm-mark:not([hidden])').length, cap: lb.querySelector('.face-lb-src').textContent, sel: selKey };
+      closeFaceLightbox();
+      return r;
+    };
+    const btnCount = document.querySelectorAll('#fichas details.ficha-sec:not(.sel-top) .ficha-loc-btn').length;
+    const noLoc = ['dlc', 'ipdm_cover', 'ipdm_legend', 'feed_af_12v'].filter((c) => document.querySelector(`#fichas .ficha[data-conn="${c}"] .ficha-loc-btn`));
+    return { ect: open('ect'), ho2s: open('ho2s_b1'), e8: open('ipdm_e8'), f102: open('ix_f102_m72', document.getElementById('f102Panel')), btnCount, noLoc, after: document.getElementById('faceLightbox').querySelectorAll('.ipdm-mark:not([hidden])').length };
+  });
+  ok(loc.ect && loc.ect.open && loc.ect.src === 'faces/loc/pg54.webp' && loc.ect.marks === 1 && /^FSM 2005 · PG-54 · /.test(loc.ect.cap) && loc.ect.sel == null,
+    `ECT (F13) location → PG-54, 1 callout marked, no selection change (${JSON.stringify(loc.ect)})`);
+  ok(loc.ho2s && loc.ho2s.marks === 2 && loc.e8 && loc.e8.src === 'faces/loc/pg50.webp' && loc.f102 && loc.f102.src === 'faces/loc/pg56.webp',
+    `HO2S2 B1 marks both F11 callouts (A/T + M/T); IPDM E8 → PG-50; F102 panel → PG-56 (${JSON.stringify({ h: loc.ho2s, e8: loc.e8 && loc.e8.src, f102: loc.f102 && loc.f102.src })})`);
+  ok(loc.btnCount >= 55 && loc.noLoc.length === 0, `location icon only where the FSM shows the connector (${loc.btnCount} fichas; unexpected on: ${loc.noLoc.join(',')})`);
+}
+
 console.log('\nDeselect sweep: every cavity on intermedias / IPDM / F103 cards + F102 panel toggles off (x2, A→B→A→A, Seleccionados copy)');
 {
   await page.evaluate(() => { const s = document.getElementById('loomView'); s.value = 'all'; s.dispatchEvent(new Event('change', { bubbles: true })); });

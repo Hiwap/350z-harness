@@ -426,6 +426,14 @@
     border-color: var(--accent, #4fc3f7); color: #fff; outline: none;
   }
   .ficha-face-btn svg { width: 14px; height: 14px; pointer-events: none; }
+  .ficha-loc-btn {
+    flex: 0 0 auto; width: 22px; height: 22px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid #4a5568; border-radius: 6px; background: #1a2030;
+    color: #c5cad3; cursor: pointer; line-height: 0;
+  }
+  .ficha-loc-btn:hover, .ficha-loc-btn:focus-visible { border-color: var(--accent, #4fc3f7); color: #fff; outline: none; }
+  .ficha-loc-btn svg { width: 14px; height: 14px; pointer-events: none; }
   #faceLightbox {
     position: fixed; inset: 0; z-index: 9999;
     display: none; align-items: center; justify-content: center;
@@ -554,6 +562,8 @@
   #f102Title { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
   #f102Title .f102-title-txt { flex: 1 1 auto; min-width: 0; }
   #f102Title .ficha-face-btn { margin-left: auto; }
+  #f102Title .ficha-loc-btn { margin-left: auto; }
+  #f102Title .ficha-loc-btn + .ficha-face-btn { margin-left: 0; }
   #ecm details.f102-panel > summary::-webkit-details-marker { display: none; }
   #ecm details.f102-panel > summary::before {
     content: '▾'; font-size: 11px; color: #90a4ae; transition: transform .12s ease;
@@ -3924,6 +3934,12 @@ const I18N = {
     faceNoteSimilarLock: 'similar, el seguro puede diferir',
     faceNoteMateMirror: 'mitad macho F221 que acopla; espejo de la ficha (F33 hembra)',
     facePhotoOpen: 'Ver foto del conector',
+    locOpen: 'Dónde está en el auto (FSM)',
+    locPg50: 'Arnés vano motor · vano motor',
+    locPg52: 'Arnés vano motor · habitáculo',
+    locPg54: 'Arnés control motor · vano motor',
+    locPg56: 'Arnés control motor · habitáculo',
+    locHint: 'etiqueta resaltada: seguí su línea hasta el conector',
     facePhotoClose: 'Cerrar foto',
     ipdmFsmAlt: 'IPDM del FSM, disposición de terminales PG-26',
     ipdmFsmCap: 'FSM 2005 · PG-26 · IPDM E/R',
@@ -4110,6 +4126,12 @@ const I18N = {
     faceNoteSimilarLock: 'similar, lock may differ',
     faceNoteMateMirror: 'mating male half F221; mirrored vs the pin diagram (F33 female)',
     facePhotoOpen: 'View connector photo',
+    locOpen: 'Where it is in the car (FSM)',
+    locPg50: 'Engine room harness · engine compartment',
+    locPg52: 'Engine room harness · passenger compartment',
+    locPg54: 'Engine control harness · engine compartment',
+    locPg56: 'Engine control harness · passenger compartment',
+    locHint: 'highlighted label: follow its line to the connector',
     facePhotoClose: 'Close photo',
     ipdmFsmAlt: 'FSM IPDM terminal arrangement, PG-26',
     ipdmFsmCap: 'FSM 2005 · PG-26 · IPDM E/R',
@@ -4296,6 +4318,12 @@ const I18N = {
     faceNoteSimilarLock: '類似品・ロック形状が異なる場合あり',
     faceNoteMateMirror: '相手側F221オス；ピン図（F33メス）とは左右反転',
     facePhotoOpen: 'コネクタ写真を見る',
+    locOpen: '車両上の位置（FSM）',
+    locPg50: 'エンジンルームハーネス · エンジンルーム',
+    locPg52: 'エンジンルームハーネス · 車室内',
+    locPg54: 'エンジンコントロールハーネス · エンジンルーム',
+    locPg56: 'エンジンコントロールハーネス · 車室内',
+    locHint: '強調したラベルから線をたどるとコネクタ',
     facePhotoClose: '写真を閉じる',
     ipdmFsmAlt: 'FSMのIPDM端子配置、PG-26',
     ipdmFsmCap: 'FSM 2005 · PG-26 · IPDM E/R',
@@ -4869,6 +4897,103 @@ function makeF102PinEl(pin){
   return d;
 }
 
+/* Where each connector sits in the car: 2005 FSM PG Harness Layout pages (PG-50 / 52 / 54 / 56),
+   rotated upright, cropped to the drawing. m = boxes (% of the image) around the FSM callout label(s)
+   of that connector; follow the label's leader line to the plug. Only connectors actually found. */
+const LOC_PAGES = {50:'faces/loc/pg50.webp', 52:'faces/loc/pg52.webp', 54:'faces/loc/pg54.webp', 56:'faces/loc/pg56.webp'};
+const CONN_LOC = {
+  ipdm_e3: {pg:50, m:[[42.6,42.44,4.51,3.23]]},
+  ipdm_e4: {pg:50, m:[[42.42,7.07,4.51,3.23]]},
+  ipdm_e5: {pg:50, m:[[45.35,46.09,4.47,3.23]]},
+  ipdm_e6: {pg:50, m:[[47.25,35.6,4.47,3.23]]},
+  ipdm_e7: {pg:50, m:[[46.08,16.72,4.47,3.28]]},
+  ipdm_e8: {pg:50, m:[[50.66,19.58,4.47,3.23]]},
+  ipdm_e9: {pg:50, m:[[55.53,18.13,4.47,3.28]]},
+  ix_e10_f1: {pg:50, m:[[37.36,6.74,4.51,3.23]]},
+  ix_e11_f2: {pg:50, m:[[35.24,9.6,4.47,3.28]]},
+  ix_e12_f3: {pg:50, m:[[33.15,12.32,4.47,3.23]]},
+  e17: {pg:50, m:[[21.58,42.34,4.47,3.23],[9.49,19.91,4.47,3.23]]},
+  ac_press: {pg:50, m:[[19.74,53.4,4.51,3.23]]},
+  ix_e106_b2: {pg:52, m:[[37.95,66.46,4.47,3.28]]},
+  ix_e108_m15: {pg:52, m:[[68.61,77.52,4.47,3.23]]},
+  ascd_brake: {pg:52, m:[[58.64,80.05,4.51,3.23]]},
+  stop_lamp: {pg:52, m:[[44.98,47.92,4.47,3.23],[50.59,47.92,4.47,3.23]]},
+  app: {pg:52, m:[[74.18,38.36,4.47,3.23]]},
+  ascd_clutch: {pg:52, m:[[52.01,66.14,4.47,3.23]]},
+  af_b1: {pg:54, m:[[29.19,25.62,4.47,3.23]]},
+  af_b2: {pg:54, m:[[67.44,66.51,4.47,3.23]]},
+  ho2s_b1: {pg:54, m:[[59.96,6.14,4.47,3.23],[63.85,9.13,4.47,3.23]]},
+  ho2s_b2: {pg:54, m:[[67.22,12.41,4.47,3.23],[71.06,16.11,4.47,3.28]]},
+  maf: {pg:54, m:[[63.59,73.11,4.51,3.23]]},
+  knock: {pg:54, m:[[37.88,72.27,4.47,3.28]]},
+  ckp: {pg:54, m:[[74.47,50.77,4.47,3.23]]},
+  cmp_b1: {pg:54, m:[[53.26,6.32,4.47,3.28]]},
+  cmp_b2: {pg:54, m:[[73.22,54.19,4.51,3.23]]},
+  ect: {pg:54, m:[[50.84,11.33,4.47,3.23]]},
+  etc: {pg:54, m:[[73.81,36.86,4.51,3.23]]},
+  psp: {pg:54, m:[[21.76,55.83,4.47,3.28]]},
+  f20_alt: {pg:54, m:[[16.96,58.59,4.47,3.28]]},
+  f21_oilp: {pg:54, m:[[24.4,66.51,4.47,3.23]]},
+  f9_starter: {pg:54, m:[[30.22,29.46,4.47,3.23]]},
+  f16_cond: {pg:54, m:[[35.13,25.53,4.47,3.28]]},
+  f23_gnd: {pg:54, m:[[21.03,60.0,4.51,3.23],[82.34,87.73,4.51,3.23]]},
+  f24_comp: {pg:54, m:[[52.6,78.74,4.47,3.28]]},
+  f38_evtc_b1: {pg:54, m:[[48.75,17.0,4.51,3.28]]},
+  f42_evtc_b2: {pg:54, m:[[66.85,53.91,4.51,3.23]]},
+  f242_eot: {pg:54, m:[[24.84,61.36,4.51,3.28]]},
+  f6_at: {pg:54, m:[[73.81,32.93,4.51,3.23]]},
+  coil1: {pg:54, m:[[24.84,44.17,4.47,3.28]]},
+  coil2: {pg:54, m:[[58.5,80.19,4.51,3.23]]},
+  coil3: {pg:54, m:[[23.7,40.75,4.51,3.23]]},
+  coil4: {pg:54, m:[[66.04,70.21,4.51,3.23]]},
+  coil5: {pg:54, m:[[38.97,23.89,4.51,3.23]]},
+  coil6: {pg:54, m:[[60.99,77.33,4.51,3.23]]},
+  backup_sw: {pg:54, m:[[79.38,22.86,4.51,3.23]]},
+  f35_pnp: {pg:54, m:[[73.26,19.95,4.47,3.23]]},
+  inj1: {pg:54, m:[[17.66,44.4,4.47,3.23]]},
+  inj2: {pg:54, m:[[42.16,73.54,4.47,3.23]]},
+  inj3: {pg:54, m:[[36.63,63.09,4.51,3.28]]},
+  inj4: {pg:54, m:[[42.97,81.55,4.47,3.23]]},
+  inj5: {pg:54, m:[[37.11,68.34,4.47,3.28]]},
+  inj6: {pg:54, m:[[47.84,70.96,4.47,3.23]]},
+  vtc_b1: {pg:54, m:[[22.97,47.82,4.51,3.23]]},
+  vtc_b2: {pg:54, m:[[56.23,83.14,4.51,3.23]]},
+  vtc_ex_b1: {pg:54, m:[[22.09,52.08,4.47,3.23]]},
+  vtc_ex_b2: {pg:54, m:[[37.36,79.91,4.47,3.23]]},
+  evap_purge: {pg:54, m:[[56.67,15.69,4.47,3.23]]},
+  ix_f14_f229: {pg:54, m:[[43.74,6.46,4.47,3.23],[40.51,18.78,4.47,3.23]]},
+  ix_f18_f201: {pg:54, m:[[29.34,32.83,4.51,3.23],[21.98,36.96,4.47,3.23]]},
+  ix_f221_f33: {pg:54, m:[[75.68,43.84,4.47,3.28],[48.57,84.5,4.47,3.28]]},
+  gnd4: {pg:56, m:[[66.59,44.5,4.47,3.23],[68.5,48.1,4.47,3.23]]},
+  ix_f103_f151: {pg:56, m:[[66.59,44.5,4.47,3.23],[68.5,48.1,4.47,3.23]]},
+  f152: {pg:56, m:[[68.83,52.65,4.51,3.28],[32.16,79.02,4.51,3.28]]},
+  ix_f102_m72: {pg:56, m:[[70.48,39.02,4.47,3.23]]},
+  ecm_f101_can: {pg:56, m:[[52.34,47.4,4.47,3.23]]},
+};
+function locBtnHtml(cid){
+  if(!CONN_LOC[cid]) return '';
+  const lab = t('locOpen');
+  return `<button type="button" class="ficha-loc-btn" data-loc-conn="${esc(cid)}" aria-label="${esc(lab)}" title="${esc(lab)}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.2 7-12.5A7 7 0 0 0 5 9.5C5 14.8 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>`;
+}
+function openLocLightbox(cid){
+  const loc = CONN_LOC[cid];
+  if(!loc) return;
+  const root = ensureFaceLightbox();
+  const img = root.querySelector('.face-lb-img');
+  const srcEl = root.querySelector('.face-lb-src');
+  const closeBtn = root.querySelector('.face-lb-close');
+  const name = (CONN[cid] && connField(cid, CONN[cid], 'name')) || cid;
+  img.src = LOC_PAGES[loc.pg];
+  img.alt = t('locOpen') + ' · ' + name;
+  closeBtn.setAttribute('aria-label', t('facePhotoClose'));
+  setLightboxMarks(loc.m.map(b => ({l:b[0], t:b[1], w:b[2], h:b[3]})));
+  srcEl.hidden = false;
+  srcEl.textContent = `FSM 2005 · PG-${loc.pg} · ${t('locPg' + loc.pg)} · ${name} — ${t('locHint')}`;
+  _faceLbPrevFocus = document.activeElement;
+  root.classList.add('open');
+  closeBtn.focus();
+}
+
 function faceBtnHtml(cid){
   const face = (typeof CONN_FACE !== 'undefined') ? CONN_FACE[cid] : null;
   if(!face || !face.src) return '';
@@ -4881,10 +5006,17 @@ function renderF102(){
   const titleEl = document.getElementById('f102Title');
   const legendEl = document.getElementById('f102Legend');
   if(!panel || !blocksEl) return;
-  if(titleEl) titleEl.innerHTML = `<span class="f102-title-txt">${esc(t('f102Title'))}</span>${faceBtnHtml('ix_f102_m72')}`;
+  if(titleEl) titleEl.innerHTML = `<span class="f102-title-txt">${esc(t('f102Title'))}</span>${locBtnHtml('ix_f102_m72')}${faceBtnHtml('ix_f102_m72')}`;
   if(!panel.dataset.faceBound){
     panel.dataset.faceBound = '1';
     panel.addEventListener('click', e => {
+      const lb = e.target.closest && e.target.closest('.ficha-loc-btn');
+      if(lb && panel.contains(lb)){
+        e.preventDefault();
+        e.stopPropagation();
+        openLocLightbox(lb.dataset.locConn || 'ix_f102_m72');
+        return;
+      }
       const btn = e.target.closest && e.target.closest('.ficha-face-btn');
       if(!btn || !panel.contains(btn)) return;
       e.preventDefault();
@@ -5448,17 +5580,26 @@ function ipdmFsmBtnHtml(connId){
   const alt = t('ipdmFsmAlt') + (label ? ' · ' + label : '');
   return `<button type="button" class="ficha-face-btn ipdm-fsm-btn" data-ipdm-conn="${esc(connId || '')}" aria-label="${esc(alt)}" title="${esc(alt)}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>`;
 }
-function setLightboxIpdmMark(connId){
+function setLightboxMarks(boxes){
   const root = document.getElementById('faceLightbox');
   const mark = root && root.querySelector('.ipdm-mark');
   if(!mark) return;
+  root.querySelectorAll('.loc-mark-x').forEach(el => el.remove());
+  const list = (boxes || []).filter(Boolean);
+  if(!list.length){ mark.hidden = true; return; }
+  list.forEach((box, i) => {
+    let el = mark;
+    if(i){ el = document.createElement('span'); el.className = 'ipdm-mark loc-mark-x'; mark.parentNode.appendChild(el); }
+    el.hidden = false;
+    el.style.left = box.l + '%';
+    el.style.top = box.t + '%';
+    el.style.width = box.w + '%';
+    el.style.height = box.h + '%';
+  });
+}
+function setLightboxIpdmMark(connId){
   const box = connId && IPDM_FSM_MARK[connId];
-  if(!box){ mark.hidden = true; return; }
-  mark.hidden = false;
-  mark.style.left = box.l + '%';
-  mark.style.top = box.t + '%';
-  mark.style.width = box.w + '%';
-  mark.style.height = box.h + '%';
+  setLightboxMarks(box ? [box] : []);
 }
 function openIpdmFsm(connId){
   const root = ensureFaceLightbox();
@@ -5538,9 +5679,16 @@ function makeFichaEl(id, f, opts){
   const viewTxt = viewNoteText(id, f);
   if(viewTxt) extra += `<div class="note-body view-note">${esc(viewTxt)}</div>`;
   const faceBtn = faceBtnHtml(id);
-  el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
+  el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
   wrap.addEventListener('click', e=>{
+    const locBtnEl = e.target.closest && e.target.closest('.ficha-loc-btn');
+    if(locBtnEl && wrap.contains(locBtnEl)){
+      e.preventDefault();
+      e.stopPropagation();
+      openLocLightbox(locBtnEl.dataset.locConn || id);
+      return;
+    }
     const faceBtnEl = e.target.closest && e.target.closest('.ficha-face-btn');
     if(faceBtnEl && wrap.contains(faceBtnEl)){
       e.preventDefault();
