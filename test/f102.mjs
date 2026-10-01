@@ -1193,7 +1193,7 @@ console.log('\nLocation icon: FSM PG harness layout with the callout(s) highligh
       return r;
     };
     const btnCount = document.querySelectorAll('#fichas details.ficha-sec:not(.sel-top) .ficha-loc-btn').length;
-    const noLoc = ['dlc', 'ipdm_cover', 'ipdm_legend', 'feed_af_12v', 'ipdm_e3', 'ipdm_e8'].filter((c) => document.querySelector(`#fichas .ficha[data-conn="${c}"] .ficha-loc-btn`));
+    const noLoc = ['ipdm_cover', 'ipdm_legend', 'feed_af_12v', 'ipdm_e3', 'ipdm_e8'].filter((c) => document.querySelector(`#fichas .ficha[data-conn="${c}"] .ficha-loc-btn`));
     const ipdmSum = document.querySelector('#fichas details.ficha-sec[data-sub="ipdm"] > summary');
     const grp = open('ipdm_group', ipdmSum);
     const order = ipdmSum ? [...ipdmSum.querySelectorAll('button')].map((b) => b.classList.contains('ficha-loc-btn') ? 'loc' : b.classList.contains('ipdm-fsm-btn') ? 'cam' : '?').join(',') : '';
@@ -1203,7 +1203,9 @@ console.log('\nLocation icon: FSM PG harness layout with the callout(s) highligh
     const ipdmSelLoc = document.querySelectorAll('#fichas .sel-top .ficha[data-conn^="ipdm_"] .ficha-loc-btn').length + document.querySelectorAll('#fichas .ficha[data-conn^="ipdm_"] .ficha-loc-btn').length;
     const selShown = document.querySelectorAll('#fichas .sel-top .ficha[data-conn="ipdm_e8"]').length;
     clearSelection();
-    return { grp, order, ipdmCardsLoc, ipdmSelLoc, selShown, stay, ect: open('ect'), ho2s: open('ho2s_b1'), e8: grp, f102: open('ix_f102_m72', document.getElementById('f102Panel')), btnCount, noLoc, after: document.getElementById('faceLightbox').querySelectorAll('.ipdm-mark:not([hidden])').length };
+    const interNo = [...document.querySelectorAll('#fichas details.ficha-sec[data-sub="intermedias"]:not(.sel-top) .ficha[data-conn]')].map((f) => f.dataset.conn).filter((c) => !document.querySelector(`#fichas .ficha[data-conn="${c}"] .ficha-loc-btn`));
+    const b1 = open('ix_b1_m12'); const dlcL = open('dlc');
+    return { interNo, b1, dlcL, grp, order, ipdmCardsLoc, ipdmSelLoc, selShown, stay, ect: open('ect'), ho2s: open('ho2s_b1'), e8: grp, f102: open('ix_f102_m72', document.getElementById('f102Panel')), btnCount, noLoc, after: document.getElementById('faceLightbox').querySelectorAll('.ipdm-mark:not([hidden])').length };
   });
   ok(loc.ect && loc.ect.open && loc.ect.src === 'faces/loc/pg54.webp' && loc.ect.marks === 1 && /^FSM 2005 · PG-54 · /.test(loc.ect.cap) && loc.ect.sel == null,
     `ECT (F13) location → PG-54, 1 callout marked, no selection change (${JSON.stringify(loc.ect)})`);
@@ -1212,7 +1214,9 @@ console.log('\nLocation icon: FSM PG harness layout with the callout(s) highligh
   ok(loc.grp && loc.grp.open && loc.grp.src === 'faces/loc/pg50.webp' && loc.grp.marks === 7 && /IPDM E\/R · E3–E9/.test(loc.grp.cap) && loc.order === 'loc,cam' && loc.stay,
     `IPDM group header: location (PG-50, 7 callouts) next to the camera (${JSON.stringify({ g: loc.grp, order: loc.order })})`);
   ok(loc.ipdmCardsLoc === 0 && loc.ipdmSelLoc === 0, `no location icon on IPDM E3–E9 cards, nor in Seleccionados (${loc.ipdmCardsLoc}/${loc.ipdmSelLoc}, sel shown ${loc.selShown})`);
-  ok(loc.btnCount >= 50 && loc.noLoc.length === 0, `location icon only where the FSM shows the connector (${loc.btnCount} fichas; unexpected on: ${loc.noLoc.join(',')})`);
+  ok(loc.interNo.length === 0 && loc.b1 && loc.b1.src === 'faces/loc/pg57.webp' && loc.b1.marks === 1 && loc.dlcL && loc.dlcL.src === 'faces/loc/pg48.webp' && /PG-48/.test(loc.dlcL.cap),
+    `every intermedias card has a location (missing: ${loc.interNo.join(',')}); B1/M12 → PG-57, DLC M8 → PG-48`);
+  ok(loc.btnCount >= 60 && loc.noLoc.length === 0, `location icon only where the FSM shows the connector (${loc.btnCount} fichas; unexpected on: ${loc.noLoc.join(',')})`);
 }
 
 console.log('\nDeselect sweep: every cavity on intermedias / IPDM / F103 cards + F102 panel toggles off (x2, A→B→A→A, Seleccionados copy)');

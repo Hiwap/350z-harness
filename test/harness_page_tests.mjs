@@ -337,8 +337,8 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       const locBlock = (html.match(/const CONN_LOC = \{\n([\s\S]*?)\n\};/) || [,''])[1];
       const locIds = [...locBlock.matchAll(/^  ([a-z0-9_]+): \{pg:(\d+), m:(\[[^\n]*\])\},$/gm)];
       const pages = new Set(locIds.map((m) => m[2]));
-      ok('Location (FSM PG harness layout) map: ≥55 fichas, pages 50/52/54/56 exist, marks inside the image, every id is a ficha, no IPDM plug',
-        locIds.length >= 55 && [...pages].every((pg) => ['50','52','54','56'].includes(pg) && fs.existsSync(path.join(ROOT, `faces/loc/pg${pg}.webp`)))
+      ok('Location (FSM PG harness layout) map: ≥65 fichas, pages 48/50/52/53/54/56/57/63 exist, marks inside the image, every id is a ficha, no IPDM plug',
+        locIds.length >= 65 && [...pages].every((pg) => ['48','50','52','53','54','56','57','63'].includes(pg) && fs.existsSync(path.join(ROOT, `faces/loc/pg${pg}.webp`)))
         && locIds.every((m) => JSON.parse(m[3]).every((b) => b.length === 4 && b[0] >= 0 && b[1] >= 0 && b[0] + b[2] <= 100 && b[1] + b[3] <= 100))
         && locIds.every((m) => new RegExp(`\\n  ${m[1]}:\\{group:`).test(html))
         && !locIds.some((m) => /^ipdm_/.test(m[1])));
@@ -346,6 +346,13 @@ ok('rail-focus helpers present (stay in rail on re-click)',
         /<h3>\$\{esc\(connField\(id, f, 'name'\)\)\}<\/h3>\$\{locBtnHtml\(id\)\}\$\{faceBtn\}/.test(html)
         && /\$\{locBtnHtml\('ix_f102_m72'\)\}\$\{faceBtnHtml\('ix_f102_m72'\)\}/.test(html)
         && (html.match(/    locOpen: '/g) || []).length === 3 && (html.match(/    locPg54: '/g) || []).length === 3 && (html.match(/    locHint: '/g) || []).length === 3);
+      ok('Location on every intermedias card (B1/M12, B43/T1, T2/B44 → PG-57) and the ASCD/DLC cards (M8/M23/M48 → PG-48, B27 → PG-57, alternator E202/E211 → PG-53)',
+        ['ix_e106_b2','ix_b43_t1','ix_t2_b44','ix_b1_m12','ix_e10_f1','ix_e12_f3','ix_e108_m15','ix_f102_m72'].every((c) => locIds.some((m) => m[1] === c))
+        && ['ix_b1_m12','ix_b43_t1','ix_t2_b44','fuel_pump','fuel_tank_temp'].every((c) => locIds.some((m) => m[1] === c && m[2] === '57'))
+        && ['dlc','clock_spring','comb_meter'].every((c) => locIds.some((m) => m[1] === c && m[2] === '48'))
+        && ['evap_vent','evap_press'].every((c) => locIds.some((m) => m[1] === c && m[2] === '63'))
+        && ['alt_b','alt_e'].every((c) => locIds.some((m) => m[1] === c && m[2] === '53')) && (html.match(/    locPg53: '/g) || []).length === 3
+        && (html.match(/    locPg57: '/g) || []).length === 3 && (html.match(/    locPg48: '/g) || []).length === 3 && (html.match(/    locPg63: '/g) || []).length === 3);
       ok('IPDM location only on the IPDM group header: PG-50 with the 7 E3–E9 callouts, next to the group camera',
         /const IPDM_GROUP_LOC = \{pg:50, m:\[(\[[\d.]+,[\d.]+,[\d.]+,[\d.]+\],?){7}\]\};/.test(html)
         && /function addIpdmGroupBtn\(sum\)\{\s*sum\.insertAdjacentHTML\('beforeend', locBtnHtml\('ipdm_group'\)\);/.test(html));

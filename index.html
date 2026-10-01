@@ -3941,6 +3941,10 @@ const I18N = {
     locPg52: 'Arnés vano motor · habitáculo',
     locPg54: 'Arnés control motor · vano motor',
     locPg56: 'Arnés control motor · habitáculo',
+    locPg53: 'Cable de batería · vano motor',
+    locPg48: 'Arnés principal · tablero / habitáculo',
+    locPg57: 'Arnés de carrocería (Coupé)',
+    locPg63: 'Arnés trasero / cola (Coupé)',
     locHint: 'etiqueta resaltada: seguí su línea hasta el conector',
     facePhotoClose: 'Cerrar foto',
     ipdmFsmAlt: 'IPDM del FSM, disposición de terminales PG-26',
@@ -4133,6 +4137,10 @@ const I18N = {
     locPg52: 'Engine room harness · passenger compartment',
     locPg54: 'Engine control harness · engine compartment',
     locPg56: 'Engine control harness · passenger compartment',
+    locPg53: 'Battery cable · engine compartment',
+    locPg48: 'Main harness · instrument panel / cabin',
+    locPg57: 'Body harness (Coupe)',
+    locPg63: 'Tail harness (Coupe)',
     locHint: 'highlighted label: follow its line to the connector',
     facePhotoClose: 'Close photo',
     ipdmFsmAlt: 'FSM IPDM terminal arrangement, PG-26',
@@ -4325,6 +4333,10 @@ const I18N = {
     locPg52: 'エンジンルームハーネス · 車室内',
     locPg54: 'エンジンコントロールハーネス · エンジンルーム',
     locPg56: 'エンジンコントロールハーネス · 車室内',
+    locPg53: 'バッテリケーブル · エンジンルーム',
+    locPg48: 'メインハーネス · インパネ / 車室内',
+    locPg57: 'ボディハーネス（クーペ）',
+    locPg63: 'テールハーネス（クーペ）',
     locHint: '強調したラベルから線をたどるとコネクタ',
     facePhotoClose: '写真を閉じる',
     ipdmFsmAlt: 'FSMのIPDM端子配置、PG-26',
@@ -4899,10 +4911,10 @@ function makeF102PinEl(pin){
   return d;
 }
 
-/* Where each connector sits in the car: 2005 FSM PG Harness Layout pages (PG-50 / 52 / 54 / 56),
+/* Where each connector sits in the car: 2005 FSM PG Harness Layout pages (PG-48 main, 50/52 engine room, 53 battery cable, 54/56 engine control, 57 body, 63 tail),
    rotated upright, cropped to the drawing. m = boxes (% of the image) around the FSM callout label(s)
    of that connector; follow the label's leader line to the plug. Only connectors actually found. */
-const LOC_PAGES = {50:'faces/loc/pg50.webp', 52:'faces/loc/pg52.webp', 54:'faces/loc/pg54.webp', 56:'faces/loc/pg56.webp'};
+const LOC_PAGES = {48:'faces/loc/pg48.webp', 50:'faces/loc/pg50.webp', 52:'faces/loc/pg52.webp', 53:'faces/loc/pg53.webp', 54:'faces/loc/pg54.webp', 56:'faces/loc/pg56.webp', 57:'faces/loc/pg57.webp', 63:'faces/loc/pg63.webp'};
 const CONN_LOC = {
   ix_e10_f1: {pg:50, m:[[37.36,6.74,4.51,3.23]]},
   ix_e11_f2: {pg:50, m:[[35.24,9.6,4.47,3.28]]},
@@ -4964,6 +4976,18 @@ const CONN_LOC = {
   f152: {pg:56, m:[[68.83,52.65,4.51,3.28],[32.16,79.02,4.51,3.28]]},
   ix_f102_m72: {pg:56, m:[[70.48,39.02,4.47,3.23]]},
   ecm_f101_can: {pg:56, m:[[52.34,47.4,4.47,3.23]]},
+  dlc: {pg:48, m:[[21.58,66.28,4.51,3.28]]},
+  clock_spring: {pg:48, m:[[39.71,65.06,4.47,3.23]]},
+  comb_meter: {pg:48, m:[[61.47,63.75,4.51,3.23]]},
+  ix_b1_m12: {pg:57, m:[[38.06,62.2,4.51,3.23]]},
+  ix_b43_t1: {pg:57, m:[[84.47,33.91,4.47,3.23]]},
+  ix_t2_b44: {pg:57, m:[[89.05,27.21,4.47,3.23]]},
+  fuel_pump: {pg:57, m:[[37.25,41.59,4.47,3.23]]},
+  fuel_tank_temp: {pg:57, m:[[37.25,41.59,4.47,3.23]]},
+  evap_vent: {pg:63, m:[[77.55,88.76,4.51,3.23]]},
+  evap_press: {pg:63, m:[[81.9,85.9,4.47,3.23]]},
+  alt_b: {pg:53, m:[[70.22,49.93,4.29,3.09]]},
+  alt_e: {pg:53, m:[[68.75,55.22,4.32,3.14]]},
 };
 /* IPDM: location only on the IPDM group header (Ezequiel) — PG-50 with every E3–E9 callout marked. */
 const IPDM_GROUP_LOC = {pg:50, m:[[42.6,42.44,4.51,3.23],[42.42,7.07,4.51,3.23],[45.35,46.09,4.47,3.23],[47.25,35.6,4.47,3.23],[46.08,16.72,4.47,3.28],[50.66,19.58,4.47,3.23],[55.53,18.13,4.47,3.28]]};
