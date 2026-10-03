@@ -191,6 +191,25 @@ await page.click('#blocks .pin[data-pin="94"]');
   await page.select('#hseatView', 'no');
   await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
 }
+// Fuse boxes behave like the IPDM cover: J/B 15 lights its heater path (E108/M15·65G), J/B 7 (no harness circuit) opens its description.
+{
+  await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} clearSelection(); document.querySelectorAll('details').forEach((d) => { d.open = true; }); });
+  const clickFuse = (cid, cav) => page.evaluate((c, v) => {
+    clearSelection();
+    const g = document.querySelector(`.cav-hit[data-conn="${c}"][data-cav="${v}"]`);
+    if (!g) return null;
+    g.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    const lit = [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].map((e) => e.dataset.conn + '·' + e.dataset.cav);
+    return { self: g.classList.contains('hl'), lit, info: document.getElementById('info').textContent };
+  }, cid, cav);
+  const f15 = await clickFuse('jb_fuse_block', '15');
+  ok('fuse box: J/B 15 click lights itself + E108/M15·65G heater path', !!f15 && f15.self && f15.lit.includes('ix_e108_m15·65G'), JSON.stringify(f15 && f15.lit).slice(0, 200));
+  const f7 = await clickFuse('jb_fuse_block', '7');
+  ok('fuse box: J/B 7 (no circuit) opens its description (WW-P/SCKT)', !!f7 && f7.self && /WW-P\/SCKT/.test(f7.info), (f7 && f7.info || '').slice(0, 200));
+  const f36 = await clickFuse('fuse_link_box', '36');
+  ok('fuse box: E21 fuse 36 lights the alternator S path (F20·3)', !!f36 && f36.self && f36.lit.some((k) => k.startsWith('f20_alt·')), JSON.stringify(f36 && f36.lit).slice(0, 200));
+  await page.evaluate(() => clearSelection());
+}
 await page.select('#model', 'de_early');
 await page.select('#transView', 'mt');
 // Positive control: with "related power" on, the coil 12V feed (E7·17 → E12/F3·5) still lights (EC-689).

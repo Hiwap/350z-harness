@@ -158,6 +158,14 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('fuse layouts place every fuse/link pin exactly once',
     ['jb_fuse_block', 'fuse_link_box'].every((id) => { const a = layIds(fuseLay(id)).sort().join(','); const b = cardPinIds(id).sort().join(','); return a && a === b; }),
     ['jb_fuse_block', 'fuse_link_box'].map((id) => `${id}:${layIds(fuseLay(id)).length}/${cardPinIds(id).length}`).join(' '));
+  ok('fuse boxes use the IPDM cover look and click: shape fusebox, svgFuseBox via renderConnSvg, shared fuseAmpColor, FUSE_BOX_CONNS',
+    /\n  jb_fuse_block:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html) && /\n  fuse_link_box:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html)
+    && /case 'fusebox': svg = svgFuseBox\(cid,f\); break;/.test(html)
+    && /const ampColor = fuseAmpColor;/.test(html) && /col = empty \? '#546e7a' : fuseAmpColor\(p\.src\)/.test(html)
+    && /const FUSE_BOX_CONNS = new Set\(\['ipdm_cover', 'jb_fuse_block', 'fuse_link_box'\]\);/.test(html)
+    && /if\(FUSE_BOX_CONNS\.has\(cid\)\) return !!\(pin && !pin\.unknown\);/.test(html)
+    && /const related = \(pin && pin\.circ && \(CIRCUITS \|\| \[\]\)\.some\(c => c\.id === pin\.circ\)\) \? \[pin\.circ\]\n        : \(CIRCUITS \|\| \[\]\)\.filter\(cir => \{\n          const cavs = cir\.path && cir\.path\[cid\];/.test(html)
+    && /wireCodeSvg\(mid, x\+cw\/2, yy\+23, 'cav-code fuse-wire'\)/.test(html));
   ok('svgNote hands fuseLayout cards to svgFuseBox', /function svgNote\(cid, f\)\{\n  if\(f\.fuseLayout\) return svgFuseBox\(cid, f\);/.test(html) && /function svgFuseBox\(cid, f\)\{/.test(html));
   /* Audio unit connectors per AV-12/16/18 legends: M40 = 1-10, M41 = 11-16, M39 = 17-32 */
   ok('audio unit terminals 9 / 12-16 are not on M39 (AV-16 M40·9 earth; AV-12 / AV-18 M41·12-16)', !/M39·(?:9|1[2-6])\b/.test(html) && /src:'M41·14'/.test(html) && /src:'M41·12'/.test(html));
