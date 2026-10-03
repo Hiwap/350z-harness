@@ -790,6 +790,7 @@ const FSM_FACE = {
   f152: { mt: "ring", at: "ring" },
   e17: { mt: "ring", at: "ring" },
   f23_gnd: { mt: "ring", at: "ring" },
+  b5_gnd: { mt: "ring", at: "ring" },
   /* IPDM E3–E9: FSM H.S. wire side turned as on the IPDM (PG-26), never mirrored:
      E3/E6/E9 180° (lock down), E4/E5/E7 90° CCW (lock left), E8 90° CW (lock right) */
   ipdm_e3: { mt: "2 / 1", at: "2 / 1" },

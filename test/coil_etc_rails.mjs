@@ -82,6 +82,21 @@ for (const model of ['de_early', 'de_revup']) {
   }
 }
 await page.evaluate(() => { const el = document.getElementById('model'); el.value = 'de_early'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+/* Grounds the engine FSM table leaves out: fuel pump B27·3 → body ground B5 (EC-710 / PG-37); TCM F6·5/10 → F23 (AT-186) */
+for (const grp of ['sensor', 'ficha']) {
+  await setRel(1, 1, 1, grp);
+  const L = new Set(await lit({ conn: 'fuel_pump', cav: '3' }));
+  ok(`${grp} fuel_pump·3: ground reaches B5 (EC-710 / PG-37)`, L.has('fuel_pump·3') && L.has('b5_gnd·ring'), [...L].join(' '));
+}
+await page.evaluate(() => { const el = document.getElementById('transView'); el.value = 'at'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+for (const grp of ['sensor', 'ficha']) {
+  await setRel(1, 1, 1, grp);
+  for (const cav of ['5', '10']) {
+    const L = new Set(await lit({ conn: 'f6_at', cav }));
+    ok(`${grp} A/T f6_at·${cav}: TCM ground F6·5 + F6·10 → F23 (AT-186)`, L.has('f6_at·5') && L.has('f6_at·10') && L.has('f23_gnd·ring'), [...L].join(' '));
+  }
+}
+await page.evaluate(() => { const el = document.getElementById('transView'); el.value = 'mt'; el.dispatchEvent(new Event('change', { bubbles: true })); });
 /* ETC (F31) */
 for (const grp of ['sensor', 'ficha']) {
   await setRel(1, 1, 1, grp);

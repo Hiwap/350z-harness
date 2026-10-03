@@ -99,7 +99,8 @@
    "cite": [
     "EC-689",
     "EC-691",
-    "EC-693"
+    "EC-693",
+    "AT-186"
    ],
    "feeds": [
     {
@@ -145,6 +146,22 @@
      "conn": "F16",
      "map": "f16_cond",
      "cav": "2"
+    },
+    {
+     "conn": "F6",
+     "map": "f6_at",
+     "cav": "5",
+     "col": {
+      "F6": "B"
+     }
+    },
+    {
+     "conn": "F6",
+     "map": "f6_at",
+     "cav": "10",
+     "col": {
+      "F6": "B"
+     }
     }
    ]
   },
@@ -169,6 +186,25 @@
     "EC-742"
    ],
    "feeds": []
+  },
+  "B5": {
+   "map": "b5_gnd",
+   "desc": "Body ground (floor LH, 2nd cross member)",
+   "cite": [
+    "EC-710",
+    "PG-37"
+   ],
+   "feeds": [
+    {
+     "conn": "B27",
+     "map": "fuel_pump",
+     "cav": "3",
+     "col": {
+      "B27": "B"
+     }
+    }
+   ],
+   "note": "Same splice also runs to condenser B26·2 and grounds B6 (coupe), T14 (via B43/T1·6 coupe, B61/T23·1 roadster) and D105 (via B39/D102·1). EC-710"
   }
  },
  "supply_feeds": [
@@ -1789,6 +1825,7 @@
   "f152": "ground point F152 (ring) - see ground_points",
   "e17": "ground point E17 (ring) - see ground_points",
   "f23_gnd": "ground point F23 (ring) - see ground_points",
+  "b5_gnd": "ground point B5 (ring) - see ground_points",
   "ipdm_legend": "IPDM relay/fuse legend, not a connector",
   "ecm_f101_can": "excerpt of ECM connector F101 (CAN pins) - ECM itself, not an intermediate",
   "ix_f103_f151": "hidden duplicate of gnd4 (F103/F151)",
