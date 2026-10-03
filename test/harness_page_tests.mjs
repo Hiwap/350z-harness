@@ -97,7 +97,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   const svgFns = [...script.matchAll(/function (svg\w+)\([^)]*\)\{[\s\S]*?\n\}/g)].filter((m) => m[1] !== 'svgTabN' && /flipRow|isFaceInv/.test(m[0])).map((m) => m[1]);
   ok('fixed faces: no svg* renderer other than svgTabN references flipRow/isFaceInv', svgFns.length === 0, svgFns.join(','));
   const noView = [...html.matchAll(/^  (\w+):\{group:'motor'[^\n]*$/gm)]
-    .filter((m) => !/(?:\bview|viewByTrans):\{/.test(m[0]) && !/shape:'(?:ring|jb|ixnote)'/.test(m[0]) && !/^  (?:jb_|feed_|fuse\d+_|comb_meter|ix_f103_f151)/.test(m[0]))
+    .filter((m) => !/(?:\bview|viewByTrans):\{/.test(m[0]) && !/shape:'(?:ring|jb|ixnote)'/.test(m[0]) && !/^  (?:jb_|feed_|fuse\d+_|fuse_link_box|comb_meter|ix_f103_f151)/.test(m[0]))
     .map((m) => m[1]).filter((id) => !['ecm_f101_can', 'f152', 'e17', 'f23_gnd'].includes(id));
   ok('fixed faces: every plug ficha carries view data (FSM ref + order, or unverified reason)', noView.length === 0, noView.join(','));
   const pp = fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8');
@@ -117,25 +117,25 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     /alt_e:\{group:'motor', sub:'sensors'[^\n]*shape:'ring'[^\n]*\n\s*pins:\[\{id:'2',lab:'E',code:'B',ecm:null,rail:'gnd',src:'E212',srcSub:'power',circ:'alt_charge'/.test(html));
   ok('E11/F2·1 ALT-S fed by fuse 36 10A (E21·36), 12V rail, circ alt_s',
     /\{id:'1',lab:'ALT-S',code:'LG\/B',ecm:null,rail:'12v',src:'E21·36',srcSub:'fuses',circ:'alt_s'/.test(html)
-    && /fuse36_alt:\{[^\n]*\n\s*pins:\[\{id:'36',code:'LG\/B',ecm:null,rail:'12v',src:'BAT'[^\n]*circ:'alt_s'/.test(html));
+    && /\n  fuse_link_box:\{[\s\S]*?\{id:'36',lab:'36',code:'LG\/B',ecm:null,rail:'12v',src:'10A',srcSub:'power',circ:'alt_s'/.test(html));
   ok('F20·4 S = 12V alt_s · F20·3 L and F102·13H = alt_l (signal, no rail)',
     /\{id:'4',lab:'S',code:'LG\/B',rail:'12v',src:'E11\/F2·1',srcSub:'pedals',circ:'alt_s'/.test(html)
     && /\{id:'3',lab:'L',code:'W\/R',src:'F102·13H',srcSub:'intermedias',circ:'alt_l'\}/.test(html)
     && /\{id:'13H',code:'W\/R',ecm:null,lab:'CHARGE',src:'F20·3',srcSub:'sensors',circ:'alt_l'/.test(html));
   ok('charge circuits alt_charge / alt_s / alt_l defined; alt_l path has no rail cavity',
-    /\{id:'alt_charge'[\s\S]*?path:\{alt_b:\['1'\],alt_e:\['2'\],fuse36_alt:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['3','4'\],ix_f102_m72:\['13H'\]\}/.test(html)
-    && /\{id:'alt_s'[\s\S]*?path:\{fuse36_alt:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['4'\]\}/.test(html)
+    /\{id:'alt_charge'[\s\S]*?path:\{alt_b:\['1'\],alt_e:\['2'\],fuse_link_box:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['3','4'\],ix_f102_m72:\['13H'\]\}/.test(html)
+    && /\{id:'alt_s'[\s\S]*?path:\{fuse_link_box:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['4'\]\}/.test(html)
     && /\{id:'alt_l'[\s\S]*?path:\{f20_alt:\['3'\],ix_f102_m72:\['13H'\]\}/.test(html));
-  ok('Arnés motor hides alternator B/E (battery cable PG-53) and fuse 36 (E21)',
-    /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'alt_b', 'alt_e', 'fuse36_alt'[\s\S]*?\]\);/.test(html));
+  ok('Arnés motor hides alternator B/E (battery cable PG-53) and the E18/E21 fuse box (fuse 36)',
+    /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'fuse_link_box'[\s\S]*?'alt_b', 'alt_e'[\s\S]*?\]\);/.test(html));
 }
 {
   /* Fuse cards: one top-level ficha group 'fuses' (Fusibles / Fuses / ヒューズ), collapsed by default, body-side (hidden in Arnés motor). */
-  const FUSES = ['jb_10a_inj', 'jb_15a_ht', 'fuse36_alt'];
+  const FUSES = ['jb_fuse_block', 'fuse_link_box'];
   const subOf = (id) => ((html.match(new RegExp(`\\n  ${id}:\\{group:'\\w+', sub:'(\\w+)'`)) || [])[1]);
-  ok('fuse cards (J/B 10A inj, J/B 15A HT, E21 fuse 36) all in sub fuses', FUSES.every((id) => subOf(id) === 'fuses'), FUSES.map((id) => `${id}=${subOf(id)}`).join(','));
+  ok('fuse box cards (cabin J/B, battery box E18/E21) all in sub fuses', FUSES.every((id) => subOf(id) === 'fuses'), FUSES.map((id) => `${id}=${subOf(id)}`).join(','));
   const inFuses = [...html.matchAll(/\n  (\w+):\{group:'\w+', sub:'fuses'/g)].map((m) => m[1]);
-  ok('sub fuses holds exactly the fuse cards, in J/B → IPDM → E21 order', inFuses.join(',') === FUSES.join(','), inFuses.join(','));
+  ok('sub fuses holds exactly the fuse cards, in J/B → E18/E21 order', inFuses.join(',') === FUSES.join(','), inFuses.join(','));
   const noFuseInFeeds = [...html.matchAll(/\n  ((?:jb_|fuse)\w*):\{group:'\w+', sub:'(\w+)'/g)].filter((m) => m[2] !== 'fuses').map((m) => m[1]);
   ok('no jb_* / fuse* card left outside the Fusibles group', noFuseInFeeds.length === 0, noFuseInFeeds.join(','));
   ok('SUB_ORDER has fuses (after feeds, before sensors)', /const SUB_ORDER = \['power','ipdm','feeds','fuses','sensors',/.test(html));

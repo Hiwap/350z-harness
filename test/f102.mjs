@@ -187,7 +187,7 @@ await clickPin(16);
   const ids = await hlConns();
   ok(ids.includes('af_b1'), `pin 16 includes A/F B1 (${ids.join(',')})`);
   ok(!ids.includes('ix_e108_m15') && !ids.includes('ix_e12_f3'), `pin 16 no heater intermediates (${ids.join(',')})`);
-  ok(ids.filter((id) => !id.startsWith('feed_') && id !== 'jb_15a_ht').length === 1, `pin 16 one ficha (${ids.join(',')})`);
+  ok(ids.filter((id) => !id.startsWith('feed_') && id !== 'jb_fuse_block').length === 1, `pin 16 one ficha (${ids.join(',')})`);
 }
 await page.evaluate(() => {
   const pwr = document.getElementById('railRelPower');
@@ -314,7 +314,7 @@ await page.evaluate(() => {
   const shown = await page.evaluate(() => [...document.querySelectorAll('#fichas [data-conn]')]
     .filter((el) => el.getClientRects().length > 0).map((el) => el.dataset.conn));
   const hidden = ['evap_press', 'evap_vent', 'fuel_pump', 'fuel_tank_temp', 'ix_t2_b44', 'ix_b1_m12',
-    'ipdm_e7', 'ipdm_e8', 'ix_e108_m15', 'jb_10a_inj', 'jb_15a_ht'];
+    'ipdm_e7', 'ipdm_e8', 'ix_e108_m15', 'jb_fuse_block', 'fuse_link_box'];
   const leak = hidden.filter((id) => shown.includes(id));
   ok(leak.length === 0, `Arnès motor hides body/rear fichas incl. EVAP T21/T20 + fuel pump (leak: ${leak.join(',') || 'none'})`);
   ok(shown.includes('ix_e11_f2') && shown.includes('evap_purge'), 'Arnès motor keeps E11/F2 and F5 EVAP purge (engine loom)');
@@ -803,8 +803,7 @@ const FSM_FACE = {
   ipdm_e9: { mt: "53 54 55 56 57 58 59 60 / 45 46 47 48 49 50 51 52", at: "53 54 55 56 57 58 59 60 / 45 46 47 48 49 50 51 52" },
   feed_af_12v: { mt: "AF2-3 AF1-3", at: "AF2-3 AF1-3" },
   feed_ho2s_12v: { mt: "B2-12V B1-12V", at: "B2-12V B1-12V" },
-  jb_10a_inj: { mt: "10A", at: "10A" },
-  jb_15a_ht: { mt: "15A", at: "15A" },
+  jb_fuse_block: { mt: "1 2 3 4 5 6 7 8 9 10 11 / 12 13 14 15 16 17 18 19 20 21 22", at: "1 2 3 4 5 6 7 8 9 10 11 / 12 13 14 15 16 17 18 19 20 21 22" },
   feed_inj_coil_12v: { mt: "COIL+ INJ+", at: "COIL+ INJ+" },
   feed_ckp_maf_12v: { mt: "MAF+ CKP+", at: "MAF+ CKP+" },
   af_b1: { mt: "5 3 1 / 6 4 2", at: "5 3 1 / 6 4 2" },
@@ -824,7 +823,7 @@ const FSM_FACE = {
   f20_alt: { mt: "3 4", at: "3 4" },
   alt_b: { mt: "1", at: "1" },
   alt_e: { mt: "2", at: "2" },
-  fuse36_alt: { mt: "36", at: "36" },
+  fuse_link_box: { mt: "A E D C B / 31 32 33 34 F G H I / J K L M 35 36 37 38", at: "A E D C B / 31 32 33 34 F G H I / J K L M 35 36 37 38" },
   f21_oilp: { mt: "1 2 3", at: "1 2 3" },
   f35_pnp: { mt: "1 2", at: null },
   ix_f14_f229: { mt: "1 2", at: "1 2" },
@@ -1002,7 +1001,7 @@ await page.evaluate(() => { const s = document.getElementById('loomView'); s.val
     const vn = {};
     for (const Lg of ['es', 'en', 'ja']) { lang = Lg; vn[Lg] = viewNoteText('alt_b', CONN.alt_b); }
     lang = 'es';
-    return { b: L('alt_b', '1'), e: L('alt_e', '2'), e11: L('ix_e11_f2', '1'), s: L('f20_alt', '4'), l: L('f20_alt', '3'), fuse: L('fuse36_alt', '36'),
+    return { b: L('alt_b', '1'), e: L('alt_e', '2'), e11: L('ix_e11_f2', '1'), s: L('f20_alt', '4'), l: L('f20_alt', '3'), fuse: L('fuse_link_box', '36'),
       e11src: CONN.ix_e11_f2.pins.find((p) => p.id === '1').src, bCode: CONN.alt_b.pins[0].code, eCode: CONN.alt_e.pins[0].code, vn,
       shapes: [CONN.alt_b.shape, CONN.alt_e.shape], group: [CONN.alt_b.sub, CONN.alt_e.sub, CONN.f20_alt.sub] };
   });
@@ -1017,7 +1016,7 @@ async function altLit() {
   return page.evaluate(() => {
     const on = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains('hl'));
     const p13 = f102PinEl('13H');
-    return { circs: [...lastCircIds].sort().join(','), b: on('alt_b', '1'), e: on('alt_e', '2'), fuse: on('fuse36_alt', '36'), e11: on('ix_e11_f2', '1'),
+    return { circs: [...lastCircIds].sort().join(','), b: on('alt_b', '1'), e: on('alt_e', '2'), fuse: on('fuse_link_box', '36'), e11: on('ix_e11_f2', '1'),
       s: on('f20_alt', '4'), l: on('f20_alt', '3'), h13: !!p13 && p13.classList.contains('hl') };
   });
 }
@@ -1027,7 +1026,7 @@ for (const [cid, cav] of [['alt_b', '1'], ['alt_e', '2']]) {
   const r = await altLit();
   ok(r.circs === 'alt_charge' && r.b && r.e && r.fuse && r.e11 && r.s && r.l && r.h13, `${cid}·${cav} click → alt_charge: B, E, fuse 36, E11/F2·1, F20·3/4, F102·13H lit (${JSON.stringify(r)})`);
 }
-for (const [cid, cav] of [['ix_e11_f2', '1'], ['f20_alt', '4'], ['fuse36_alt', '36']]) {
+for (const [cid, cav] of [['ix_e11_f2', '1'], ['f20_alt', '4'], ['fuse_link_box', '36']]) {
   await page.evaluate(() => clearSelection());
   await page.evaluate((c, v) => selectConnPin(c, v), cid, cav);
   const r = await altLit();
@@ -1044,7 +1043,7 @@ await page.evaluate(() => clearSelection());
   const rail = await page.evaluate(() => {
     const has = (cid, cav, cls) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains(cls));
     toggleRail('12v');
-    const v = { b: has('alt_b', '1', 'rail-line-12v_batt'), fuse: has('fuse36_alt', '36', 'rail-line-12v_batt'), e11: has('ix_e11_f2', '1', 'rail-line-12v_batt'),
+    const v = { b: has('alt_b', '1', 'rail-line-12v_batt'), fuse: has('fuse_link_box', '36', 'rail-line-12v_batt'), e11: has('ix_e11_f2', '1', 'rail-line-12v_batt'),
       s: has('f20_alt', '4', 'rail-line-12v_batt'), l: has('f20_alt', '3', 'hl-rail') };
     toggleRail('12v'); toggleRail('gnd');
     v.e = has('alt_e', '2', 'hl-rail'); v.e17 = has('e17', 'ring', 'hl-rail'); v.f23 = has('f23_gnd', 'ring', 'hl-rail');
@@ -1057,12 +1056,12 @@ await page.evaluate(() => clearSelection());
 {
   const vis = async (v) => {
     await page.evaluate((v) => { const s = document.getElementById('loomView'); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })); }, v);
-    return page.evaluate(() => Object.fromEntries(['alt_b', 'alt_e', 'fuse36_alt', 'f20_alt', 'ix_e11_f2'].map((c) => [c, !!document.querySelector(`#fichas .ficha[data-conn="${c}"]`)])));
+    return page.evaluate(() => Object.fromEntries(['alt_b', 'alt_e', 'fuse_link_box', 'f20_alt', 'ix_e11_f2'].map((c) => [c, !!document.querySelector(`#fichas .ficha[data-conn="${c}"]`)])));
   };
   const all = await vis('all');
   const mot = await vis('motor');
   ok(Object.values(all).every(Boolean), `Completo shows E202, E211, fuse 36, F20, E11/F2 (${JSON.stringify(all)})`);
-  ok(!mot.alt_b && !mot.alt_e && !mot.fuse36_alt && mot.f20_alt && mot.ix_e11_f2,
+  ok(!mot.alt_b && !mot.alt_e && !mot.fuse_link_box && mot.f20_alt && mot.ix_e11_f2,
     `Arnés motor hides battery-cable E202/E211 and fuse 36 (E21); keeps F20 and E11/F2 (${JSON.stringify(mot)})`);
   await vis('all');
 }
@@ -1109,7 +1108,7 @@ console.log('\nF102·10H DLC signal ground (EC-742): DLC 5 → F102·10H → F10
 console.log('\nFusibles group: every fuse card in one top-level ficha group, collapsed by default, hidden in Arnés motor, auto-opens when lit');
 {
   const setLoom = (v) => page.evaluate((v) => { const s = document.getElementById('loomView'); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })); }, v);
-  const FUSES = ['jb_10a_inj', 'jb_15a_ht', 'fuse36_alt'];
+  const FUSES = ['jb_fuse_block', 'fuse_link_box'];
   const resetClosed = async () => {
     await page.evaluate(() => { clearSelection(); localStorage.removeItem('z33_sub_fuses'); });
     await setLoom('motor'); await setLoom('all');
@@ -1121,7 +1120,7 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
     return { saved: localStorage.getItem('z33_sub_fuses'), exists: !!sec, open: !!(sec && sec.open), order: sec ? [...sec.querySelectorAll('.ficha[data-conn]')].map((f) => f.dataset.conn) : [],
       title: sec ? (sec.querySelector('summary') || {}).textContent || '' : '', outside,
       secOrder: [...document.querySelectorAll('#fichas details.ficha-sec[data-sub]')].map((d) => d.dataset.sub),
-      l10: lit('jb_10a_inj', '10A'), l15: lit('jb_15a_ht', '15A'), l36: lit('fuse36_alt', '36') };
+      l10: lit('jb_fuse_block', '1'), l15: lit('jb_fuse_block', '15'), l36: lit('fuse_link_box', '36') };
   }, FUSES);
   await page.evaluate(() => clearSelection());
   await resetClosed();
@@ -1154,7 +1153,7 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
     ok(!st.open && !st[key], `ECM ${n} without Alim. leaves the fuse unlit and the group collapsed, as before (open=${st.open}, lit=${st[key]})`);
   }
   await resetClosed();
-  await page.evaluate(() => selectConnPin('jb_15a_ht', '15A'));
+  await page.evaluate(() => selectConnPin('jb_fuse_block', '15'));
   st = await state();
   ok(st.open && st.l15, `J/B 15A click lights its own cavity with the group open (open=${st.open}, lit=${st.l15})`);
   /* user choice is kept: manually opened group stays open after a selection is cleared */
@@ -1171,8 +1170,8 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
     const has = (cid, cav, cls) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains(cls));
     toggleRail('12v');
     const sec = document.querySelector('#fichas details.ficha-sec[data-sub="fuses"]');
-    const v = { open: !!(sec && sec.open), inj: has('jb_10a_inj', '10A', 'rail-line-12v_inj'), ht: has('jb_15a_ht', '15A', 'rail-line-12v_ht'), batt: has('fuse36_alt', '36', 'rail-line-12v_batt'),
-      hl: ['jb_10a_inj:10A', 'jb_15a_ht:15A', 'fuse36_alt:36'].every((k) => { const [c, v] = k.split(':'); return has(c, v, 'hl-rail'); }) };
+    const v = { open: !!(sec && sec.open), inj: has('jb_fuse_block', '1', 'rail-line-12v_inj'), ht: has('jb_fuse_block', '15', 'rail-line-12v_ht'), batt: has('fuse_link_box', '36', 'rail-line-12v_batt'),
+      hl: ['jb_fuse_block:1', 'jb_fuse_block:15', 'fuse_link_box:36'].every((k) => { const [c, v] = k.split(':'); return has(c, v, 'hl-rail'); }) };
     toggleRail('12v');
     return v;
   });
@@ -1186,7 +1185,7 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
   }, FUSES);
   ok(!mot.sec && mot.cards.length === 0, `Arnés motor hides the whole Fusibles group (${JSON.stringify(mot)})`);
   await page.evaluate(() => selectConnPin('ix_e11_f2', '1'));
-  const mot2 = await page.evaluate(() => !!document.querySelector('#fichas .ficha[data-conn="fuse36_alt"]'));
+  const mot2 = await page.evaluate(() => !!document.querySelector('#fichas .ficha[data-conn="fuse_link_box"]'));
   ok(!mot2, 'Arnés motor: E11/F2·1 click does not resurrect the hidden fuse card');
   await page.evaluate(() => clearSelection());
   await setLoom('all');

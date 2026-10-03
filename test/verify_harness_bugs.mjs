@@ -60,7 +60,7 @@ for (const id of ['evap_press', 'evap_vent', 'fuel_pump', 'ix_t2_b44']) {
 ok('ac_press in LOOM_BODY_EXTRA',
   /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'ac_press'[\s\S]*?\]\)/.test(html));
 ok('cabin JB fuse notes in LOOM_BODY_EXTRA',
-  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'jb_10a_inj'[\s\S]*?'jb_15a_ht'[\s\S]*?\]\)/.test(html));
+  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'jb_fuse_block'[\s\S]*?'fuse_link_box'[\s\S]*?\]\)/.test(html));
 ok('F9 starter not on pulled motor loom',
   /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'f9_starter'[\s\S]*?\]\)/.test(html));
 ok('F16 condenser and F24 A/C clutch not on pulled motor loom',
