@@ -1734,39 +1734,58 @@ function buildCircuits(model){
     {id:'psp', title:'PSP · presión dirección', color:'#00897b',
       ecm:[12,68,67], conn:['psp'], notes:'Sensor de presión de la dirección asistida (PSP). Tiene tres cables: 5 V desde ECM 68 (R/W), señal a ECM 12 (L/W) y masa a ECM 67 (B/W), la masa de sensores compartida con MAF, IAT y EVAP. EC-401.'},
     {id:'ckp', title:'CKP / POS · cigüeñal', color:'#ab47bc',
-      ecm:[13], conn:['ckp'], path:{feed_ckp_maf_12v:['CKP+']}, notes:'Sensor de posición del cigüeñal (CKP / POS), que indica la posición y las vueltas del motor. Su señal va a ECM 13 (W/L); la alimentación de 12 V llega por el propio conector del sensor.'},
+      ecm:[13], conn:['ckp'], notes:'Sensor de posición del cigüeñal (CKP / POS), que indica la posición y las vueltas del motor. Su señal va a ECM 13 (W/L); la alimentación de 12 V llega por el propio conector del sensor.'},
     {id:'cmp_b1', title:'CMP · fase leva B1', color:'#ec407a',
       ecm:[33], conn:['cmp_b1'], notes:'Sensor de posición del árbol de levas (PHASE) del banco 1. Su señal va a ECM 33 (R).'},
     {id:'cmp_b2', title:'CMP · fase leva B2', color:'#ec407a',
       ecm:[14], conn:['cmp_b2'], notes:'Sensor de posición del árbol de levas (PHASE) del banco 2. Su señal va a ECM 14 (R/L).'},
+    /* CKP / CMP 12V (Alim.) and chassis ground (Masa, gndRel) as separate circuits, like EVT F38/F42 (EC-323/331/333) */
+    {id:'ckp_pwr', title:'CKP · 12V', color:'#ab47bc',
+      ecm:[], conn:['ckp','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],feed_ckp_maf_12v:['CKP+'],ckp:['1'],ipdm_cover:['77']},
+      notes:'12 V del sensor de cigüeñal: salen del relé del ECM en el IPDM (E7·18, R/W), pasan por F3 y llegan a F10·1. EC-323.'},
+    {id:'ckp_gnd', gndRel:true, title:'CKP · masa F10·3', color:'#ab47bc',
+      ecm:[], conn:['ckp','gnd4','f152'], path:{ckp:['3'],gnd4:['3'],f152:['ring']},
+      notes:'Masa del sensor de cigüeñal: sale de F10·3 (B), pasa por F103/F151·3 y termina en la masa del motor F152. EC-323.'},
+    {id:'cmp_b1_pwr', title:'CMP B1 · 12V', color:'#ec407a',
+      ecm:[], conn:['cmp_b1','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],cmp_b1:['3'],ipdm_cover:['77']},
+      notes:'12 V del sensor de levas del banco 1: salen del relé del ECM en el IPDM (E7·18, R/W), pasan por F3·7 y llegan a F4·3. EC-331.'},
+    {id:'cmp_b1_gnd', gndRel:true, title:'CMP B1 · masa F4·1', color:'#ec407a',
+      ecm:[], conn:['cmp_b1','gnd4','f152'], path:{cmp_b1:['1'],gnd4:['3'],f152:['ring']},
+      notes:'Masa del sensor de levas del banco 1: sale de F4·1 (B), pasa por F103/F151·3 y termina en la masa del motor F152. EC-331.'},
+    {id:'cmp_b2_pwr', title:'CMP B2 · 12V', color:'#ec407a',
+      ecm:[], conn:['cmp_b2','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],cmp_b2:['3'],ipdm_cover:['77']},
+      notes:'12 V del sensor de levas del banco 2: salen del relé del ECM en el IPDM (E7·18, R/W), pasan por F3·7 y llegan a F32·3. EC-333.'},
+    {id:'cmp_b2_gnd', gndRel:true, title:'CMP B2 · masa F32·1', color:'#ec407a',
+      ecm:[], conn:['cmp_b2','gnd4','f152'], path:{cmp_b2:['1'],gnd4:['3'],f152:['ring']},
+      notes:'Masa del sensor de levas del banco 2: sale de F32·1 (B), pasa por F103/F151·3 y termina en la masa del motor F152. EC-333.'},
     {id:'iat', chan:'iat', title:'IAT', color:'#8d6e63',
       ecm:[34], conn:['maf'], path:{maf:['5']}, notes:'Sensor de temperatura del aire de admisión (IAT), dentro del medidor de flujo MAF F25. Señal: F25·5 (Y/G) → ECM 34. Masa: F25·6 (B/W) → ECM 67. EC-223.'},
     {id:'ect', title:'ECT', color:'#5c6bc0',
       ecm:[73], conn:['ect'], notes:'Sensor de temperatura del refrigerante (ECT). Señal: F13·1 (BR/Y) → ECM 73. Masa: F13·2 (B/W) → ECM 67. EC-229.'},
     {id:'coil_1', title:'Bobina 1', color:'#26a69a',
-      ecm:[62], conn:['coil1','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina de encendido 1. El ECM la dispara desde el pin 62, por F18·3. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
+      ecm:[62], conn:['coil1','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+'],coil1:['3']}, notes:'Bobina de encendido 1. El ECM la dispara desde el pin 62, por F18·3. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'coil_2', title:'Bobina 2', color:'#26a69a',
-      ecm:[81], conn:['coil2'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina de encendido 2. El ECM la dispara desde el pin 81. Es del banco 2 y no pasa por F18. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
+      ecm:[81], conn:['coil2'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],coil2:['3']}, notes:'Bobina de encendido 2. El ECM la dispara desde el pin 81. Es del banco 2 y no pasa por F18. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'coil_3', title:'Bobina 3', color:'#26a69a',
-      ecm:[61], conn:['coil3','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina de encendido 3. El ECM la dispara desde el pin 61, por F18·2. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
+      ecm:[61], conn:['coil3','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+'],coil3:['3']}, notes:'Bobina de encendido 3. El ECM la dispara desde el pin 61, por F18·2. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'coil_4', title:'Bobina 4', color:'#26a69a',
-      ecm:[80], conn:['coil4'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina de encendido 4. El ECM la dispara desde el pin 80. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
+      ecm:[80], conn:['coil4'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],coil4:['3']}, notes:'Bobina de encendido 4. El ECM la dispara desde el pin 80. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'coil_5', title:'Bobina 5', color:'#26a69a',
-      ecm:[60], conn:['coil5'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina de encendido 5. El ECM la dispara desde el pin 60. Conector F15; no pasa por F18. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
+      ecm:[60], conn:['coil5'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],coil5:['3']}, notes:'Bobina de encendido 5. El ECM la dispara desde el pin 60. Conector F15; no pasa por F18. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'coil_6', title:'Bobina 6', color:'#26a69a',
-      ecm:[79], conn:['coil6'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']}, notes:'Bobina de encendido 6. El ECM la dispara desde el pin 79. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
+      ecm:[79], conn:['coil6'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],coil6:['3']}, notes:'Bobina de encendido 6. El ECM la dispara desde el pin 79. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'inj_1', title:'Inyector 1', color:'#9ccc65',
-      ecm:[23], conn:['inj1','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 1. El ECM lo abre desde el pin 23, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
+      ecm:[23], conn:['inj1','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+'],inj1:['1']}, notes:'Inyector 1. El ECM lo abre desde el pin 23, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
     {id:'inj_2', title:'Inyector 2', color:'#9ccc65',
-      ecm:[42], conn:['inj2','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 2. El ECM lo abre desde el pin 42, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
+      ecm:[42], conn:['inj2','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+'],inj2:['1']}, notes:'Inyector 2. El ECM lo abre desde el pin 42, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
     {id:'inj_3', title:'Inyector 3', color:'#9ccc65',
-      ecm:[22], conn:['inj3','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 3. El ECM lo abre desde el pin 22, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
+      ecm:[22], conn:['inj3','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+'],inj3:['1']}, notes:'Inyector 3. El ECM lo abre desde el pin 22, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
     {id:'inj_4', title:'Inyector 4', color:'#9ccc65',
-      ecm:[41], conn:['inj4','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 4. El ECM lo abre desde el pin 41, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
+      ecm:[41], conn:['inj4','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+'],inj4:['1']}, notes:'Inyector 4. El ECM lo abre desde el pin 41, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
     {id:'inj_5', title:'Inyector 5', color:'#9ccc65',
-      ecm:[21], conn:['inj5','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 5. El ECM lo abre desde el pin 21, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
+      ecm:[21], conn:['inj5','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+'],inj5:['1']}, notes:'Inyector 5. El ECM lo abre desde el pin 21, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
     {id:'inj_6', title:'Inyector 6', color:'#9ccc65',
-      ecm:[40], conn:['inj6','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+']}, notes:'Inyector 6. El ECM lo abre desde el pin 40, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
+      ecm:[40], conn:['inj6','ix_f221_f33'], path:{jb_fuse_block:['1'],ix_f102_m72:['17H'],ix_f221_f33:['5'],feed_inj_coil_12v:['INJ+'],inj6:['1']}, notes:'Inyector 6. El ECM lo abre desde el pin 40, por el conector F33/F221. Todos los inyectores reciben los mismos 12 V: fusible de 10A de la caja de fusibles (J/B) → F102·17H → F33·5.'},
     {id:'batt_ecm', title:'BATT · alimentación ECM 121', color:'#ef5350',
       ecm:[121], conn:['ix_f102_m72','ix_e108_m15'], f102:['5H'],
       path:{ix_f102_m72:['5H'], ix_e108_m15:['68G']},
@@ -1803,7 +1822,10 @@ function buildCircuits(model){
     {id:'can', title:'CAN / DLC / unified meter', color:'#7e57c2',
       ecm:[86,94], conn:['ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','comb_meter'], notes:'Red CAN del auto, por la que se comunican los módulos (LAN-31/55/76/97/119). Dos cables: CAN-H desde ECM 94 (L) y CAN-L desde ECM 86 (P). Pasan por F102·26H/27H y llegan al conector de diagnóstico (M8·6/14), al cuadro y amplificador de A/C (M48·1/11) y al BCM (M90·39/40); con VDC también al sensor de ángulo de dirección (M22·4/5). Siguen por E108/M15·2G/7G al IPDM (E9·48/49) y al ABS (E51·20/23; con VDC, E118·61/63). En A/T el TCM se conecta por F6·3/8, del lado del ECM de F102. El combination meter M19 no está en el CAN.'},
     {id:'maf', chan:'maf', title:'MAF', color:'#fb8c00',
-      ecm:[51], conn:['maf'], path:{feed_ckp_maf_12v:['MAF+']}, notes:'Sensor de caudal de aire (MAF). Su señal va a ECM 51 (OR).'},
+      ecm:[51], conn:['maf'], notes:'Sensor de caudal de aire (MAF). Su señal va a ECM 51 (OR).'},
+    {id:'maf_pwr', chan:'maf', title:'MAF · 12V', color:'#fb8c00',
+      ecm:[], conn:['maf','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],feed_ckp_maf_12v:['MAF+'],maf:['2'],ipdm_cover:['77']},
+      notes:'12 V del MAF: salen del relé del ECM en el IPDM (E7·18, R/W), pasan por F3 y llegan a F25·2. EC-207.'},
     {id:'tb1', chan:'tb1', title:'ETC · sensor 1 (T1)', color:'#029eb7',
       ecm:[47,50,66], conn:['etc'], notes:'Sensor 1 de posición de la mariposa: 5 V desde ECM 47, señal T1 a ECM 50 y masa a ECM 66. EC-238.'},
     {id:'tb2', chan:'tb2', title:'ETC · sensor 2 (T2)', color:'#029eb7',
@@ -1825,7 +1847,7 @@ function buildCircuits(model){
     {id:'evap_press', title:'EVAP · presión', color:'#7b1fa2',
       ecm:[32,48,67], conn:['evap_press','ix_t2_b44','ix_b1_m12','ix_f102_m72'], f102:['18H','19H','20H'], notes:'Sensor de presión del sistema EVAP (vapores de combustible), T21, junto al cánister. Según EC-379 sus tres cables pasan por T2/B44, B1/M12 y F102: 5 V: ECM 48 → F102·18H (PU) → B1/M12·40J → T2/B44·10 → T21·3 (L). Señal: T21·2 (W) → B44·11 → M12·39J → F102·19H (BR/W) → ECM 32. Masa: T21·1 (B/W) → B44·8 → M12·38J → F102·20H (B/W) → ECM 67.'},
     {id:'evap_purge', title:'EVAP · purga', color:'#8e24aa',
-      ecm:[45], conn:['evap_purge'], path:{ipdm_e7:['18'],ix_e12_f3:['7']}, notes:'Válvula de purga del cánister EVAP (F5). El ECM la abre desde el pin 45 por F5·2 (G/W). Su 12 V viene del relé del ECM: IPDM E7·18 → F3·7 → F5·1 (R/W). EC-360.'},
+      ecm:[45], conn:['evap_purge'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],evap_purge:['1']}, notes:'Válvula de purga del cánister EVAP (F5). El ECM la abre desde el pin 45 por F5·2 (G/W). Su 12 V viene del relé del ECM: IPDM E7·18 → F3·7 → F5·1 (R/W). EC-360.'},
     {id:'evap_vent', title:'EVAP · venteo', color:'#6a1b9a',
       ecm:[117], conn:['evap_vent','ix_t2_b44','ix_b1_m12','ix_f102_m72'],
       path:{evap_vent:['2'],ix_t2_b44:['9'],ix_b1_m12:['37J'],ix_f102_m72:['29H']}, f102:['29H'],
@@ -1837,7 +1859,7 @@ function buildCircuits(model){
     {id:'brake_stop', title:'Interruptor de freno', color:'#e53935',
       ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], path:{stop_lamp:['2'],ix_e108_m15:['38G'],ix_f102_m72:['21H']}, notes:'Aviso de freno al ECM. El interruptor de luces de freno (bajo el pedal) manda la señal por E108·38G y F102·21H hasta ECM 101 (L/OR).'},
     {id:'ascd_brake', title:'ASCD freno (+ embrague M/T)', color:'#fb8c00',
-      ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], f102:['2H'], notes:'Señal de freno del control de crucero (ASCD). En M/T el interruptor de embrague está en serie en la misma línea. Recorrido: E108·3G → F102·2H → ECM 108 (B/R).'},
+      ecm:[108], conn:['ascd_brake','ascd_clutch','ix_e108_m15','ix_f102_m72'], f102:['2H'], path:{ascd_clutch:['1']}, notes:'Señal de freno del control de crucero (ASCD). En M/T el interruptor de embrague está en serie en la misma línea. Recorrido: E108·3G → F102·2H → ECM 108 (B/R).'},
     {id:'ascd_steer', title:'ASCD volante (reloj / clock spring)', color:'#26c6da',
       ecm:[99,67], conn:['clock_spring','ix_f102_m72'], f102:['1H','7H'], notes:'Botones del control de crucero en el volante. Pasan por el reloj (clock spring) M23. Señal: M23·34 (G/Y) → F102·7H → ECM 99. Masa: M23·33 (B/Y) → F102·1H → ECM 67 (B/W). EC-618.'},
     /* PNP depends on transmission (FSM EC-646 M/T vs EC-644 A/T). trans:'mt'|'at' → filtered by circuitVisibleInTrans. */
@@ -1845,6 +1867,31 @@ function buildCircuits(model){
       ecm:[102], conn:['f35_pnp'], path:{f35_pnp:['1']}, notes:'Interruptor de punto muerto (park/neutral, PNP) de la caja manual, F35, montado en la caja. La señal va directa de ECM 102 (BR/Y) a F35·1, sin pasar por F102. En punto muerto el interruptor cierra a masa (ECM 102 ≈ 0 V); en las demás marchas hay 12 V. La masa (F35·2 → F103·3 → F152) se ve en el filtro "Masa" o al hacer clic en F35·2. EC-646/648.'},
     {id:'pnp_mt_gnd', trans:'mt', gndRel:true, title:'PNP (M/T) · masa F35·2', color:'#ab47bc',
       ecm:[], conn:['f35_pnp','gnd4','f152'], path:{f35_pnp:['2'],gnd4:['3'],f152:['ring']}, notes:'Masa del interruptor de punto muerto (M/T): F35·2 (B) → F103/F151·3 → masa del motor F152. EC-646.'},
+    /* Rail partners without an ECM pin (12V feed / chassis ground of each actuator): own circuits so they light with Alim./Masa and can be clicked */
+    {id:'coil_gnd', gndRel:true, title:'Bobinas + condensador · masa F23', color:'#26a69a',
+      ecm:[], conn:['coil1','coil2','coil3','coil4','coil5','coil6','f16_cond','f23_gnd'], path:{coil1:['2'],coil2:['2'],coil3:['2'],coil4:['2'],coil5:['2'],coil6:['2'],f16_cond:['2'],ix_f18_f201:['1'],f23_gnd:['ring']},
+      notes:'Masa de las seis bobinas y del condensador de encendido F16: cada una tiene su pin de masa (B), y todas terminan en la masa del motor F23 (la de las bobinas del banco 1 pasa por F18/F201·1). EC-689 / EC-691 / EC-693.'},
+    {id:'f16_cond_pwr', title:'Condensador F16 · 12V', color:'#26a69a',
+      ecm:[], conn:['f16_cond','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],f16_cond:['1']},
+      notes:'12 V del condensador de encendido F16: los mismos 12 V de las bobinas, que salen de IPDM E7·17 (W/L), pasan por F3·5 y llegan a F16·1. EC-689.'},
+    {id:'fuel_pump_pwr', title:'Bomba de combustible · 12V', color:'#ef5350',
+      ecm:[], conn:['fuel_pump','ipdm_e8'], path:{ipdm_cover:['81'],ipdm_e8:['39'],fuel_pump:['1']},
+      notes:'12 V de la bomba de combustible: el relé de la bomba en el IPDM (fusible 81, 15A) sale por E8·39 (B/Y) y llega al pin 1 de la bomba. EC-710.'},
+    {id:'fuel_pump_gnd', title:'Bomba de combustible · masa', color:'#ef5350',
+      ecm:[], conn:['fuel_pump'],
+      notes:'Masa de la bomba de combustible: el pin 3 (B) va al punto de masa D105 (no dibujado en el mapa). EC-710.'},
+    {id:'stop_lamp_pwr', title:'Interruptor de freno · 12V', color:'#e53935',
+      ecm:[], conn:['stop_lamp'], path:{stop_lamp:['1']},
+      notes:'12 V del interruptor de luces de freno (pin 1, R/Y). Su fusible no está dibujado en el mapa. EC-626 / EC-628.'},
+    {id:'ascd_brake_pwr', title:'ASCD freno · 12V', color:'#fb8c00',
+      ecm:[], conn:['ascd_brake'], path:{ascd_brake:['1']},
+      notes:'12 V del interruptor de freno del ASCD (E110·1, Y/G). Su fusible no está dibujado en el mapa. EC-626 / EC-628.'},
+    {id:'tcm_batt', trans:'at', title:'TCM (A/T) · batería F6', color:'#7e57c2',
+      ecm:[], conn:['f6_at','ix_e12_f3'], path:{ix_e12_f3:['1'],f6_at:['1','2']},
+      notes:'Solo A/T. Batería del TCM: los pines 1 y 2 (R/W) del conector F6 de la caja; la línea pasa por E12/F3·1. AT-186.'},
+    {id:'tcm_gnd', trans:'at', title:'TCM (A/T) · masa F6', color:'#7e57c2',
+      ecm:[], conn:['f6_at'],
+      notes:'Solo A/T. Masa del TCM: los pines 5 y 10 (B) del conector F6 van a la masa del motor F23 (AT-186). La tabla FSM del motor no incluye este tramo, así que en el mapa no se dibuja hasta F23.'},
     {id:'can_tcm', trans:'at', title:'CAN · TCM (A/T) · F6', color:'#7e57c2',
       ecm:[94,86], conn:['f6_at'], path:{f6_at:['3','8']}, notes:'Solo A/T. El módulo de la caja automática (TCM, F502, dentro del conjunto de la caja) se conecta al CAN entre el ECM y F102. CAN-H: ECM 94 (L) → F6·3 (L; BR dentro de la caja) → F502·1. CAN-L: ECM 86 (P) → F6·8 (P; L/Y dentro) → F502·2. LAN-31/119.'},
     {id:'pnp_at', trans:'at', title:'PNP · Park/Neutral (A/T) · vía medidor', color:'#ab47bc',
@@ -2018,30 +2065,30 @@ function buildCircuits(model){
     base.push(
       {id:'vtc_adm_b1', title:'VTC admisión B1', color:'#d81b60',
         ecm:[11], conn:['vtc_b1','ix_f18_f201'],
-        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']},
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+'],vtc_b1:['2']},
         notes:'Solenoide de distribución variable (VTC) de admisión del banco 1 (motor sin VTC de escape). El ECM lo controla con su propio pin, el 11 (no lo comparte con el banco 2), por F18·4. Recibe 12 V del IPDM: E7·17 → F3·5 → F18·5/6.'},
       {id:'vtc_adm_b2', title:'VTC admisión B2', color:'#d81b60',
         ecm:[10], conn:['vtc_b2'],
-        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']},
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],vtc_b2:['2']},
         notes:'Solenoide de distribución variable (VTC) de admisión del banco 2 (motor sin VTC de escape). El ECM lo controla con su propio pin, el 10, sin pasar por F18. Recibe los mismos 12 V: IPDM E7·17 → F3·5.'}
     );
   } else if(model === 'de_revup'){
     base.push(
       {id:'vtc_adm_b1', title:'VTC admisión B1', color:'#d81b60',
         ecm:[11], conn:['vtc_b1','ix_f18_f201'],
-        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+']},
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+'],vtc_b1:['2']},
         notes:'Solenoide de distribución variable (VTC) de admisión del banco 1 (Rev-Up). El ECM lo controla con su propio pin, el 11 (no lo comparte con el banco 2), por F18·4. Recibe 12 V del IPDM: E7·17 → F3·5 → F18·5/6.'},
       {id:'vtc_adm_b2', title:'VTC admisión B2', color:'#d81b60',
         ecm:[10], conn:['vtc_b2'],
-        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+']},
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],vtc_b2:['2']},
         notes:'Solenoide de distribución variable (VTC) de admisión del banco 2 (Rev-Up). El ECM lo controla con su propio pin, el 10, sin pasar por F18. Recibe los mismos 12 V: IPDM E7·17 → F3·5.'},
       {id:'vtc_ex_b1', title:'VTC escape B1', color:'#ad1457',
         ecm:[9], conn:['vtc_ex_b1'],
-        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],vtc_ex_b1:['3']},
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],vtc_ex_b1:['4']},
         notes:'Solenoide de distribución variable (VTC) de escape del banco 1 (solo Rev-Up). El ECM lo controla desde el pin 9 (SB) por F40·3. Recibe 12 V del IPDM: E7·17 → F40·4. EC-198.'},
       {id:'vtc_ex_b2', title:'VTC escape B2', color:'#ad1457',
         ecm:[8], conn:['vtc_ex_b2'],
-        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],vtc_ex_b2:['2']},
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],vtc_ex_b2:['1']},
         notes:'Solenoide de distribución variable (VTC) de escape del banco 2 (solo Rev-Up). El ECM lo controla desde el pin 8 (P) por F41·2. Recibe 12 V del IPDM: E7·17 → F3·5 → F41·1. EC-200.'},
       /* EVT position sensors F38/F42 (EC-445/447): signal + ground (Masa) and 12V feed (Alim.) as separate circuits */
       {id:'evt_pos_b1', title:'EVT posición B1 (escape) · F38', color:'#ad1457',
@@ -2391,7 +2438,7 @@ const CONN_BASE = {
   maf:{group:'motor', sub:'sensors', name:'MAF · Caudal de aire', meta:'F25 · 6 pines · EC-207', accent:'#fb8c00', shape:'tab6', faceRows:[['1','2','3','4','5','6']], view:{c:'F25',g:'f',src:'EC-207',ord:'1-2-3-4-5-6'},
     pins:[
       {id:'1',code:'—',ecm:null},
-      {id:'2',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm'},
+      {id:'2',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm',circ:'maf_pwr'},
       {id:'3',lab:'GND',code:'B/W',ecm:67,rail:'gnd'},
       {id:'4',lab:'SIG',code:'OR',ecm:51},
       {id:'5',lab:'IAT',code:'Y/G',ecm:34},
@@ -2402,13 +2449,13 @@ const CONN_BASE = {
     pins:[{id:'1',lab:'SIG',code:'W',ecm:15},{id:'2',code:'B',ecm:116,rail:'gnd',lab:'GND'}],
     note:'Sensor de detonación F228 (EC-317). Pin 1: señal (W) → F14/F229·2 → ECM 15. Pin 2: malla → F14/F229·1 → línea B/R de ECM 116 → F103/F151·4 → masa F152.'},
   ckp:{group:'motor', sub:'sensors', name:'CKP · Posición cigüeñal', meta:'F10 B/3 · EC-323', accent:'#ab47bc', shape:'tab3', faceRows:[['3','2','1']], view:{c:'F10',g:'f',src:'EC-323',ord:'3-2-1'},
-    pins:[{id:'1',code:'R/W',ecm:null,rail:'12v',lab:'12V',src:'E7·18',srcSub:'ipdm'},{id:'2',code:'W/L',ecm:13,lab:'SIG'},{id:'3',code:'B',ecm:null,rail:'gnd',lab:'GND',src:'F152',srcSub:'power'}],
+    pins:[{id:'1',code:'R/W',ecm:null,rail:'12v',lab:'12V',src:'E7·18',srcSub:'ipdm',circ:'ckp_pwr'},{id:'2',code:'W/L',ecm:13,lab:'SIG'},{id:'3',code:'B',ecm:null,rail:'gnd',lab:'GND',src:'F152',srcSub:'power',circ:'ckp_gnd'}],
     note:'Sensor de posición del cigüeñal (CKP / POS). Pin 1: 12 V del relé del ECM (IPDM E7·18). Pin 2: señal → ECM 13. Pin 3: masa → F103/F151 → F152. EC-323.',},
   cmp_b1:{group:'motor', sub:'sensors', name:'CMP · Fase leva B1', meta:'F4 GY/3 · leva R · EC-331', accent:'#ec407a', shape:'tab3', faceRows:[['3','2','1']], view:{c:'F4',g:'f',src:'EC-331',ord:'3-2-1'},
-    pins:[{id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power'},{id:'2',lab:'SIG',code:'R',ecm:33},{id:'3',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm'}],
+    pins:[{id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'cmp_b1_gnd'},{id:'2',lab:'SIG',code:'R',ecm:33},{id:'3',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm',circ:'cmp_b1_pwr'}],
     note:'Sensor de árbol de levas del banco 1 (F4, EC-331). Pin 1 (B): masa → F103/F151·3 → F152. Pin 2 (R): señal → ECM 33. Pin 3 (R/W): 12 V del relé del ECM (IPDM E7·18 → F3·7).'},
   cmp_b2:{group:'motor', sub:'sensors', name:'CMP · Fase leva B2', meta:'F32 B/3 · leva L · EC-333', accent:'#ec407a', shape:'tab3', faceRows:[['3','2','1']], view:{c:'F32',g:'f',src:'EC-333',ord:'3-2-1'},
-    pins:[{id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power'},{id:'2',lab:'SIG',code:'R/L',ecm:14},{id:'3',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm'}],
+    pins:[{id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F152',srcSub:'power',circ:'cmp_b2_gnd'},{id:'2',lab:'SIG',code:'R/L',ecm:14},{id:'3',lab:'12V',code:'R/W',ecm:null,rail:'12v',src:'E7·18',srcSub:'ipdm',circ:'cmp_b2_pwr'}],
     note:'Sensor de árbol de levas del banco 2 (F32, EC-333). Pin 1 (B): masa → F103/F151·3 → F152. Pin 2 (R/L): señal → ECM 14. Pin 3 (R/W): 12 V del relé del ECM (IPDM E7·18 → F3·7).'},
   ect:{group:'motor', sub:'sensors', name:'ECT · Temp. refrigerante', meta:'F13 GY/2 · EC-229', accent:'#5c6bc0', shape:'tab2', faceRows:[['2','1']], view:{c:'F13',g:'f',src:'EC-229',ord:'2-1'},
     pins:[{id:'1',lab:'SIG',code:'BR/Y',ecm:73},{id:'2',lab:'GND',code:'B/W',ecm:67,rail:'gnd'}],
@@ -2495,12 +2542,12 @@ const CONN_BASE = {
       {id:'2',code:'R/W',lab:'BATT',rail:'12v'},
       {id:'3',code:'L',ecm:94,lab:'CAN-H',circ:'can_tcm'},
       {id:'4',code:'PU/W',ecm:null,lab:'K-TCM',src:'F102·24H',srcSub:'carroceria',circ:'tcm_kline',note:'Línea K de diagnóstico del TCM: TCM F502·6 → F6·4 → F102·24H → M72 (PU) → se une a la línea K (LG) del conector de diagnóstico M8·7 (AT-194). Color PU/W.',note_en:'TCM diagnosis K-line: TCM F502·6 → F6·4 → F102·24H → M72 (PU) → joins the LG K-line to diagnosis connector M8·7 (AT-194). Wire colour PU/W.',note_ja:'TCM診断Kライン：TCM F502·6 → F6·4 → F102·24H → M72（PU）→ 診断コネクターM8·7のKライン（LG）に合流（AT-194）。配線色PU/W。'},
-      {id:'5',code:'B',lab:'GND',rail:'gnd',src:'F23',srcSub:'power'},
+      {id:'5',code:'B',lab:'GND',rail:'gnd',src:'F23',srcSub:'power',circ:'tcm_gnd'},
       {id:'6',code:'Y/R',lab:'IGN',rail:'12v'},
       {id:'7',code:'OR',ecm:null,lab:'REV',src:'E19·2',srcSub:'carroceria',circ:'backup_lamp_at',note:'Salida del TCM al relé de marcha atrás: TCM F502·7 → F6·7 (OR) → E10/F1·2 (P en A/T) → relé E19·2 (AT-194).',note_en:'TCM output to the back-up lamp relay: TCM F502·7 → F6·7 (OR) → E10/F1·2 (P on A/T) → relay E19·2 (AT-194).',note_ja:'TCMからバックランプリレーへの出力：TCM F502·7 → F6·7（OR）→ E10/F1·2（A/TではP）→ リレーE19·2（AT-194）。'},
       {id:'8',code:'P',ecm:86,lab:'CAN-L',circ:'can_tcm'},
       {id:'9',code:'GY/R',lab:'START',circ:'pnp_at',note:'Salida de permiso de arranque del TCM (START-RLY, F502·8), cable GY/R: F102·23H → unified meter M49·32 (AT-P RANGE), con una rama al relé de arranque (SC-START). EC-644 / AT-112.',note_en:'TCM start permission output (START-RLY, F502·8), GY/R wire: F102·23H → unified meter M49·32 (AT-P RANGE), with a branch to the starter relay (SC-START). EC-644 / AT-112.',note_ja:'TCMの始動許可出力（START-RLY、F502·8）、GY/R線：F102·23H → ユニファイドメーターM49·32（AT-P RANGE）、スタータリレー（SC-START）へ分岐。EC-644 / AT-112。'},
-      {id:'10',code:'B',lab:'GND',rail:'gnd',src:'F23',srcSub:'power'}
+      {id:'10',code:'B',lab:'GND',rail:'gnd',src:'F23',srcSub:'power',circ:'tcm_gnd'}
     ],
     note:'Conector F6 de la caja automática (gris, 10 pines), donde está el TCM. 1 y 2 (R/W): batería. 3 (L): CAN-H, ECM 94. 4 (PU/W): línea K de diagnóstico del TCM. 5 y 10 (B): masa F23. 6 (Y/R): encendido. 7 (OR): salida al relé de marcha atrás. 8 (P): CAN-L, ECM 86. 9 (GY/R): relé de arranque (IPDM E9·53). AT-186/114/194 · LAN-31.'},
 
@@ -2677,7 +2724,7 @@ const CONN_BASE = {
     ],
     note:'Conector de unión B1/M12 (SMJ de 69 pines "J"), entre el arnés principal y el de carrocería. Del motor pasan las cavidades 36J–40J: temperatura del depósito, ventilación y presión EVAP. La ventilación sale por 37J (G/B), sigue por F102·29H (G/W) y llega al pin 117 del ECM (EC-367 / PG-84). El resto son circuitos de carrocería (ver el grupo "Carrocería"); los que dependen del equipamiento se ven atenuados según los selectores.'},
   fuel_pump:{group:'motor', sub:'actuators', name:'Bomba combustible', meta:'B27 · unidad nivel · EC-710', accent:'#ef5350', shape:'tab2', faceRows:[['3','1']], view:{c:'B27',g:'f',src:'EC-710',ord:'5-4-3-2-1',ex:{es:'aquí solo 3/1 (bomba)',en:'only 3/1 (pump) shown here',ja:'ここでは3/1（ポンプ）のみ'}},
-    pins:[{id:'1',lab:'12V',code:'B/Y',ecm:null,rail:'12v',src:'E8·39',srcSub:'ipdm'},{id:'3',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'D105',srcSub:'power'}],
+    pins:[{id:'1',lab:'12V',code:'B/Y',ecm:null,rail:'12v',src:'E8·39',srcSub:'ipdm'},{id:'3',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'D105',srcSub:'power',circ:'fuel_pump_gnd'}],
     note:'Bomba de combustible: el relé del IPDM (E8·39) la alimenta por el pin 1; el pin 3 va a masa en D105.'},
 
 
@@ -5269,6 +5316,21 @@ const TITLES_I18N = {
   evt_pos_b1_pwr: {en:'EVT position B1 · 12V', ja:'EVT位置 B1 · 12V'},
   evt_pos_b1_gnd: {en:'EVT position B1 · ground F38·1', ja:'EVT位置 B1 · アース F38·1'},
   evt_pos_b2: {en:'EVT position B2 (exhaust) · F42', ja:'EVT位置 B2（排気）· F42'},
+  ckp_pwr: {en:'CKP · 12V', ja:'CKP · 12V'},
+  coil_gnd: {en:'Coils + condenser · ground F23', ja:'コイル＋コンデンサー · アース F23'},
+  f16_cond_pwr: {en:'Condenser F16 · 12V', ja:'コンデンサー F16 · 12V'},
+  fuel_pump_pwr: {en:'Fuel pump · 12V', ja:'燃料ポンプ · 12V'},
+  fuel_pump_gnd: {en:'Fuel pump · ground', ja:'燃料ポンプ · アース'},
+  stop_lamp_pwr: {en:'Stop lamp switch · 12V', ja:'ストップランプSW · 12V'},
+  ascd_brake_pwr: {en:'ASCD brake · 12V', ja:'ASCDブレーキ · 12V'},
+  tcm_batt: {en:'TCM (A/T) · battery F6', ja:'TCM（A/T）· バッテリー F6'},
+  tcm_gnd: {en:'TCM (A/T) · ground F6', ja:'TCM（A/T）· アース F6'},
+  ckp_gnd: {en:'CKP · ground F10·3', ja:'CKP · アース F10·3'},
+  cmp_b1_pwr: {en:'CMP B1 · 12V', ja:'CMP B1 · 12V'},
+  cmp_b1_gnd: {en:'CMP B1 · ground F4·1', ja:'CMP B1 · アース F4·1'},
+  cmp_b2_pwr: {en:'CMP B2 · 12V', ja:'CMP B2 · 12V'},
+  cmp_b2_gnd: {en:'CMP B2 · ground F32·1', ja:'CMP B2 · アース F32·1'},
+  maf_pwr: {en:'MAF · 12V', ja:'MAF · 12V'},
   eot: {en:'Oil temp (35th M/T) · F242', ja:'油温（35th M/T）· F242'},
   evt_pos_b2_pwr: {en:'EVT position B2 · 12V', ja:'EVT位置 B2 · 12V'},
   evt_pos_b2_gnd: {en:'EVT position B2 · ground F42·1', ja:'EVT位置 B2 · アース F42·1'},
@@ -5336,6 +5398,21 @@ const TITLES_I18N = {
 };
 
 const NOTES_I18N = {
+  coil_gnd: {en:'Ground for the six coils and the ignition condenser F16: each has its own ground pin (B), and all end at engine ground F23 (the bank 1 coils go through F18/F201·1). EC-689 / EC-691 / EC-693.', ja:'6本のコイルと点火コンデンサーF16のアース：それぞれのアースピン（B）から出て、すべてエンジンアースF23で終わる（バンク1のコイルはF18/F201·1を通る）。EC-689 / EC-691 / EC-693。'},
+  f16_cond_pwr: {en:'12 V for the ignition condenser F16: the same 12 V as the coils, which leaves IPDM E7·17 (W/L), passes through F3·5 and reaches F16·1. EC-689.', ja:'点火コンデンサーF16の12V：コイルと同じ12VでIPDM E7·17（W/L）から出てF3·5を通り、F16·1に届く。EC-689。'},
+  fuel_pump_pwr: {en:'12 V for the fuel pump: the pump relay in the IPDM (fuse 81, 15A) leaves on E8·39 (B/Y) and reaches pump pin 1. EC-710.', ja:'燃料ポンプの12V：IPDMのポンプリレー（ヒューズ81、15A）からE8·39（B/Y）で出て、ポンプの1番に届く。EC-710。'},
+  fuel_pump_gnd: {en:'Fuel pump ground: pin 3 (B) goes to ground point D105 (not drawn on the map). EC-710.', ja:'燃料ポンプのアース：3番（B）はアースポイントD105へ（マップには未表示）。EC-710。'},
+  stop_lamp_pwr: {en:'12 V for the stop lamp switch (pin 1, R/Y). Its fuse is not drawn on the map. EC-626 / EC-628.', ja:'ストップランプスイッチの12V（1番、R/Y）。ヒューズはマップに未表示。EC-626 / EC-628。'},
+  ascd_brake_pwr: {en:'12 V for the ASCD brake switch (E110·1, Y/G). Its fuse is not drawn on the map. EC-626 / EC-628.', ja:'ASCDブレーキスイッチの12V（E110·1、Y/G）。ヒューズはマップに未表示。EC-626 / EC-628。'},
+  tcm_batt: {en:'A/T only. TCM battery: pins 1 and 2 (R/W) of transmission connector F6; the line passes through E12/F3·1. AT-186.', ja:'A/T車のみ。TCMのバッテリー：ミッションのコネクターF6の1番と2番（R/W）。線はE12/F3·1を通る。AT-186。'},
+  tcm_gnd: {en:'A/T only. TCM ground: pins 5 and 10 (B) of connector F6 go to engine ground F23 (AT-186). The engine FSM table does not include this stretch, so the map does not draw it up to F23.', ja:'A/T車のみ。TCMのアース：コネクターF6の5番と10番（B）はエンジンアースF23へ（AT-186）。エンジンのFSM表にこの区間がないため、マップではF23まで描かない。'},
+  ckp_pwr: {en:'12 V for the crankshaft sensor: it leaves the ECM relay in the IPDM (E7·18, R/W), passes through F3 and reaches F10·1. EC-323.', ja:'クランク角センサーの12V：IPDMのECMリレー（E7·18、R/W）から出てF3を通り、F10·1に届く。EC-323。'},
+  ckp_gnd: {en:'Ground for the crankshaft sensor: it leaves F10·3 (B), passes through F103/F151·3 and ends at engine ground F152. EC-323.', ja:'クランク角センサーのアース：F10·3（B）から出てF103/F151·3を通り、エンジンアースF152で終わる。EC-323。'},
+  cmp_b1_pwr: {en:'12 V for the bank 1 camshaft sensor: it leaves the ECM relay in the IPDM (E7·18, R/W), passes through F3·7 and reaches F4·3. EC-331.', ja:'バンク1カム角センサーの12V：IPDMのECMリレー（E7·18、R/W）から出てF3·7を通り、F4·3に届く。EC-331。'},
+  cmp_b1_gnd: {en:'Ground for the bank 1 camshaft sensor: it leaves F4·1 (B), passes through F103/F151·3 and ends at engine ground F152. EC-331.', ja:'バンク1カム角センサーのアース：F4·1（B）から出てF103/F151·3を通り、エンジンアースF152で終わる。EC-331。'},
+  cmp_b2_pwr: {en:'12 V for the bank 2 camshaft sensor: it leaves the ECM relay in the IPDM (E7·18, R/W), passes through F3·7 and reaches F32·3. EC-333.', ja:'バンク2カム角センサーの12V：IPDMのECMリレー（E7·18、R/W）から出てF3·7を通り、F32·3に届く。EC-333。'},
+  cmp_b2_gnd: {en:'Ground for the bank 2 camshaft sensor: it leaves F32·1 (B), passes through F103/F151·3 and ends at engine ground F152. EC-333.', ja:'バンク2カム角センサーのアース：F32·1（B）から出てF103/F151·3を通り、エンジンアースF152で終わる。EC-333。'},
+  maf_pwr: {en:'12 V for the MAF: it leaves the ECM relay in the IPDM (E7·18, R/W), passes through F3 and reaches F25·2. EC-207.', ja:'MAFの12V：IPDMのECMリレー（E7·18、R/W）から出てF3を通り、F25·2に届く。EC-207。'},
   vtc_adm_b1: {en:'Intake variable valve timing (VTC) solenoid, bank 1. The ECM controls it on its own pin, 11 (not shared with bank 2), through F18·4. It gets 12 V from the IPDM: E7·17 → F3·5 → F18·5/6.', ja:'バンク1吸気側の可変バルブタイミング（VTC）ソレノイド。ECMは専用の11番（バンク2と非共用）でF18·4経由で制御。12VはIPDMから：E7·17 → F3·5 → F18·5/6。'},
   vtc_adm_b2: {en:'Intake variable valve timing (VTC) solenoid, bank 2. The ECM controls it on its own pin, 10, without passing through F18. It gets the same 12 V: IPDM E7·17 → F3·5.', ja:'バンク2吸気側の可変バルブタイミング（VTC）ソレノイド。ECMは専用の10番でF18を通らずに制御。12Vは同じ：IPDM E7·17 → F3·5。'},
   vtc_ex_b1: {en:'Exhaust variable valve timing (VTC) solenoid, bank 1 (Rev-Up only). The ECM controls it from pin 9 (SB) through F40·3. It gets 12 V from the IPDM: E7·17 → F40·4. EC-198.', ja:'バンク1排気側の可変バルブタイミング（VTC）ソレノイド（Rev-Upのみ）。ECMの9番（SB）でF40·3経由で制御。12VはIPDMから：E7·17 → F40·4。EC-198。'},
@@ -7334,6 +7411,17 @@ function circuitHasPowerPath(cir){
     return false;
   });
 }
+/* path lands on a 12V/5V cavity (no ECM pin) of one of the selected devices, e.g. stop lamp E112·1 */
+function circuitPowersDevice(cir, devices){
+  return Object.entries(cir.path || {}).some(([cid, cavs]) => {
+    if(!devices.has(cid)) return false;
+    const f = CONN[cid] || CONN_BASE[cid];
+    return (cavs || []).some(c => {
+      const q = (f && f.pins || []).find(x => String(x.id) === String(c));
+      return !!q && (q.ecm == null || q.ecm === '') && (q.rail === '12v' || q.rail === '5v');
+    });
+  });
+}
 function powerRelatedCircuits(coreIds){
   const core = new Set(coreIds || []);
   const devices = new Set();
@@ -7352,7 +7440,8 @@ function powerRelatedCircuits(coreIds){
     if(core.has(cir.id)) return;
     if(!(cir.conn || []).some(cid => devices.has(cid))) return;
     if(sensorMode && !chans.has(cir.chan)) return;
-    if(circuitHasPowerPath(cir)) extra.push(cir.id);
+    if(cir.gndRel) return;
+    if(circuitHasPowerPath(cir) || circuitPowersDevice(cir, devices)) extra.push(cir.id);
   });
   return extra;
 }
