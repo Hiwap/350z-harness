@@ -155,6 +155,26 @@ await page.click('#blocks .pin[data-pin="94"]');
   ok(`GND rail shows ${gndKey}`, railG);
   await page.evaluate(() => { toggleRail('gnd'); clearSelection(); });
 }
+// Dimmed optional-equipment cells: default car (no heated seats) shows HS-PWR G dimmed with a tooltip; selecting heated seats = full strength.
+{
+  const cell = () => page.evaluate(() => {
+    const g = document.querySelector('.cav-hit[data-conn="body_asientos"][data-cav="HS-PWR"]');
+    if (!g) return null;
+    return { off: g.classList.contains('cav-opt-off'), op: g.getAttribute('opacity'), tip: (g.querySelector('title') || {}).textContent || '', code: (g.querySelector('.cav-code') || {}).textContent || '' };
+  });
+  await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+  await page.reload({ waitUntil: 'networkidle0' });
+  const off = await cell();
+  ok('dimmed: HS-PWR without heated seats shows FSM colour G, dimmed, tooltip "solo con asientos calefactables"',
+    !!off && off.off && Number(off.op) < 1 && off.tip === 'solo con asientos calefactables' && off.code.replace(/\s/g, '') === 'G', JSON.stringify(off));
+  const nOff = await page.evaluate(() => document.querySelectorAll('.cav-hit.cav-opt-off').length);
+  ok('dimmed: optional-equipment cells across all fichas are dimmed on the default car', nOff >= 20, `${nOff}`);
+  await page.select('#hseatView', 'yes');
+  const on = await cell();
+  ok('dimmed: with heated seats selected HS-PWR is full strength (no dimming, no tooltip)', !!on && !on.off && on.op === null && on.code.replace(/\s/g, '') === 'G', JSON.stringify(on));
+  await page.select('#hseatView', 'no');
+  await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+}
 await page.select('#model', 'de_early');
 await page.select('#transView', 'mt');
 // Positive control: with "related power" on, the coil 12V feed (E7·17 → E12/F3·5) still lights (EC-689).

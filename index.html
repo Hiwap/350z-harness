@@ -257,6 +257,9 @@
     cursor: default; pointer-events: none;
   }
   .pin.unused { opacity: 0.35; font-size: 9px; }
+  /* optional-equipment pin whose option is not selected: FSM colour, dimmed (opacity set inline), tooltip on hover */
+  .pin.empty.opt-off { border-style: solid; color: var(--pin-fg, #f5f5f5); pointer-events: auto; cursor: help; }
+  body[data-mode="solid"] .pin.empty.opt-off { background: var(--pin-fill, #12161d); }
   .pin.has-tracer { --tracer: #78909c; }
   .pin.has-tracer::after {
     content: ''; position: absolute; inset: 2px; border-radius: 3px;
@@ -3007,12 +3010,50 @@ function variantGatePin(p, v){
   if(q.altIf && q.altCode && vifMatch(q.altIf, v)) q = Object.assign({}, q, { code:q.altCode });
   if(q.trans && q.trans !== v.trans) return transGatePin(q, v.trans);
   if(q.vif && !vifMatch(q.vif, v)){
-    return { id:q.id, code:'—', ecm:null, lab:'', vifOff:q.vif,
+    return { id:q.id, code:'—', ecm:null, lab:'', vifOff:q.vif, offCode:q.code || '',
       note: VARIANT_OFF.es + (q.note || ''),
       note_en: VARIANT_OFF.en + (q.note_en || q.note || ''),
       note_ja: VARIANT_OFF.ja + (q.note_ja || q.note_en || q.note || '') };
   }
   return q;
+}
+/* Optional-equipment pins whose option is not selected keep their FSM wire colour, drawn dimmed
+   (OPT_OFF_OPACITY) with a tooltip naming the option needed ("solo con Bose"). Display only; data unchanged. */
+const OPT_OFF_OPACITY = 0.35;
+const VIF_VAL_LABEL = {
+  body:{coupe:{es:'Coupé',en:'Coupe',ja:'クーペ'}, roadster:{es:'Roadster',en:'Roadster',ja:'ロードスター'}},
+  market:{usa:{es:'EE. UU.',en:'USA',ja:'米国'}, canada:{es:'Canadá',en:'Canada',ja:'カナダ'}},
+  brake:{abs:{es:'ABS',en:'ABS',ja:'ABS'}, tcs:{es:'TCS',en:'TCS',ja:'TCS'}, vdc:{es:'VDC',en:'VDC',ja:'VDC'}},
+  audio:{base:{es:'audio base',en:'base audio',ja:'標準オーディオ'}, bose:{es:'Bose',en:'Bose',ja:'Bose'}},
+  nav:{yes:{es:'navegador',en:'navigation',ja:'ナビ'}, no:{es:'sin navegador',en:'no navigation',ja:'ナビなし'}},
+  pseat:{yes:{es:'asiento eléctrico',en:'power seat',ja:'パワーシート'}, no:{es:'sin asiento eléctrico',en:'no power seat',ja:'パワーシートなし'}},
+  hseat:{yes:{es:'asientos calefactables',en:'heated seats',ja:'シートヒーター'}, no:{es:'sin asientos calefactables',en:'no heated seats',ja:'シートヒーターなし'}},
+  rwiper:{yes:{es:'limpiaparabrisas trasero',en:'rear wiper',ja:'リヤワイパー'}, no:{es:'sin limpiaparabrisas trasero',en:'no rear wiper',ja:'リヤワイパーなし'}},
+  trans:{mt:{es:'M/T',en:'M/T',ja:'M/T'}, at:{es:'A/T',en:'A/T',ja:'A/T'}},
+};
+function optNeedLabel(pin, lg){
+  const L = lg || (typeof lang !== 'undefined' ? lang : 'es');
+  const word = (k, v) => { const e = VIF_VAL_LABEL[k] && VIF_VAL_LABEL[k][v]; return e ? (e[L] || e.es) : `${k}=${v}`; };
+  const OR = {es:' o ', en:' or ', ja:'または'}[L] || ' o ';
+  let need = '';
+  if(pin && pin.vifOff){
+    need = String(pin.vifOff).split('|').map(g => g.split('&').map(term => {
+      const ix = term.indexOf('='); if(ix < 0) return term;
+      const k = term.slice(0, ix).trim();
+      return term.slice(ix + 1).split(',').map(v => word(k, v.trim())).join(OR);
+    }).join(' + ')).join(OR);
+  } else if(pin && pin.transOff){
+    need = word('trans', pin.transOff);
+  }
+  if(!need) return '';
+  return L === 'en' ? `only with ${need}` : (L === 'ja' ? `${need}装着車のみ` : `solo con ${need}`);
+}
+/** Gated pin drawn with its FSM colour (dimmed), or null when the pin is live / has no colour to show. */
+function optOffDisplayPin(pin){
+  if(!pin || !(pin.vifOff || pin.transOff)) return null;
+  const c = pin.offCode || '';
+  if(!c || isPseudoWireCode(c) || c === '—' || c === '-' || c === 'nc') return null;
+  return Object.assign({}, pin, { code:c });
 }
 function loomOfConn(id, conf){
   const c = conf || CONN_BASE[id] || CONN[id];
@@ -3043,7 +3084,7 @@ function circuitsForView(model){
 /** F102 cavities tagged trans:'at' (28H PNP, 23H START, 24H TCM K-line) are empty on the other transmission. */
 function transGatePin(p, tv){
   if(!p || !p.trans || p.trans === tv) return p;
-  return { id:p.id, code:'—', ecm:null, lab:'', transOff:p.trans,
+  return { id:p.id, code:'—', ecm:null, lab:'', transOff:p.trans, offCode:p.code || '',
     note:p.offNote || '', note_en:p.offNote_en || p.offNote || '', note_ja:p.offNote_ja || p.offNote_en || '' };
 }
 let _f102ConfCache = { tv:null, conf:null };
@@ -3278,6 +3319,10 @@ function wrapConnSvg(svgStr){
 }
 
 function cavGroup(cid, pin, x, y, w, h, rx){
+  const optOff = !!(pin && (pin.vifOff || pin.transOff));
+  const optNeed = optOff ? optNeedLabel(pin) : '';
+  const noClick0 = typeof cavClickable === 'function' ? !cavClickable(cid, pin) : false;
+  if(optOff) pin = optOffDisplayPin(pin) || pin;
   const isUnk = !!(pin && pin.unknown);
   const rawCode = isUnk ? '?' : (pin.code || '');
   const code = (!isUnk && isPseudoWireCode(rawCode)) ? '' : rawCode;
@@ -3326,10 +3371,12 @@ function cavGroup(cid, pin, x, y, w, h, rx){
     : (wireLetters
         ? wireCodeSvg(wireLetters, x+w/2, codeY, 'cav-sub cav-code', true, codeSw)
         : `<text class="cav-sub cav-code" x="${x+w/2}" y="${codeY}" text-anchor="middle" ${ink('#78909c')} font-size="${h<30?9:11}" font-weight="700">·</text>`);
-  const noClick = typeof cavClickable === 'function' ? !cavClickable(cid, pin) : false;
-  const cavCls = (h < 30 ? ' cav-compact' : '') + (isUnk ? ' cav-unknown' : '') + (noClick ? ' cav-noclick' : '');
-  return `<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr}${noClick ? '' : ' role="button"'}>
-    ${defs}
+  const noClick = noClick0;
+  const cavCls = (h < 30 ? ' cav-compact' : '') + (isUnk ? ' cav-unknown' : '') + (noClick ? ' cav-noclick' : '') + (optOff ? ' cav-opt-off' : '');
+  const optAttr = optOff ? ` opacity="${OPT_OFF_OPACITY}" data-opt-off="${esc(optNeed)}"` : '';
+  const optTitle = optNeed ? `<title>${esc(optNeed)}</title>` : '';
+  return `<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr}${optAttr}${noClick ? '' : ' role="button"'}>
+    ${optTitle}${defs}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
     ${inset}
@@ -5488,10 +5535,14 @@ const F102_FACE_BLOCKS = [
 
 function makeF102PinEl(pin){
   const d = document.createElement('div');
+  const optOff = !!(pin && (pin.vifOff || pin.transOff));
+  const optNeed = optOff ? optNeedLabel(pin) : '';
+  const livePin = pin;
+  if(optOff) pin = optOffDisplayPin(pin) || pin;
   const code = pin.code || '';
   const hasWire = !!(code && code !== '—' && code !== '-' && code !== 'nc');
   const wcol = parseWire(code);
-  d.className = 'pin' + (hasWire ? '' : ' empty');
+  d.className = 'pin' + (hasWire && !optOff ? '' : ' empty');
   d.dataset.cav = String(pin.id);
   d.dataset.conn = 'ix_f102_m72';
   if(hasWire) d.dataset.wired = '1';
@@ -5514,9 +5565,10 @@ function makeF102PinEl(pin){
   /* ECM # · wire · rail/CAN/id (same as fichas) */
   d.innerHTML = `<span class="pn">${esc(ecmTop)}</span><small class="pw">${midHtml}</small><span class="dest${blc?' '+blc:''}">${esc(bot)}</span>`;
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
-  d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}` + (pin.transOff && pinNote(pin) ? ` · ${pinNote(pin)}` : '');
+  d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}` + (optNeed ? ` · ${optNeed}` : '') + (pin.transOff && pinNote(pin) ? ` · ${pinNote(pin)}` : '');
   if(pin.transOff) d.dataset.transOff = pin.transOff;
-  if(hasWire && cavClickable('ix_f102_m72', pin)){
+  if(optOff){ d.classList.add('opt-off'); d.style.opacity = String(OPT_OFF_OPACITY); d.dataset.optOff = optNeed; delete d.dataset.wired; }
+  if(!optOff && hasWire && cavClickable('ix_f102_m72', livePin)){
     d.onclick = (ev) => { ev.stopPropagation(); selectConnPin('ix_f102_m72', pin.id); };
   }
   return d;
