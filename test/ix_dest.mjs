@@ -41,7 +41,6 @@ const BLANK = {
   'ix_b1_m12·5J':    { when: '', why: 'Bose: AV-15 / AV-22 do not name the end terminals' },
   'ix_b1_m12·9J':    { when: '', why: 'heated seat: SE-61 / SE-64 do not name the end terminal' },
   'ix_b1_m12·10J':   { when: '', why: 'heated seat: SE-61 / SE-64 do not name the end terminal' },
-  'ix_b1_m12·42J':   { when: '', why: 'fuel level signal: DI-9 / DI-66 say "to the meter", no sensor or meter pin in the data' },
   'ix_b1_m12·60J':   { when: '', why: 'rear defogger: GW-61 / GW-65 show the wire with no end pin' },
   'ix_b1_m12·46J':   { when: '', why: 'Roadster soft top: ends are on RF-26/27 and SE-29/31, not in the data' },
   'ix_b1_m12·49J':   { when: '', why: 'Roadster soft top: ends are on RF-26/27 and SE-29/31, not in the data' },

@@ -182,7 +182,9 @@ for (const cir of CIRCUITS) {
     ok(`circuit ${cir.id}: ground ${g} reached from an FSM feed (${[...feedKeys.get(g)].join(', ')})`,
       nb.some((k) => feedKeys.get(g).has(k)), 'map: ' + seq.join(' → ') + ` (cite ${TABLE.ground_points[g].cite.join('/')})`);
   }
-  if (rail !== 'gnd') continue;
+  /* sensorReturn: a sensor ground that returns to a module (fuel level / FTT → unified meter M49·36, DI-20), like
+     sensor_return ECM terminals — it ends at the module, not at a ground point */
+  if (rail !== 'gnd' || cir.sensorReturn) continue;
   const ends = [seq[0], seq[seq.length - 1]];
   ok(`circuit ${cir.id}: gnd path ends at an FSM ground point`, ends.some((k) => GROUND_RINGS.has(k)), 'map: ' + seq.join(' → '));
 }

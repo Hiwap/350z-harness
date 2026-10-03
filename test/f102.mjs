@@ -883,6 +883,8 @@ const FSM_FACE = {
   body_techo: { mt: null, at: null },
   fuel_tank_temp: { mt: "5 4", at: "5 4" },
   comb_meter: { mt: "11 1", at: "11 1" },
+  unified_m49: { mt: "28 36", at: "28 36" },
+  fuel_level_sub: { mt: "1 2", at: "1 2" },
   f6_at: { mt: null, at: "1 2 3 4 5 / 6 7 8 9 10" },
   f38_evtc_b1: { mt: "3 2 1", at: "3 2 1" },
   f42_evtc_b2: { mt: "3 2 1", at: "3 2 1" },

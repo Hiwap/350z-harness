@@ -1740,6 +1740,37 @@
    ],
    "status": "pending",
    "reason": "F242 GY/2 per PG-55 (sub-harness-3, *1 35th Anniversary M/T); EC-123 wires one cavity to ECM 54 and one to the ECM 67 splice, but the FSM (2005/2006) publishes no face or cavity numbering, so the map uses neutral labels S/G"
+  },
+  "unified_m49": {
+   "fsm": "M49",
+   "half": "M49",
+   "cav": [
+    "28",
+    "36"
+   ],
+   "wired": [
+    "28",
+    "36"
+   ],
+   "cite": [
+    "DI-12",
+    "DI-19",
+    "DI-20"
+   ],
+   "note": "unified meter & A/C amp; only the fuel level sensor cavities are drawn (signal 28 W/B, ground 36 R/B)"
+  },
+  "fuel_level_sub": {
+   "fsm": "B28",
+   "half": "B28",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "DI-19",
+    "DI-20"
+   ],
+   "note": "fuel level sensor unit (sub): 1 W/B to M49·28, 2 Y to B27·2; face not published in DI"
   }
  },
  "pseudo_cards": {

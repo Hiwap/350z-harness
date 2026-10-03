@@ -12,6 +12,7 @@
  *   4. ECM siblings on that device: lit when their kind (Tierras / Alim. / Datos) is on (Ficha), never when off
  *  Every wired cavity of every visible ficha: clickable, lights itself and the whole path of its circuit; rail
  *  partners (12V / GND without ECM pin) included. Chassis grounds stay off ECM SIG clicks (fsm_sig_click gate d).
+ *  Every circuit cavity click reaches another real connector (ECM / F102 pin or a non-pseudo card).
  *  Every cavity click leaves one short info line (≤ 140 chars, no extra blocks); the long text is in the card.
  */
 import fs from 'fs';
@@ -39,6 +40,19 @@ const ok = (name, cond, detail = '') => { if (cond) pass++; else { fails.push(na
 
 const puppeteer = loadPuppeteer();
 const browser = await puppeteer.launch({ executablePath: findChrome(), headless: true, args: ['--no-sandbox', '--disable-gpu'] });
+const UNCONNECTED = [
+  'fuel_pump·3',                                                    /* ground point D105 not drawn (EC-710) */
+  'ix_b1_m12·14J', 'ix_t2_b44·2', 'ix_t2_b44·4', 'ix_e108_m15·60G',  /* door / back door: switch, motor, BCM not drawn */
+  'ix_b1_m12·17J', 'ix_b1_m12·18J', 'ix_b1_m12·21J', 'ix_b1_m12·22J', /* audio: radio M40/M41, speakers, amp not drawn */
+  'ix_b1_m12·23J', 'ix_b1_m12·24J', 'ix_b1_m12·26J', 'ix_b1_m12·27J',
+  'ix_b1_m12·29J', 'ix_b1_m12·30J', 'ix_b1_m12·31J', 'ix_b1_m12·32J', 'ix_e108_m15·1G',
+  'ix_b1_m12·34J', 'ix_b1_m12·35J', 'ix_b1_m12·43J',                 /* seat belt buckles B8 / B11, airbag unit not drawn */
+  'ix_b1_m12·44J', 'ix_e108_m15·9G',                                 /* parking brake B47 / brake fluid E44 switch, meter M19 not drawn */
+  'ix_b1_m12·67J',                                                   /* power socket B36 not drawn */
+  'ix_e108_m15·32G', 'ix_e108_m15·33G',                              /* ambient sensor E34 / A/C amp not drawn */
+  'ix_e108_m15·5G', 'ix_e108_m15·8G',                                /* wiper / rear washer: FSM page names no end pin / not drawn */
+  'ix_e108_m15·63G', 'ix_e108_m15·64G',                              /* A/T shift lock: AT-240 names no end terminal */
+];
 const t0 = Date.now();
 let pinClicks = 0; let cavClicks = 0;
 const SCEN = [['de_early', 'mt'], ['de_early', 'at'], ['de_revup', 'mt'], ['de_revup', 'at']].filter(([m, t]) => !process.env.REL_SWEEP_SCEN || process.env.REL_SWEEP_SCEN === m + '/' + t);
@@ -53,7 +67,7 @@ async function runScenario(model, trans) {
   await page.select('#model', model);
   await page.select('#transView', trans);
   await page.waitForFunction((t) => transView() === t, {}, trans);
-  const r = await page.evaluate((TABLE, model, trans) => {
+  const r = await page.evaluate((TABLE, model, trans, UNCONNECTED) => {
     const out = []; let nPin = 0; let nCav = 0; let nChecks = 0;
     const MC = (s) => (s.cav == null && s.map_cav ? s.map_cav : s.cav);
     const appl = (a) => !a || a === 'all' || (a === 'revup' && model === 'de_revup') || a === trans || (a === 'revup+mt' && model === 'de_revup' && trans === 'mt');
@@ -64,6 +78,12 @@ async function runScenario(model, trans) {
     const pinOf = (cid, id) => ((CONN[cid] || CONN_BASE[cid] || {}).pins || []).find((x) => String(x.id) === String(id));
     const railOnly = (cid, id) => { const q = pinOf(cid, id); if (!q) return true; const r = (q.ecm != null && q.ecm !== '') ? (PIN_RAIL[Number(q.ecm)] || null) : q.rail; return (q.ecm == null || q.ecm === '') && (r === '12v' || r === 'gnd' || r === '5v'); };
     const DEVICE_SUB = new Set(['sensors', 'actuators', 'bobinas', 'inyectores', 'pedals']);
+    /* list / note cards that are not a physical connector: body circuit lists, feed notes, legend, ECM excerpt */
+    const NOT_CONN = (c2) => /^(body_|feed_)/.test(c2) || c2 === 'ipdm_legend' || c2 === 'ecm_f101_can';
+    /* Known gaps: the far end of these body wires is a module / ground the map does not draw as a connector card
+       yet (only the body circuit list names it). The list must match the data: a new gap fails, a fixed one must go. */
+    const GAP = new Set(UNCONNECTED);
+    const gapSeen = new Set();
     const fail = (m) => { out.push(m); };
     const check = (cond, m) => { nChecks++; if (!cond) fail(m); };
     /* ---- ECM pins × options ---- */
@@ -150,6 +170,16 @@ async function runScenario(model, trans) {
         check(!!sh && sh.textContent.length <= 140 && extra.length === 0, `${model}/${trans} ${k}: click info is not one short line (${(info.textContent || '').length} chars, ${extra.length} extra blocks)`);
       }
       if (q.vifOff || q.transOff || !onCirc) continue;
+      {
+        /* the click must reach at least one other real connector: an ECM pin, an F102 pin, or a cavity on another
+           card that is an FSM connector (pseudo cards — feed notes, body circuit lists — do not count) */
+        const ecmLit = !!document.querySelector('#blocks .pin.hl, #blocks .pin.hl-group');
+        const f102Lit = cid !== 'ix_f102_m72' && !!document.querySelector('#f102Blocks .pin.hl, #f102Blocks .pin.hl-group');
+        const other = [...lit()].map((x) => x.slice(0, x.indexOf('·'))).filter((c2) => c2 !== cid && !NOT_CONN(c2));
+        const conn = ecmLit || f102Lit || other.length > 0;
+        if (GAP.has(k)) { gapSeen.add(k); check(!conn, `${model}/${trans} ${k}: now connects — remove it from UNCONNECTED in rel_sweep.mjs`); }
+        else check(conn, `${model}/${trans} ${k}: click connects to no other connector (lit: ${[...lit()].join(' ')})`);
+      }
       if (isEcm) {
         const pe = document.querySelector(`#blocks .pin[data-pin="${Number(q.ecm)}"]:not(.unused)`);
         if (pe) check(pe.classList.contains('hl') || pe.classList.contains('hl-group'), `${model}/${trans} ${k}: ECM ${q.ecm} not lit`);
@@ -163,14 +193,19 @@ async function runScenario(model, trans) {
       }
     }
     clearSelection();
-    return { out, nPin, nCav, nChecks };
-  }, TABLE, model, trans);
+    return { out, nPin, nCav, nChecks, gapSeen: [...gapSeen] };
+  }, TABLE, model, trans, UNCONNECTED);
   await page.close();
   return r;
 }
 /* one tab per model / transmission, run in parallel (each tab has its own renderer; localStorage is shared, so the
    options are set explicitly before every click and never read back from storage) */
 const results = await Promise.all(SCEN.map(([m, t]) => runScenario(m, t)));
+{
+  const seenAny = new Set(results.flatMap((r) => r.gapSeen));
+  const stale = UNCONNECTED.filter((k) => !seenAny.has(k));
+  ok('UNCONNECTED list: every entry is a clickable cavity in some scenario', stale.length === 0, stale.join(' '));
+}
 SCEN.forEach(([model, trans], i) => {
   const r = results[i];
   pinClicks += r.nPin; cavClicks += r.nCav;

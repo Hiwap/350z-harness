@@ -2028,10 +2028,10 @@ function buildCircuits(model){
       ecm:[], conn:['body_medidores','ix_b1_m12'], path:{body_medidores:['PKB'],ix_b1_m12:['44J']},
       notes:'El testigo de freno de mano se enciende cuando el interruptor B47·1 cierra a masa: M19·16 → B1/M12·44J (P/B; PU del lado B1) → B47·1. Con VDC, la unidad E118 también lee este interruptor (por E108/M15·12G). DI-67.'},
     {id:'fuel_level', title:'Nivel de combustible', color:'#26c6da',
-      ecm:[], conn:['body_medidores','ix_b1_m12'], path:{body_medidores:['FUEL'],ix_b1_m12:['42J']},
-      notes:'Señal del sensor de nivel de combustible hacia el cuadro, por B1/M12·42J (W/B). Su masa vuelve por 41J (circuito de la temperatura del depósito). DI-9 / DI-66.'},
-    {id:'ftt_gnd', title:'Masa sensor nivel / temperatura depósito', color:'#26c6da',
-      ecm:[], conn:['ix_b1_m12'], path:{ix_b1_m12:['41J']},
+      ecm:[], conn:['fuel_level_sub','ix_b1_m12','unified_m49','body_medidores'], path:{fuel_level_sub:['1','2'],ix_b1_m12:['42J'],unified_m49:['28'],body_medidores:['FUEL']},
+      notes:'Señal del sensor de nivel de combustible hacia el cuadro: sale del sensor secundario B28·1 (W/B), pasa por B1/M12·42J y llega al unified meter M49·28. B28·2 (Y) une el sensor secundario con el principal (B27·2), y la masa vuelve de B27·5 por 41J a M49·36 (circuito de la temperatura del depósito). DI-9 / DI-12 / DI-19 / DI-20 / DI-66.'},
+    {id:'ftt_gnd', sensorReturn:true, title:'Masa sensor nivel / temperatura depósito', color:'#26c6da',
+      ecm:[], conn:['fuel_tank_temp','ix_b1_m12','unified_m49'], path:{fuel_tank_temp:['5'],ix_b1_m12:['41J'],unified_m49:['36']},
       notes:'Masa compartida del sensor de nivel y del sensor de temperatura del depósito: B27·5 → B1/M12·41J (R/B; B/R del lado B1) → cuadro M49·36. No es una masa de chasis. EC-291, DI-9.'},
     {id:'dlc_ign', title:'Conector diagnóstico · encendido', color:'#7e57c2',
       ecm:[], conn:['ipdm_e7','ix_e108_m15','dlc'], path:{ipdm_e7:['25'],ix_e108_m15:['29G'],dlc:['8']},
@@ -2699,7 +2699,7 @@ const CONN_BASE = {
       {id:'39J',code:'BR/W',ecm:32,lab:'EVAP'},
       {id:'40J',code:'L/Y',ecm:48,rail:'5v',lab:'5V'},
       {id:'41J',code:'R/B',ecm:null,lab:'FL-GND',src:'B27·5',srcSub:'carroceria',circ:'ftt_gnd',note:'Masa del sensor de nivel y temperatura del depósito: sale de B27·5, pasa por M12·41J y llega al cuadro en M49·36 (EC-291 / DI-9). Color: lado M12 R/B, lado B1 B/R.',note_en:'Fuel level / fuel tank temperature sensor ground: it leaves B27·5, passes through M12·41J and reaches the unified meter at M49·36 (EC-291 / DI-9). Wire colour: M12 side R/B, B1 side B/R.',note_ja:'燃料レベル／燃料温度センサーのアース：B27·5から出てM12·41Jを通り、ユニファイドメーターM49·36に届く（EC-291 / DI-9）。配線色：M12側R/B、B1側B/R。'},
-      {id:'42J',code:'W/B',ecm:null,lab:'FUEL',circ:'fuel_level',note:'Señal del sensor de nivel de combustible hacia el cuadro (DI-9 / DI-66). Color W/B en ambos lados.',note_en:'Fuel level sensor signal to the meter (DI-9 / DI-66). Wire colour W/B on both sides.',note_ja:'燃料レベルセンサーの信号で、メーターへ行く（DI-9 / DI-66）。配線色は両側ともW/B。'},
+      {id:'42J',code:'W/B',ecm:null,lab:'FUEL',src:'B28·1',srcSub:'ascd_dlc',circ:'fuel_level',note:'Señal del sensor de nivel de combustible hacia el cuadro (DI-9 / DI-66). Color W/B en ambos lados.',note_en:'Fuel level sensor signal to the meter (DI-9 / DI-66). Wire colour W/B on both sides.',note_ja:'燃料レベルセンサーの信号で、メーターへ行く（DI-9 / DI-66）。配線色は両側ともW/B。'},
       {id:'43J',code:'BR/Y',ecm:null,lab:'BELT',src:'B8·1',srcSub:'carroceria',circ:'belt_dr',note:'Testigo de cinturón: sale del cuadro por M19·1 (BELT), pasa por M12·43J y llega al interruptor del cinturón del conductor B8·1 (DI-69 / DI-85 / SRS-12). Color: lado M12 BR/Y, lado B1 BR.',note_en:'Seat belt warning: it leaves the combination meter at M19·1 (BELT), passes through M12·43J and reaches the driver buckle switch B8·1 (DI-69 / DI-85 / SRS-12). Wire colour: M12 side BR/Y, B1 side BR.',note_ja:'シートベルト警告：メーターのM19·1（BELT）から出てM12·43Jを通り、運転席バックルSW B8·1に届く（DI-69 / DI-85 / SRS-12）。配線色：M12側BR/Y、B1側BR。'},
       {id:'44J',code:'P/B',ecm:null,lab:'PKB',src:'B47·1',srcSub:'carroceria',circ:'pkb_warn',note:'Testigo de freno de mano: sale del cuadro por M19·16, pasa por M12·44J y llega al interruptor B47·1; con VDC también le llega una línea desde E108·12G (DI-67 / BRC-100). Color: lado M12 P/B, lado B1 PU.',note_en:'Parking brake warning: it leaves the combination meter at M19·16, passes through M12·44J and reaches switch B47·1; with VDC a line from E108·12G also reaches it (DI-67 / BRC-100). Wire colour: M12 side P/B, B1 side PU.',note_ja:'パーキングブレーキ警告：メーターのM19·16から出てM12·44Jを通り、スイッチB47·1に届く。VDC車ではE108·12Gからの線もここに来る（DI-67 / BRC-100）。配線色：M12側P/B、B1側PU。'},
       {id:'45J',code:'—',ecm:null},
@@ -2908,8 +2908,14 @@ const CONN_BASE = {
 
   /* —— Red / otros —— */
   fuel_tank_temp:{group:'body', sub:'ascd_dlc', name:'FTT · temp. tanque', meta:'unidad nivel · ECM 107 · P0181/182/183', accent:'#7e57c2', shape:'tab2', faceRows:[['5','4']], view:{c:'B27',g:'f',src:'EC-291',ord:'5-4-3-2-1',ex:{es:'aquí solo 5/4 (FTT)',en:'only 5/4 (FTT) shown here',ja:'ここでは5/4（FTT）のみ'}},
-    pins:[{id:'4',code:'PU/W',ecm:107,lab:'FTT'},{id:'5',code:'B/R',ecm:null,rail:'gnd',lab:'GND',src:'M49',srcSub:'ascd_dlc'}],
+    pins:[{id:'4',code:'PU/W',ecm:107,lab:'FTT'},{id:'5',code:'B/R',ecm:null,rail:'gnd',lab:'GND',src:'M49·36',srcSub:'ascd_dlc',circ:'ftt_gnd'}],
     note:'Sensor de temperatura del combustible, en la unidad de bomba y nivel. La señal va directa por cable a ECM 107 (GY/R) pasando por F102. La masa (terminal 5) vuelve al cuadro M49·36; ver la ficha del unified meter y A/C amp (no es CAN). EC-291.'},
+  unified_m49:{group:'body', sub:'ascd_dlc', name:'Unified meter y A/C amp · M49', meta:'M49 · nivel de combustible 28 / 36 · DI-12 / DI-19 / DI-20', accent:'#7e57c2', shape:'note', faceRows:[['28','36']],
+    pins:[{id:'28',code:'W/B',ecm:null,lab:'FUEL',src:'B28·1',srcSub:'ascd_dlc',circ:'fuel_level'},{id:'36',code:'R/B',ecm:null,lab:'FL-GND',src:'B27·5',srcSub:'ascd_dlc',circ:'ftt_gnd'}],
+    note:'Conector M49 del unified meter y A/C amp (detrás del tablero). Aquí solo se dibujan los dos cables del sensor de nivel de combustible: 28 (W/B) es la señal, que viene del sensor secundario B28·1 por B1/M12·42J, y 36 (R/B) es su masa, que viene de B27·5 por B1/M12·41J. DI-12 / DI-19 / DI-20.'},
+  fuel_level_sub:{group:'body', sub:'ascd_dlc', name:'Sensor de nivel secundario · B28', meta:'B28 · 1 W/B señal · 2 Y al principal · DI-19 / DI-20', accent:'#26c6da', shape:'note', faceRows:[['1','2']],
+    pins:[{id:'1',code:'W/B',ecm:null,lab:'SIG',src:'M49·28',srcSub:'ascd_dlc',circ:'fuel_level'},{id:'2',code:'Y',ecm:null,lab:'MAIN',src:'B27·2',srcSub:'ascd_dlc',circ:'fuel_level'}],
+    note:'Sensor de nivel de combustible secundario (sub), en el depósito. El pin 1 (W/B) lleva la señal al unified meter M49·28 por B1/M12·42J. El pin 2 (Y) va al sensor principal, en la unidad de bomba B27·2; la masa común sale de B27·5. La cara del conector no se dibuja porque el FSM no la publica en DI. DI-19 / DI-20.'},
   comb_meter:{group:'body', sub:'ascd_dlc', name:'Unified meter y A/C amp · M48', meta:'M48 GY/20 · CAN 1/11 · LAN-31/55 · masa FTT M49·36', accent:'#7e57c2', shape:'note', faceRows:[['11','1']],
     pins:[{id:'1',code:'L',ecm:94,lab:'CAN-H'},{id:'11',code:'P',ecm:86,lab:'CAN-L'}],
     note:'Unified meter y amplificador de A/C (detrás del tablero). Es un nodo del CAN: M48·1 CAN-H (L) y M48·11 CAN-L (P), LAN-31/55. El combination meter M19 no está en el CAN; lo maneja el unified meter. La masa del sensor del depósito llega a M49·36 (EC-291).'},
@@ -5565,7 +5571,7 @@ const NOTES_I18N = {
   audio_bose_misc: {en:'Bose only. B1/M12·20J/25J/28J/33J are speaker-wire shields: 20J/25J grounded at M40·9 (AV-16) and 28J/33J at M41·11 (AV-18), with no colour in the FSM. B1/M12·5J (Y) and E106/B2·15/16 (R/B, R/W) appear on AV-15/22 without named end terminals.', ja:'Bose車のみ。B1/M12·20J/25J/28J/33Jはスピーカー線のシールド：20J/25JはM40·9（AV-16）、28J/33JはM41·11（AV-18）にアース。FSMに配線色の記載なし。B1/M12·5J（Y）とE106/B2·15/16（R/B、R/W）はAV-15/22に記載、端子名なし。'},
   brake_fluid: {en:'If the brake fluid drops, switch E44·1 closes to ground and lights the BRAKE warning in the meter: E44·1 → E108/M15·9G (W; W/L on the M15 side) → M19·15. DI-67.', ja:'ブレーキ液が減るとスイッチE44·1がアースに閉じ、メーターのBRAKE警告灯が点く：E44·1 → E108/M15·9G（W、M15側W/L）→ M19·15。DI-67。'},
   pkb_warn: {en:'The parking brake warning lights when switch B47·1 closes to ground: M19·16 → B1/M12·44J (P/B; PU on the B1 side) → B47·1. With VDC, unit E118 also reads this switch (via E108/M15·12G). DI-67.', ja:'パーキングブレーキ警告灯はスイッチB47·1がアースに閉じると点灯：M19·16 → B1/M12·44J（P/B、B1側PU）→ B47·1。VDC車ではE118もこのスイッチを読む（E108/M15·12G経由）。DI-67。'},
-  fuel_level: {en:'Fuel level sensor signal to the meter, through B1/M12·42J (W/B). Its ground returns on 41J (fuel tank temperature circuit). DI-9 / DI-66.', ja:'燃料レベルセンサー信号をB1/M12·42J（W/B）経由でメーターへ。アースは41J（燃料温度回路）で戻る。DI-9 / DI-66。'},
+  fuel_level: {en:'Fuel level sensor signal to the meter: it leaves sub sensor B28·1 (W/B), passes through B1/M12·42J and reaches unified meter M49·28. B28·2 (Y) links the sub sensor to the main one (B27·2), and the ground returns from B27·5 through 41J to M49·36 (fuel tank temperature circuit). DI-9 / DI-12 / DI-19 / DI-20 / DI-66.', ja:'燃料レベルセンサー信号：サブセンサーB28·1（W/B）から出てB1/M12·42Jを通り、ユニファイドメーターM49·28に届く。B28·2（Y）はサブとメイン（B27·2）をつなぎ、アースはB27·5から41J経由でM49·36へ戻る（燃料温度回路）。DI-9 / DI-12 / DI-19 / DI-20 / DI-66。'},
   ftt_gnd: {en:'Shared ground of the fuel level and fuel tank temperature sensors: B27·5 → B1/M12·41J (R/B; B/R on the B1 side) → unified meter M49·36. Not a chassis ground. EC-291, DI-9.', ja:'燃料レベルセンサーと燃料温度センサーの共通アース：B27·5 → B1/M12·41J（R/B、B1側B/R）→ ユニファイドメーターM49·36。車体アースではない。EC-291、DI-9。'},
   dlc_ign: {en:'The diagnosis connector gets ignition on M8·8 so the scan tool can see the key is ON: IPDM E7·25 (fuse 89) → E108/M15·29G (G/Y) → M8·8. Switched feed, not a rail. EC-742 / AT-194.', ja:'診断コネクターM8·8にイグニッションが入り、スキャンツールがキーONを認識する：IPDM E7·25（ヒューズ89）→ E108/M15·29G（G/Y）→ M8·8。スイッチ電源でレールではない。EC-742 / AT-194。'},
   dlc_bat: {en:'Constant battery feed of the diagnosis connector (powers the scan tool): fuse 34 (15A) → E108/M15·68G (R/W) → M8·16. AT-194.', ja:'診断コネクターの常時バッテリー電源（スキャンツール用）：ヒューズ34（15A）→ E108/M15·68G（R/W）→ M8·16。AT-194。'},
@@ -6437,6 +6443,8 @@ const CONN_I18N = {
   ascd_clutch: { en:{name:'ASCD clutch switch', meta:'M/T only · in series with ASCD brake → ECM 108'}, ja:{name:'ASCDクラッチSW', meta:'M/Tのみ · ASCDブレーキと直列 → ECM 108'} },
   clock_spring: { en:{name:'Clock spring / ASCD steer', meta:'comb. sw M23 · 34 SIG→99 · 33 GND→67 · EC-618'}, ja:{name:'クロックスプリング / ASCDステア', meta:'コンビSW M23 · 34 SIG→99 · 33 GND→67 · EC-618'} },
   dlc: { en:{name:'DLC · OBD-II', meta:'under dash · 16-pin J1962 · K-line ECM 85', note:'OBD diagnosis connector (M8). 6/14: CAN. 7: K-line. 8: ignition (G/Y). 16: battery (R/W). 4 and 5: grounds.'}, ja:{name:'DLC · OBD-II診断', meta:'ダッシュ下 · 16ピン · K線 ECM 85', note:'OBD診断コネクター（M8）。6/14：CAN。7：Kライン。8：イグニッション（G/Y）。16：バッテリー（R/W）。4・5：アース。'} },
+  unified_m49: { en:{name:'Unified meter & A/C amp · M49', meta:'M49 · fuel level 28 / 36 · DI-12 / DI-19 / DI-20', note:'Connector M49 of the unified meter and A/C amp (behind the dash). Only the two fuel level sensor wires are drawn: 28 (W/B) is the signal, coming from sub sensor B28·1 through B1/M12·42J, and 36 (R/B) is its ground, coming from B27·5 through B1/M12·41J. DI-12 / DI-19 / DI-20.'}, ja:{name:'ユニファイドメータ&A/Cアンプ · M49', meta:'M49 · 燃料レベル 28 / 36 · DI-12 / DI-19 / DI-20', note:'ユニファイドメーター＆A/CアンプのコネクターM49（ダッシュ裏）。燃料レベルセンサーの2本だけを表示：28（W/B）は信号でサブセンサーB28·1からB1/M12·42J経由、36（R/B）はそのアースでB27·5からB1/M12·41J経由。DI-12 / DI-19 / DI-20。'} },
+  fuel_level_sub: { en:{name:'Fuel level sub sensor · B28', meta:'B28 · 1 W/B signal · 2 Y to main · DI-19 / DI-20', note:'Fuel level sensor unit (sub), in the tank. Pin 1 (W/B) carries the signal to unified meter M49·28 through B1/M12·42J. Pin 2 (Y) goes to the main sensor, in pump unit B27·2; the shared ground leaves from B27·5. The connector face is not drawn because the FSM does not publish it in DI. DI-19 / DI-20.'}, ja:{name:'燃料レベルサブセンサー · B28', meta:'B28 · 1 W/B 信号 · 2 Y メインへ · DI-19 / DI-20', note:'燃料レベルセンサーユニット（サブ、タンク内）。1番（W/B）はB1/M12·42J経由でユニファイドメーターM49·28へ信号を送る。2番（Y）はポンプユニットB27·2のメインセンサーへ。共通アースはB27·5から出る。DIにコネクター面の記載がないため面は表示しない。DI-19 / DI-20。'} },
   fuel_tank_temp: {
     en: { name:'Fuel tank temp (FTT)', meta:'fuel level sensor unit · ECM 107 GY/R',
       note:'Fuel temperature sensor, in the pump and level unit. The signal is hard-wired to ECM 107 (GY/R) through F102. The ground (terminal 5) returns to the unified meter M49·36; see the unified meter & A/C amp card (not CAN). EC-291.' },
@@ -8658,6 +8666,10 @@ function selectConnPin(cid, cavId, opts){
       selectCircuits([pin.circ], null, cid, String(cavId));
     } else {
     let circs = connToCirc[cid] || [];
+    /* A cavity listed only in some circuit's path (feed-note cavities such as CKP+ / AF1-3): those circuits */
+    if(!circs.length && cavId != null){
+      circs = (CIRCUITS || []).filter(cir => (cir.path && cir.path[cid] || []).map(String).includes(String(cavId))).map(cir => cir.id);
+    }
     /* F102 cavity without ECM: only circuits that declare this cav (f102[] or path), not every F102 circuit */
     if(cid === 'ix_f102_m72' && cavId!=null){
       const byCav = circs.filter(id=>{
