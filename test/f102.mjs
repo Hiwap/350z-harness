@@ -978,8 +978,8 @@ await setTrans('mt');
   for (const [cid, cav] of [['backup_sw', '2'], ['ix_f102_m72', '22H'], ['backup_sw', '1']]) {
     await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
     await page.evaluate((cid, cav) => selectConnPin(cid, cav), cid, cav);
-    const sel = await page.evaluate(() => ({ circs: [...lastCircIds], f36: [...document.querySelectorAll('.cav-hit[data-conn="backup_sw"]')].some((e) => e.classList.contains('hl')),
-      p22: (() => { const e = f102PinEl('22H'); return !!e && e.classList.contains('hl'); })() }));
+    const sel = await page.evaluate(() => ({ circs: [...lastCircIds], f36: [...document.querySelectorAll('.cav-hit[data-conn="backup_sw"]')].some((e) => (e.classList.contains('hl') || e.classList.contains('hl-group'))),
+      p22: (() => { const e = f102PinEl('22H'); return !!e && (e.classList.contains('hl') || e.classList.contains('hl-group')); })() }));
     ok(sel.circs.includes('backup_lamp') && sel.f36 && sel.p22, `${cid}·${cav} click → backup_lamp circuit, F36 + F102·22H lit (${sel.circs.join(',')})`);
   }
   await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
@@ -1018,10 +1018,10 @@ await page.evaluate(() => { const s = document.getElementById('loomView'); s.val
 }
 async function altLit() {
   return page.evaluate(() => {
-    const on = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => e.classList.contains('hl'));
+    const on = (cid, cav) => [...document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${cav}"]`)].some((e) => (e.classList.contains('hl') || e.classList.contains('hl-group')));
     const p13 = f102PinEl('13H');
     return { circs: [...lastCircIds].sort().join(','), b: on('alt_b', '1'), e: on('alt_e', '2'), fuse: on('fuse_link_box', '36'), e11: on('ix_e11_f2', '1'),
-      s: on('f20_alt', '4'), l: on('f20_alt', '3'), h13: !!p13 && p13.classList.contains('hl') };
+      s: on('f20_alt', '4'), l: on('f20_alt', '3'), h13: !!p13 && (p13.classList.contains('hl') || p13.classList.contains('hl-group')) };
   });
 }
 for (const [cid, cav] of [['alt_b', '1'], ['alt_e', '2']]) {

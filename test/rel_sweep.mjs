@@ -137,7 +137,8 @@ async function runScenario(model, trans) {
               if (!on && isSig) check(!L.has(k), `${tag}: 12V partner ${k} lit without Alim.`);
             } else if (mode === 'ficha') {
               const sibEl = cavEl(k);
-              const asSib = sibEl && sibEl.classList.contains('hl-group');
+              const onOwnPath = circs.some((c) => ((c.path || {})[D] || []).map(String).includes(String(q.id)));
+              const asSib = sibEl && sibEl.classList.contains('hl-group') && !onOwnPath;
               if (on && circs.some((c) => (c.ecm || []).map(Number).includes(Number(q.ecm)))) check(L.has(k), `${tag}: ECM sibling ${k} (${kind}) not lit`);
               if (!on) check(!asSib, `${tag}: ECM sibling ${k} (${kind}) lit while ${kind} is off`);
             }
@@ -166,8 +167,10 @@ async function runScenario(model, trans) {
       {
         const info = document.getElementById('info');
         const sh = info.querySelector('.info-short');
-        const extra = [...info.children].filter((c) => !c.classList.contains('info-short'));
-        check(!!sh && sh.textContent.length <= 140 && extra.length === 0, `${model}/${trans} ${k}: click info is not one short line (${(info.textContent || '').length} chars, ${extra.length} extra blocks)`);
+        const extra = [...info.children].filter((c) => !c.classList.contains('info-short') && !c.classList.contains('sel-desc'));
+        check(!!sh && sh.textContent.length <= 140 && extra.length === 0 && info.firstElementChild === sh, `${model}/${trans} ${k}: details panel is not one short line + Descripción (${(sh && sh.textContent || '').length} chars, ${extra.length} extra blocks)`);
+        const inCard = document.querySelectorAll('#fichas .sel-desc, #f102Panel .sel-desc, #fichas .info-short, #fichas .info-long').length;
+        check(!inCard, `${model}/${trans} ${k}: description rendered inside a ficha`);
       }
       if (q.vifOff || q.transOff || !onCirc) continue;
       {

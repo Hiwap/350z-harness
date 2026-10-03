@@ -73,8 +73,8 @@ ok('inj1 sub inyectores', /inj1:\{group:'motor', sub:'inyectores'/.test(html));
 ok('F102 4H K-line EC-742', /\{id:'4H',code:'LG',ecm:85,lab:'K'\}/.test(html));
 ok('dlc_k includes F102 path',
   /id:'dlc_k'[\s\S]*?ix_f102_m72[\s\S]*?4H/.test(html));
-ok('path feed uses primary hl (not Tierras-gated hl-group)',
-  /if\(onPathFeed\) return \{cls:'hl'\};/.test(html));
+ok('path feed always lit, not Tierras-gated (yellow hl with Relacionados off, related style with it on)',
+  /if\(onPathFeed\) return relOn \? \{cls:'hl-group', path:true\} : \{cls:'hl'\};/.test(html) && /if\(hit\.path \|\| circuitSiblingAllowed\(kind\)\)/.test(html));
 ok('knock shield displays GND',
   /knock:\{[\s\S]*?lab:'GND'/.test(html) && /ix_f14_f229:\{[\s\S]*?lab:'GND'/.test(html));
 ok('cavBottomLabel defines lab before use',
@@ -658,7 +658,8 @@ if (skipBrowser) {
   runNested('variants.mjs (equipment selectors: body / brakes / options; Canada DTRL dimmed)', path.join(__dirname, 'variants.mjs'));
   runNested('ix_dest.mjs (every used intermediate cavity shows its destination line)', path.join(__dirname, 'ix_dest.mjs'));
   runNested('outline_contrast.mjs (outline-mode labels readable on every wire colour)', path.join(__dirname, 'outline_contrast.mjs'));
-  runNested('popup_short.mjs (click info = one short line; long text in the card description, es/en/ja)', path.join(__dirname, 'popup_short.mjs'));
+  runNested('popup_short.mjs (click info = one short line; Descripción in the details panel, never in a ficha; one pin per connector type, es/en/ja)', path.join(__dirname, 'popup_short.mjs'));
+  runNested('sel_outline.mjs (Relacionados on: only the clicked pin/cavity gets the yellow selected outline; ECM 85 K-line regression)', path.join(__dirname, 'sel_outline.mjs'));
   runNested('rel_sweep.mjs (every ECM pin × Relacionados/grouping option, every ficha cavity: route + 12V partners lit, clickable)', path.join(__dirname, 'rel_sweep.mjs'));
 }
 

@@ -596,7 +596,7 @@
   .sel-desc { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); font-size: 12px; line-height: 1.45; color: #cfd8dc; }
   .sel-desc .sel-desc-h { font-weight: 600; color: #ffd54f; margin-bottom: 2px; }
   .sel-desc b { color: #fff; }
-  .f102-panel > .sel-desc { margin: 6px 8px 8px; }
+  .sel-desc .sel-pin-note { color: var(--muted); margin-top: 4px; }
 
   /* F102 interactive verified pin grid (collapsible; idle = collapsed) */
   #ecm details.f102-panel {
@@ -8351,15 +8351,22 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
   document.querySelectorAll('#fichas .ficha.hl .cav-empty, #fichas .ficha-wrap.hl .cav-empty').forEach(g=>{
     g.style.opacity = '0.2';
   });
+  /* Relacionados on: only the clicked thing is yellow (the clicked cavity; on an ECM pin click, the device cavity that
+     carries that pin). Route cavities, intermediates carrying the same wire and partner circuits use the related style. */
+  const relOn = ['railRelGnd','railRelPower','railRelData'].some(id => { const el = document.getElementById(id); return !!(el && el.checked); });
+  const isIx = cid => cid === 'ix_f102_m72' || ((CONN[cid] || CONN_BASE[cid] || {}).sub === 'intermedias');
   const pathOk = (p, cid, pid)=>{
     if(!p) return false;
     const isFocusCav = focusConn===cid && String(focusCav)===String(pid);
     if(isFocusCav) return {cls:'hl'};
     /* Exact ECM match = yellow hl first (path list must not force purple hl-group). */
-    if(p.ecm!=null && p.ecm!=='' && focusPin!=null && Number(p.ecm)===Number(focusPin)) return {cls:'hl'};
+    if(p.ecm!=null && p.ecm!=='' && focusPin!=null && Number(p.ecm)===Number(focusPin)){
+      if(relOn && (focusConn || isIx(cid))) return {cls:'hl-group', path:true};
+      return {cls:'hl'};
+    }
     const onPathFeed = pathCavByConn && pathCavByConn.has(cid) && pathCavByConn.get(cid).has(String(pid));
-    /* Explicit circuit.path cavities (E17 ring, F3·5, …) — always primary hl, not Tierras-gated hl-group */
-    if(onPathFeed) return {cls:'hl'};
+    /* Explicit circuit.path cavities (E17 ring, F3·5, …) — always lit, not Tierras-gated (yellow only with Relacionados off) */
+    if(onPathFeed) return relOn ? {cls:'hl-group', path:true} : {cls:'hl'};
     if(p.ecm==null || p.ecm==='') return false;
     const e = Number(p.ecm);
     const onPath = ecmSet && (ecmSet.has(e) || ecmSet.has(String(e)) || ecmSet.has(Number(e)));
@@ -8376,7 +8383,7 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
     cav.classList.remove('dim','hl','hl-end','hl-group');
     if(hit.cls === 'hl-group'){
       const kind = circuitSiblingKindCav(p);
-      if(circuitSiblingAllowed(kind)) applyHlGroupEl(cav, accentForCav(cid, p));
+      if(hit.path || circuitSiblingAllowed(kind)) applyHlGroupEl(cav, accentForCav(cid, p));
       else { cav.classList.add('dim'); clearHlGroupElColor(cav); }
     } else { cav.classList.add(hit.cls); clearHlGroupElColor(cav); }
   });
@@ -8387,7 +8394,7 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
     fp.classList.remove('dim','hl','hl-end','hl-group');
     if(hit.cls === 'hl-group'){
       const kind = circuitSiblingKindCav(p);
-      if(circuitSiblingAllowed(kind)) applyHlGroupEl(fp, accentForCav('ix_f102_m72', p));
+      if(hit.path || circuitSiblingAllowed(kind)) applyHlGroupEl(fp, accentForCav('ix_f102_m72', p));
       else { fp.classList.add('dim'); clearHlGroupElColor(fp); }
     } else { fp.classList.add(hit.cls); clearHlGroupElColor(fp); }
   });
@@ -8536,7 +8543,7 @@ function selectOptOffPin(cid, cavId, pin0, key, opts){
   const infoEl = document.getElementById('info');
   const need = optNeedLabel(pin0);
   const pnote = pinNote(live);
-  infoEl.innerHTML += `<div class="opt-off-info" style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(live.code||'')}${need ? ` · <i>${esc(need)}</i>` : ''}${pnote ? ` — ${esc(pnote)}` : ''}</div>`;
+  infoEl.innerHTML += `<div class="opt-off-info info-cav" data-note="${esc(pnote || '')}" style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(live.code||'')}${need ? ` · <i>${esc(need)}</i>` : ''}${pnote ? ` — ${esc(pnote)}` : ''}</div>`;
   selKey = key;
   selFocusPin = live.ecm != null ? Number(live.ecm) : null;
 }
@@ -8635,7 +8642,7 @@ function selectConnPin(cid, cavId, opts){
     if(pnote || pin.lab){
       const infoEl=document.getElementById('info');
       const extra = pnote ? ` — ${esc(pnote)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
-      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(pin.code||'')}${extra} → ECM ${esc(String(pin.ecm))}</div>`;
+      infoEl.innerHTML += `<div class="info-cav" data-note="${esc(pnote || '')}" style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(pin.code||'')}${extra} → ECM ${esc(String(pin.ecm))}</div>`;
     }
     selKey = key;
     selFocusPin = ecmN;
@@ -8702,42 +8709,36 @@ function selectConnPin(cid, cavId, opts){
     if(pin && (pnote || pin.code || pin.lab)){
       const infoEl=document.getElementById('info');
       const extra = pnote ? ` — ${esc(pnote)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
-      infoEl.innerHTML += `<div style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(pin.code||'')}${extra}</div>`;
+      infoEl.innerHTML += `<div class="info-cav" data-note="${esc(pnote || '')}" style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(pin.code||'')}${extra}</div>`;
     }
     selKey = key;
     selFocusPin = null;
   }
 }
 
-/* ---- Short click line + description in the card ----
-   The info line under the ECM grid keeps ONE short line (pin / cavity, colour, destination). Everything the
-   selection used to print there (circuit titles + notes, F102 line, route tags, pin note, option note) moves,
-   unchanged, into a "Descripción" block inside the clicked card (ECM pin click: the card that carries that pin;
-   F102 cavity: the F102 panel). Nothing is dropped: with no card to hold it, it stays under the short line. */
+/* ---- Short click line + Descripción in the details panel ----
+   The details panel (#info, under the ECM grid) shows ONE short line (pin / cavity, colour, destination) and,
+   below it, a "Descripción" block with the rest of what the selection used to print (circuit titles + notes,
+   F102 line, route tags, pin note). Lines that only repeated the short line (the "Pin ECM n" line, the
+   "conn·cav · colour … → dest" prefix) are dropped; their note text is kept. The ficha cards stay as they are. */
 function clearSelDesc(){
   document.querySelectorAll('.sel-desc').forEach(el => el.remove());
 }
-function selDescHostFor(cid){
-  if(cid === 'ix_f102_m72') return [document.getElementById('f102Panel')].filter(Boolean);
-  return [...document.querySelectorAll(`#fichas .ficha[data-conn="${CSS.escape(cid)}"]`)];
-}
-const SEL_DESC_DEVICE_SUB = new Set(['sensors', 'actuators', 'bobinas', 'inyectores', 'pedals']);
 function selDescCardForEcm(n){
   const carriers = [];
   Object.entries(CONN).forEach(([cid, conf]) => {
     if(SKIP_SEL_CONN.has(cid)) return;
-    if(!(conf.pins || []).some(q => q.ecm != null && q.ecm !== '' && Number(q.ecm) === n)) return;
-    if(!selDescHostFor(cid).length) return;
-    carriers.push(cid);
+    if((conf.pins || []).some(q => q.ecm != null && q.ecm !== '' && Number(q.ecm) === n)) carriers.push(cid);
   });
-  const lit = carriers.filter(cid => document.querySelector(`#fichas .ficha[data-conn="${CSS.escape(cid)}"].hl, #fichas .ficha-wrap[data-conn="${CSS.escape(cid)}"].hl`));
-  const pool = lit.length ? lit : carriers;
-  return pool.find(cid => SEL_DESC_DEVICE_SUB.has((CONN[cid] || {}).sub))
-    || pool.find(cid => cid !== 'ix_f102_m72') || pool[0] || null;
+  const DEV = new Set(['sensors', 'actuators', 'bobinas', 'inyectores', 'pedals']);
+  return carriers.find(cid => DEV.has((CONN[cid] || {}).sub)) || carriers.find(cid => cid !== 'ix_f102_m72') || carriers[0] || null;
 }
 function selShortDest(cid, pin){
   if(!pin) return '';
-  if(pin.ecm != null && pin.ecm !== '') return `ECM ${pin.ecm}`;
+  if(pin.ecm != null && pin.ecm !== ''){
+    const nm = pinName(pin.ecm);
+    return `ECM ${pin.ecm}` + (nm ? ` (${nm})` : '');
+  }
   if(pin.src) return String(pin.src);
   const cir = pin.circ ? CIRCUITS.find(c => c.id === pin.circ) : null;
   return cir ? circuitTitle(cir) : '';
@@ -8747,10 +8748,10 @@ function compactSelectionInfo(){
   clearSelDesc();
   if(!info || !selKey || info.dataset.railMode === '1') return;
   const key = String(selKey);
-  let shortHtml = ''; let host = null; let skipLong = false;
+  let shortHtml = ''; let skipLong = false;
   if(key.startsWith('pin:')){
     const n = Number(key.slice(4));
-    host = selDescCardForEcm(n);
+    const host = selDescCardForEcm(n);
     const dest = host ? (host === 'ix_f102_m72' ? 'F102' : connShortLabel(host)) : '';
     shortHtml = `<b>${esc(t('pinEcm'))} ${n}</b> · ${esc(pinName(n) || '')} · <code>${esc(PIN_COL[n] || '—')}</code>${dest ? ` → ${esc(dest)}` : ''}`;
   } else if(key.startsWith('cav:')){
@@ -8761,37 +8762,34 @@ function compactSelectionInfo(){
     const pin = pin0 && (pin0.vifOff || pin0.transOff) ? (livePinOf(pin0) || pin0) : pin0;
     const need = pin0 && (pin0.vifOff || pin0.transOff) ? optNeedLabel(pin0) : '';
     const dest = pin && pin.unknown ? '?' : selShortDest(cid, pin);
-    host = cid;
     shortHtml = `<b>${esc(connShortLabel(cid))}·${esc(String(cavId))}</b>${pin && pin.code ? ` · <code>${esc(pin.code)}</code>` : ''}${dest ? ` → ${esc(dest)}` : ''}${need ? ` · <i>${esc(need)}</i>` : ''}`;
   } else if(key.startsWith('conn:')){
     const cid = key.slice(5);
     const conf = CONN[cid] || CONN_BASE[cid];
-    host = cid;
     shortHtml = `<b>${esc(conf ? connField(cid, conf, 'name') : cid)}</b>`;
     /* no circuit: the info only repeated the card's own name / meta / note, which the card already shows */
     skipLong = !(connToCirc[cid] || []).length && cid !== 'ix_f102_m72';
   } else return;
   const tmp = document.createElement('div');
   tmp.innerHTML = info.innerHTML;
-  /* ECM pin click: the pin line is the short line itself; cavity click: the ECM pin name stays in the description */
-  tmp.querySelectorAll(key.startsWith('pin:') ? '.info-pin, .info-short' : '.info-short').forEach(el => el.remove());
+  tmp.querySelectorAll('.info-pin, .info-short, .sel-desc').forEach(el => el.remove());
+  tmp.querySelectorAll('.info-cav').forEach(el => {
+    const note = el.dataset.note || '';
+    if(note && note !== '—'){ const d = document.createElement('div'); d.className = 'sel-pin-note'; d.textContent = note; el.replaceWith(d); }
+    else el.remove();
+  });
   const longHtml = tmp.innerHTML.trim();
   info.innerHTML = `<div class="info-short">${shortHtml}</div>`;
   if(!longHtml || skipLong) return;
-  const hosts = host ? selDescHostFor(host) : [];
-  if(!hosts.length){ info.innerHTML += `<div class="info-long">${longHtml}</div>`; return; }
-  hosts.forEach(h => {
-    const d = document.createElement('div');
-    d.className = 'sel-desc';
-    d.innerHTML = `<div class="sel-desc-h">${esc(t('selDesc'))}</div>${longHtml}`;
-    h.appendChild(d);
-  });
+  const d = document.createElement('div');
+  d.className = 'sel-desc';
+  d.innerHTML = `<div class="sel-desc-h">${esc(t('selDesc'))}</div>${longHtml}`;
+  info.appendChild(d);
 }
-/** Short line + description text of the current selection (tests, copy). */
+/** Short line + Descripción text of the current selection (tests, copy). */
 function selectionInfoText(){
   const info = document.getElementById('info');
-  const d = document.querySelector('.sel-desc');
-  return ((info && info.textContent) || '') + ' ' + ((d && d.textContent) || '');
+  return (info && info.textContent) || '';
 }
 function withCompactInfo(fn){
   return function(...args){
