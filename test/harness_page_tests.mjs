@@ -148,7 +148,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     && /HL_GROUP_SUB_PRIORITY = \[[^\]]*'fuses'/.test(html));
   /* Fuse box fichas drawn like the FSM terminal arrangement (PG-88 J/B, PG-89 E18/E21) */
   const fuseLay = (id) => { const m = html.match(new RegExp(`\\n  ${id}:\\{group:[^\\n]*?fuseLayout:(\\{[^\\n]*?\\]\\]\\}|\\{[^\\n]*?\\}\\]\\})`)); return m ? m[1] : ''; };
-  const layIds = (lay) => (lay.match(/'[^']*'/g) || []).map((q) => q.slice(1, -1)).filter((t) => t !== 'gap' && !t.startsWith('#') && !/^PG-|^(?:Holder|Box) /.test(t));
+  const layIds = (lay) => (lay.match(/'[^']*'/g) || []).map((q) => q.slice(1, -1)).filter((t) => t !== 'gap' && t !== 'cw' && !t.startsWith('#') && !/^PG-|^(?:Holder|Box) /.test(t));
   const cardPinIds = (id) => { const blk = (html.match(new RegExp(`\\n  ${id}:\\{group:[\\s\\S]*?(?=\\n  \\w+:\\{group:)`)) || [''])[0]; return [...blk.matchAll(/\{id:'([^']+)'/g)].map((m) => m[1]); };
   const jbLay = fuseLay('jb_fuse_block'), bxLay = fuseLay('fuse_link_box'), hoLay = fuseLay('fuse_link_holder');
   ok('J/B fuse layout = PG-88: 1-7, gap, 8-11, spare / 12-22, crossed slot, spare',
@@ -167,7 +167,9 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     ['jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'].map((id) => `${id}:${layIds(fuseLay(id)).length}/${cardPinIds(id).length}`).join(' '));
   ok('fuse boxes use the IPDM cover look and click: shape fusebox, svgFuseBox via renderConnSvg, shared fuseAmpColor, FUSE_BOX_CONNS',
     /\n  jb_fuse_block:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html) && /\n  fuse_link_box:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html) && /\n  fuse_link_holder:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html)
-    && /case 'fusebox': return `<div class=\"fusebox-scroll\">\$\{wrapConnSvg\(svgFuseBox\(cid,f\)\)\}<\/div>`;/.test(html)
+    && /case 'fusebox': svg = svgFuseBox\(cid,f\); break;/.test(html) && !html.includes('fusebox-scroll')
+    && ['PG-88', 'PG-89', 'PG-89'].length === (html.match(/fuseLayout:\{ref:'PG-8[89]', rotate:'cw', rows:/g) || []).length
+    && /items = items\.map\(it => \(\{ t: it\.t, r: it\.c, c: nR0 - it\.r - it\.rs, rs: it\.cs, cs: it\.rs \}\)\);/.test(html)
     && /const ampColor = fuseAmpColor;/.test(html) && /col: empty \? '#546e7a' : fuseAmpColor\(p\.src\)/.test(html)
     && /const FUSE_BOX_CONNS = new Set\(\['ipdm_cover', 'jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'\]\);/.test(html)
     && /if\(FUSE_BOX_CONNS\.has\(cid\)\) return !!\(pin && !pin\.unknown\);/.test(html)
