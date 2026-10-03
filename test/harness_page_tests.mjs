@@ -660,6 +660,7 @@ if (skipBrowser) {
   runNested('outline_contrast.mjs (outline-mode labels readable on every wire colour)', path.join(__dirname, 'outline_contrast.mjs'));
   runNested('popup_short.mjs (click info = one short line; Descripción in the details panel, never in a ficha; one pin per connector type, es/en/ja)', path.join(__dirname, 'popup_short.mjs'));
   runNested('sel_outline.mjs (Relacionados on: only the clicked pin/cavity gets the yellow selected outline; ECM 85 K-line regression)', path.join(__dirname, 'sel_outline.mjs'));
+  runNested('coil_etc_rails.mjs (coils: one 12V + own ground per coil, EC-689/691/693; ETC F31 motor 3/6 ← VMOT, TPS 5V/ground)', path.join(__dirname, 'coil_etc_rails.mjs'));
   runNested('rel_sweep.mjs (every ECM pin × Relacionados/grouping option, every ficha cavity: route + 12V partners lit, clickable)', path.join(__dirname, 'rel_sweep.mjs'));
 }
 

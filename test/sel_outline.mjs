@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Selected outline with Relacionados on: only the clicked thing gets the yellow selected outline (.hl).
- * ECM pin click: only the device cavity carrying that ECM pin; route cavities, intermediates (F102, E108/M15, …)
- * carrying the same wire and partner circuits (12V / ground / data) use the related style (.hl-group).
+ * ECM pin click: only the cavities carrying that same ECM wire (device end + F102 / intermediate cavity of that pin)
+ * stay yellow; route-only cavities and partner circuits (12V / ground / data) use the related style (.hl-group).
  * Cavity click: only the clicked cavity. Regression: ECM 85 (K-line) lit DLC 5/8/16, IPDM E7·25, E108/M15 and F102
  * cavities in yellow. Also checks the description lands in the details panel, not on the DLC card.
  */
@@ -64,9 +64,9 @@ for (const [g, pw, d] of [[1, 0, 1], [1, 1, 1], [0, 1, 0]]) {
   await setRel(g, pw, d);
   const tag = `T${g}A${pw}D${d}`;
   const r = await probe({ pin: 85 });
-  ok(`${tag} ECM 85: exactly one cavity selected (DLC·7)`, r.yellow.length === 1 && r.yellow[0] === 'dlc·7' && r.f102Yellow.length === 0, JSON.stringify(r).slice(0, 400));
+  ok(`${tag} ECM 85: yellow only on the 85 wire (DLC·7 + F102·4H)`, r.yellow.length === 1 && r.yellow[0] === 'dlc·7' && r.f102Yellow.join() === '4H', JSON.stringify(r).slice(0, 400));
   ok(`${tag} ECM 85: only ECM pin 85 yellow in the grid`, r.ecmYellow.join() === '85', r.ecmYellow.join());
-  ok(`${tag} ECM 85: F102·4H and the rest styled as related`, r.f102Rel.includes('4H') && (pw ? ['dlc·8', 'dlc·16', 'ipdm_e7·25'].every((k) => r.related.includes(k)) : true), JSON.stringify(r).slice(0, 400));
+  ok(`${tag} ECM 85: F102·4H keeps its highlight, the rest styled as related`, !r.f102Rel.includes('4H') && (pw ? ['dlc·8', 'dlc·16', 'ipdm_e7·25'].every((k) => r.related.includes(k)) : true), JSON.stringify(r).slice(0, 400));
   ok(`${tag} ECM 85: description in the details panel, not on the DLC card`, r.descPanel === 1 && r.descCard === 0, JSON.stringify(r));
   const c = await probe({ conn: 'dlc', cav: '16' });
   ok(`${tag} DLC·16 click: only the clicked cavity yellow`, c.yellow.length === 1 && c.yellow[0] === 'dlc·16' && c.f102Yellow.length === 0, JSON.stringify(c).slice(0, 400));
@@ -78,9 +78,12 @@ for (const [g, pw, d] of [[1, 0, 1], [1, 1, 1]]) {
   const bad = [];
   for (const n of pins) {
     const r = await probe({ pin: n });
-    if (r.badYellow.length || r.ixYellow.length || r.f102Yellow.length || r.descCard) bad.push(`${n}: ${[...r.badYellow, ...r.ixYellow, ...r.f102Yellow.map((x) => 'F102·' + x)].join(' ')}${r.descCard ? ' desc-in-card' : ''}`);
+    const f102Bad = await page.evaluate((n) => [...document.querySelectorAll('#f102Blocks .pin.hl')].filter((e) => Number(e.dataset.ecm) !== n).map((e) => e.dataset.cav), n);
+    const f102Miss = await page.evaluate((n) => [...document.querySelectorAll('#f102Blocks .pin[data-cav]')].filter((e) => Number(e.dataset.ecm) === n && !e.classList.contains('hl') && !e.classList.contains('dim') && !e.classList.contains('opt-off')).map((e) => e.dataset.cav), n);
+    if (r.badYellow.length || f102Bad.length || r.descCard) bad.push(`${n}: ${[...r.badYellow, ...f102Bad.map((x) => 'F102·' + x)].join(' ')}${r.descCard ? ' desc-in-card' : ''}`);
+    if (f102Miss.length) bad.push(`${n}: F102 ${f102Miss.join(' ')} carries the pin but is not yellow`);
   }
-  ok(`T${g}A${pw}D${d} all ${pins.length} ECM pins: yellow only on the device cavity carrying the pin, route / partners related`, bad.length === 0, bad.slice(0, 12).join(' | '));
+  ok(`T${g}A${pw}D${d} all ${pins.length} ECM pins: yellow only on cavities carrying the pin (device + F102), route / partners related`, bad.length === 0, bad.slice(0, 12).join(' | '));
 }
 await browser.close();
 console.log(`---\nsel_outline: ${pass} passed, ${fails.length} failed`);

@@ -1769,11 +1769,11 @@ function buildCircuits(model){
     {id:'ect', title:'ECT', color:'#5c6bc0',
       ecm:[73], conn:['ect'], notes:'Sensor de temperatura del refrigerante (ECT). Señal: F13·1 (BR/Y) → ECM 73. Masa: F13·2 (B/W) → ECM 67. EC-229.'},
     {id:'coil_1', title:'Bobina 1', color:'#26a69a',
-      ecm:[62], conn:['coil1','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+'],coil1:['3']}, notes:'Bobina de encendido 1. El ECM la dispara desde el pin 62, por F18·3. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
+      ecm:[62], conn:['coil1','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['6'],feed_inj_coil_12v:['COIL+'],coil1:['3']}, notes:'Bobina de encendido 1. El ECM la dispara desde el pin 62, por F18·3. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'coil_2', title:'Bobina 2', color:'#26a69a',
       ecm:[81], conn:['coil2'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],coil2:['3']}, notes:'Bobina de encendido 2. El ECM la dispara desde el pin 81. Es del banco 2 y no pasa por F18. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'coil_3', title:'Bobina 3', color:'#26a69a',
-      ecm:[61], conn:['coil3','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+'],coil3:['3']}, notes:'Bobina de encendido 3. El ECM la dispara desde el pin 61, por F18·2. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
+      ecm:[61], conn:['coil3','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5'],feed_inj_coil_12v:['COIL+'],coil3:['3']}, notes:'Bobina de encendido 3. El ECM la dispara desde el pin 61, por F18·2. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'coil_4', title:'Bobina 4', color:'#26a69a',
       ecm:[80], conn:['coil4'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],coil4:['3']}, notes:'Bobina de encendido 4. El ECM la dispara desde el pin 80. Todas las bobinas reciben los mismos 12 V: IPDM E7·17 → F3·5.'},
     {id:'coil_5', title:'Bobina 5', color:'#26a69a',
@@ -1836,7 +1836,7 @@ function buildCircuits(model){
       ecm:[47,50,66], conn:['etc'], notes:'Sensor 1 de posición de la mariposa: 5 V desde ECM 47, señal T1 a ECM 50 y masa a ECM 66. EC-238.'},
     {id:'tb2', chan:'tb2', title:'ETC · sensor 2 (T2)', color:'#029eb7',
       ecm:[47,69,66], conn:['etc'], notes:'Sensor 2 de posición de la mariposa: 5 V desde ECM 47, señal T2 a ECM 69 y masa a ECM 66. EC-238.'},
-    {id:'tb_mot', chan:'tbmot', title:'ETC · motor', color:'#029eb7',
+    {id:'tb_mot', chan:'tbmot', pwrRel:['vmot'], title:'ETC · motor', color:'#029eb7',
       ecm:[4,5], conn:['etc'], notes:'Motor que mueve la mariposa. El ECM lo maneja con dos cables: M− en ECM 4 y M+ en ECM 5. EC-238.'},
     {id:'ho2s_b1', title:'HO2S2 · Bank 1', color:'#8e24aa',
       ecm:[74], conn:['ho2s_b1'], notes:'Sonda de oxígeno trasera (después del catalizador) del banco 1. Su señal va a ECM 74 (OR); la masa de sensores es ECM 78.'},
@@ -1874,9 +1874,27 @@ function buildCircuits(model){
     {id:'pnp_mt_gnd', trans:'mt', gndRel:true, title:'PNP (M/T) · masa F35·2', color:'#ab47bc',
       ecm:[], conn:['f35_pnp','gnd4','f152'], path:{f35_pnp:['2'],gnd4:['3'],f152:['ring']}, notes:'Masa del interruptor de punto muerto (M/T): F35·2 (B) → F103/F151·3 → masa del motor F152. EC-646.'},
     /* Rail partners without an ECM pin (12V feed / chassis ground of each actuator): own circuits so they light with Alim./Masa and can be clicked */
-    {id:'coil_gnd', gndRel:true, title:'Bobinas + condensador · masa F23', color:'#26a69a',
-      ecm:[], conn:['coil1','coil2','coil3','coil4','coil5','coil6','f16_cond','f23_gnd'], path:{coil1:['2'],coil2:['2'],coil3:['2'],coil4:['2'],coil5:['2'],coil6:['2'],f16_cond:['2'],ix_f18_f201:['1'],f23_gnd:['ring']},
-      notes:'Masa de las seis bobinas y del condensador de encendido F16: cada una tiene su pin de masa (B), y todas terminan en la masa del motor F23 (la de las bobinas del banco 1 pasa por F18/F201·1). EC-689 / EC-691 / EC-693.'},
+    {id:'coil1_gnd', gndRel:true, title:'Bobina 1 · masa F23', color:'#26a69a',
+      ecm:[], conn:['coil1','ix_f18_f201','f23_gnd'], path:{coil1:['2'],ix_f18_f201:['1'],f23_gnd:['ring']},
+      notes:'Masa de la bobina 1: su pin 2 (B) se une con la de la otra bobina del banco 1, pasa por F18/F201·1 y termina en la masa del motor F23. EC-691.'},
+    {id:'coil3_gnd', gndRel:true, title:'Bobina 3 · masa F23', color:'#26a69a',
+      ecm:[], conn:['coil3','ix_f18_f201','f23_gnd'], path:{coil3:['2'],ix_f18_f201:['1'],f23_gnd:['ring']},
+      notes:'Masa de la bobina 3: su pin 2 (B) se une con la de la otra bobina del banco 1, pasa por F18/F201·1 y termina en la masa del motor F23. EC-691.'},
+    {id:'coil5_gnd', gndRel:true, title:'Bobina 5 · masa F23', color:'#26a69a',
+      ecm:[], conn:['coil5','f23_gnd'], path:{coil5:['2'],f23_gnd:['ring']},
+      notes:'Masa de la bobina 5: su pin 2 (B) va directo a la masa del motor F23, sin pasar por F18. EC-691.'},
+    {id:'coil2_gnd', gndRel:true, title:'Bobina 2 · masa F23', color:'#26a69a',
+      ecm:[], conn:['coil2','f23_gnd'], path:{coil2:['2'],f23_gnd:['ring']},
+      notes:'Masa de la bobina 2: su pin 2 (B) va directo a la masa del motor F23, sin pasar por F18. EC-693.'},
+    {id:'coil4_gnd', gndRel:true, title:'Bobina 4 · masa F23', color:'#26a69a',
+      ecm:[], conn:['coil4','f23_gnd'], path:{coil4:['2'],f23_gnd:['ring']},
+      notes:'Masa de la bobina 4: su pin 2 (B) va directo a la masa del motor F23, sin pasar por F18. EC-693.'},
+    {id:'coil6_gnd', gndRel:true, title:'Bobina 6 · masa F23', color:'#26a69a',
+      ecm:[], conn:['coil6','f23_gnd'], path:{coil6:['2'],f23_gnd:['ring']},
+      notes:'Masa de la bobina 6: su pin 2 (B) va directo a la masa del motor F23, sin pasar por F18. EC-693.'},
+    {id:'f16_cond_gnd', gndRel:true, title:'Condensador F16 · masa F23', color:'#26a69a',
+      ecm:[], conn:['f16_cond','f23_gnd'], path:{f16_cond:['2'],f23_gnd:['ring']},
+      notes:'Masa del condensador de encendido: F16·2 (B) va a la masa del motor F23. EC-689.'},
     {id:'f16_cond_pwr', title:'Condensador F16 · 12V', color:'#26a69a',
       ecm:[], conn:['f16_cond','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],f16_cond:['1']},
       notes:'12 V del condensador de encendido F16: los mismos 12 V de las bobinas, que salen de IPDM E7·17 (W/L), pasan por F3·5 y llegan a F16·1. EC-689.'},
@@ -5332,7 +5350,13 @@ const TITLES_I18N = {
   evt_pos_b1_gnd: {en:'EVT position B1 · ground F38·1', ja:'EVT位置 B1 · アース F38·1'},
   evt_pos_b2: {en:'EVT position B2 (exhaust) · F42', ja:'EVT位置 B2（排気）· F42'},
   ckp_pwr: {en:'CKP · 12V', ja:'CKP · 12V'},
-  coil_gnd: {en:'Coils + condenser · ground F23', ja:'コイル＋コンデンサー · アース F23'},
+  coil1_gnd: {en:'Coil 1 · ground F23', ja:'コイル1 · アース F23'},
+  coil3_gnd: {en:'Coil 3 · ground F23', ja:'コイル3 · アース F23'},
+  coil5_gnd: {en:'Coil 5 · ground F23', ja:'コイル5 · アース F23'},
+  coil2_gnd: {en:'Coil 2 · ground F23', ja:'コイル2 · アース F23'},
+  coil4_gnd: {en:'Coil 4 · ground F23', ja:'コイル4 · アース F23'},
+  coil6_gnd: {en:'Coil 6 · ground F23', ja:'コイル6 · アース F23'},
+  f16_cond_gnd: {en:'Condenser F16 · ground F23', ja:'コンデンサー F16 · アース F23'},
   f16_cond_pwr: {en:'Condenser F16 · 12V', ja:'コンデンサー F16 · 12V'},
   fuel_pump_pwr: {en:'Fuel pump · 12V', ja:'燃料ポンプ · 12V'},
   fuel_pump_gnd: {en:'Fuel pump · ground', ja:'燃料ポンプ · アース'},
@@ -5413,7 +5437,13 @@ const TITLES_I18N = {
 };
 
 const NOTES_I18N = {
-  coil_gnd: {en:'Ground for the six coils and the ignition condenser F16: each has its own ground pin (B), and all end at engine ground F23 (the bank 1 coils go through F18/F201·1). EC-689 / EC-691 / EC-693.', ja:'6本のコイルと点火コンデンサーF16のアース：それぞれのアースピン（B）から出て、すべてエンジンアースF23で終わる（バンク1のコイルはF18/F201·1を通る）。EC-689 / EC-691 / EC-693。'},
+  coil1_gnd: {en:'Coil 1 ground: its pin 2 (B) joins the other bank 1 coil ground, passes through F18/F201·1 and ends at engine ground F23. EC-691.', ja:'コイル1のアース：2番（B）はバンク1のもう一方のコイルのアースと合流し、F18/F201·1を通ってエンジンアースF23で終わる。EC-691。'},
+  coil3_gnd: {en:'Coil 3 ground: its pin 2 (B) joins the other bank 1 coil ground, passes through F18/F201·1 and ends at engine ground F23. EC-691.', ja:'コイル3のアース：2番（B）はバンク1のもう一方のコイルのアースと合流し、F18/F201·1を通ってエンジンアースF23で終わる。EC-691。'},
+  coil5_gnd: {en:'Coil 5 ground: its pin 2 (B) goes straight to engine ground F23, without F18. EC-691.', ja:'コイル5のアース：2番（B）はF18を通らず、直接エンジンアースF23へ行く。EC-691。'},
+  coil2_gnd: {en:'Coil 2 ground: its pin 2 (B) goes straight to engine ground F23, without F18. EC-693.', ja:'コイル2のアース：2番（B）はF18を通らず、直接エンジンアースF23へ行く。EC-693。'},
+  coil4_gnd: {en:'Coil 4 ground: its pin 2 (B) goes straight to engine ground F23, without F18. EC-693.', ja:'コイル4のアース：2番（B）はF18を通らず、直接エンジンアースF23へ行く。EC-693。'},
+  coil6_gnd: {en:'Coil 6 ground: its pin 2 (B) goes straight to engine ground F23, without F18. EC-693.', ja:'コイル6のアース：2番（B）はF18を通らず、直接エンジンアースF23へ行く。EC-693。'},
+  f16_cond_gnd: {en:'Ignition condenser ground: F16·2 (B) goes to engine ground F23. EC-689.', ja:'点火コンデンサーのアース：F16·2（B）はエンジンアースF23へ行く。EC-689。'},
   f16_cond_pwr: {en:'12 V for the ignition condenser F16: the same 12 V as the coils, which leaves IPDM E7·17 (W/L), passes through F3·5 and reaches F16·1. EC-689.', ja:'点火コンデンサーF16の12V：コイルと同じ12VでIPDM E7·17（W/L）から出てF3·5を通り、F16·1に届く。EC-689。'},
   fuel_pump_pwr: {en:'12 V for the fuel pump: the pump relay in the IPDM (fuse 81, 15A) leaves on E8·39 (B/Y) and reaches pump pin 1. EC-710.', ja:'燃料ポンプの12V：IPDMのポンプリレー（ヒューズ81、15A）からE8·39（B/Y）で出て、ポンプの1番に届く。EC-710。'},
   fuel_pump_gnd: {en:'Fuel pump ground: pin 3 (B) goes to ground point D105 (not drawn on the map). EC-710.', ja:'燃料ポンプのアース：3番（B）はアースポイントD105へ（マップには未表示）。EC-710。'},
@@ -7450,18 +7480,56 @@ function powerRelatedCircuits(coreIds){
     (cir.conn || []).forEach(cid => { if(connIsDevice(cid)) devices.add(cid); });
     if(cir.chan) chans.add(cir.chan);
   });
-  if(!devices.size) return [];
+  const extra = [];
+  /* Explicit power partner (ETC motor 4/5 ← VMOT ECM 3 from the throttle motor relay, EC-472) */
+  core.forEach(id => {
+    const cir = CIRCUITS.find(c => c.id === id);
+    (cir && cir.pwrRel || []).forEach(x => { if(!core.has(x) && !extra.includes(x) && CIRCUITS.some(c => c.id === x)) extra.push(x); });
+  });
+  if(!devices.size) return extra;
   /* Sensor: a shared shell is not one device. E11·1 is alternator 12V, not APP 2. */
   const sensorMode = relGroupMode() === 'sensor' && chans.size > 0;
-  const extra = [];
   CIRCUITS.forEach(cir => {
     if(core.has(cir.id)) return;
     if(!(cir.conn || []).some(cid => devices.has(cid))) return;
     if(sensorMode && !chans.has(cir.chan)) return;
     if(cir.gndRel) return;
+    if(extra.includes(cir.id)) return;
     if(circuitHasPowerPath(cir) || circuitPowersDevice(cir, devices)) extra.push(cir.id);
   });
   return extra;
+}
+/** Tierras relacionadas: the chassis-ground circuit (gndRel) of each device in the selection, e.g. coil N·2 → F23.
+ *  Lights that device's ground cavity and its route to the ground point, like the 12V partner with Alim. */
+function groundRelatedCircuits(coreIds){
+  const core = new Set(coreIds || []);
+  const devices = new Set();
+  core.forEach(id => {
+    const cir = CIRCUITS.find(c => c.id === id);
+    if(!cir || cir.gndRel) return;
+    (cir.conn || []).forEach(cid => {
+      const sub = (CONN[cid] || CONN_BASE[cid] || {}).sub;
+      if(cid.startsWith('ix_')) return; /* F18/F201 sits in the bobinas group but is an intermediate */
+      if(connIsDevice(cid) || sub === 'bobinas' || sub === 'inyectores') devices.add(cid);
+    });
+  });
+  if(!devices.size) return [];
+  return CIRCUITS.filter(cir => cir.gndRel && !core.has(cir.id)
+    && Object.keys(cir.path || {}).some(cid => devices.has(cid))).map(cir => cir.id);
+}
+function attachGroundPathFichas(coreIds, connSet, pathCavByConn, onPathCir=null){
+  /* Same modes as the 12V partner (Alim.), and only while Tierras is on: a plain SIG click stays signal-only. */
+  if(!railRelGndEnabled() || !railRelPowerEnabled()) return;
+  groundRelatedCircuits(coreIds).forEach(id => {
+    const cir = CIRCUITS.find(c => c.id === id);
+    if(!cir) return;
+    (cir.conn || []).forEach(cid => connSet.add(cid));
+    Object.entries(cir.path || {}).forEach(([cid, cavs]) => {
+      if(!pathCavByConn.has(cid)) pathCavByConn.set(cid, new Set());
+      (cavs || []).forEach(c => pathCavByConn.get(cid).add(String(c)));
+    });
+    if(onPathCir) onPathCir(cir);
+  });
 }
 /** Relacionados · Datos: sibling circuits on the same device (e.g. A/F heater ECM 2/24 with sensor).
  *  Adds ECM pins only — never merges .path (12V stays behind Alim.). */
@@ -8181,6 +8249,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     lines.push(`<div><b style="color:${cir.color}">${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
   attachPowerPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
+  attachGroundPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
   attachAlimPathFichas(pathCavByConn, connSet);
   if(focusConn && FUSE_BOX_CONNS.has(focusConn)) connSet.add(focusConn);
   attachDataRelatedEcm(circIds, ecmSet);
@@ -8354,14 +8423,14 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
   /* Relacionados on: only the clicked thing is yellow (the clicked cavity; on an ECM pin click, the device cavity that
      carries that pin). Route cavities, intermediates carrying the same wire and partner circuits use the related style. */
   const relOn = ['railRelGnd','railRelPower','railRelData'].some(id => { const el = document.getElementById(id); return !!(el && el.checked); });
-  const isIx = cid => cid === 'ix_f102_m72' || ((CONN[cid] || CONN_BASE[cid] || {}).sub === 'intermedias');
   const pathOk = (p, cid, pid)=>{
     if(!p) return false;
     const isFocusCav = focusConn===cid && String(focusCav)===String(pid);
     if(isFocusCav) return {cls:'hl'};
     /* Exact ECM match = yellow hl first (path list must not force purple hl-group). */
     if(p.ecm!=null && p.ecm!=='' && focusPin!=null && Number(p.ecm)===Number(focusPin)){
-      if(relOn && (focusConn || isIx(cid))) return {cls:'hl-group', path:true};
+      /* ECM pin click: every cavity carrying that same wire (device end, F102, intermediates) stays yellow */
+      if(relOn && focusConn) return {cls:'hl-group', path:true};
       return {cls:'hl'};
     }
     const onPathFeed = pathCavByConn && pathCavByConn.has(cid) && pathCavByConn.get(cid).has(String(pid));

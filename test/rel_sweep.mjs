@@ -122,8 +122,19 @@ async function runScenario(model, trans) {
             const isEcm = q.ecm != null && q.ecm !== '';
             const r = isEcm ? (PIN_RAIL[Number(q.ecm)] || null) : q.rail;
             const kind = r === 'gnd' ? 'gnd' : (r === '12v' || r === '5v') ? 'power' : 'data';
-            if (!isEcm && kind !== 'power') continue; /* chassis grounds: Masa filter / own click (gate d) */
             const qc = q.circ ? CIRCUITS.find((c) => c.id === q.circ) : CIRCUITS.find((c) => c.path && (c.path[D] || []).map(String).includes(String(q.id)));
+            if (!isEcm && kind === 'gnd') {
+              /* chassis ground of the device (gndRel circuit, e.g. coil N·2 → F23): lit with Tierras, route to the ground point too */
+              const gc = CIRCUITS.find((c) => c.gndRel && ((c.path || {})[D] || []).map(String).includes(String(q.id)));
+              if (!gc || D.startsWith('ix_')) continue;
+              if (g && pw) {
+                check(L.has(k), `${tag}: ground partner ${k} not lit with Tierras + Alim.`);
+                const missG = Object.entries(gc.path || {}).flatMap(([c2, cv]) => cv.map((x) => c2 + '·' + x)).filter((k2) => cavEl(k2) && !L.has(k2));
+                check(!missG.length, `${tag}: ground partner ${k} route (${gc.id}) not connected: ${missG.join(' ')}`);
+              } else if (isSig && !g) check(!L.has(k), `${tag}: ground partner ${k} lit without Tierras`);
+              continue;
+            }
+            if (!isEcm && kind !== 'power') continue;
             const sameChan = !chans.size || !!(qc && qc.chan && chans.has(qc.chan));
             const on = kind === 'gnd' ? g : kind === 'power' ? pw : d;
             if (!isEcm) {
