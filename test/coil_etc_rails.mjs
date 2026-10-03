@@ -70,6 +70,18 @@ for (const grp of ['sensor', 'ficha']) {
   const L0 = new Set(await lit({ pin: 62 }));
   ok(`${grp} ECM 62 with Tierras, no Alim.: signal only (ground and 12V dark, like other SIG clicks)`, !L0.has('coil1·2') && !L0.has('coil1·3'), [...L0].join(' '));
 }
+/* VTC intake bank 1 (F204): 12V only through F18/F201·5 (EC-455), both engines */
+for (const model of ['de_early', 'de_revup']) {
+  await page.evaluate((m) => { const el = document.getElementById('model'); if (el.value !== m) { el.value = m; el.dispatchEvent(new Event('change', { bubbles: true })); } }, model);
+  for (const grp of ['sensor', 'ficha']) {
+    await setRel(1, 1, 1, grp);
+    for (const click of [{ pin: 11 }, { conn: 'vtc_b1', cav: '1' }]) {
+      const L = new Set(await lit(click));
+      ok(`${model} ${grp} VTC B1 (${click.pin != null ? 'ECM 11' : 'vtc_b1·1'}): 12V via F18/F201·5 only, not ·6 (EC-455)`, L.has('vtc_b1·2') && L.has('ix_f18_f201·5') && !L.has('ix_f18_f201·6'), [...L].join(' '));
+    }
+  }
+}
+await page.evaluate(() => { const el = document.getElementById('model'); el.value = 'de_early'; el.dispatchEvent(new Event('change', { bubbles: true })); });
 /* ETC (F31) */
 for (const grp of ['sensor', 'ficha']) {
   await setRel(1, 1, 1, grp);

@@ -2089,8 +2089,8 @@ function buildCircuits(model){
     base.push(
       {id:'vtc_adm_b1', title:'VTC admisión B1', color:'#d81b60',
         ecm:[11], conn:['vtc_b1','ix_f18_f201'],
-        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+'],vtc_b1:['2']},
-        notes:'Solenoide VTC de admisión del banco 1; el ECM lo controla con su propio pin (no compartido con el banco 2) y recibe los 12 V de las bobinas por F18.'},
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5'],feed_inj_coil_12v:['COIL+'],vtc_b1:['2']},
+        notes:'Solenoide VTC de admisión del banco 1; el ECM lo controla con su propio pin (no compartido con el banco 2) y recibe los 12 V de las bobinas por F18·5, la misma cavidad que la bobina 3. EC-455.'},
       {id:'vtc_adm_b2', title:'VTC admisión B2', color:'#d81b60',
         ecm:[10], conn:['vtc_b2'],
         path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],vtc_b2:['2']},
@@ -2100,8 +2100,8 @@ function buildCircuits(model){
     base.push(
       {id:'vtc_adm_b1', title:'VTC admisión B1', color:'#d81b60',
         ecm:[11], conn:['vtc_b1','ix_f18_f201'],
-        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5','6'],feed_inj_coil_12v:['COIL+'],vtc_b1:['2']},
-        notes:'Solenoide de distribución variable (VTC) de admisión del banco 1 (Rev-Up). El ECM lo controla con su propio pin, el 11 (no lo comparte con el banco 2), por F18·4. Recibe 12 V del IPDM: E7·17 → F3·5 → F18·5/6.'},
+        path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['5'],feed_inj_coil_12v:['COIL+'],vtc_b1:['2']},
+        notes:'Solenoide VTC de admisión del banco 1 (Rev-Up); el ECM lo controla con su propio pin (no compartido con el banco 2) y recibe los 12 V de las bobinas por F18·5, la misma cavidad que la bobina 3. EC-455.'},
       {id:'vtc_adm_b2', title:'VTC admisión B2', color:'#d81b60',
         ecm:[10], conn:['vtc_b2'],
         path:{ipdm_e7:['17'],ix_e12_f3:['5'],feed_inj_coil_12v:['COIL+'],vtc_b2:['2']},
@@ -2807,10 +2807,10 @@ const CONN_BASE = {
       {id:'2',lab:'C3',code:'L/R',ecm:61},
       {id:'3',lab:'C1',code:'Y/R',ecm:62},
       {id:'4',lab:'VTC',code:'P',ecm:11},
-      {id:'5',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'},
-      {id:'6',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm'}
+      {id:'5',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm',note:'12 V para la bobina 3 y el VTC de admisión del banco 1 (EC-691 / EC-455).',note_en:'12 V for coil 3 and the bank 1 intake VTC (EC-691 / EC-455).',note_ja:'コイル3とバンク1吸気VTCへの12V（EC-691 / EC-455）。'},
+      {id:'6',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm',note:'12 V para la bobina 1 (EC-691).',note_en:'12 V for coil 1 (EC-691).',note_ja:'コイル1への12V（EC-691）。'}
     ],
-    note:'Empalme del banco 1 (F18) para las bobinas 1 y 3 y el VTC. La cavidad 1 (B) es masa. La 2 (L/R) lleva la orden del pin 61 del ECM a la bobina 3, y la 3 (Y/R) la del pin 62 a la bobina 1. La 4 (W/R; P del otro lado) lleva la orden del pin 11 del ECM al VTC del banco 1. La 5 y la 6 (W/L) llevan 12 V que vienen de IPDM E7·17 por F3·5. La bobina 5 y el banco 2 no pasan por aquí. Se ve la cara hembra de F18 (EC-691/EC-455 T.S.: 1-2-3 / 4-5-6).'},
+    note:'Empalme del banco 1 (F18) para las bobinas 1 y 3 y el VTC. La cavidad 1 (B) es masa. La 2 (L/R) lleva la orden del pin 61 del ECM a la bobina 3, y la 3 (Y/R) la del pin 62 a la bobina 1. La 4 (W/R; P del otro lado) lleva la orden del pin 11 del ECM al VTC del banco 1. Las dos llevan 12 V de IPDM E7·17 por F3·5: la 5 (W/L) a la bobina 3 y al VTC del banco 1, y la 6 (W/L) a la bobina 1 (EC-691 / EC-455). La bobina 5 y el banco 2 no pasan por aquí. Se ve la cara hembra de F18 (EC-691/EC-455 T.S.: 1-2-3 / 4-5-6).'},
   ix_f221_f33:{group:'motor', sub:'inyectores', name:'F33 ↔ F221 · Empalme inyectores', meta:'8-pin · frente del collector · no es F18', accent:'#9ccc65', shape:'f33', view:{c:'F33',g:'f',src:'EC-278',ord:'1-2-3-4 / 5-6-7-8'},
     pins:[
       {id:'1',lab:'I5',code:'SB',ecm:21},
@@ -5458,7 +5458,7 @@ const NOTES_I18N = {
   cmp_b2_pwr: {en:'12 V for the bank 2 camshaft sensor: it leaves the ECM relay in the IPDM (E7·18, R/W), passes through F3·7 and reaches F32·3. EC-333.', ja:'バンク2カム角センサーの12V：IPDMのECMリレー（E7·18、R/W）から出てF3·7を通り、F32·3に届く。EC-333。'},
   cmp_b2_gnd: {en:'Ground for the bank 2 camshaft sensor: it leaves F32·1 (B), passes through F103/F151·3 and ends at engine ground F152. EC-333.', ja:'バンク2カム角センサーのアース：F32·1（B）から出てF103/F151·3を通り、エンジンアースF152で終わる。EC-333。'},
   maf_pwr: {en:'12 V for the MAF: it leaves the ECM relay in the IPDM (E7·18, R/W), passes through F3 and reaches F25·2. EC-207.', ja:'MAFの12V：IPDMのECMリレー（E7·18、R/W）から出てF3を通り、F25·2に届く。EC-207。'},
-  vtc_adm_b1: {en:'Bank 1 intake VTC solenoid; the ECM controls it on its own pin (not shared with bank 2) and it gets the coils\' 12 V through F18.', ja:'バンク1吸気VTCソレノイド。ECMは専用ピン（バンク2と共用しない）で制御し、コイルと同じ12VをF18経由で受ける。'},
+  vtc_adm_b1: {en:'Bank 1 intake VTC solenoid; the ECM controls it on its own pin (not shared with bank 2) and it gets the coils\' 12 V through F18·5, the same cavity as coil 3. EC-455.', ja:'バンク1吸気VTCソレノイド。ECMは専用ピン（バンク2と共用しない）で制御し、コイルと同じ12VをF18·5（コイル3と同じキャビティ）経由で受ける。EC-455。'},
   vtc_adm_b2: {en:'Bank 2 intake VTC solenoid; the ECM controls it on its own pin, without F18, and it gets the same 12 V as the coils.', ja:'バンク2吸気VTCソレノイド。ECMは専用ピンでF18を通らずに制御し、コイルと同じ12Vを受ける。'},
   vtc_ex_b1: {en:'Bank 1 exhaust VTC solenoid (Rev-Up only), fed by the 12 V from IPDM E7·17. EC-198.', ja:'バンク1排気VTCソレノイド（Rev-Upのみ）。IPDM E7·17の12Vで給電。EC-198。'},
   vtc_ex_b2: {en:'Bank 2 exhaust VTC solenoid (Rev-Up only), fed by the 12 V from IPDM E7·17. EC-200.', ja:'バンク2排気VTCソレノイド（Rev-Upのみ）。IPDM E7·17の12Vで給電。EC-200。'},
@@ -6302,9 +6302,9 @@ const CONN_I18N = {
   },
   ix_f18_f201: {
     en: { name:'F18 ↔ F201 · Coils B1 + VTC', meta:'6-pin · Bank 1 only · EC-691/455',
-      note:'Bank 1 splice (F18) for coils 1 and 3 and the VTC. Cavity 1 (B) is ground. Cavity 2 (L/R) carries the command from ECM pin 61 to coil 3, and cavity 3 (Y/R) the one from pin 62 to coil 1. Cavity 4 (W/R; P on the other side) carries the command from ECM pin 11 to the bank 1 VTC. Cavities 5 and 6 (W/L) carry 12 V that comes from IPDM E7·17 through F3·5. Coil 5 and bank 2 do not pass through here. Shown as the F18 female face (EC-691/EC-455 T.S.: 1-2-3 / 4-5-6).' },
+      note:'Bank 1 splice (F18) for coils 1 and 3 and the VTC. Cavity 1 (B) is ground. Cavity 2 (L/R) carries the command from ECM pin 61 to coil 3, and cavity 3 (Y/R) the one from pin 62 to coil 1. Cavity 4 (W/R; P on the other side) carries the command from ECM pin 11 to the bank 1 VTC. Both carry 12 V from IPDM E7·17 through F3·5: cavity 5 (W/L) to coil 3 and the bank 1 VTC, cavity 6 (W/L) to coil 1 (EC-691 / EC-455). Coil 5 and bank 2 do not pass through here. Shown as the F18 female face (EC-691/EC-455 T.S.: 1-2-3 / 4-5-6).' },
     ja: { name:'F18 ↔ F201 · B1コイル + VTC', meta:'6ピン · Bank1のみ · EC-691/455',
-      note:'バンク1のコイル1・3とVTC用の中継（F18）。キャビティ1（B）はアース。2（L/R）はECM 61番からコイル3への指令、3（Y/R）はECM 62番からコイル1への指令。4（W/R、反対側はP）はECM 11番からバンク1 VTCへの指令。5・6（W/L）はIPDM E7·17からF3·5を通って来る12V。コイル5とバンク2はここを通らない。F18メス側の面（EC-691/EC-455 T.S.：1-2-3 / 4-5-6）。' },
+      note:'バンク1のコイル1・3とVTC用の中継（F18）。キャビティ1（B）はアース。2（L/R）はECM 61番からコイル3への指令、3（Y/R）はECM 62番からコイル1への指令。4（W/R、反対側はP）はECM 11番からバンク1 VTCへの指令。5・6はIPDM E7·17からF3·5経由の12V。5（W/L）はコイル3とバンク1のVTCへ、6（W/L）はコイル1へ（EC-691 / EC-455）。コイル5とバンク2はここを通らない。F18メス側の面（EC-691/EC-455 T.S.：1-2-3 / 4-5-6）。' },
   },
   ix_f221_f33: {
     en: { name:'F33 ↔ F221 · Injector junction', meta:'8-pin · front of collector · not F18',
