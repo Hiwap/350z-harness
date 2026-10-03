@@ -114,7 +114,7 @@ await page.click('#blocks .pin[data-pin="94"]');
   ok('A/T ECM 94 CAN-H lights F6·3 (TCM) + M48·1 + E9·48 + DLC·6 (LAN-31/32)', ['f6_at·3', 'comb_meter·1', 'ipdm_e9·48', 'dlc·6'].every((k) => lit.includes(k)), lit.join(','));
 }
 // Engine oil temperature sensor F242 (EC-123 (3M) = 35th Anniversary M/T; PG-55 *1; 2006 EC-110 (M)):
-// ECM 54 + F242 exist only on Rev-Up + Manual; the 54 click shows the signal only; the F242 ground reaches ECM 67.
+// ECM 54 + F242 exist only on Rev-Up + Manual; the 54 click shows the signal and, with Tierras, its ground F242·G (ECM 67); never 12V.
 {
   const eot = TABLE.pins['54'];
   const gndBr = TABLE.pins['67'].branches.find((b) => b.end.map === 'f242_eot');
@@ -139,9 +139,14 @@ await page.click('#blocks .pin[data-pin="94"]');
   await page.evaluate(() => clearSelection());
   await page.click('#blocks .pin[data-pin="54"]');
   let lit = await litNow();
-  ok(`ECM 54 click lights ${sigKey} and not the ground ${gndKey}`, lit.includes(sigKey) && !lit.includes(gndKey), lit.join(','));
-  const gndLit = await page.evaluate(() => [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].filter((c) => c.dataset.rail === 'gnd' || c.dataset.rail === '12v').map((c) => c.dataset.conn + '·' + c.dataset.cav));
-  ok('ECM 54 click lights no gnd/12V cavity', gndLit.length === 0, gndLit.join(','));
+  ok(`ECM 54 click (Tierras on) lights ${sigKey} and its sensor ground ${gndKey} (ECM 67, EC-123)`, lit.includes(sigKey) && lit.includes(gndKey), lit.join(','));
+  const v12Lit = await page.evaluate(() => [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].filter((c) => c.dataset.rail === '12v').map((c) => c.dataset.conn + '·' + c.dataset.cav));
+  ok('ECM 54 click lights no 12V cavity', v12Lit.length === 0, v12Lit.join(','));
+  await page.evaluate(() => { const el = document.getElementById('railRelGnd'); el.checked = false; el.dispatchEvent(new Event('change', { bubbles: true })); clearSelection(); });
+  await page.click('#blocks .pin[data-pin="54"]');
+  lit = await litNow();
+  ok(`ECM 54 click (Tierras off) lights ${sigKey} and not the ground ${gndKey}`, lit.includes(sigKey) && !lit.includes(gndKey), lit.join(','));
+  await page.evaluate(() => { const el = document.getElementById('railRelGnd'); el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); });
   await page.evaluate(() => clearSelection());
   await page.click('#blocks .pin[data-pin="67"]');
   lit = await litNow();

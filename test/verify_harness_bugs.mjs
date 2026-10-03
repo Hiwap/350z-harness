@@ -501,7 +501,7 @@ ok('actuators render no longer nests bobinas under actuators',
   ok('trans change re-renders the ECM grid', /rebuildIndexes\(\);\n  renderECM\(\);\n  renderFichas\(\);/.test(html));
   ok('F242 hidden on VQ35DE sin VTC escape (Rev-Up only)', /id !== 'f42_evtc_b2' && id !== 'f242_eot'\)/.test(html));
   ok('F242 M/T-only (EC-123 3M, PG-55 *1)', /'f242_eot'/.test((html.match(/const TRANS_MT_ONLY = new Set\(\[[^\]]*\]\)/) || [''])[0]));
-  ok('eot circuit: Rev-Up branch, trans mt, ECM 54 only', /\{id:'eot', trans:'mt', title:'[^']*', color:'[^']*',\n        ecm:\[54\], conn:\['f242_eot'\],/.test(html));
+  ok('eot circuit: Rev-Up branch, trans mt, ECM 54 + its sensor ground 67', /\{id:'eot', trans:'mt', title:'[^']*', color:'[^']*',\n        ecm:\[54,67\], conn:\['f242_eot'\],/.test(html));
 }
 
 console.log('\n---');

@@ -1765,9 +1765,9 @@ function buildCircuits(model){
       ecm:[], conn:['cmp_b2','gnd4','f152'], path:{cmp_b2:['1'],gnd4:['3'],f152:['ring']},
       notes:'Masa del sensor de levas del banco 2: sale de F32·1 (B), pasa por F103/F151·3 y termina en la masa del motor F152. EC-333.'},
     {id:'iat', chan:'iat', title:'IAT', color:'#8d6e63',
-      ecm:[34], conn:['maf'], path:{maf:['5']}, notes:'Temperatura del aire de admisión, medida dentro del MAF; su masa es ECM 67. EC-223.'},
+      ecm:[34,67], conn:['maf'], path:{maf:['5']}, notes:'Temperatura del aire de admisión, medida dentro del MAF; su masa es ECM 67. EC-223.'},
     {id:'ect', title:'ECT', color:'#5c6bc0',
-      ecm:[73], conn:['ect'], notes:'Temperatura del refrigerante; su masa es ECM 67. EC-229.'},
+      ecm:[73,67], conn:['ect'], notes:'Temperatura del refrigerante; su masa es ECM 67. EC-229.'},
     {id:'coil_1', title:'Bobina 1', color:'#26a69a',
       ecm:[62], conn:['coil1','ix_f18_f201'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],ix_f18_f201:['6'],feed_inj_coil_12v:['COIL+'],coil1:['3']}, notes:'El ECM dispara la bobina 1 por masa; todas las bobinas comparten el 12 V del IPDM E7·17.'},
     {id:'coil_2', title:'Bobina 2', color:'#26a69a',
@@ -1828,7 +1828,7 @@ function buildCircuits(model){
     {id:'can', title:'CAN / DLC / unified meter', color:'#7e57c2',
       ecm:[86,94], conn:['ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','comb_meter'], notes:'Red CAN por la que se comunican los módulos: DLC, unified meter, BCM, IPDM, ABS/VDC y, en A/T, el TCM; el combination meter M19 no está en el CAN. LAN-31/55/76/97/119.'},
     {id:'maf', chan:'maf', title:'MAF', color:'#fb8c00',
-      ecm:[51], conn:['maf'], notes:'Caudal de aire de admisión.'},
+      ecm:[51,67], conn:['maf'], notes:'Caudal de aire de admisión; su masa es ECM 67 (MAF·3). EC-210.'},
     {id:'maf_pwr', chan:'maf', title:'MAF · 12V', color:'#fb8c00',
       ecm:[], conn:['maf','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],feed_ckp_maf_12v:['MAF+'],maf:['2'],ipdm_cover:['77']},
       notes:'12 V del MAF: salen del relé del ECM en el IPDM (E7·18, R/W), pasan por F3 y llegan a F25·2. EC-207.'},
@@ -1839,13 +1839,13 @@ function buildCircuits(model){
     {id:'tb_mot', chan:'tbmot', pwrRel:['vmot'], title:'ETC · motor', color:'#029eb7',
       ecm:[4,5], conn:['etc'], notes:'Motor que abre y cierra la mariposa; el ECM lo maneja con dos cables (M− y M+). EC-238.'},
     {id:'ho2s_b1', title:'HO2S2 · Bank 1', color:'#8e24aa',
-      ecm:[74], conn:['ho2s_b1'], notes:'Sonda de oxígeno trasera del banco 1 (después del catalizador); su masa es ECM 78.'},
+      ecm:[74,78], conn:['ho2s_b1'], notes:'Sonda de oxígeno trasera del banco 1 (después del catalizador); su masa es ECM 78.'},
     {id:'ho2s_b1_htr', title:'HO2S2 B1 · calentador', color:'#8e24aa',
       ecm:[25], conn:['ho2s_b1'], notes:'Calentador de la sonda de oxígeno trasera del banco 1, controlado por el ECM. EC-191.'},
     {id:'ho2s_b1_pwr', title:'HO2S2 B1 · 12V', color:'#8e24aa',
       ecm:[], conn:['ho2s_b1','ix_e108_m15','ix_e12_f3'], path:{jb_fuse_block:['15'],feed_ho2s_12v:['B1-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b1:['2']}, notes:'12 V para el calentador de la sonda de oxígeno trasera del banco 1: fusible 15A → E108·65G → F3·3 → F11·2. EC-191.'},
     {id:'ho2s_b2', title:'HO2S2 · Bank 2', color:'#8e24aa',
-      ecm:[55], conn:['ho2s_b2'], notes:'Sonda de oxígeno trasera del banco 2 (después del catalizador); su masa es ECM 78.'},
+      ecm:[55,78], conn:['ho2s_b2'], notes:'Sonda de oxígeno trasera del banco 2 (después del catalizador); su masa es ECM 78.'},
     {id:'ho2s_b2_htr', title:'HO2S2 B2 · calentador', color:'#8e24aa',
       ecm:[6], conn:['ho2s_b2'], notes:'Calentador de la sonda de oxígeno trasera del banco 2, controlado por el ECM. EC-193.'},
     {id:'ho2s_b2_pwr', title:'HO2S2 B2 · 12V', color:'#8e24aa',
@@ -2141,7 +2141,7 @@ function buildCircuits(model){
         notes:'12 V del sensor de distribución de escape del banco 2: relé del ECM en el IPDM (E7·18, R/W) → E12/F3·7 → F42·3. EC-447.'},
       /* Engine oil temperature sensor F242 (EC-123 (3M) = 35th Anniversary M/T; 2006 EC-110 (M)). Ground = F242·G on the ECM 67 line (no path: sensor return, like ECT). */
       {id:'eot', trans:'mt', title:'Temp. aceite (35th M/T) · F242', color:'#6d4c41',
-        ecm:[54], conn:['f242_eot'],
+        ecm:[54,67], conn:['f242_eot'],
         notes:'Temperatura del aceite (solo 35th Anniversary M/T): la masa se empalma en la línea de ECM 67, y es solo un dato para CONSULT; el ECM no la usa para controlar el motor. EC-123 · PG-55.'}
     );
   } else {
@@ -5528,7 +5528,7 @@ const NOTES_I18N = {
   ftt: {en:'Fuel temperature, measured in the tank\'s fuel level sensor unit (terminal 4). EC-291.', ja:'燃料温度。タンクの燃料レベルセンサーユニット（4番端子）で測る。EC-291。'},
     can: {en:'CAN network the modules talk on: DLC, unified meter, BCM, IPDM, ABS/VDC and, on A/T, the TCM; the combination meter M19 is not on CAN. LAN-31/55/76/97/119.', ja:'各モジュールが通信するCAN。DLC、ユニファイドメーター、BCM、IPDM、ABS/VDC、A/T車はTCM。コンビネーションメーターM19はCANにない。LAN-31/55/76/97/119。'},
     can_tcm: {en:'A/T only. The automatic transmission module (TCM, F502, inside the gearbox assembly) joins the CAN between the ECM and F102. CAN-H: ECM 94 (L) → F6·3 (L; BR inside the gearbox) → F502·1. CAN-L: ECM 86 (P) → F6·8 (P; L/Y inside) → F502·2. LAN-31/119.', ja:'A/Tのみ。A/Tコントロールモジュール（TCM、F502、ミッション内）はECMとF102の間でCANに接続。CAN-H：ECM 94（L）→ F6·3（L、内部はBR）→ F502·1。CAN-L：ECM 86（P）→ F6·8（P、内部はL/Y）→ F502·2。LAN-31/119。'},
-  maf: {en:'Intake air mass flow.', ja:'吸入空気量。'},
+  maf: {en:'Intake air mass flow; its ground is ECM 67 (MAF·3). EC-210.', ja:'吸入空気量。アースはECM 67（MAF·3）。EC-210。'},
   tb: {en:'F31 GY/6. 1 5V→47 · 2 T2→69 · 3 M- close→4 · 4 T1→50 · 5 GND→66 · 6 M+ open→5. EC-238/304/468.', ja:'F31 GY/6。1 5V→47 · 2 T2→69 · 3 M- close→4 · 4 T1→50 · 5 GND→66 · 6 M+ open→5。EC-238/304/468。'},
   evap_press: {en:'EVAP (fuel vapour) system pressure, measured by the canister; its three wires cross T2/B44, B1/M12 and F102. EC-379.', ja:'キャニスター付近で測るEVAP（燃料蒸気）系の圧力。3本の線はT2/B44、B1/M12、F102を通る。EC-379。'},
   evap_purge: {en:'The ECM opens the canister purge valve; its 12 V comes from the ECM relay. EC-360.', ja:'ECMがキャニスターのパージバルブを開く。12VはECMリレーから。EC-360。'},
@@ -7536,9 +7536,11 @@ function attachGroundPathFichas(coreIds, connSet, pathCavByConn, onPathCir=null)
   });
 }
 /** Relacionados · Datos: sibling circuits on the same device (e.g. A/F heater ECM 2/24 with sensor).
- *  Adds ECM pins only — never merges .path (12V stays behind Alim.). */
+ *  Adds ECM pins only — never merges .path (12V stays behind Alim.).
+ *  With Tierras alone (Datos off) only the sibling's ECM ground pins join (APP1 106 → its ground ECM 82). */
 function attachDataRelatedEcm(coreIds, ecmSet){
-  if(!railRelDataEnabled() || !ecmSet) return;
+  const dataOn = railRelDataEnabled();
+  if((!dataOn && !railRelGndEnabled()) || !ecmSet) return;
   const core = new Set(coreIds || []);
   const devices = new Set();
   core.forEach(id => {
@@ -7561,7 +7563,7 @@ function attachDataRelatedEcm(coreIds, ecmSet){
     /* Sensor: only the same channel (APP1 vs APP2, T1 vs T2, MAF vs IAT). Ficha: whole connector. */
     if(chans.size && cir.chan !== undefined && ![...chans].some(c => c === cir.chan)) return;
     if(chans.size && !cir.chan) return;
-    cir.ecm.forEach(p => ecmSet.add(Number(p)));
+    cir.ecm.forEach(p => { if(dataOn || PIN_RAIL[Number(p)] === 'gnd') ecmSet.add(Number(p)); });
   });
 }
 function attachAlimPathFichas(pathCavByConn, connSet){

@@ -52,6 +52,13 @@ const UNCONNECTED = [
   'ix_e108_m15·5G', 'ix_e108_m15·8G',                                /* wiper / rear washer: FSM page names no end pin / not drawn */
   'ix_e108_m15·63G', 'ix_e108_m15·64G',                              /* A/T shift lock: AT-240 names no end terminal */
 ];
+/* ECM signal pin → sensor-ground cavities on its card that belong to ANOTHER element (not required to light) */
+const SENSOR_GND_OTHER = {
+  51: ['maf·6'], 34: ['maf·3'],                        /* MAF ground = MAF·3 (EC-210), IAT ground = MAF·6 (EC-225) */
+  106: ['app·1'], 90: ['app·1'], 98: ['app·3'], 91: ['app·3'], /* APP1 ground ECM 82 = app·3, APP2 ground ECM 83 = app·1 (EC-523) */
+  4: ['etc·5'], 5: ['etc·5'],                          /* ETC motor: no sensor ground; etc·5 (ECM 66) is the TPS ground (EC-238) */
+  25: ['ho2s_b1·4'], 6: ['ho2s_b2·4'],                 /* HO2S2 heater: ECM 78 is the sensor's ground, not the heater's (EC-191/193) */
+};
 const t0 = Date.now();
 let pinClicks = 0; let cavClicks = 0;
 const SCEN = [['de_early', 'mt'], ['de_early', 'at'], ['de_revup', 'mt'], ['de_revup', 'at']].filter(([m, t]) => !process.env.REL_SWEEP_SCEN || process.env.REL_SWEEP_SCEN === m + '/' + t);
@@ -66,7 +73,7 @@ async function runScenario(model, trans) {
   await page.select('#model', model);
   await page.select('#transView', trans);
   await page.waitForFunction((t) => transView() === t, {}, trans);
-  const r = await page.evaluate((TABLE, model, trans, UNCONNECTED) => {
+  const r = await page.evaluate((TABLE, model, trans, UNCONNECTED, SENSOR_GND_OTHER) => {
     const out = []; let nPin = 0; let nCav = 0; let nChecks = 0;
     const MC = (s) => (s.cav == null && s.map_cav ? s.map_cav : s.cav);
     const appl = (a) => !a || a === 'all' || (a === 'revup' && model === 'de_revup') || a === trans || (a === 'revup+mt' && model === 'de_revup' && trans === 'mt');
@@ -122,6 +129,13 @@ async function runScenario(model, trans) {
             const r = isEcm ? (PIN_RAIL[Number(q.ecm)] || null) : q.rail;
             const kind = r === 'gnd' ? 'gnd' : (r === '12v' || r === '5v') ? 'power' : 'data';
             const qc = q.circ ? CIRCUITS.find((c) => c.id === q.circ) : CIRCUITS.find((c) => c.path && (c.path[D] || []).map(String).includes(String(q.id)));
+            /* the device's own sensor ground (an ECM sensor_return pin whose FSM end is this cavity: 67, 78, 66, 82/83…)
+               lights with Tierras, so ECM 74 shows HO2S2 B1·4 (ECM 78). SENSOR_GND_OTHER: grounds of another element in the same housing */
+            if (isEcm && kind === 'gnd' && isSig) {
+              const ge = TABLE.pins[String(q.ecm)];
+              const mine = ge && ge.sensor_return && ge.branches.some((b) => b.end.map === D && String(MC(b.end)) === String(q.id));
+              if (mine && g && !(SENSOR_GND_OTHER[p] || []).includes(k)) check(L.has(k), `${tag}: sensor ground ${k} (ECM ${q.ecm}) not lit with Tierras`);
+            }
             if (!isEcm && kind === 'gnd') {
               /* chassis ground of the device (gndRel circuit, e.g. coil N·2 → F23): lit with Tierras, route to the ground point too */
               const gc = CIRCUITS.find((c) => c.gndRel && ((c.path || {})[D] || []).map(String).includes(String(q.id)));
@@ -207,7 +221,7 @@ async function runScenario(model, trans) {
     }
     clearSelection();
     return { out, nPin, nCav, nChecks, gapSeen: [...gapSeen] };
-  }, TABLE, model, trans, UNCONNECTED);
+  }, TABLE, model, trans, UNCONNECTED, SENSOR_GND_OTHER);
   await page.close();
   return r;
 }
