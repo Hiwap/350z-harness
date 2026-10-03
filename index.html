@@ -4240,17 +4240,6 @@ const I18N = {
     lblRwiper: 'Limpia trasero (dudoso)',
     optNo: 'No',
     optYes: 'Sí',
-    nest_abs: 'Frenos · ABS / TCS / VDC',
-    nest_luces: 'Luces',
-    nest_puertas: 'Puertas y cierres (BCM)',
-    nest_desemp: 'Desempañador y toma 12 V',
-    nest_asientos: 'Asientos y cinturones',
-    nest_audio: 'Audio',
-    nest_medidores: 'Testigos e indicadores',
-    nest_clima: 'Climatización',
-    nest_limpia: 'Limpiaparabrisas',
-    nest_techo: 'Techo blando (Roadster)',
-    nest_at: 'Caja automática',
     modelEarly: 'VQ35DE · sin VTC escape',
     modelRevup: 'VQ35DE Rev-Up · con VTC escape',
     earlyBanner: '<b>VQ35DE sin VTC escape:</b> mismos datos base del mapa; <b>sin</b> solenoides de escape (F40/F41 · ECM 8/9). Para Rev-Up elegí la otra opción.',
@@ -4467,17 +4456,6 @@ const I18N = {
     lblRwiper: 'Rear wiper (unclear)',
     optNo: 'No',
     optYes: 'Yes',
-    nest_abs: 'Brakes · ABS / TCS / VDC',
-    nest_luces: 'Lamps',
-    nest_puertas: 'Doors and locks (BCM)',
-    nest_desemp: 'Defogger and 12 V socket',
-    nest_asientos: 'Seats and seat belts',
-    nest_audio: 'Audio',
-    nest_medidores: 'Warning lights and gauges',
-    nest_clima: 'Climate control',
-    nest_limpia: 'Wipers',
-    nest_techo: 'Soft top (Roadster)',
-    nest_at: 'Automatic transmission',
     modelEarly: 'VQ35DE · intake VTC only',
     modelRevup: 'VQ35DE Rev-Up · intake + exhaust VTC',
     earlyBanner: '<b>VQ35DE without exhaust VTC:</b> same base map data; <b>no</b> exhaust solenoids (F40/F41 · ECM 8/9). Choose Rev-Up for the 4-solenoid variant.',
@@ -4694,17 +4672,6 @@ const I18N = {
     lblRwiper: 'リヤワイパー（不明）',
     optNo: 'なし',
     optYes: 'あり',
-    nest_abs: 'ブレーキ · ABS / TCS / VDC',
-    nest_luces: 'ランプ',
-    nest_puertas: 'ドア · ロック（BCM）',
-    nest_desemp: 'デフォッガー · 12Vソケット',
-    nest_asientos: 'シート · シートベルト',
-    nest_audio: 'オーディオ',
-    nest_medidores: '警告灯 · メーター',
-    nest_clima: '空調',
-    nest_limpia: 'ワイパー',
-    nest_techo: 'ソフトトップ（ロードスター）',
-    nest_at: 'オートマチック',
     modelEarly: 'VQ35DE · 排気VTCなし',
     modelRevup: 'VQ35DE Rev-Up · 吸気+排気VTC',
     earlyBanner: '<b>VQ35DE（排気VTCなし）:</b> 基本マップは同じ。<b>排気</b>ソレノイドなし（F40/F41 · ECM 8/9）。4ソレノイドは Rev-Up を選択。',
@@ -6393,14 +6360,12 @@ function renderFichas(){
       grid.className='fichas-grid';
       if(sk === 'ipdm') appendIpdmFichas(grid, bySub[sk]);
       else if(sk === 'carroceria'){
-        /* Body circuits: one nested group per system (ABS, lamps, doors…) */
-        const byNest = {};
-        bySub[sk].forEach(id => { const nk = (CONN[id] && CONN[id].nest) || 'otros'; (byNest[nk] = byNest[nk] || []).push(id); });
-        const nks = BODY_NEST_ORDER.filter(k => byNest[k]).concat(Object.keys(byNest).filter(k => !BODY_NEST_ORDER.includes(k)));
-        nks.forEach(k => sec.appendChild(makeNestDetails('body_' + k, 'nest_' + k, byNest[k], (CONN[byNest[k][0]] || {}).accent)));
+        /* Body circuits: one flat list (no one-ficha subgroups), ordered by system via BODY_NEST_ORDER. */
+        const rank = id => { const i = BODY_NEST_ORDER.indexOf((CONN[id] && CONN[id].nest) || ''); return i < 0 ? 99 : i; };
+        bySub[sk].slice().sort((a, b) => rank(a) - rank(b)).forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
       }
       else bySub[sk].forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
-      if(sk !== 'carroceria') sec.appendChild(grid);
+      sec.appendChild(grid);
     }
     sec.addEventListener('toggle', ()=>{
       /* Auto-open of a default-closed group (Fusibles) is temporary: never persisted. */

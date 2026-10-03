@@ -180,8 +180,8 @@ const click = await page.evaluate(() => { clearSelection(); selectConnPin('ix_e1
 ok('click E108·36G → right turn circuit only (no fan-out over the SMJ)', click.length === 1 && click[0] === 'turn_rh', click.join(','));
 const click2 = await page.evaluate(() => { clearSelection(); selectConnPin('body_abs', 'RL-SIG'); return [...lastCircIds]; });
 ok('click Carrocería ABS row → abs_rl', click2.join(',') === 'abs_rl', click2.join(','));
-const nest = await page.evaluate(() => [...document.querySelectorAll('#fichas details.ficha-sec[data-sub="carroceria"] > details.ficha-nest')].map((n) => n.dataset.nest));
-ok('Carrocería section shows one nested group per system', nest.length >= 9 && nest[0] === 'body_abs', nest.join(','));
+const flat = await page.evaluate(() => { const sec = document.querySelector('#fichas details.ficha-sec[data-sub="carroceria"]'); return { nests: sec ? sec.querySelectorAll('details.ficha-nest').length : -1, ids: sec ? [...sec.querySelectorAll(':scope > .fichas-grid > .ficha-wrap')].map((f) => f.dataset.conn) : [] }; });
+ok('Carrocería is one flat group: no nested subgroups, fichas listed directly, ABS first', flat.nests === 0 && flat.ids.length >= 9 && flat.ids[0] === 'body_abs', JSON.stringify(flat));
 
 const labels = {};
 for (const lg of ['en', 'ja', 'es']) {
