@@ -394,6 +394,26 @@
     display: flex; flex-wrap: wrap; gap: 10px; padding: 10px;
     align-items: flex-start;
   }
+  /* IPDM group: tidy grid in reading order cover, E3, E4, E5, E6, E7, E8, E9. One column when the fichas
+     column is narrow; two columns (cover | E3–E5 stacked, E6/E8 | tall E7, E9 across) when it fits.
+     Cards stretch to their cell (aligned edges, same width per column); the connector drawing inside is unchanged. */
+  .ficha-sec[data-sub="ipdm"] { container-type: inline-size; container-name: ipdmsec; }
+  .fichas-grid.ipdm-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: stretch; }
+  .ipdm-grid > .ficha-wrap { width: auto; max-width: none; min-width: 0; }
+  .ipdm-grid > .ficha-wrap > .ficha { width: 100%; max-width: 100%; flex: 1 1 auto; display: flex; flex-direction: column; }
+  .ipdm-grid > .ficha-wrap > .ficha .conn-svg { align-self: center; }
+  @container ipdmsec (min-width: 480px) {
+    .fichas-grid.ipdm-grid { grid-template-columns: minmax(max-content, 1fr) minmax(max-content, 1fr); }
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_cover"] { grid-column: 1; grid-row: 1 / span 3; }
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_e3"] { grid-column: 2; grid-row: 1; }
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_e4"] { grid-column: 2; grid-row: 2; }
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_e5"] { grid-column: 2; grid-row: 3; }
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_e6"] { grid-column: 1; grid-row: 4; }
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_e7"] { grid-column: 2; grid-row: 4 / span 2; }
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_e8"] { grid-column: 1; grid-row: 5; }
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_e9"] { grid-column: 1 / -1; grid-row: 6; width: 0; min-width: 100%; } /* spans both columns without widening them */
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_legend"] { grid-column: 1 / -1; }
+  }
   /* Stack E3 under E8 in IPDM (use empty vertical space) */
   .ficha-stack {
     display: flex; flex-direction: column; gap: 8px;
@@ -6560,6 +6580,9 @@ function sortIpdmIds(ids){
 
 
 function appendIpdmFichas(grid, ids){
+  /* .ipdm-grid: fixed two-column layout (CSS, container query) — cover fuses with E3/E4/E5 stacked beside it,
+     then E6 + E8 beside the tall E7, E9 full width. Positions come from data-conn, so DOM order does not matter. */
+  grid.classList.add('ipdm-grid');
   ids.forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
 }
 

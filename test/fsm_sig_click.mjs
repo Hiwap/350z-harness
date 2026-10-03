@@ -221,6 +221,16 @@ await page.click('#blocks .pin[data-pin="94"]');
       boxJbSide: (() => { const a = document.querySelector('.ficha[data-conn="fuse_link_box"]').getBoundingClientRect(), b = document.querySelector('.ficha[data-conn="jb_fuse_block"]').getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && b.left > a.right - 1; })(),
       holderBelow: (() => { const a = document.querySelector('.ficha[data-conn="fuse_link_box"]').getBoundingClientRect(), h = document.querySelector('.ficha[data-conn="fuse_link_holder"]').getBoundingClientRect(); return h.top >= a.bottom - 1; })(),
       sw: col.scrollWidth, cw: col.clientWidth, wide: [...document.querySelectorAll('#fichas .ficha')].filter((f) => f.scrollWidth > f.clientWidth + 1).map((f) => f.dataset.conn) }; });
+  /* IPDM group: tidy two-column grid in reading order cover, E3, E4, E5 | E6, E7, E8 | E9 across. */
+  const ip = await page.evaluate(() => { const R = (c) => { const e = document.querySelector(`#fichas .ficha-sec[data-sub="ipdm"] .ficha-wrap[data-conn="${c}"]`); if (!e) return null; const r = e.getBoundingClientRect(); return { l: Math.round(r.left), t: Math.round(r.top), r: Math.round(r.right), b: Math.round(r.bottom), w: Math.round(r.width) }; };
+    const o = {}; ['ipdm_cover', 'ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9'].forEach((c) => { o[c.replace('ipdm_', '')] = R(c); });
+    const sec = document.querySelector('#fichas .ficha-sec[data-sub="ipdm"]'); o.over = sec.scrollWidth > sec.clientWidth + 1; return o; });
+  const near = (a, b) => Math.abs(a - b) <= 1;
+  ok('IPDM grid: cover with E3/E4/E5 stacked beside it, E6/E8 beside the tall E7, E9 full width; columns aligned, same width per column',
+    !!ip.cover && near(ip.e3.t, ip.cover.t) && ip.e3.l > ip.cover.r - 1 && ip.e4.t >= ip.e3.b && ip.e5.t >= ip.e4.b && near(ip.e3.l, ip.e4.l) && near(ip.e4.l, ip.e5.l)
+    && ip.e6.t >= Math.max(ip.cover.b, ip.e5.b) - 1 && near(ip.e6.l, ip.cover.l) && near(ip.e7.t, ip.e6.t) && near(ip.e7.l, ip.e3.l) && ip.e8.t >= ip.e6.b && near(ip.e8.l, ip.cover.l)
+    && ip.e9.t >= Math.max(ip.e8.b, ip.e7.b) - 1 && near(ip.e9.l, ip.cover.l) && near(ip.e9.r, ip.e3.r)
+    && near(ip.cover.w, ip.e6.w) && near(ip.e6.w, ip.e8.w) && near(ip.e3.w, ip.e4.w) && near(ip.e4.w, ip.e5.w) && near(ip.e5.w, ip.e7.w) && near(ip.cover.b, ip.e5.b) && !ip.over, JSON.stringify(ip));
   ok('J/B and E18/E21 rotated 90° cw (IPDM-style columns) side by side, holder horizontal below them; no sideways scroll',
     rot.j12.y === rot.j1.y && rot.j12.x < rot.j1.x && rot.j2.x === rot.j1.x && rot.j2.y > rot.j1.y
     && rot.bJ.y === rot.b31.y && rot.bJ.x < rot.b31.x && rot.bI.x === rot.b31.x && rot.bI.y > rot.b31.y
