@@ -146,6 +146,24 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('LOOM_BODY_EXTRA keeps every fuse card (hidden in Arnés motor)', FUSES.every((id) => new RegExp(`const LOOM_BODY_EXTRA = new Set\\(\\[[\\s\\S]*?'${id}'[\\s\\S]*?\\]\\);`).test(html)));
   ok('power-path helpers treat fuses like feeds', /f\.sub === 'feeds' \|\| f\.sub === 'fuses'/.test(html) && /f\.sub === 'feeds' \|\| f\.sub === 'fuses'\)\) connSet\.add/.test(html)
     && /HL_GROUP_SUB_PRIORITY = \[[^\]]*'fuses'/.test(html));
+  /* Fuse box fichas drawn like the FSM terminal arrangement (PG-88 J/B, PG-89 E18/E21) */
+  const fuseLay = (id) => { const m = html.match(new RegExp(`\\n  ${id}:\\{group:[^\\n]*?fuseLayout:(\\{[^\\n]*?\\]\\]\\}|\\{[^\\n]*?\\}\\]\\})`)); return m ? m[1] : ''; };
+  const layIds = (lay) => (lay.match(/'[^']*'/g) || []).map((q) => q.slice(1, -1)).filter((t) => t !== 'gap' && !t.startsWith('#') && !/^PG-|^(?:Holder|Box) /.test(t));
+  const cardPinIds = (id) => { const blk = (html.match(new RegExp(`\\n  ${id}:\\{group:[\\s\\S]*?(?=\\n  \\w+:\\{group:)`)) || [''])[0]; return [...blk.matchAll(/\{id:'([^']+)'/g)].map((m) => m[1]); };
+  const jbLay = fuseLay('jb_fuse_block'), bxLay = fuseLay('fuse_link_box');
+  ok('J/B fuse layout = PG-88: 1-7, gap, 8-11, spare / 12-22, crossed slot, spare',
+    jbLay.includes("rows:[['1','2','3','4','5','6','7',null,'8','9','10','11','#sp'],['12','13','14','15','16','17','18','19','20','21','22','#x','#sp']]"), jbLay.slice(0, 120));
+  ok('E18/E21 layout = PG-89: A and E D C B holder, relays, 31-34 F-I / J-M 35-38',
+    bxLay.includes("['A',null,null,null,null,null,null,null,'E','D','C','B'],'gap',['#relay:Back-up lamp relay','#relay:Horn relay',null,'31','32','33','34',null,'F','G','H','I'],['#relay+','#relay+',null,'J','K','L','M',null,'35','36','37','38']"), bxLay.slice(0, 120));
+  ok('fuse layouts place every fuse/link pin exactly once',
+    ['jb_fuse_block', 'fuse_link_box'].every((id) => { const a = layIds(fuseLay(id)).sort().join(','); const b = cardPinIds(id).sort().join(','); return a && a === b; }),
+    ['jb_fuse_block', 'fuse_link_box'].map((id) => `${id}:${layIds(fuseLay(id)).length}/${cardPinIds(id).length}`).join(' '));
+  ok('svgNote hands fuseLayout cards to svgFuseBox', /function svgNote\(cid, f\)\{\n  if\(f\.fuseLayout\) return svgFuseBox\(cid, f\);/.test(html) && /function svgFuseBox\(cid, f\)\{/.test(html));
+  /* Audio unit connectors per AV-12/16/18 legends: M40 = 1-10, M41 = 11-16, M39 = 17-32 */
+  ok('audio unit terminals 9 / 12-16 are not on M39 (AV-16 M40·9 earth; AV-12 / AV-18 M41·12-16)', !/M39·(?:9|1[2-6])\b/.test(html) && /src:'M41·14'/.test(html) && /src:'M41·12'/.test(html));
+  ok('B1/M12 speaker shields: 20J/25J to M40·9 (AV-16), 28J/33J to M41·11 (AV-18), no colour in the FSM',
+    ['20J', '25J'].every((id) => new RegExp(`\\{id:'${id}',code:'—'[^{}]*wireUnk:true[^{}]*M40·9 \\(AV-16\\)`).test(html))
+    && ['28J', '33J'].every((id) => new RegExp(`\\{id:'${id}',code:'—'[^{}]*wireUnk:true[^{}]*M41·11 \\(AV-18\\)`).test(html)));
   ok('pins fed straight from a fuse colour their source tag with the fuses accent', !/src:'(?:JB·10A|JB·15A|E21·36|F83|F89|F80|F75)',srcSub:'feeds'/.test(html));
 }
 
