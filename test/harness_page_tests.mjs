@@ -131,11 +131,11 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
 }
 {
   /* Fuse cards: one top-level ficha group 'fuses' (Fusibles / Fuses / ヒューズ), collapsed by default, body-side (hidden in Arnés motor). */
-  const FUSES = ['jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'];
+  const FUSES = ['fuse_link_box', 'jb_fuse_block', 'fuse_link_holder'];
   const subOf = (id) => ((html.match(new RegExp(`\\n  ${id}:\\{group:'\\w+', sub:'(\\w+)'`)) || [])[1]);
   ok('fuse box cards (cabin J/B, battery + link holder, battery box E18/E21) all in sub fuses', FUSES.every((id) => subOf(id) === 'fuses'), FUSES.map((id) => `${id}=${subOf(id)}`).join(','));
   const inFuses = [...html.matchAll(/\n  (\w+):\{group:'\w+', sub:'fuses'/g)].map((m) => m[1]);
-  ok('sub fuses holds exactly the fuse cards, in J/B → holder E1/E2/E201 → E18/E21 order', inFuses.join(',') === FUSES.join(','), inFuses.join(','));
+  ok('sub fuses holds exactly the fuse cards, in E18/E21 → J/B → holder E1/E2/E201 order', inFuses.join(',') === FUSES.join(','), inFuses.join(','));
   const noFuseInFeeds = [...html.matchAll(/\n  ((?:jb_|fuse)\w*):\{group:'\w+', sub:'(\w+)'/g)].filter((m) => m[2] !== 'fuses').map((m) => m[1]);
   ok('no jb_* / fuse* card left outside the Fusibles group', noFuseInFeeds.length === 0, noFuseInFeeds.join(','));
   ok('SUB_ORDER has fuses (after feeds, before sensors)', /const SUB_ORDER = \['power','ipdm','feeds','fuses','sensors',/.test(html));
@@ -168,7 +168,8 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('fuse boxes use the IPDM cover look and click: shape fusebox, svgFuseBox via renderConnSvg, shared fuseAmpColor, FUSE_BOX_CONNS',
     /\n  jb_fuse_block:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html) && /\n  fuse_link_box:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html) && /\n  fuse_link_holder:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html)
     && /case 'fusebox': svg = svgFuseBox\(cid,f\); break;/.test(html) && !html.includes('fusebox-scroll')
-    && ['PG-88', 'PG-89', 'PG-89'].length === (html.match(/fuseLayout:\{ref:'PG-8[89]', rotate:'cw', rows:/g) || []).length
+    && (html.match(/fuseLayout:\{ref:'PG-8[89]', rotate:'cw', rows:/g) || []).length === 2 && /fuseLayout:\{ref:'PG-89', rows:\[\['A',/.test(html)
+    && /\.ficha\.ficha-narrow \{ width: min-content; \}/.test(html)
     && /items = items\.map\(it => \(\{ t: it\.t, r: it\.c, c: nR0 - it\.r - it\.rs, rs: it\.cs, cs: it\.rs \}\)\);/.test(html)
     && /const ampColor = fuseAmpColor;/.test(html) && /col: empty \? '#546e7a' : fuseAmpColor\(p\.src\)/.test(html)
     && /const FUSE_BOX_CONNS = new Set\(\['ipdm_cover', 'jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'\]\);/.test(html)

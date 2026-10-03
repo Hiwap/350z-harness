@@ -209,18 +209,22 @@ await page.click('#blocks .pin[data-pin="94"]');
   const f36 = await clickFuse('fuse_link_box', '36');
   ok('fuse box: E21 fuse 36 lights the alternator S path (F20·3)', !!f36 && f36.self && f36.lit.some((k) => k.startsWith('f20_alt·')), JSON.stringify(f36 && f36.lit).slice(0, 200));
   const fD = await clickFuse('fuse_link_holder', 'D');
-  ok('battery + holder: link D is its own ficha, click marks it and shows its feeds (J/B)', !!fD && fD.self && /Fusible link D, 60A/.test(fD.info), (fD && fD.info || '').slice(0, 200));
+  ok('battery + holder: link D is its own ficha, click marks it and shows its feeds (J/B)', !!fD && fD.self && /Fusible link D de 60A/.test(fD.info), (fD && fD.info || '').slice(0, 200));
   const cell = await page.evaluate(() => { const g = (c, v) => document.querySelector(`.cav-hit[data-conn="${c}"][data-cav="${v}"]`); const t = (e) => e ? [...e.querySelectorAll('text')].map((x) => x.textContent.trim()) : null;
     return { ipdm: t(g('ipdm_cover', '72')), jb5: t(g('jb_fuse_block', '5')), jb15: t(g('jb_fuse_block', '15')), d: t(g('fuse_link_holder', 'D')), boxD: !!g('fuse_link_box', 'D'),
       wI: g('ipdm_cover', '72').querySelector('rect').getBoundingClientRect().width, wJ: g('jb_fuse_block', '15').querySelector('rect').getBoundingClientRect().width }; });
+  /* Measure the layout in its neutral order: a click promotes the picked ficha to the front of its grid. */
+  await page.evaluate(() => { clearSelection(); renderFichas(); document.querySelectorAll('details').forEach((d) => { d.open = true; }); });
   const rot = await page.evaluate(() => { const pos = (c, v) => { const e = document.querySelector(`.cav-hit[data-conn="${c}"][data-cav="${v}"] rect`).getBoundingClientRect(); return { x: Math.round(e.x), y: Math.round(e.y) }; };
     const col = document.getElementById('fichas');
     return { j1: pos('jb_fuse_block', '1'), j2: pos('jb_fuse_block', '2'), j12: pos('jb_fuse_block', '12'), b31: pos('fuse_link_box', '31'), bJ: pos('fuse_link_box', 'J'), bI: pos('fuse_link_box', 'I'), hA: pos('fuse_link_holder', 'A'), hB: pos('fuse_link_holder', 'B'),
+      boxJbSide: (() => { const a = document.querySelector('.ficha[data-conn="fuse_link_box"]').getBoundingClientRect(), b = document.querySelector('.ficha[data-conn="jb_fuse_block"]').getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && b.left > a.right - 1; })(),
+      holderBelow: (() => { const a = document.querySelector('.ficha[data-conn="fuse_link_box"]').getBoundingClientRect(), h = document.querySelector('.ficha[data-conn="fuse_link_holder"]').getBoundingClientRect(); return h.top >= a.bottom - 1; })(),
       sw: col.scrollWidth, cw: col.clientWidth, wide: [...document.querySelectorAll('#fichas .ficha')].filter((f) => f.scrollWidth > f.clientWidth + 1).map((f) => f.dataset.conn) }; });
-  ok('fuse fichas rotated 90° cw like the IPDM column: FSM row 0 = right column, left-to-right = top-to-bottom; no sideways scroll',
+  ok('J/B and E18/E21 rotated 90° cw (IPDM-style columns) side by side, holder horizontal below them; no sideways scroll',
     rot.j12.y === rot.j1.y && rot.j12.x < rot.j1.x && rot.j2.x === rot.j1.x && rot.j2.y > rot.j1.y
     && rot.bJ.y === rot.b31.y && rot.bJ.x < rot.b31.x && rot.bI.x === rot.b31.x && rot.bI.y > rot.b31.y
-    && rot.hA.x === rot.hB.x && rot.hB.y > rot.hA.y && rot.sw <= rot.cw && rot.wide.length === 0, JSON.stringify(rot));
+    && rot.hA.y === rot.hB.y && rot.hB.x > rot.hA.x && rot.boxJbSide && rot.holderBelow && rot.sw <= rot.cw && rot.wide.length === 0, JSON.stringify(rot));
   ok('fuse cells = IPDM cell: number / what it feeds / amps, same on-screen size; J/B 5 = ?',
     cell.ipdm.join('|') === '72|HI-RH|10A' && cell.jb15.join('|') === '15|O2H|15A' && cell.jb5.join('|') === '5|?|15A' && cell.d.join('|') === 'D|J/B|60A' && !cell.boxD && Math.abs(cell.wI - cell.wJ) < 0.5, JSON.stringify(cell));
   await page.evaluate(() => clearSelection());

@@ -824,7 +824,7 @@ const FSM_FACE = {
   f20_alt: { mt: "3 4", at: "3 4" },
   alt_b: { mt: "1", at: "1" },
   alt_e: { mt: "2", at: "2" },
-  fuse_link_holder: { mt: "A / E / D / C / B", at: "A / E / D / C / B" },
+  fuse_link_holder: { mt: "A E D C B", at: "A E D C B" },
   fuse_link_box: { mt: "J 31 / K 32 / L 33 / M 34 / 35 F / 36 G / 37 H / 38 I", at: "J 31 / K 32 / L 33 / M 34 / 35 F / 36 G / 37 H / 38 I" },
   f21_oilp: { mt: "1 2 3", at: "1 2 3" },
   f35_pnp: { mt: "1 2", at: null },
@@ -1110,7 +1110,7 @@ console.log('\nF102·10H DLC signal ground (EC-742): DLC 5 → F102·10H → F10
 console.log('\nFusibles group: every fuse card in one top-level ficha group, collapsed by default, hidden in Arnés motor, auto-opens when lit');
 {
   const setLoom = (v) => page.evaluate((v) => { const s = document.getElementById('loomView'); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })); }, v);
-  const FUSES = ['jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'];
+  const FUSES = ['fuse_link_box', 'jb_fuse_block', 'fuse_link_holder'];
   const resetClosed = async () => {
     await page.evaluate(() => { clearSelection(); localStorage.removeItem('z33_sub_fuses'); });
     await setLoom('motor'); await setLoom('all');
