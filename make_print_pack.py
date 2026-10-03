@@ -814,6 +814,26 @@ def _brace_block(text, start_brace):
     return ""
 
 
+_VIF_DEFAULT = {"trans": "mt", "body": "coupe", "market": "usa", "brake": "abs", "audio": "base",
+                "nav": "no", "pseat": "no", "hseat": "no"}
+
+
+def _vif_default(expr):
+    """Web vifMatch() against the default car (M/T Coupe, USA, ABS, base audio, no options)."""
+    for group in str(expr).split("|"):
+        good = True
+        for term in group.split("&"):
+            if "=" not in term:
+                continue
+            k, vals = term.split("=", 1)
+            if _VIF_DEFAULT.get(k.strip()) not in [v.strip() for v in vals.split(",")]:
+                good = False
+                break
+        if good:
+            return True
+    return False
+
+
 def extract_conn(conn_id, html=None):
     """Parse CONN[conn_id] from map HTML → (pins, subtitle).
 
@@ -868,6 +888,10 @@ def extract_conn(conn_id, html=None):
             code = "—"
         ecm = _field(obj, "ecm")
         src = _field(obj, "src")
+        src_if = _field(obj, "srcIf")
+        if src and src_if and not _vif_default(src_if):
+            # web srcIf: destination named only for that equipment (e.g. E12/F3·1 → F6 on A/T); pack = default car
+            src = None
         rail = _field(obj, "rail")
         trans = _field(obj, "trans")
         if ecm and ecm != "null":

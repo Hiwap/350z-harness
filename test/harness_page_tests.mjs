@@ -316,7 +316,7 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
   const ob = { console };
   vm.createContext(ob);
   vm.runInContext(optSrc, ob);
-  const V = (o) => Object.assign({ trans: 'mt', body: 'coupe', market: 'usa', brake: 'abs', audio: 'base', nav: 'no', pseat: 'no', hseat: 'no', rwiper: 'no' }, o || {});
+  const V = (o) => Object.assign({ trans: 'mt', body: 'coupe', market: 'usa', brake: 'abs', audio: 'base', nav: 'no', pseat: 'no', hseat: 'no' }, o || {});
   const hs = { id: '14', code: 'R', ecm: null, lab: 'HS-BAT', vif: 'hseat=yes', note: 'x' };
   unit('unit: dimmed state — heated-seat pin without heated seats keeps its FSM colour as offCode', () => {
     const g = ob.variantGatePin(hs, V());
@@ -656,6 +656,7 @@ if (skipBrowser) {
   runNested('fsm_sig_click.mjs (FSM table: SIG clicks light no rail-only cavity)', path.join(__dirname, 'fsm_sig_click.mjs'));
   runNested('feedback.mjs (Send feedback button/dialog, offline)', path.join(__dirname, 'feedback.mjs'));
   runNested('variants.mjs (equipment selectors: body / market / brakes / options)', path.join(__dirname, 'variants.mjs'));
+  runNested('ix_dest.mjs (every used intermediate cavity shows its destination line)', path.join(__dirname, 'ix_dest.mjs'));
 }
 
 console.log('---');

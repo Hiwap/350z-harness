@@ -39,8 +39,8 @@ const script = HTML.match(/<script>([\s\S]*?)<\/script>/)[1];
 const dimsSrc = script.match(/const VARIANT_DIMS = (\{[\s\S]*?\n\});/)[1];
 const DIMS = vm.runInNewContext('(' + dimsSrc + ')');
 const KEYS = Object.keys(DIMS);
-ok('VARIANT_DIMS = body, market, brake, audio, nav, pseat, hseat, rwiper', KEYS.join(',') === 'body,market,brake,audio,nav,pseat,hseat,rwiper', KEYS.join(','));
-const DEF = { body: 'coupe', market: 'usa', brake: 'abs', audio: 'base', nav: 'no', pseat: 'no', hseat: 'no', rwiper: 'no' };
+ok('VARIANT_DIMS = body, market, brake, audio, nav, pseat, hseat (no rear-wiper selector: the rear washer is Coupe, BCS-9)', KEYS.join(',') === 'body,market,brake,audio,nav,pseat,hseat', KEYS.join(','));
+const DEF = { body: 'coupe', market: 'usa', brake: 'abs', audio: 'base', nav: 'no', pseat: 'no', hseat: 'no' };
 for (const k of KEYS) {
   const d = DIMS[k];
   ok(`${k}: default = generic OEM coupe (${DEF[k]})`, d.def === DEF[k], d.def);
@@ -106,7 +106,7 @@ ok('DLC M8·16 is R/W (AT-194)', pin('dlc', '16').code === 'R/W');
 ok('E108·16G VDC sensor supply is not a rail', !pin('ix_e108_m15', '16G').rail && pin('ix_e108_m15', '16G').vif === 'brake=vdc');
 ok('A/T-only body cavities use trans:at (E10/F1·4/6/7, F102·24H, E108·63G/64G)',
   ['4', '6', '7'].every((i) => pin('ix_e10_f1', i).trans === 'at') && pin('ix_f102_m72', '24H').trans === 'at' && pin('ix_e108_m15', '63G').trans === 'at');
-ok('rear wiper E108·8G is behind the rear-wiper selector', pin('ix_e108_m15', '8G').vif === 'rwiper=yes');
+ok('rear washer E108·8G (WW-40): Coupe only, from rear washer motor E28·1; no rwiper selector left', pin('ix_e108_m15', '8G').vif === 'body=coupe' && pin('ix_e108_m15', '8G').src === 'E28·1' && pin('ix_e108_m15', '8G').circ === 'rear_washer' && !/rwiper/.test(HTML));
 ok('Canada DTRL cavities (E106·6, E108·62G) are market=canada', pin('ix_e106_b2', '6').vif === 'market=canada' && pin('ix_e108_m15', '62G').vif === 'market=canada');
 
 /* ---------- browser ---------- */
@@ -138,7 +138,7 @@ let s = await st();
 ok('defaults: Coupe / USA / ABS / base audio / no options', JSON.stringify(s.vals) === JSON.stringify(DEF), JSON.stringify(s.vals));
 ok('defaults: Carrocería ABS card shown; VDC sensor M51 and Roadster soft top hidden', s.abs && !s.m51 && !s.techo, JSON.stringify([s.abs, s.m51, s.techo]));
 ok('defaults: VDC-only E108·13G empty, with an explanation', s.g13 === '—' && /Not used with the selected equipment/.test(s.note13), s.g13 + ' ' + s.note13.slice(0, 60));
-ok('defaults: no VDC/TCS/Roadster/Canada/option circuits', !['vdc_yaw', 'vdc_off', 'soft_top', 'dtrl_pkb', 'heated_seat', 'rear_wiper', 'blower_gnd', 'pseat_bat', 'audio_bose_ctl'].some((c) => s.circs.includes(c)));
+ok('defaults: no VDC/TCS/Roadster/Canada/option circuits', !['vdc_yaw', 'vdc_off', 'soft_top', 'dtrl_pkb', 'heated_seat', 'blower_gnd', 'pseat_bat', 'audio_bose_ctl'].some((c) => s.circs.includes(c)));
 ok('defaults: circuits common to every coupe are present', ['abs_rl', 'abs_rr', 'abs_kline', 'turn_lh', 'turn_rh', 'stop_lamps', 'bcm_bat', 'rear_defog', 'belt_dr', 'audio_backup', 'brake_fluid', 'ambient', 'dlc_ign'].every((c) => s.circs.includes(c)));
 ok('defaults: Coupe-only cavities present (T2/B44·2 back door switch R)', s.t2 === 'R' && s.j46 === '—' && s.b12 === 'G/R', JSON.stringify([s.t2, s.j46, s.b12]));
 ok('defaults: base audio "BS" colours (M12·29J LG/R, front 23J empty)', s.j29 === 'LG/R' && s.j23 === '—', JSON.stringify([s.j29, s.j23]));
@@ -161,14 +161,14 @@ ok('Bose: amp-ON circuit + front speaker 23J W/LG', s.circs.includes('audio_bose
 await sel('audioView', 'base');
 await sel('hseatView', 'yes'); s = await st();
 ok('Heated seats: relay output M12·2J G + heated_seat circuits', s.j2 === 'G' && s.circs.includes('heated_seat'), s.j2);
-await sel('pseatView', 'yes'); await sel('navView', 'yes'); await sel('rwiperView', 'yes'); s = await st();
-ok('Power seat / navigation / rear wiper: 4J W, 1J B, 8G LG/B', s.j4 === 'W' && s.j1 === 'B' && s.g8 === 'LG/B', JSON.stringify([s.j4, s.j1, s.g8]));
+await sel('pseatView', 'yes'); await sel('navView', 'yes'); s = await st();
+ok('Power seat / navigation: 4J W, 1J B; rear washer 8G LG/B on the default Coupe', s.j4 === 'W' && s.j1 === 'B' && s.g8 === 'LG/B', JSON.stringify([s.j4, s.j1, s.g8]));
 
 await page.reload({ waitUntil: 'domcontentloaded' });
 await page.waitForSelector('#fichas .ficha');
 s = await st();
-ok('selectors persist across reload (localStorage)', s.vals.hseat === 'yes' && s.vals.pseat === 'yes' && s.vals.nav === 'yes' && s.vals.rwiper === 'yes' && s.j2 === 'G', JSON.stringify(s.vals));
-for (const k of ['hseatView', 'pseatView', 'navView', 'rwiperView']) await sel(k, 'no');
+ok('selectors persist across reload (localStorage)', s.vals.hseat === 'yes' && s.vals.pseat === 'yes' && s.vals.nav === 'yes' && s.j2 === 'G', JSON.stringify(s.vals));
+for (const k of ['hseatView', 'pseatView', 'navView']) await sel(k, 'no');
 
 await sel('transView', 'at'); s = await st();
 ok('Automático: F6 + A/T body card shown, E10/F1·4 Y/R, F102·24H PU/W', s.f6 && s.at && s.f4 === 'Y/R' && s.h24 === 'PU/W', JSON.stringify([s.f6, s.at, s.f4, s.h24]));

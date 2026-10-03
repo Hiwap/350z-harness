@@ -1097,12 +1097,6 @@
           <option value="yes">Sí</option>
         </select>
       </label>
-      <label id="lblRwiper">Limpia trasero (dudoso)
-        <select id="rwiperView">
-          <option value="no" selected>No</option>
-          <option value="yes">Sí</option>
-        </select>
-      </label>
       <label id="lblColor">Color
         <select id="colorMode">
           <option value="outlines" id="optOutlines">Outlines</option>
@@ -1196,7 +1190,7 @@
 </main>
 <footer id="siteFooter">
   <!-- applyLang() rewrites only #pageFooter (the text span); the button is its sibling so it survives language switches -->
-  <span id="pageFooter">Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio.
+  <span id="pageFooter">Mapa para el 350Z del mercado estadounidense (EE. UU. y Canadá); otros mercados (Fairlady Z japonés, Europa/Reino Unido, Australia) pueden tener otro cableado. Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio.
   Colores y pinouts según FSM EC/PG 2005 VQ35DE salvo donde se indique variante.</span>
   <button type="button" class="fb-open" id="feedbackBtn" aria-haspopup="dialog" aria-controls="feedbackDialog">Enviar feedback</button>
 </footer>
@@ -1940,9 +1934,9 @@ function buildCircuits(model){
     {id:'front_wiper', title:'Limpiaparabrisas delantero', color:'#78909c',
       ecm:[], conn:['body_limpia','ix_e108_m15'], path:{body_limpia:['WIPER'],ix_e108_m15:['5G']},
       notes:'E108/M15·5G (P) es parte del circuito del limpiaparabrisas delantero. WW-12 lo dibuja pero continúa en otra página sin nombrar los extremos.'},
-    {id:'rear_wiper', vif:'rwiper=yes', title:'Limpiaparabrisas trasero (dudoso)', color:'#78909c',
-      ecm:[], conn:['body_limpia','ix_e108_m15'], path:{body_limpia:['R-WIPE'],ix_e108_m15:['8G']},
-      notes:'WW-40 muestra un limpiaparabrisas trasero con E108/M15·8G (LG/B). No está claro a qué autos aplica, por eso queda detrás del selector "Limpia trasero".'},
+    {id:'rear_washer', vif:'body=coupe', title:'Lavaluneta trasero (Coupé)', color:'#78909c',
+      ecm:[], conn:['body_limpia','ix_e108_m15'], path:{body_limpia:['RR-WASH'],ix_e108_m15:['8G']},
+      notes:'Solo Coupé (el FSM pone el limpiaparabrisas trasero en los modelos Coupé, BCS-9). El motor del lavaluneta trasero E28 recibe 12 V por el pin 2 (fusible 84 del IPDM, 10A, terminal 44, OR). Su pin 1 (LG/B) va por E108/M15·8G al pin 13 del interruptor combinado M29, que lo pone a masa al accionar el lavaluneta. El motor del limpialuneta D106 está en el arnés del portón y no pasa por E108. WW-40 / WW-41.'},
     {id:'at_tcm_ign', trans:'at', title:'A/T · encendido del TCM', color:'#7e57c2',
       ecm:[], conn:['body_at','ipdm_e7','ix_e10_f1','f6_at'], path:{body_at:['IGN-TCM'],ipdm_e7:['26'],ix_e10_f1:['4'],f6_at:['6']},
       notes:'Solo A/T. El módulo de la caja automática (TCM) recibe encendido del IPDM E7·26 (fusible 83, 10A) por E10/F1·4 (Y/R) hasta F6·6. Alimentación conmutada. AT-186.'},
@@ -2522,9 +2516,9 @@ const CONN_BASE = {
     pins:[
       {id:'1',code:'B',ecm:null,rail:'gnd',lab:'GND',src:'T14',srcSub:'power'},
       {id:'2',code:'W/R',ecm:null,rail:'12v',lab:'VENT+',src:'E7·17',srcSub:'ipdm'},
-      {id:'3',code:'R/W',ecm:null,lab:'TURN-RH',circ:'turn_rh'},
-      {id:'4',code:'G/Y',ecm:null,lab:'TURN-LH',circ:'turn_lh'},
-      {id:'5',code:'W/L',ecm:null,lab:'F/LID',circ:'fuel_lid'},
+      {id:'3',code:'R/W',ecm:null,lab:'TURN-RH',src:'T18·2',srcSub:'carroceria',circ:'turn_rh'},
+      {id:'4',code:'G/Y',ecm:null,lab:'TURN-LH',src:'T10·2',srcSub:'carroceria',circ:'turn_lh'},
+      {id:'5',code:'W/L',ecm:null,lab:'F/LID',src:'T19·1',srcSub:'carroceria',srcIf:'body=coupe',circ:'fuel_lid'},
       {id:'6',code:'B',ecm:null,rail:'gnd',lab:'GND',src:'T14',srcSub:'power'}
     ],
     note:'Conector intermedio B43/T1 (6 pines), hacia la parte trasera. 1 y 6 (B): masa. 2 (W/R): 12 V de la válvula de ventilación EVAP. 3 (R/W): intermitente derecho. 4 (G/Y): intermitente izquierdo. 5 (W/L): tapa de combustible. LT-153/154/179 · BL-54 · EC-367.'},
@@ -2541,14 +2535,14 @@ const CONN_BASE = {
       {id:'9',code:'G',ecm:117,lab:'VENT'},
       {id:'10',code:'L',ecm:48,rail:'5v',lab:'5V'},
       {id:'11',code:'W',ecm:32,lab:'EVAP'},
-      {id:'12',code:'LG',ecm:null,lab:'BACK',src:'F102·22H',srcSub:'actuators',circ:'backup_lamp'},
+      {id:'12',code:'LG',ecm:null,lab:'BACK',src:'F102·22H',srcSub:'actuators',altSrcIf:'trans=at',altSrc:'E19·5',circ:'backup_lamp'},
       {id:'13',code:'R/L',ecm:null,rail:'12v',lab:'TAIL',src:'E106·11',srcSub:'intermedias'},
-      {id:'14',code:'P/L',ecm:null,lab:'STOP',circ:'stop_lamps'},
+      {id:'14',code:'P/L',ecm:null,lab:'STOP',src:'E112·2',srcSub:'pedals',altSrcIf:'trans=at',altSrc:'E111·2',circ:'stop_lamps'},
       {id:'15',code:'BR/W',ecm:null,lab:'RR-SIG',src:'T5·2',srcSub:'carroceria',circ:'abs_rr',note:'Señal del sensor de rueda trasero derecho: sensor T5·2 → T2/B44·15 → E106/B2·2 (BRC-16 / BRC-102). Color: lado B44 BR/W, lado T2 BR.',note_en:'Rear right wheel sensor signal: sensor T5·2 → T2/B44·15 → E106/B2·2 (BRC-16 / BRC-102). Wire colour: B44 side BR/W, T2 side BR.',note_ja:'右リヤ車輪速センサーの信号：センサー T5·2 → T2/B44·15 → E106/B2·2（BRC-16 / BRC-102）。配線色：B44側BR/W、T2側BR。'},
       {id:'16',code:'P',ecm:null,lab:'RL-SIG',src:'T5·4',srcSub:'carroceria',circ:'abs_rl',note:'Señal del sensor de rueda trasero izquierdo: sensor T5·4 → T2/B44·16 → E106/B2·4 (BRC-16 / BRC-102). Color P en ambos lados.',note_en:'Rear left wheel sensor signal: sensor T5·4 → T2/B44·16 → E106/B2·4 (BRC-16 / BRC-102). Wire colour P on both sides.',note_ja:'左リヤ車輪速センサーの信号：センサー T5·4 → T2/B44·16 → E106/B2·4（BRC-16 / BRC-102）。配線色は両側ともP。'}
     ],
     note:'Conector intermedio T2/B44 (16 pines), hacia la parte trasera. Motor: 8/10/11 sensor de presión EVAP y 9 (G) ventilación EVAP, ECM 117. Luces: 12 (LG) marcha atrás, 13 (R/L) posición, 14 (P/L) freno, y en Coupé 1 luz del maletero. Coupé: 2–5 portón trasero (interruptor y apertura). ABS: 6, 7, 15, 16 sensores de rueda traseros. EC-367 · LT-179/182/194 · BL-30 · BRC-16.'},
-  ix_b1_m12:{group:'body', sub:'intermedias', name:'B1 ↔ M12 · SMJ body', meta:'SMJ 69J · PG-84 · pin 37J VENT · EC-367', accent:'#90a4ae', shape:'b1', view:{c:'B1',g:'f',src:'PG-84',ord:'1J…5J / 6J…10J …',ex:{es:'filas 28J–44J compactadas',en:'rows 28J–44J compacted',ja:'28J–44J行は圧縮表示'}}, face:'smj_j',
+  ix_b1_m12:{group:'body', sub:'intermedias', name:'B1 ↔ M12 · SMJ body', meta:'SMJ 69J · PG-84 · pin 37J VENT · EC-367', accent:'#90a4ae', shape:'b1', view:{c:'B1',g:'f',src:'PG-84',ord:'1J…5J / 6J…10J …',ex:{es:'filas 28J–44J compactadas; en 11J–27J y 45J–64J solo se dibujan las cavidades con cable, en orden',en:'rows 28J–44J compacted; in 11J–27J and 45J–64J only the wired cavities are drawn, in number order',ja:'28J–44J行は圧縮表示。11J–27Jと45J–64Jは配線のあるキャビティのみ番号順に表示'}}, face:'smj_j',
     pins:[
       {id:'1J',code:'B',ecm:null,lab:'BLW-GND',src:'B5',srcSub:'carroceria',circ:'blower_gnd',vif:'nav=yes',note:'Solo con navegador. Masa del motor del ventilador: M62·3 → M12·1J/6J → masa B5 (ATC-42). Color B en ambos lados.',note_en:'With navigation only. Blower motor ground: M62·3 → M12·1J/6J → ground B5 (ATC-42). Wire colour B on both sides.',note_ja:'ナビ装着車のみ。ブロアモーターのアース：M62·3 → M12·1J/6J → アース B5（ATC-42）。配線色は両側ともB。'},
       {id:'2J',code:'G',ecm:null,lab:'HS-PWR',src:'B37·3',srcSub:'carroceria',circ:'heated_seat',vif:'hseat=yes',note:'Solo con asientos calefactables. Salida del relé de asiento calefactable B37·3 → M12·2J → M52/M151·10 → interruptores de asiento calefactable (SE-59 / SE-62). Color G en ambos lados.',note_en:'Heated seats only. Heated seat relay output B37·3 → M12·2J → M52/M151·10 → heated seat switches (SE-59 / SE-62). Wire colour G on both sides.',note_ja:'シートヒーター装着車のみ。シートヒーターリレー出力 B37·3 → M12·2J → M52/M151·10 → シートヒータースイッチ（SE-59 / SE-62）。配線色は両側ともG。'},
@@ -2564,24 +2558,24 @@ const CONN_BASE = {
       {id:'12J',code:'—',ecm:null},
       {id:'13J',code:'—',ecm:null},
       {id:'14J',code:'P',ecm:null,lab:'DOOR-AS',src:'B23·1',srcSub:'carroceria',circ:'door_sw_as',note:'Interruptor de puerta del acompañante: BCM M90·12 → M12·14J → interruptor B23·1 (BL-27 / LT-221 / DI-68 / GW-23). Color P en ambos lados.',note_en:'Passenger door switch: BCM M90·12 → M12·14J → switch B23·1 (BL-27 / LT-221 / DI-68 / GW-23). Wire colour P on both sides.',note_ja:'助手席ドアスイッチ：BCM M90·12 → M12·14J → スイッチ B23·1（BL-27 / LT-221 / DI-68 / GW-23）。配線色は両側ともP。'},
-      {id:'15J',code:'R/B',ecm:null,lab:'LUG',circ:'luggage_lamp',note:'Alimentación de la luz del maletero desde la luz de techo (R/B) → M12·15J → maletero (Coupé: T2/B44·1 → luz T13·1) (LT-220 / LT-224). Color: lado M12 R/B, lado B1 Y.',note_en:'Luggage room lamp feed from the room lamp (R/B) → M12·15J → rear (Coupe: T2/B44·1 → lamp T13·1) (LT-220 / LT-224). Wire colour: M12 side R/B, B1 side Y.',note_ja:'ルームランプ（R/B）からラゲッジランプへの電源 → M12·15J → 後部（クーペ：T2/B44·1 → ランプ T13·1）（LT-220 / LT-224）。配線色：M12側R/B、B1側Y。'},
+      {id:'15J',code:'R/B',ecm:null,lab:'LUG',src:'T13·1',srcSub:'carroceria',srcIf:'body=coupe',circ:'luggage_lamp',note:'Alimentación de la luz del maletero desde la luz de techo (R/B) → M12·15J → maletero (Coupé: T2/B44·1 → luz T13·1) (LT-220 / LT-224). Color: lado M12 R/B, lado B1 Y.',note_en:'Luggage room lamp feed from the room lamp (R/B) → M12·15J → rear (Coupe: T2/B44·1 → lamp T13·1) (LT-220 / LT-224). Wire colour: M12 side R/B, B1 side Y.',note_ja:'ルームランプ（R/B）からラゲッジランプへの電源 → M12·15J → 後部（クーペ：T2/B44·1 → ランプ T13·1）（LT-220 / LT-224）。配線色：M12側R/B、B1側Y。'},
       {id:'16J',code:'Y/R',ecm:null,lab:'APILOT',src:'M39·17',srcSub:'carroceria',circ:'audio_bose_ctl',vif:'audio=bose',note:'Solo audio Bose. Encendido/apagado de AudioPilot: M39·17 → M12·16J → B45/T3·5 (AV-18). Color Y/R en ambos lados.',note_en:'Bose audio only. AudioPilot on/off: M39·17 → M12·16J → B45/T3·5 (AV-18). Wire colour Y/R on both sides.',note_ja:'Boseオーディオ装着車のみ。AudioPilotオン／オフ：M39·17 → M12·16J → B45/T3·5（AV-18）。配線色は両側ともY/R。'},
-      {id:'17J',code:'Y/R',ecm:null,lab:'FR-R+',circ:'audio_fr_r',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero derecho (+) hacia la puerta: M74/D31·28L → altavoz D34·1 y tweeter D33·1 (Bose: amplificador T7·25 → D35) (AV-11 / AV-17). Color: lado M12 Y/R, lado B1 BR.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front right speaker (+) to the door: M74/D31·28L → speaker D34·1 and tweeter D33·1 (Bose: amp T7·25 → D35) (AV-11 / AV-17). Wire colour: M12 side Y/R, B1 side BR.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。右フロントスピーカー（＋）ドアへ：M74/D31·28L → スピーカー D34·1／ツイーター D33·1（Bose：アンプ T7·25 → D35）（AV-11 / AV-17）。配線色：M12側Y/R、B1側BR。'},
-      {id:'18J',code:'R/W',ecm:null,lab:'FR-R−',circ:'audio_fr_r',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero derecho (−) hacia la puerta: M74/D31·29L → D34·2 / D33·2 (Bose: amplificador T7·26) (AV-11 / AV-17). Color: lado M12 R/W, lado B1 B/R.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front right speaker (−) to the door: M74/D31·29L → D34·2 / D33·2 (Bose: amp T7·26) (AV-11 / AV-17). Wire colour: M12 side R/W, B1 side B/R.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。右フロントスピーカー（−）ドアへ：M74/D31·29L → D34·2／D33·2（Bose：アンプ T7·26）（AV-11 / AV-17）。配線色：M12側R/W、B1側B/R。'},
+      {id:'17J',code:'Y/R',ecm:null,lab:'FR-R+',src:'D34·1',srcSub:'carroceria',altSrcIf:'audio=bose',altSrc:'T7·25',circ:'audio_fr_r',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero derecho (+) hacia la puerta: M74/D31·28L → altavoz D34·1 y tweeter D33·1 (Bose: amplificador T7·25 → D35) (AV-11 / AV-17). Color: lado M12 Y/R, lado B1 BR.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front right speaker (+) to the door: M74/D31·28L → speaker D34·1 and tweeter D33·1 (Bose: amp T7·25 → D35) (AV-11 / AV-17). Wire colour: M12 side Y/R, B1 side BR.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。右フロントスピーカー（＋）ドアへ：M74/D31·28L → スピーカー D34·1／ツイーター D33·1（Bose：アンプ T7·25 → D35）（AV-11 / AV-17）。配線色：M12側Y/R、B1側BR。'},
+      {id:'18J',code:'R/W',ecm:null,lab:'FR-R−',src:'D34·2',srcSub:'carroceria',altSrcIf:'audio=bose',altSrc:'T7·26',circ:'audio_fr_r',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero derecho (−) hacia la puerta: M74/D31·29L → D34·2 / D33·2 (Bose: amplificador T7·26) (AV-11 / AV-17). Color: lado M12 R/W, lado B1 B/R.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front right speaker (−) to the door: M74/D31·29L → D34·2 / D33·2 (Bose: amp T7·26) (AV-11 / AV-17). Wire colour: M12 side R/W, B1 side B/R.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。右フロントスピーカー（−）ドアへ：M74/D31·29L → D34·2／D33·2（Bose：アンプ T7·26）（AV-11 / AV-17）。配線色：M12側R/W、B1側B/R。'},
       {id:'19J',code:'G/Y',ecm:null,lab:'AMP-ON',src:'M41·12',srcSub:'carroceria',circ:'audio_bose_ctl',vif:'audio=bose',note:'Solo audio Bose. Encendido del amplificador Bose: M41·12 → M12·19J → B46/T4·3 (AV-18). Color G/Y en ambos lados. Lado B1: G/Y en Coupé, G/R en Roadster.',note_en:'Bose audio only. Bose amplifier ON: M41·12 → M12·19J → B46/T4·3 (AV-18). Wire colour G/Y on both sides. B1 side: G/Y on the Coupe, G/R on the Roadster.',note_ja:'Boseオーディオ装着車のみ。Boseアンプ ON：M41·12 → M12·19J → B46/T4·3（AV-18）。配線色は両側ともG/Y。B1側：クーペはG/Y、ロードスターはG/R。'},
       {id:'20J',code:'—',ecm:null,lab:'SHIELD',circ:'audio_bose_misc',wireUnk:true,vif:'audio=bose',note:'Solo audio Bose. Malla (blindaje) de los cables de altavoz delanteros, a la masa EARTH de la radio M40·9 (AV-16). El FSM dibuja la malla sin color.',note_en:'Bose audio only. Shield (drain) of the front speaker wires, to the audio unit EARTH terminal M40·9 (AV-16). The FSM draws the drain with no colour.',note_ja:'Boseオーディオ装着車のみ。フロントスピーカー線のシールド（ドレン）、オーディオのEARTH端子M40·9へアース（AV-16）。FSMではシールドに配線色の記載なし。'},
-      {id:'21J',code:'G',ecm:null,lab:'FR-R+',circ:'audio_fr_r',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero derecho (+), salida de la radio M40·4 (AV-11 / AV-16). Color: lado M12 G, lado B1 BR.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front right speaker (+), audio unit output M40·4 (AV-11 / AV-16). Wire colour: M12 side G, B1 side BR.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。右フロントスピーカー（＋）、オーディオ出力 M40·4（AV-11 / AV-16）。配線色：M12側G、B1側BR。'},
-      {id:'22J',code:'R',ecm:null,lab:'FR-R−',circ:'audio_fr_r',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero derecho (−), salida de la radio M40·3 (AV-11 / AV-16). Color: lado M12 R, lado B1 B/R.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front right speaker (−), audio unit output M40·3 (AV-11 / AV-16). Wire colour: M12 side R, B1 side B/R.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。右フロントスピーカー（−）、オーディオ出力 M40·3（AV-11 / AV-16）。配線色：M12側R、B1側B/R。'},
-      {id:'23J',code:'W',ecm:null,lab:'FR-L+',circ:'audio_fr_l',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altIf:'audio=bose',altCode:'W/LG',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero izquierdo (+), salida de la radio M40·2 (Bose: hacia el amplificador por B46/T4) (AV-11 / AV-16). Color: lado M12 W, lado B1 L. Con Bose el lado M12 es W/LG.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front left speaker (+), audio unit output M40·2 (Bose: to the amplifier via B46/T4) (AV-11 / AV-16). Wire colour: M12 side W, B1 side L. With Bose the M12 side is W/LG.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。左フロントスピーカー（＋）、オーディオ出力 M40·2（Bose：B46/T4経由でアンプへ）（AV-11 / AV-16）。配線色：M12側W、B1側L。Bose車ではM12側がW/LG。'},
-      {id:'24J',code:'B',ecm:null,lab:'FR-L−',circ:'audio_fr_l',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altIf:'audio=bose',altCode:'B/PU',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero izquierdo (−), salida de la radio M40·1 (AV-11 / AV-16). Color: lado M12 B, lado B1 B/W. Con Bose el lado M12 es B/PU.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front left speaker (−), audio unit output M40·1 (AV-11 / AV-16). Wire colour: M12 side B, B1 side B/W. With Bose the M12 side is B/PU.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。左フロントスピーカー（−）、オーディオ出力 M40·1（AV-11 / AV-16）。配線色：M12側B、B1側B/W。Bose車ではM12側がB/PU。'},
+      {id:'21J',code:'G',ecm:null,lab:'FR-R+',src:'M40·4',srcSub:'carroceria',circ:'audio_fr_r',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero derecho (+), salida de la radio M40·4 (AV-11 / AV-16). Color: lado M12 G, lado B1 BR.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front right speaker (+), audio unit output M40·4 (AV-11 / AV-16). Wire colour: M12 side G, B1 side BR.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。右フロントスピーカー（＋）、オーディオ出力 M40·4（AV-11 / AV-16）。配線色：M12側G、B1側BR。'},
+      {id:'22J',code:'R',ecm:null,lab:'FR-R−',src:'M40·3',srcSub:'carroceria',circ:'audio_fr_r',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero derecho (−), salida de la radio M40·3 (AV-11 / AV-16). Color: lado M12 R, lado B1 B/R.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front right speaker (−), audio unit output M40·3 (AV-11 / AV-16). Wire colour: M12 side R, B1 side B/R.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。右フロントスピーカー（−）、オーディオ出力 M40·3（AV-11 / AV-16）。配線色：M12側R、B1側B/R。'},
+      {id:'23J',code:'W',ecm:null,lab:'FR-L+',src:'M40·2',srcSub:'carroceria',circ:'audio_fr_l',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altIf:'audio=bose',altCode:'W/LG',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero izquierdo (+), salida de la radio M40·2 (Bose: hacia el amplificador por B46/T4) (AV-11 / AV-16). Color: lado M12 W, lado B1 L. Con Bose el lado M12 es W/LG.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front left speaker (+), audio unit output M40·2 (Bose: to the amplifier via B46/T4) (AV-11 / AV-16). Wire colour: M12 side W, B1 side L. With Bose the M12 side is W/LG.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。左フロントスピーカー（＋）、オーディオ出力 M40·2（Bose：B46/T4経由でアンプへ）（AV-11 / AV-16）。配線色：M12側W、B1側L。Bose車ではM12側がW/LG。'},
+      {id:'24J',code:'B',ecm:null,lab:'FR-L−',src:'M40·1',srcSub:'carroceria',circ:'audio_fr_l',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altIf:'audio=bose',altCode:'B/PU',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero izquierdo (−), salida de la radio M40·1 (AV-11 / AV-16). Color: lado M12 B, lado B1 B/W. Con Bose el lado M12 es B/PU.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front left speaker (−), audio unit output M40·1 (AV-11 / AV-16). Wire colour: M12 side B, B1 side B/W. With Bose the M12 side is B/PU.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。左フロントスピーカー（−）、オーディオ出力 M40·1（AV-11 / AV-16）。配線色：M12側B、B1側B/W。Bose車ではM12側がB/PU。'},
       {id:'25J',code:'—',ecm:null,lab:'SHIELD',circ:'audio_bose_misc',wireUnk:true,vif:'audio=bose',note:'Solo audio Bose. Malla (blindaje) de los cables de altavoz delanteros, a la masa EARTH de la radio M40·9 (AV-16). El FSM dibuja la malla sin color.',note_en:'Bose audio only. Shield (drain) of the front speaker wires, to the audio unit EARTH terminal M40·9 (AV-16). The FSM draws the drain with no colour.',note_ja:'Boseオーディオ装着車のみ。フロントスピーカー線のシールド（ドレン）、オーディオのEARTH端子M40·9へアース（AV-16）。FSMではシールドに配線色の記載なし。'},
-      {id:'26J',code:'B/W',ecm:null,lab:'FR-L−',circ:'audio_fr_l',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero izquierdo (−) hacia la puerta: M11/D1·29K → D4·2 / D3·2 (Bose: amplificador T7·24) (AV-11 / AV-17). Color B/W en ambos lados. Con Bose, lado B1: W/G en Coupé, B/W en Roadster.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front left speaker (−) to the door: M11/D1·29K → D4·2 / D3·2 (Bose: amp T7·24) (AV-11 / AV-17). Wire colour B/W on both sides. With Bose, B1 side: W/G on the Coupe, B/W on the Roadster.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。左フロントスピーカー（−）ドアへ：M11/D1·29K → D4·2／D3·2（Bose：アンプ T7·24）（AV-11 / AV-17）。配線色は両側ともB/W。Bose車のB1側：クーペW/G、ロードスターB/W。'},
-      {id:'27J',code:'L/R',ecm:null,lab:'FR-L+',circ:'audio_fr_l',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero izquierdo (+) hacia la puerta: M11/D1·28K → altavoz D4·1 y tweeter D3·1 (Bose: amplificador T7·23 → T3/B45·9 → D5·1) (AV-11 / AV-17). Color: lado M12 L/R, lado B1 L. Con Bose, lado B1: L/Y en Coupé, L en Roadster.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front left speaker (+) to the door: M11/D1·28K → speaker D4·1 and tweeter D3·1 (Bose: amp T7·23 → T3/B45·9 → D5·1) (AV-11 / AV-17). Wire colour: M12 side L/R, B1 side L. With Bose, B1 side: L/Y on the Coupe, L on the Roadster.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。左フロントスピーカー（＋）ドアへ：M11/D1·28K → スピーカー D4·1／ツイーター D3·1（Bose：アンプ T7·23 → T3/B45·9 → D5·1）（AV-11 / AV-17）。配線色：M12側L/R、B1側L。Bose車のB1側：クーペL/Y、ロードスターL。'},
+      {id:'26J',code:'B/W',ecm:null,lab:'FR-L−',src:'D4·2',srcSub:'carroceria',altSrcIf:'audio=bose',altSrc:'T7·24',circ:'audio_fr_l',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero izquierdo (−) hacia la puerta: M11/D1·29K → D4·2 / D3·2 (Bose: amplificador T7·24) (AV-11 / AV-17). Color B/W en ambos lados. Con Bose, lado B1: W/G en Coupé, B/W en Roadster.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front left speaker (−) to the door: M11/D1·29K → D4·2 / D3·2 (Bose: amp T7·24) (AV-11 / AV-17). Wire colour B/W on both sides. With Bose, B1 side: W/G on the Coupe, B/W on the Roadster.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。左フロントスピーカー（−）ドアへ：M11/D1·29K → D4·2／D3·2（Bose：アンプ T7·24）（AV-11 / AV-17）。配線色は両側ともB/W。Bose車のB1側：クーペW/G、ロードスターB/W。'},
+      {id:'27J',code:'L/R',ecm:null,lab:'FR-L+',src:'D4·1',srcSub:'carroceria',altSrcIf:'audio=bose',altSrc:'T7·23',circ:'audio_fr_l',vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',note:'Audio base: solo fuera del paquete "BS" (ver nota); Bose: siempre. Altavoz delantero izquierdo (+) hacia la puerta: M11/D1·28K → altavoz D4·1 y tweeter D3·1 (Bose: amplificador T7·23 → T3/B45·9 → D5·1) (AV-11 / AV-17). Color: lado M12 L/R, lado B1 L. Con Bose, lado B1: L/Y en Coupé, L en Roadster.',note_en:'Base audio: only outside the "BS" package (see note); Bose: always. Front left speaker (+) to the door: M11/D1·28K → speaker D4·1 and tweeter D3·1 (Bose: amp T7·23 → T3/B45·9 → D5·1) (AV-11 / AV-17). Wire colour: M12 side L/R, B1 side L. With Bose, B1 side: L/Y on the Coupe, L on the Roadster.',note_ja:'ベースオーディオは「BS」仕様以外のみ（注記参照）、Boseは常時。左フロントスピーカー（＋）ドアへ：M11/D1·28K → スピーカー D4·1／ツイーター D3·1（Bose：アンプ T7·23 → T3/B45·9 → D5·1）（AV-11 / AV-17）。配線色：M12側L/R、B1側L。Bose車のB1側：クーペL/Y、ロードスターL。'},
       {id:'28J',code:'—',ecm:null,lab:'SHIELD',circ:'audio_bose_misc',wireUnk:true,vif:'audio=bose',note:'Solo audio Bose. Malla (blindaje) de los cables de altavoz traseros, a la masa EARTH de la radio M41·11 (AV-18). El FSM dibuja la malla sin color.',note_en:'Bose audio only. Shield (drain) of the rear speaker wires, to the audio unit EARTH terminal M41·11 (AV-18). The FSM draws the drain with no colour.',note_ja:'Boseオーディオ装着車のみ。リヤスピーカー線のシールド（ドレン）、オーディオのEARTH端子M41·11へアース（AV-18）。FSMではシールドに配線色の記載なし。'},
-      {id:'29J',code:'LG/R',ecm:null,lab:'RR-L+',circ:'audio_rr_l',altIf:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altCode:'BR',note:'Altavoz trasero izquierdo (+): radio M41·14 → M12·29J → altavoz B40·1 (AV-12 / AV-14 / AV-18). Lado M12: LG/R en autos "BS", BR en el resto. Lado B1: LG. Lado B1 en Bose: Y/G Coupé, OR/L Roadster.',note_en:'Rear left speaker (+): audio unit M41·14 → M12·29J → speaker B40·1 (AV-12 / AV-14 / AV-18). M12 side: LG/R on "BS" cars, BR on all others. B1 side: LG. B1 side with Bose: Y/G Coupe, OR/L Roadster.',note_ja:'左リヤスピーカー（＋）：オーディオ M41·14 → M12·29J → スピーカー B40·1（AV-12 / AV-14 / AV-18）。M12側：「BS」はLG/R、それ以外はBR。B1側：LG。Bose車のB1側：クーペY/G、ロードスターOR/L。'},
-      {id:'30J',code:'B/Y',ecm:null,lab:'RR-L−',circ:'audio_rr_l',altIf:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altCode:'B/R',note:'Altavoz trasero izquierdo (−): radio M41·13 → M12·30J → altavoz B40·2 (AV-12 / AV-14 / AV-18). Lado M12: B/Y en autos "BS", B/R en el resto. Lado B1: B/Y. Lado B1 en Bose: Y/L Coupé, W/L Roadster.',note_en:'Rear left speaker (−): audio unit M41·13 → M12·30J → speaker B40·2 (AV-12 / AV-14 / AV-18). M12 side: B/Y on "BS" cars, B/R on all others. B1 side: B/Y. B1 side with Bose: Y/L Coupe, W/L Roadster.',note_ja:'左リヤスピーカー（−）：オーディオ M41·13 → M12·30J → スピーカー B40·2（AV-12 / AV-14 / AV-18）。M12側：「BS」はB/Y、それ以外はB/R。B1側：B/Y。Bose車のB1側：クーペY/L、ロードスターW/L。'},
-      {id:'31J',code:'L/OR',ecm:null,lab:'RR-R+',circ:'audio_rr_r',altIf:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altCode:'L',note:'Altavoz trasero derecho (+): radio M41·16 → M12·31J → altavoz B42·1 (AV-12 / AV-14 / AV-18). Lado B1: G/W Coupé, OR Roadster, L con Bose.',note_en:'Rear right speaker (+): audio unit M41·16 → M12·31J → speaker B42·1 (AV-12 / AV-14 / AV-18). B1 side: G/W Coupe, OR Roadster, L with Bose.',note_ja:'右リヤスピーカー（＋）：オーディオ M41·16 → M12·31J → スピーカー B42·1（AV-12 / AV-14 / AV-18）。B1側：クーペG/W、ロードスターOR、Bose車L。'},
-      {id:'32J',code:'B/P',ecm:null,lab:'RR-R−',circ:'audio_rr_r',altIf:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altCode:'P',note:'Altavoz trasero derecho (−): radio M41·15 → M12·32J → altavoz B42·2 (AV-12 / AV-14 / AV-18). Lado B1: G Coupé, B/P Roadster, P con Bose.',note_en:'Rear right speaker (−): audio unit M41·15 → M12·32J → speaker B42·2 (AV-12 / AV-14 / AV-18). B1 side: G Coupe, B/P Roadster, P with Bose.',note_ja:'右リヤスピーカー（−）：オーディオ M41·15 → M12·32J → スピーカー B42·2（AV-12 / AV-14 / AV-18）。B1側：クーペG、ロードスターB/P、Bose車P。'},
+      {id:'29J',code:'LG/R',ecm:null,lab:'RR-L+',src:'B40·1',srcSub:'carroceria',circ:'audio_rr_l',altIf:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altCode:'BR',note:'Altavoz trasero izquierdo (+): radio M41·14 → M12·29J → altavoz B40·1 (AV-12 / AV-14 / AV-18). Lado M12: LG/R en autos "BS", BR en el resto. Lado B1: LG. Lado B1 en Bose: Y/G Coupé, OR/L Roadster.',note_en:'Rear left speaker (+): audio unit M41·14 → M12·29J → speaker B40·1 (AV-12 / AV-14 / AV-18). M12 side: LG/R on "BS" cars, BR on all others. B1 side: LG. B1 side with Bose: Y/G Coupe, OR/L Roadster.',note_ja:'左リヤスピーカー（＋）：オーディオ M41·14 → M12·29J → スピーカー B40·1（AV-12 / AV-14 / AV-18）。M12側：「BS」はLG/R、それ以外はBR。B1側：LG。Bose車のB1側：クーペY/G、ロードスターOR/L。'},
+      {id:'30J',code:'B/Y',ecm:null,lab:'RR-L−',src:'B40·2',srcSub:'carroceria',circ:'audio_rr_l',altIf:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altCode:'B/R',note:'Altavoz trasero izquierdo (−): radio M41·13 → M12·30J → altavoz B40·2 (AV-12 / AV-14 / AV-18). Lado M12: B/Y en autos "BS", B/R en el resto. Lado B1: B/Y. Lado B1 en Bose: Y/L Coupé, W/L Roadster.',note_en:'Rear left speaker (−): audio unit M41·13 → M12·30J → speaker B40·2 (AV-12 / AV-14 / AV-18). M12 side: B/Y on "BS" cars, B/R on all others. B1 side: B/Y. B1 side with Bose: Y/L Coupe, W/L Roadster.',note_ja:'左リヤスピーカー（−）：オーディオ M41·13 → M12·30J → スピーカー B40·2（AV-12 / AV-14 / AV-18）。M12側：「BS」はB/Y、それ以外はB/R。B1側：B/Y。Bose車のB1側：クーペY/L、ロードスターW/L。'},
+      {id:'31J',code:'L/OR',ecm:null,lab:'RR-R+',src:'B42·1',srcSub:'carroceria',circ:'audio_rr_r',altIf:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altCode:'L',note:'Altavoz trasero derecho (+): radio M41·16 → M12·31J → altavoz B42·1 (AV-12 / AV-14 / AV-18). Lado B1: G/W Coupé, OR Roadster, L con Bose.',note_en:'Rear right speaker (+): audio unit M41·16 → M12·31J → speaker B42·1 (AV-12 / AV-14 / AV-18). B1 side: G/W Coupe, OR Roadster, L with Bose.',note_ja:'右リヤスピーカー（＋）：オーディオ M41·16 → M12·31J → スピーカー B42·1（AV-12 / AV-14 / AV-18）。B1側：クーペG/W、ロードスターOR、Bose車L。'},
+      {id:'32J',code:'B/P',ecm:null,lab:'RR-R−',src:'B42·2',srcSub:'carroceria',circ:'audio_rr_r',altIf:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada',altCode:'P',note:'Altavoz trasero derecho (−): radio M41·15 → M12·32J → altavoz B42·2 (AV-12 / AV-14 / AV-18). Lado B1: G Coupé, B/P Roadster, P con Bose.',note_en:'Rear right speaker (−): audio unit M41·15 → M12·32J → speaker B42·2 (AV-12 / AV-14 / AV-18). B1 side: G Coupe, B/P Roadster, P with Bose.',note_ja:'右リヤスピーカー（−）：オーディオ M41·15 → M12·32J → スピーカー B42·2（AV-12 / AV-14 / AV-18）。B1側：クーペG、ロードスターB/P、Bose車P。'},
       {id:'33J',code:'—',ecm:null,lab:'SHIELD',circ:'audio_bose_misc',wireUnk:true,vif:'audio=bose',note:'Solo audio Bose. Malla (blindaje) de los cables de altavoz traseros, a la masa EARTH de la radio M41·11 (AV-18). El FSM dibuja la malla sin color.',note_en:'Bose audio only. Shield (drain) of the rear speaker wires, to the audio unit EARTH terminal M41·11 (AV-18). The FSM draws the drain with no colour.',note_ja:'Boseオーディオ装着車のみ。リヤスピーカー線のシールド（ドレン）、オーディオのEARTH端子M41·11へアース（AV-18）。FSMではシールドに配線色の記載なし。'},
       {id:'34J',code:'B',ecm:null,lab:'BLT-GND',src:'B11·2',srcSub:'carroceria',circ:'belt_as_gnd',note:'Masa del interruptor del cinturón del acompañante: B11·2 → B29/B31·1 → M12·34J → masa M30 (SRS-12 / SRS-16 / SE-30). Color B en ambos lados.',note_en:'Passenger seat belt buckle switch ground: B11·2 → B29/B31·1 → M12·34J → ground M30 (SRS-12 / SRS-16 / SE-30). Wire colour B on both sides.',note_ja:'助手席シートベルトバックルSWのアース：B11·2 → B29/B31·1 → M12·34J → アース M30（SRS-12 / SRS-16 / SE-30）。配線色は両側ともB。'},
       {id:'35J',code:'BR/Y',ecm:null,lab:'BELT-SRS',src:'B8·1',srcSub:'carroceria',circ:'belt_dr',note:'Interruptor del cinturón del conductor hacia el módulo de airbag: unidad de diagnóstico ·41 → B49/B50·1 → M12·35J → 43J → interruptor B8·1 (SRS-12). Color: lado M12 BR/Y, lado B1 SB.',note_en:'Driver seat belt buckle switch to the airbag module: diagnosis sensor unit ·41 → B49/B50·1 → M12·35J → 43J → switch B8·1 (SRS-12). Wire colour: M12 side BR/Y, B1 side SB.',note_ja:'運転席バックルSW → エアバッグ診断ユニット：·41 → B49/B50·1 → M12·35J → 43J → スイッチ B8·1（SRS-12）。配線色：M12側BR/Y、B1側SB。'},
@@ -2610,10 +2604,10 @@ const CONN_BASE = {
       {id:'58J',code:'—',ecm:null},
       {id:'59J',code:'—',ecm:null},
       {id:'60J',code:'B/W',ecm:null,lab:'DEF',circ:'rear_defog',note:'Circuito del desempañador de luneta trasera (GW-61 / GW-65). Color B/W en ambos lados.',note_en:'Rear window defogger circuit (GW-61 / GW-65). Wire colour B/W on both sides.',note_ja:'リヤウインドウデフォッガー回路（GW-61 / GW-65）。配線色は両側ともB/W。'},
-      {id:'61J',code:'P/L',ecm:null,lab:'STOP',circ:'stop_lamps',note:'Luces de freno: interruptor E112 (M/T) / E111 (A/T) → E108·38G → M12·61J → luces de freno traseras (LT-178 / RF-25). Color P/L en ambos lados.',note_en:'Stop lamps: switch E112 (M/T) / E111 (A/T) → E108·38G → M12·61J → rear stop lamps (LT-178 / RF-25). Wire colour P/L on both sides.',note_ja:'ストップランプ：スイッチ E112（M/T）／E111（A/T）→ E108·38G → M12·61J → リヤストップランプ（LT-178 / RF-25）。配線色は両側ともP/L。'},
+      {id:'61J',code:'P/L',ecm:null,lab:'STOP',src:'E112·2',srcSub:'pedals',altSrcIf:'trans=at',altSrc:'E111·2',circ:'stop_lamps',note:'Luces de freno: interruptor E112 (M/T) / E111 (A/T) → E108·38G → M12·61J → luces de freno traseras (LT-178 / RF-25). Color P/L en ambos lados.',note_en:'Stop lamps: switch E112 (M/T) / E111 (A/T) → E108·38G → M12·61J → rear stop lamps (LT-178 / RF-25). Wire colour P/L on both sides.',note_ja:'ストップランプ：スイッチ E112（M/T）／E111（A/T）→ E108·38G → M12·61J → リヤストップランプ（LT-178 / RF-25）。配線色は両側ともP/L。'},
       {id:'62J',code:'PU/W',ecm:null,lab:'TURN-R',src:'T18·2',srcSub:'carroceria',circ:'turn_rh',note:'Intermitente derecho trasero: E108·36G → M12·62J → B43/T1·3 (R/W) → luz trasera derecha T18·2 (LT-154 / LT-158). Color: lado M12 PU/W, lado B1 L/W. En Roadster el lado B1 es L.',note_en:'Rear right turn signal: E108·36G → M12·62J → B43/T1·3 (R/W) → rear combination lamp RH T18·2 (LT-154 / LT-158). Wire colour: M12 side PU/W, B1 side L/W. On the Roadster the B1 side is L.',note_ja:'右リヤターン：E108·36G → M12·62J → B43/T1·3（R/W）→ 右リヤコンビランプ T18·2（LT-154 / LT-158）。配線色：M12側PU/W、B1側L/W。ロードスターではB1側がL。'},
       {id:'63J',code:'G/W',ecm:null,lab:'TURN-L',src:'T10·2',srcSub:'carroceria',circ:'turn_lh',note:'Intermitente izquierdo trasero: E108·37G → M12·63J → B43/T1·4 → luz trasera izquierda T10·2 (LT-153 / LT-157). Color: lado M12 G/W, lado B1 G/Y. En Roadster el lado B1 es G/B.',note_en:'Rear left turn signal: E108·37G → M12·63J → B43/T1·4 → rear combination lamp LH T10·2 (LT-153 / LT-157). Wire colour: M12 side G/W, B1 side G/Y. On the Roadster the B1 side is G/B.',note_ja:'左リヤターン：E108·37G → M12·63J → B43/T1·4 → 左リヤコンビランプ T10·2（LT-153 / LT-157）。配線色：M12側G/W、B1側G/Y。ロードスターではB1側がG/B。'},
-      {id:'64J',code:'OR',ecm:null,lab:'BACK',circ:'backup_lamp',note:'Luces de marcha atrás: M12·64J → T2/B44·12 → luces traseras (LT-182 / LT-183). Color: lado M12 OR, lado B1 LG.',note_en:'Back-up lamps: M12·64J → T2/B44·12 → rear lamps (LT-182 / LT-183). Wire colour: M12 side OR, B1 side LG.',note_ja:'バックランプ：M12·64J → T2/B44·12 → リヤランプ（LT-182 / LT-183）。配線色：M12側OR、B1側LG。'},
+      {id:'64J',code:'OR',ecm:null,lab:'BACK',src:'F102·22H',srcSub:'actuators',altSrcIf:'trans=at',altSrc:'E19·5',circ:'backup_lamp',note:'Luces de marcha atrás: M12·64J → T2/B44·12 → luces traseras (LT-182 / LT-183). Color: lado M12 OR, lado B1 LG.',note_en:'Back-up lamps: M12·64J → T2/B44·12 → rear lamps (LT-182 / LT-183). Wire colour: M12 side OR, B1 side LG.',note_ja:'バックランプ：M12·64J → T2/B44·12 → リヤランプ（LT-182 / LT-183）。配線色：M12側OR、B1側LG。'},
       {id:'65J',code:'Y/B',ecm:null,lab:'F/LID',src:'M59·3',srcSub:'carroceria',circ:'fuel_lid',vif:'body=coupe',note:'Solo Coupé. Apertura de la tapa de combustible: relé M59·3 → M12·65J → B43/T1·5 (W/L) → actuador T19·1 (BL-54). Color Y/B en ambos lados.',note_en:'Coupe only. Fuel lid opener: relay M59·3 → M12·65J → B43/T1·5 (W/L) → actuator T19·1 (BL-54). Wire colour Y/B on both sides.',note_ja:'クーペのみ。フューエルリッドオープナー：リレー M59·3 → M12·65J → B43/T1·5（W/L）→ アクチュエーター T19·1（BL-54）。配線色は両側ともY/B。'},
       {id:'66J',code:'L/R',ecm:null,lab:'F/LID',circ:'fuel_lid_r',vif:'body=roadster',note:'Solo Roadster. Apertura de la tapa de combustible del Roadster (BL-55). Color L/R en ambos lados.',note_en:'Roadster only. Roadster fuel lid opener (BL-55). Wire colour L/R on both sides.',note_ja:'ロードスターのみ。ロードスターのフューエルリッドオープナー（BL-55）。配線色は両側ともL/R。'},
       {id:'67J',code:'R/G',ecm:null,lab:'SOCKET',src:'B36·1',srcSub:'carroceria',circ:'pwr_socket',note:'Toma de corriente del maletero: fusible 7 (15A, accesorios) → M12·67J → toma B36·1 (WW-54). Color: lado M12 R/G, lado B1 R/B.',note_en:'Luggage power socket: fuse 7 (15A, accessory) → M12·67J → socket B36·1 (WW-54). Wire colour: M12 side R/G, B1 side R/B.',note_ja:'ラゲッジ電源ソケット：ヒューズ7（15A、ACC）→ M12·67J → ソケット B36·1（WW-54）。配線色：M12側R/G、B1側R/B。'},
@@ -2660,7 +2654,7 @@ const CONN_BASE = {
     note:'Conector intermedio E10/F1, cerca del IPDM. 1 (B/Y): arranque. 2 (Y/R): 12 V del interruptor de marcha atrás F36 desde IPDM E7·26 (en A/T es P y va al relé de marcha atrás). 5/9/8: sensor de presión del A/C → ECM 49/70/67. Solo A/T: 4 encendido del TCM, 6 luces de marcha atrás, 7 relé de arranque.'},
   ix_e12_f3:{group:'motor', sub:'intermedias', name:'E12 ↔ F3 · Alimentación ECM + A/F', meta:'8-pin GY · VB 119/120 · IGN · GND E17 · EC-167/169 · no F102', accent:'#42a5f5', shape:'f3', view:{c:'F3',g:'f',src:'EC-169',ord:'1-2-3-4 / 5-6-7-8'}, face:'f3',
     pins:[
-      {id:'1',code:'R/W',lab:'BATT',rail:'12v'},
+      {id:'1',code:'R/W',lab:'BATT',src:'F6',srcSub:'actuators',srcIf:'trans=at',rail:'12v'},
       {id:'2',code:'L/Y',ecm:null,lab:'A/C-CL',src:'E8·33',srcSub:'carroceria',circ:'ac_clutch',note:'Embrague del compresor de A/C: IPDM E8·33 (relé A/C) → E12/F3·2 → embrague F24·1. Tiene 12 V solo con el relé A/C activado; no es riel (ATC-45). Color L/Y en ambos lados.',note_en:'A/C compressor clutch: IPDM E8·33 (A/C relay) → E12/F3·2 → clutch F24·1. 12 V only while the A/C relay is on; not a rail (ATC-45). Wire colour L/Y on both sides.',note_ja:'A/Cコンプレッサークラッチ：IPDM E8·33（A/Cリレー）→ E12/F3·2 → クラッチ F24·1。A/Cリレー作動時のみ12V、レールではない（ATC-45）。配線色は両側ともL/Y。'},
       {id:'3',lab:'AF/HO2S',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'fuses'},
       {id:'4',lab:'VB',code:'P',ecm:120,rail:'12v'},
@@ -2697,7 +2691,7 @@ const CONN_BASE = {
       {id:'8',code:'—',ecm:null}
     ],
     note:'Unión del arnés del motor con el sub-arnés de inyectores (F33 ↔ F221). Pin 5: 12 V común (fusible 10A de la caja de fusibles → F102·17H). Pines 1–4 y 6–7: control del ECM, que abre cada inyector conectándolo a masa. Pin 8 vacío. No confundir con F18 (bobinas y VTC). Se ve la cara hembra de F33 (EC-278 T.S.: 1-2-3-4 / 5-6-7-8); la foto muestra la mitad macho F221, en espejo (EC-279).'},
-  ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · SMJ motor↔carrocería', meta:'SMJ 69G · PG-84 · cara E108', accent:'#90a4ae', shape:'e108', view:{c:'E108',g:'f',src:'PG-84',ord:'1G…5G / 6G…10G …',ex:{es:'filas 28G–44G compactadas',en:'rows 28G–44G compacted',ja:'28G–44G行は圧縮表示'}}, face:'smj_g',
+  ix_e108_m15:{group:'motor', sub:'intermedias', name:'E108 ↔ M15 · SMJ motor↔carrocería', meta:'SMJ 69G · PG-84 · cara E108', accent:'#90a4ae', shape:'e108', view:{c:'E108',g:'f',src:'PG-84',ord:'1G…5G / 6G…10G …',ex:{es:'filas 28G–44G compactadas; en 11G–27G y 45G–64G solo se dibujan las cavidades con cable, en orden',en:'rows 28G–44G compacted; in 11G–27G and 45G–64G only the wired cavities are drawn, in number order',ja:'28G–44G行は圧縮表示。11G–27Gと45G–64Gは配線のあるキャビティのみ番号順に表示'}}, face:'smj_g',
     pins:[
       {id:'1G',code:'Y',ecm:null,lab:'BACKUP',src:'M40·6',srcSub:'carroceria',circ:'audio_backup',note:'Memoria del equipo de audio: batería → fusible 37 (15A) → E108·1G → radio M40·6 (BACK UP) (AV-11 / AV-13 / AV-15). Color Y en ambos lados.',note_en:'Audio memory feed: battery → fuse 37 (15A) → E108·1G → audio unit M40·6 (BACK UP) (AV-11 / AV-13 / AV-15). Wire colour Y on both sides.',note_ja:'オーディオのメモリー電源：バッテリー → ヒューズ37（15A）→ E108·1G → オーディオ M40·6（BACK UP）（AV-11 / AV-13 / AV-15）。配線色は両側ともY。'},
       {id:'2G',code:'L',ecm:94,lab:'CAN-H'},
@@ -2706,7 +2700,7 @@ const CONN_BASE = {
       {id:'5G',code:'P',ecm:null,lab:'WIPER',circ:'front_wiper',note:'Circuito del limpiaparabrisas delantero; WW-12 continúa en la página siguiente y no nombra los extremos (WW-12). Color P en ambos lados.',note_en:'Front wiper circuit; WW-12 continues on the next page and does not name the ends (WW-12). Wire colour P on both sides.',note_ja:'フロントワイパー回路。WW-12は次頁へ続き、端子名は示されていない（WW-12）。配線色は両側ともP。'},
       {id:'6G',code:'—',ecm:null},
       {id:'7G',code:'P',ecm:86,lab:'CAN-L'},
-      {id:'8G',code:'LG/B',ecm:null,lab:'R-WIPE',circ:'rear_wiper',vif:'rwiper=yes',note:'Limpiaparabrisas trasero: aplicabilidad dudosa. Limpiaparabrisas trasero según WW-40 (WW-40). Color LG/B en ambos lados.',note_en:'Rear wiper: applicability unclear. Rear wiper per WW-40 (WW-40). Wire colour LG/B on both sides.',note_ja:'リヤワイパー：適用は不明。WW-40によるリヤワイパー（WW-40）。配線色は両側ともLG/B。'},
+      {id:'8G',code:'LG/B',ecm:null,lab:'RR-WASH',src:'E28·1',srcSub:'carroceria',circ:'rear_washer',vif:'body=coupe',note:'Solo Coupé. Lavaluneta trasero: motor del lavaluneta E28·1 → E108·8G → M15 → interruptor combinado M29·13, que pone el motor a masa al accionar el lavaluneta (el pin 2 del motor recibe 12 V del IPDM, terminal 44, fusible 84) (WW-40 / WW-41). Color LG/B en ambos lados.',note_en:'Coupe only. Rear washer: rear washer motor E28·1 → E108·8G → M15 → combination switch M29·13, which grounds the motor when you use the rear washer (motor pin 2 gets 12 V from IPDM terminal 44, fuse 84) (WW-40 / WW-41). Wire colour LG/B on both sides.',note_ja:'クーペのみ。リヤウォッシャー：リヤウォッシャーモーター E28·1 → E108·8G → M15 → コンビネーションスイッチ M29·13。ウォッシャー操作時にモーターをアースする（モーター2番はIPDM端子44・ヒューズ84から12V）（WW-40 / WW-41）。配線色は両側ともLG/B。'},
       {id:'9G',code:'W',ecm:null,lab:'BRK-LV',src:'E44·1',srcSub:'carroceria',circ:'brake_fluid',note:'Testigo de nivel de líquido de frenos: interruptor E44·1 → E108·9G → cuadro M19·15 (BRAKE) (DI-67). Color: lado E108 W, lado M15 W/L.',note_en:'Brake fluid level warning: switch E44·1 → E108·9G → combination meter M19·15 (BRAKE) (DI-67). Wire colour: E108 side W, M15 side W/L.',note_ja:'ブレーキ液量警告：スイッチ E44·1 → E108·9G → コンビネーションメーター M19·15（BRAKE）（DI-67）。配線色：E108側W、M15側W/L。'},
       {id:'10G',code:'—',ecm:null},
       {id:'11G',code:'—',ecm:null},
@@ -2829,9 +2823,9 @@ const CONN_BASE = {
   body_clima:{group:'body', sub:'carroceria', nest:'clima', name:'Climatización', meta:'sensor exterior E34 · ventilador · ATC', accent:'#29b6f6', shape:'note', faceRows:[['AMB','AMB-GND','BLW-GND']],
     pins:[{id:'AMB',code:'Y/G',ecm:null,lab:'AMB',src:'E34·1',srcSub:'carroceria',circ:'ambient'},{id:'AMB-GND',code:'W/G',ecm:null,lab:'AMB-GND',src:'E34·2',srcSub:'carroceria',circ:'ambient'},{id:'BLW-GND',code:'B',ecm:null,lab:'BLW-GND',src:'M62·3',srcSub:'carroceria',circ:'blower_gnd',vif:'nav=yes'}],
     note:'Sensor de temperatura exterior (E108/M15·32G/33G) y, con navegador, la masa del ventilador por B1/M12. El embrague del compresor está en la ficha F24.'},
-  body_limpia:{group:'body', sub:'carroceria', nest:'limpia', name:'Limpiaparabrisas', meta:'WW-12 · WW-40', accent:'#78909c', shape:'note', faceRows:[['WIPER','R-WIPE']],
-    pins:[{id:'WIPER',code:'P',ecm:null,lab:'WIPER',src:'WW-12',srcSub:'carroceria',circ:'front_wiper'},{id:'R-WIPE',code:'LG/B',ecm:null,lab:'R-WIPE',src:'WW-40',srcSub:'carroceria',circ:'rear_wiper',vif:'rwiper=yes'}],
-    note:'Cables del limpiaparabrisas que cruzan E108/M15. El trasero (WW-40) tiene aplicabilidad dudosa y depende del selector "Limpia trasero".'},
+  body_limpia:{group:'body', sub:'carroceria', nest:'limpia', name:'Limpiaparabrisas y lavaluneta', meta:'WW-12 · WW-40', accent:'#78909c', shape:'note', faceRows:[['WIPER','RR-WASH']],
+    pins:[{id:'WIPER',code:'P',ecm:null,lab:'WIPER',src:'WW-12',srcSub:'carroceria',circ:'front_wiper'},{id:'RR-WASH',code:'LG/B',ecm:null,lab:'RR-WASH',src:'E28·1',srcSub:'carroceria',circ:'rear_washer',vif:'body=coupe'}],
+    note:'Cables del limpiaparabrisas y del lavaluneta que cruzan E108/M15. El lavaluneta trasero (WW-40) es solo del Coupé.'},
   body_techo:{group:'body', sub:'carroceria', nest:'techo', name:'Techo blando (Roadster)', meta:'unidad B67 · RF-25/27', accent:'#5c6bc0', shape:'note', faceRows:[['IND','P/W-DN','TOP']], vif:'body=roadster',
     pins:[{id:'IND',code:'G/W',ecm:null,lab:'IND',src:'B67·35',srcSub:'carroceria',circ:'soft_top_ind'},{id:'P/W-DN',code:'Y/G',ecm:null,lab:'P/W-DN',src:'B67·36',srcSub:'carroceria',circ:'pw_down_req'},{id:'TOP',code:'W',ecm:null,lab:'TOP',src:'RF-27',srcSub:'carroceria',circ:'soft_top'}],
     note:'Solo Roadster: testigo del techo blando, pedido de bajar ventanilla y cables de la capota eléctrica por B1/M12.'},
@@ -2970,7 +2964,7 @@ function transView(){
 /* Equipment selectors. FSM GI-48 "Model Variation" only splits body (Coupe/Roadster), transmission and destination
    (USA/Canada); it names no trim levels, so options are chosen one by one (AV/BRC/SE/ATC/WW pages).
    Defaults = generic OEM coupe. Pins, cards and circuits may carry vif:"k=v1,v2&k2=v|k3=v" (OR of AND groups)
-   and altIf/altCode (wire colour that changes with equipment). Flat strings only: make_print_pack.py parses pins flat. */
+   and altIf/altCode (wire colour that changes with equipment), altSrcIf/altSrc and srcIf (destination line that changes with equipment). Flat strings only: make_print_pack.py parses pins flat. */
 const VARIANT_DIMS = {
   body:   {el:'bodyView',   ls:'z33_body',   vals:['coupe','roadster'], def:'coupe'},
   market: {el:'marketView', ls:'z33_market', vals:['usa','canada'],     def:'usa'},
@@ -2979,7 +2973,6 @@ const VARIANT_DIMS = {
   nav:    {el:'navView',    ls:'z33_nav',    vals:['no','yes'],         def:'no'},
   pseat:  {el:'pseatView',  ls:'z33_pseat',  vals:['no','yes'],         def:'no'},
   hseat:  {el:'hseatView',  ls:'z33_hseat',  vals:['no','yes'],         def:'no'},
-  rwiper: {el:'rwiperView', ls:'z33_rwiper', vals:['no','yes'],         def:'no'},
 };
 function variantView(){
   const v = { trans: transView() };
@@ -3019,6 +3012,9 @@ function variantGatePin(p, v){
   let q = p;
   if(q.byTrans && q.byTrans[v.trans]) q = Object.assign({}, q, q.byTrans[v.trans]);
   if(q.altIf && q.altCode && vifMatch(q.altIf, v)) q = Object.assign({}, q, { code:q.altCode });
+  /* Destination (top line) that changes with equipment: altSrcIf/altSrc swaps it; srcIf keeps it only where the FSM names that end. */
+  if(q.altSrcIf && q.altSrc && vifMatch(q.altSrcIf, v)) q = Object.assign({}, q, { src:q.altSrc });
+  if(q.srcIf && q.src && !vifMatch(q.srcIf, v)){ q = Object.assign({}, q); delete q.src; delete q.srcSub; }
   if(q.trans && q.trans !== v.trans) return transGatePin(q, v.trans);
   if(q.vif && !vifMatch(q.vif, v)){
     return { id:q.id, code:'—', ecm:null, lab:'', vifOff:q.vif, offCode:q.code || '', live:q,
@@ -3039,7 +3035,6 @@ const VIF_VAL_LABEL = {
   nav:{yes:{es:'navegador',en:'navigation',ja:'ナビ'}, no:{es:'sin navegador',en:'no navigation',ja:'ナビなし'}},
   pseat:{yes:{es:'asiento eléctrico',en:'power seat',ja:'パワーシート'}, no:{es:'sin asiento eléctrico',en:'no power seat',ja:'パワーシートなし'}},
   hseat:{yes:{es:'asientos calefactables',en:'heated seats',ja:'シートヒーター'}, no:{es:'sin asientos calefactables',en:'no heated seats',ja:'シートヒーターなし'}},
-  rwiper:{yes:{es:'limpiaparabrisas trasero',en:'rear wiper',ja:'リヤワイパー'}, no:{es:'sin limpiaparabrisas trasero',en:'no rear wiper',ja:'リヤワイパーなし'}},
   trans:{mt:{es:'M/T',en:'M/T',ja:'M/T'}, at:{es:'A/T',en:'A/T',ja:'A/T'}},
 };
 function optNeedLabel(pin, lg){
@@ -3137,7 +3132,7 @@ function f102Conf(){
 /** Pins with byTrans:{mt:{…},at:{…}} take the override for the current transmission (e.g. ASCD brake E110·2
     is L to the clutch switch on M/T, EC-628, but B/R to ECM 108 on A/T, EC-626). */
 function transPinsConf(conf){
-  if(!conf || !(conf.pins||[]).some(p => p && (p.byTrans || p.trans || p.vif || p.altIf))) return conf;
+  if(!conf || !(conf.pins||[]).some(p => p && (p.byTrans || p.trans || p.vif || p.altIf || p.altSrcIf || p.srcIf))) return conf;
   const vv = variantView();
   return Object.assign({}, conf, { pins: conf.pins.map(p => variantGatePin(p, vv)) });
 }
@@ -4191,6 +4186,19 @@ function svgB44(cid, f){
   </svg>`;
 }
 
+/** SMJ compacted ranges (e.g. 11J–27J): the cavities in that range that carry a wire on this car, or a dimmed optional one. */
+function smjWiredInRange(byId, from, to){
+  const num = (id) => parseInt(String(id), 10);
+  const suf = String(from).replace(/^\d+/, '');
+  const a = num(from), b = num(to), out = [];
+  for(let n = a; n <= b; n++){
+    const p = byId[n + suf];
+    if(!p) continue;
+    const live = p.live || p;
+    if(!isPseudoWireCode(live.code) || live.ecm != null || live.src) out.push(n + suf);
+  }
+  return out;
+}
 function svgB1(cid, f){
   /* B1 / M12 · PG-84 SMJ J-face — same band layout as E108 G, suffix J */
   const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
@@ -4211,6 +4219,18 @@ function svgB1(cid, f){
       cavities += `<rect x="${padX}" y="${y}" width="${W-2*padX}" height="${stubH}" rx="3" fill="#1a1f28" stroke="#455a64" stroke-width="1" stroke-dasharray="3 2" opacity="0.95"/>`;
       cavities += `<text x="${W/2}" y="${y+stubH/2+4}" text-anchor="middle" font-size="9" fill="#78909c" font-weight="700">${esc(band.label)}</text>`;
       y += stubH + bandGap;
+      /* Wired cavities inside a compacted range are still drawn (number order, 5 per row) so every used cavity shows its labels. */
+      const wired = smjWiredInRange(byId, band.stub[0], band.stub[1]);
+      if(wired.length){
+        for(let i = 0; i < wired.length; i += maxCols){
+          const row = wired.slice(i, i + maxCols);
+          const rowW = row.length*(cw+gap) - gap;
+          const x0 = padX + Math.floor((maxCols*(cw+gap)-gap - rowW)/2);
+          row.forEach((id,k)=>{ cavities += cavOrEmpty(cid, byId, id, x0+k*(cw+gap), y, cw, ch); });
+          y += ch + gap;
+        }
+        y += bandGap - gap;
+      }
       return;
     }
     band.rows.forEach(row=>{
@@ -4252,6 +4272,18 @@ function svgE108(cid, f){
       cavities += `<rect x="${padX}" y="${y}" width="${W-2*padX}" height="${stubH}" rx="3" fill="#1a1f28" stroke="#455a64" stroke-width="1" stroke-dasharray="3 2" opacity="0.95"/>`;
       cavities += `<text x="${W/2}" y="${y+stubH/2+4}" text-anchor="middle" font-size="9" fill="#78909c" font-weight="700">${esc(band.label)}</text>`;
       y += stubH + bandGap;
+      /* Wired cavities inside a compacted range are still drawn (number order, 5 per row) so every used cavity shows its labels. */
+      const wired = smjWiredInRange(byId, band.stub[0], band.stub[1]);
+      if(wired.length){
+        for(let i = 0; i < wired.length; i += maxCols){
+          const row = wired.slice(i, i + maxCols);
+          const rowW = row.length*(cw+gap) - gap;
+          const x0 = padX + Math.floor((maxCols*(cw+gap)-gap - rowW)/2);
+          row.forEach((id,k)=>{ cavities += cavOrEmpty(cid, byId, id, x0+k*(cw+gap), y, cw, ch); });
+          y += ch + gap;
+        }
+        y += bandGap - gap;
+      }
       return;
     }
     band.rows.forEach(row=>{
@@ -4468,7 +4500,6 @@ const I18N = {
     lblNav: 'Navegador',
     lblPseat: 'Asiento eléctrico',
     lblHseat: 'Asientos calefactables',
-    lblRwiper: 'Limpia trasero (dudoso)',
     optNo: 'No',
     optYes: 'Sí',
     modelEarly: 'VQ35DE · sin VTC escape',
@@ -4532,7 +4563,7 @@ const I18N = {
     selTopGroups: 'grupos',
     selTopLines: 'líneas',
     selTopSub: 'selección arriba · grupos completos abajo',
-    footer: 'Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio. Colores y pinouts según FSM EC/PG 2005 VQ35DE salvo donde se indique variante.',
+    footer: 'Mapa para el 350Z del mercado estadounidense (EE. UU. y Canadá); otros mercados (Fairlady Z japonés, Europa/Reino Unido, Australia) pueden tener otro cableado. Referencia OEM FSM · NicoClub / jdmfsm · no sustituye el manual de servicio. Colores y pinouts según FSM EC/PG 2005 VQ35DE salvo donde se indique variante.',
     legendNote: 'R/W = base/tracer (base / trazador)',
     infoEmpty: 'Click cualquier pin o ficha para ver la conexión completa.',
     unkPin: '—',
@@ -4684,7 +4715,6 @@ const I18N = {
     lblNav: 'Navigation',
     lblPseat: 'Power seat',
     lblHseat: 'Heated seats',
-    lblRwiper: 'Rear wiper (unclear)',
     optNo: 'No',
     optYes: 'Yes',
     modelEarly: 'VQ35DE · intake VTC only',
@@ -4748,7 +4778,7 @@ const I18N = {
     selTopGroups: 'groups',
     selTopLines: 'lines',
     selTopSub: 'selection on top · full groups below',
-    footer: 'OEM FSM reference · NicoClub / jdmfsm · not a substitute for the service manual. Colors & pinouts per 2005 VQ35DE FSM EC/PG unless noted.',
+    footer: 'Map for the US-market 350Z (USA/Canada); other markets (JDM Fairlady Z, Europe/UK, Australia) may be wired differently. OEM FSM reference · NicoClub / jdmfsm · not a substitute for the service manual. Colors & pinouts per 2005 VQ35DE FSM EC/PG unless noted.',
     legendNote: 'R/W = base/tracer',
     infoEmpty: 'Click any pin or connector card to see the full connection.',
     unkPin: '—',
@@ -4900,7 +4930,6 @@ const I18N = {
     lblNav: 'ナビ',
     lblPseat: 'パワーシート',
     lblHseat: 'シートヒーター',
-    lblRwiper: 'リヤワイパー（不明）',
     optNo: 'なし',
     optYes: 'あり',
     modelEarly: 'VQ35DE · 排気VTCなし',
@@ -4964,7 +4993,7 @@ const I18N = {
     selTopGroups: 'グループ',
     selTopLines: 'ライン',
     selTopSub: '選択を上に · 下に通常グループ',
-    footer: 'OEM FSM参照 · NicoClub / jdmfsm · サービスマニュアルの代用ではありません。色とピン配列は2005 VQ35DE FSM EC/PG準拠（注記がある場合を除く）。',
+    footer: '北米仕様（米国・カナダ）の350Z用マップです。他の市場（国内仕様フェアレディZ、欧州・英国、オーストラリア）では配線が異なる場合があります。OEM FSM参照 · NicoClub / jdmfsm · サービスマニュアルの代用ではありません。色とピン配列は2005 VQ35DE FSM EC/PG準拠（注記がある場合を除く）。',
     legendNote: 'R/W = ベース/トレーサー',
     infoEmpty: 'ピンまたはコネクタカードをクリックすると接続全体を表示します。',
     unkPin: '—',
@@ -5230,7 +5259,7 @@ const TITLES_I18N = {
   ambient: {en:'Outside air temperature sensor', ja:'外気温センサー'},
   blower_gnd: {en:'A/C blower · ground (with navigation)', ja:'ブロア · アース（ナビ車）'},
   front_wiper: {en:'Front wiper', ja:'フロントワイパー'},
-  rear_wiper: {en:'Rear wiper (applicability unclear)', ja:'リヤワイパー（適用不明）'},
+  rear_washer: {en:'Rear washer (Coupe)', ja:'リヤウォッシャー（クーペ）'},
   at_tcm_ign: {en:'A/T · TCM ignition feed', ja:'A/T · TCMイグニッション電源'},
   backup_lamp_at: {en:'A/T · back-up lamps', ja:'A/T · バックランプ'},
   start_at: {en:'A/T · starter relay', ja:'A/T · スタータリレー'},
@@ -5389,7 +5418,7 @@ const NOTES_I18N = {
   ambient: {en:'Outside air temperature sensor at the front of the car (E34). Its signal goes to the unified meter and A/C amp (terminal 39) through E108/M15·32G (Y/G) and its ground returns on 33G (W/G), a shared sensor ground. ATC-44, DI-32.', ja:'車両前部の外気温センサー（E34）。信号はE108/M15·32G（Y/G）経由でユニファイドメーター＆A/Cアンプ（端子39）へ、アースは33G（W/G、共通センサーアース）で戻る。ATC-44、DI-32。'},
   blower_gnd: {en:'With navigation only. The blower motor ground (M62·3) runs through B1/M12·1J and 6J (B) to ground point B5. ATC-42.', ja:'ナビ装着車のみ。ブロアモーターのアース（M62·3）はB1/M12·1Jと6J（B）を通りアースポイントB5へ。ATC-42。'},
   front_wiper: {en:'E108/M15·5G (P) is part of the front wiper circuit. WW-12 draws it but continues on another page without naming the ends.', ja:'E108/M15·5G（P）はフロントワイパー回路の一部。WW-12に記載されているが次頁へ続き、端子名は示されていない。'},
-  rear_wiper: {en:'WW-40 shows a rear wiper using E108/M15·8G (LG/B). It is unclear which cars this applies to, so it is behind the "Rear wiper" selector.', ja:'WW-40にE108/M15·8G（LG/B）を使うリヤワイパーが記載。適用車両が不明のため「リヤワイパー」選択で表示。'},
+  rear_washer: {en:'Coupe only (the FSM lists the rear wiper for Coupe models, BCS-9). The rear washer motor E28 gets 12 V on pin 2 (IPDM fuse 84, 10A, terminal 44, OR). Its pin 1 (LG/B) runs through E108/M15·8G to pin 13 of combination switch M29, which grounds it when you use the rear washer. The rear wiper motor D106 is in the back door harness and does not pass through E108. WW-40 / WW-41.', ja:'クーペのみ（FSMはリヤワイパーをクーペモデル用としている、BCS-9）。リヤウォッシャーモーターE28は2番でIPDMヒューズ84（10A、端子44、OR）から12Vを受ける。1番（LG/B）はE108/M15·8G経由でコンビネーションスイッチM29の13番へ行き、ウォッシャー操作時にアースされる。リヤワイパーモーターD106はバックドアハーネスにあり、E108を通らない。WW-40 / WW-41。'},
   at_tcm_ign: {en:'A/T only. The automatic transmission module (TCM) gets ignition from IPDM E7·26 (fuse 83, 10A) through E10/F1·4 (Y/R) to F6·6. Switched feed. AT-186.', ja:'A/T車のみ。A/Tコントロールモジュール（TCM）はIPDM E7·26（ヒューズ83、10A）からE10/F1·4（Y/R）経由でF6·6にイグニッション電源を受ける。スイッチ電源。AT-186。'},
   backup_lamp_at: {en:'A/T only. Automatic cars have no reverse switch on the gearbox: the TCM (F502·7 → F6·7 OR) switches the back-up lamp relay through E10/F1·2 (P on A/T) to E19·2, and the relay (E19·5) powers the lamps through E10/F1·6 (OR) → B1/M12·64J → T2/B44·12. AT-194, LT-182/184.', ja:'A/T車のみ。A/Tにはリバーススイッチがない：TCM（F502·7 → F6·7 OR）がE10/F1·2（A/TではP）経由でバックランプリレーE19·2を制御し、リレー（E19·5）がE10/F1·6（OR）→ B1/M12·64J → T2/B44·12でランプに給電。AT-194、LT-182/184。'},
   start_at: {en:'A/T only. The starter relay circuit runs between the IPDM (E9·53) and the TCM start relay terminal F6·9 through E10/F1·7 (GY/R), so the engine only cranks in P or N. On M/T this wire goes to the clutch interlock switch instead. SC-14.', ja:'A/T車のみ。スタータリレー回路はIPDM（E9·53）とTCMのスタートリレー端子F6·9の間をE10/F1·7（GY/R）経由で結び、PまたはNでのみクランキングする。M/Tではこの線はクラッチインターロックスイッチへ。SC-14。'},
@@ -5463,8 +5492,7 @@ function applyLang(){
    ['lblAudio','audioView',{base:'audioBase',bose:'audioBose'}],
    ['lblNav','navView',{no:'optNo',yes:'optYes'}],
    ['lblPseat','pseatView',{no:'optNo',yes:'optYes'}],
-   ['lblHseat','hseatView',{no:'optNo',yes:'optYes'}],
-   ['lblRwiper','rwiperView',{no:'optNo',yes:'optYes'}]].forEach(([lbl, sel, opts]) => {
+   ['lblHseat','hseatView',{no:'optNo',yes:'optYes'}]].forEach(([lbl, sel, opts]) => {
     setLabel(lbl, lbl);
     const s = document.getElementById(sel);
     if(s) Object.keys(opts).forEach(v => { const o = s.querySelector(`option[value="${v}"]`); if(o) o.textContent = t(opts[v]); });
@@ -6275,7 +6303,7 @@ const CONN_I18N = {
   body_audio: { en:{name:'Audio', meta:'audio unit M40 / M41 / M39 · Bose · AV', note:'Audio memory feed, speakers and (with Bose) amplifier control. The front speakers only cross B1/M12 outside the "BS" package or with Bose.'}, ja:{name:'オーディオ', meta:'オーディオM40 / M41 / M39 · Bose · AV', note:'オーディオのメモリー電源、スピーカー、（Bose車）アンプ制御。フロントスピーカーは「BS」以外またはBose車のみB1/M12を通る。'} },
   body_medidores: { en:{name:'Warning lights and gauges', meta:'meter M19 · DI', note:'Meter signals that cross the intermediate connectors: brake fluid level, parking brake and fuel level.'}, ja:{name:'警告灯 · メーター', meta:'メーターM19 · DI', note:'中間コネクターを通るメーター信号：ブレーキ液量、パーキングブレーキ、燃料レベル。'} },
   body_clima: { en:{name:'Climate control', meta:'ambient sensor E34 · blower · ATC', note:'Outside air temperature sensor (E108/M15·32G/33G) and, with navigation, the blower ground through B1/M12. The compressor clutch is on the F24 card.'}, ja:{name:'空調', meta:'外気温センサーE34 · ブロア · ATC', note:'外気温センサー（E108/M15·32G/33G）と、ナビ車はB1/M12経由のブロアアース。コンプレッサークラッチはF24カード。'} },
-  body_limpia: { en:{name:'Wipers', meta:'WW-12 · WW-40', note:'Wiper wires that cross E108/M15. The rear wiper (WW-40) has unclear applicability and depends on the "Rear wiper" selector.'}, ja:{name:'ワイパー', meta:'WW-12 · WW-40', note:'E108/M15を通るワイパー配線。リヤワイパー（WW-40）は適用不明で「リヤワイパー」選択に依存。'} },
+  body_limpia: { en:{name:'Wipers and rear washer', meta:'WW-12 · WW-40', note:'Wiper and rear washer wires that cross E108/M15. The rear washer (WW-40) is Coupe only.'}, ja:{name:'ワイパー・リヤウォッシャー', meta:'WW-12 · WW-40', note:'E108/M15を通るワイパーとリヤウォッシャーの配線。リヤウォッシャー（WW-40）はクーペのみ。'} },
   body_techo: { en:{name:'Soft top (Roadster)', meta:'control unit B67 · RF-25/27', note:'Roadster only: soft top indicator, window-down request and power top wires through B1/M12.'}, ja:{name:'ソフトトップ（ロードスター）', meta:'制御ユニットB67 · RF-25/27', note:'ロードスターのみ：ソフトトップ表示灯、窓下げ要求、B1/M12経由の電動幌配線。'} },
   body_at: { en:{name:'Automatic transmission · body side', meta:'A/T only · TCM F6 · AT-186/194/240', note:'A/T only: TCM ignition, relay-driven back-up lamps, starter relay, TCM K-line and shift lock.'}, ja:{name:'A/T · ボディ側', meta:'A/Tのみ · TCM F6 · AT', note:'A/Tのみ：TCMイグニッション、リレー式バックランプ、スタータリレー、TCMのKライン、シフトロック。'} },
   vdc_m51: { en:{name:'M51 · Yaw rate / side G sensor (VDC)', meta:'6 wires · E118 · BRC-101 · VDC only', note:'List of the six terminals of sensor M51 (not a drawing of the connector face). Each one goes to the VDC unit E118 through E108/M15·13G–18G. Colours are the M51/M15-side colours from BRC-101. VDC only.'}, ja:{name:'M51 · ヨーレート／横Gセンサー（VDC）', meta:'6線 · E118 · BRC-101 · VDCのみ', note:'センサーM51の6端子の一覧（コネクター面の図ではない）。各線はE108/M15·13G–18G経由でVDCユニットE118へ。色はBRC-101のM51/M15側。VDC装着車のみ。'} },
