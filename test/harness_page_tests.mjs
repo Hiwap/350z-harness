@@ -655,8 +655,9 @@ if (skipBrowser) {
   runNested('f102.mjs', path.join(__dirname, 'f102.mjs'));
   runNested('fsm_sig_click.mjs (FSM table: SIG clicks light no rail-only cavity)', path.join(__dirname, 'fsm_sig_click.mjs'));
   runNested('feedback.mjs (Send feedback button/dialog, offline)', path.join(__dirname, 'feedback.mjs'));
-  runNested('variants.mjs (equipment selectors: body / market / brakes / options)', path.join(__dirname, 'variants.mjs'));
+  runNested('variants.mjs (equipment selectors: body / brakes / options; Canada DTRL dimmed)', path.join(__dirname, 'variants.mjs'));
   runNested('ix_dest.mjs (every used intermediate cavity shows its destination line)', path.join(__dirname, 'ix_dest.mjs'));
+  runNested('outline_contrast.mjs (outline-mode labels readable on every wire colour)', path.join(__dirname, 'outline_contrast.mjs'));
 }
 
 console.log('---');

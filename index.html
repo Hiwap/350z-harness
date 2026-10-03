@@ -236,6 +236,21 @@
       -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff,
       0 0 2px rgba(255,255,255,.85);
   }
+  /* Outline mode (dark face + wire-coloured border): text crossing a Y / LG / W or B / BR border needs a
+     hard dark halo, like the coloured wire codes above. */
+  body:not([data-mode="solid"]) #blocks .pin .pn,
+  body:not([data-mode="solid"]) #blocks .pin .dest,
+  body:not([data-mode="solid"]) #blocks .pin .pw .pw-plain,
+  body:not([data-mode="solid"]) #f102Blocks .pin .pn,
+  body:not([data-mode="solid"]) #f102Blocks .pin .dest,
+  body:not([data-mode="solid"]) #f102Blocks .pin .pw .pw-plain {
+    text-shadow:
+      -1px -1px 0 #05070a, 1px -1px 0 #05070a, -1px 1px 0 #05070a, 1px 1px 0 #05070a,
+      -1.5px 0 0 #05070a, 1.5px 0 0 #05070a, 0 -1.5px 0 #05070a, 0 1.5px 0 #05070a,
+      0 0 3px #000;
+  }
+  /* B / BR borders vanish on the dark page in outline mode: thin grey keyline (same as .cav-keyline in fichas) */
+  body:not([data-mode="solid"]) .pin.dark-wire:not(.hl):not(.hl-end):not(.hl-group) { box-shadow: 0 0 0 1px #78909c; }
   /* Ficha cavity SVG labels: stronger stroke halo on solid fills */
   body[data-mode="solid"] .cav-ecm,
   body[data-mode="solid"] .cav-label,
@@ -1080,12 +1095,6 @@
           <option value="roadster">Roadster</option>
         </select>
       </label>
-      <label id="lblMarket">Mercado
-        <select id="marketView">
-          <option value="usa" selected>EE. UU.</option>
-          <option value="canada">Canadá</option>
-        </select>
-      </label>
       <label id="lblBrake">Frenos
         <select id="brakeView">
           <option value="abs" selected>ABS</option>
@@ -1295,10 +1304,39 @@ function fgForWireCav(w){
   const L = hexLum(w.c1);
   return L < 0.45 ? '#ffffff' : '#111';
 }
+/* Outline mode draws every cavity as a dark face (CAV_OUTLINE_BG) with a wire-coloured stroke, so label
+   text must read on that dark face AND where it crosses the stroke (Y / LG / W or B / BR outlines).
+   readableInk lifts a too-dark ink toward white until it reaches CAV_INK_MIN contrast on the face;
+   the halo is always dark (CAV_HALO) so light inks stay readable on light strokes. */
+const CAV_OUTLINE_BG = '#151a22';
+const CAV_HALO = '#05070a';
+const CAV_INK_MIN = 6;
+function contrastRatio(a, b){
+  const la = hexLum(a), lb = hexLum(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+function readableInk(hex, bg){
+  const base = bg || CAV_OUTLINE_BG;
+  let h = String(hex || '').replace('#','');
+  if(h.length === 3) h = h.split('').map(c => c+c).join('');
+  if(h.length !== 6 || /[^0-9a-f]/i.test(h)) return hex;
+  const rgb = [0, 2, 4].map(i => parseInt(h.slice(i, i+2), 16));
+  for(let t = 0; t <= 1.0001; t += 0.05){
+    const c = '#' + rgb.map(v => Math.round(v + (255 - v) * t).toString(16).padStart(2, '0')).join('');
+    if(contrastRatio(c, base) >= CAV_INK_MIN) return c;
+  }
+  return '#ffffff';
+}
+function outlineMode(){
+  return (document.body.dataset.mode || 'outlines') !== 'solid';
+}
 function svgInk(fill, withHalo){
   const f = fill || '#f5f5f5';
   // !important beats stylesheet fills; halo = outline only (no background pill)
   if(!withHalo) return `style="fill:${f} !important"`;
+  if(outlineMode()){
+    return `style="fill:${readableInk(f)} !important;stroke:${CAV_HALO};stroke-width:1.6px;paint-order:stroke fill;stroke-linejoin:round"`;
+  }
   const lightInk = hexLum(f) >= 0.5;
   const stroke = lightInk ? '#000' : '#fff';
   const solid = (document.body.dataset.mode || 'outlines') === 'solid';
@@ -1357,7 +1395,10 @@ function wireCodeSvg(code, x, y, cls, withHalo, strokeW){
   const sw = strokeW == null ? (solid ? 1.55 : 1.4) : (solid ? Math.max(strokeW, 1.35) : strokeW);
   const tspans = parts.map(p => {
     let st;
-    if(!forceHalo){
+    if(withHalo !== false && !solid){
+      /* outline mode: dark halo so the code reads where it crosses a light (Y/LG/W) stroke */
+      st = `fill:${readableInk(p.c)} !important;stroke:${CAV_HALO};stroke-width:${Math.max(sw, 1.6)}px;paint-order:stroke fill;stroke-linejoin:round;stroke-linecap:round`;
+    } else if(!forceHalo){
       st = `fill:${p.c} !important`;
     } else {
       st = wireCodeSvgInk(p.c, sw);
@@ -2987,15 +3028,17 @@ function transView(){
    and altIf/altCode (wire colour that changes with equipment), altSrcIf/altSrc and srcIf (destination line that changes with equipment). Flat strings only: make_print_pack.py parses pins flat. */
 const VARIANT_DIMS = {
   body:   {el:'bodyView',   ls:'z33_body',   vals:['coupe','roadster'], def:'coupe'},
-  market: {el:'marketView', ls:'z33_market', vals:['usa','canada'],     def:'usa'},
   brake:  {el:'brakeView',  ls:'z33_brake',  vals:['abs','tcs','vdc'],  def:'abs'},
   audio:  {el:'audioView',  ls:'z33_audio',  vals:['base','bose'],      def:'base'},
   nav:    {el:'navView',    ls:'z33_nav',    vals:['no','yes'],         def:'no'},
   pseat:  {el:'pseatView',  ls:'z33_pseat',  vals:['no','yes'],         def:'no'},
   hseat:  {el:'hseatView',  ls:'z33_hseat',  vals:['no','yes'],         def:'no'},
 };
+/* Fixed dimensions with no selector: the map is the USA car; Canada-only cavities (vif market=canada, the
+   daytime running lights) stay drawn dimmed with a "Canada only" tooltip, like unselected options. */
+const VARIANT_FIXED = { market:'usa' };
 function variantView(){
-  const v = { trans: transView() };
+  const v = Object.assign({ trans: transView() }, VARIANT_FIXED);
   Object.keys(VARIANT_DIMS).forEach(k => {
     const d = VARIANT_DIMS[k];
     const el = document.getElementById(d.el);
@@ -3025,6 +3068,12 @@ const VARIANT_OFF = {
   en:'Not used with the selected equipment. ',
   ja:'選択中の装備では使われない。'
 };
+/* Canada-only cavities (no market selector): the map shows the USA car. */
+const VARIANT_OFF_CANADA = {
+  es:'No se usa en el auto de EE. UU. ',
+  en:'Not used on the USA car. ',
+  ja:'米国仕様では使われない。'
+};
 /** Pin as it is on the selected car: byTrans override, equipment colour (altIf), then empty if the
     transmission (trans) or equipment (vif) does not match. */
 function variantGatePin(p, v){
@@ -3037,10 +3086,11 @@ function variantGatePin(p, v){
   if(q.srcIf && q.src && !vifMatch(q.srcIf, v)){ q = Object.assign({}, q); delete q.src; delete q.srcSub; }
   if(q.trans && q.trans !== v.trans) return transGatePin(q, v.trans);
   if(q.vif && !vifMatch(q.vif, v)){
+    const off = q.vif === 'market=canada' ? VARIANT_OFF_CANADA : VARIANT_OFF;
     return { id:q.id, code:'—', ecm:null, lab:'', vifOff:q.vif, offCode:q.code || '', live:q,
-      note: VARIANT_OFF.es + (q.note || ''),
-      note_en: VARIANT_OFF.en + (q.note_en || q.note || ''),
-      note_ja: VARIANT_OFF.ja + (q.note_ja || q.note_en || q.note || '') };
+      note: off.es + (q.note || ''),
+      note_en: off.en + (q.note_en || q.note || ''),
+      note_ja: off.ja + (q.note_ja || q.note_en || q.note || '') };
   }
   return q;
 }
@@ -3072,6 +3122,8 @@ function optNeedLabel(pin, lg){
     need = word('trans', pin.transOff);
   }
   if(!need) return '';
+  /* Canada-only (no market selector): the daytime running light (DTRL) cavities */
+  if(pin && pin.vifOff === 'market=canada') return { es:'solo Canadá (luces diurnas)', en:'Canada only (daytime running lights)', ja:'カナダ仕様のみ（デイライト）' }[L] || 'solo Canadá (luces diurnas)';
   return L === 'en' ? `only with ${need}` : (L === 'ja' ? `${need}装着車のみ` : `solo con ${need}`);
 }
 /** Gated pin drawn exactly like the live pin (FSM colour + top / bottom label lines), dimmed by the caller;
@@ -3395,6 +3447,10 @@ function cavGroup(cid, pin, x, y, w, h, rx){
         fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
     : '';
   const mode = document.body.dataset.mode || 'outlines';
+  /* B / BR / dark strokes vanish on the dark shell in outline mode: thin grey keyline just outside them */
+  const keyline = (mode !== 'solid' && !isUnk && code && contrastRatio(sc, CAV_OUTLINE_BG) < 2)
+    ? `<rect class="cav-keyline" x="${x-1.6}" y="${y-1.6}" width="${w+3.2}" height="${h+3.2}" rx="${rx0+1.4}" fill="none" stroke="#78909c" stroke-width="0.8" pointer-events="none"${optOff ? ` opacity="${OPT_OFF_OPACITY}"` : ''}/>`
+    : '';
   /* Face order: ECM top · wire mid · rail (5V/12V/GND) or cavity id bottom */
   const disp = isUnk ? String(pin.id) : cavBottomLabel(pin);
   const lc = mode === 'solid' ? '' : cavRailBottomClass(pin);
@@ -3426,7 +3482,8 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const cavCls = (h < 30 ? ' cav-compact' : '') + (isUnk ? ' cav-unknown' : '') + (noClick ? ' cav-noclick' : '') + (optOff ? ' cav-opt-off' : '');
   const optAttr = optOff ? ` opacity="${OPT_OFF_OPACITY}" data-opt-off="${esc(optNeed)}"` : '';
   const optTitle = optNeed ? `<title>${esc(optNeed)}</title>` : '';
-  return `<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr}${optAttr}${noClick ? '' : ' role="button"'}>
+  /* keyline sits just before the group (outside it) so the cavity's own box / face-row geometry is unchanged */
+  return `${keyline}<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr}${optAttr}${noClick ? '' : ' role="button"'}>
     ${optTitle}${defs}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
@@ -4507,9 +4564,6 @@ const I18N = {
     lblBody: 'Carrocería',
     bodyCoupe: 'Coupé',
     bodyRoadster: 'Roadster',
-    lblMarket: 'Mercado',
-    marketUsa: 'EE. UU.',
-    marketCanada: 'Canadá',
     lblBrake: 'Frenos',
     brakeAbs: 'ABS',
     brakeTcs: 'ABS + TCS',
@@ -4722,9 +4776,6 @@ const I18N = {
     lblBody: 'Body',
     bodyCoupe: 'Coupe',
     bodyRoadster: 'Roadster',
-    lblMarket: 'Market',
-    marketUsa: 'USA',
-    marketCanada: 'Canada',
     lblBrake: 'Brakes',
     brakeAbs: 'ABS',
     brakeTcs: 'ABS + TCS',
@@ -4937,9 +4988,6 @@ const I18N = {
     lblBody: 'ボディ',
     bodyCoupe: 'クーペ',
     bodyRoadster: 'ロードスター',
-    lblMarket: '仕向地',
-    marketUsa: '米国',
-    marketCanada: 'カナダ',
     lblBrake: 'ブレーキ',
     brakeAbs: 'ABS',
     brakeTcs: 'ABS + TCS',
@@ -5507,7 +5555,6 @@ function applyLang(){
     if(oAt) oAt.textContent = t('transAt');
   }
   [['lblBody','bodyView',{coupe:'bodyCoupe',roadster:'bodyRoadster'}],
-   ['lblMarket','marketView',{usa:'marketUsa',canada:'marketCanada'}],
    ['lblBrake','brakeView',{abs:'brakeAbs',tcs:'brakeTcs',vdc:'brakeVdc'}],
    ['lblAudio','audioView',{base:'audioBase',bose:'audioBose'}],
    ['lblNav','navView',{no:'optNo',yes:'optYes'}],
@@ -5640,6 +5687,7 @@ function makePinEl(p){
   }
   d.style.setProperty('--pin-fg', fgForWire(wcol));
   if(LIGHT_FILLS.has(wcol.c1) && !wcol.tracer) d.classList.add('light-wire');
+  if(contrastRatio(wcol.c1, CAV_OUTLINE_BG) < 2) d.classList.add('dark-wire');
   const dest = ecmBottomLabel(p);
   const lc = dest ? labClass(dest) : '';
   if(dest) d.classList.add('has-dest');
@@ -5679,6 +5727,7 @@ function makeF102PinEl(pin){
   const rail = cavRailOf(pin);
   if(rail && !optOff) d.dataset.rail = rail;
   d.style.borderColor = hasWire ? wcol.c1 : '#333';
+  if(hasWire && contrastRatio(wcol.c1, CAV_OUTLINE_BG) < 2) d.classList.add('dark-wire');
   if(hasWire && wcol.tracer){
     d.classList.add('has-tracer');
     d.style.setProperty('--tracer', wcol.c2);

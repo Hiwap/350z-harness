@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 /**
- * Equipment selectors (body / market / brakes / audio / navigation / power seat / heated seats / rear wiper).
+ * Equipment selectors (body / brakes / audio / navigation / power seat / heated seats).
  * FSM GI-48 splits only body (Coupe/Roadster), transmission and destination (USA/Canada) and names no trims,
- * so options are separate dropdowns. Defaults = generic OEM coupe (Coupe, USA, ABS, base audio, no options).
+ * so options are separate dropdowns. Defaults = generic OEM coupe (Coupe, ABS, base audio, no options).
+ * No market selector: the map is the USA car (VARIANT_FIXED market=usa); the Canada-only DTRL cavities
+ * stay drawn dimmed (OPT_OFF_OPACITY), clickable, with a "solo Canadá (luces diurnas)" tooltip.
  *  - static: every select matches VARIANT_DIMS (values + default), vif/altIf use only known keys/values,
  *    vifMatch semantics, every body pin's circ exists and every circuit path cavity exists on its card
  *  - browser: defaults hide equipment-only cavities/cards, each selector shows/hides them, persists in
@@ -39,8 +41,10 @@ const script = HTML.match(/<script>([\s\S]*?)<\/script>/)[1];
 const dimsSrc = script.match(/const VARIANT_DIMS = (\{[\s\S]*?\n\});/)[1];
 const DIMS = vm.runInNewContext('(' + dimsSrc + ')');
 const KEYS = Object.keys(DIMS);
-ok('VARIANT_DIMS = body, market, brake, audio, nav, pseat, hseat (no rear-wiper selector: the rear washer is Coupe, BCS-9)', KEYS.join(',') === 'body,market,brake,audio,nav,pseat,hseat', KEYS.join(','));
-const DEF = { body: 'coupe', market: 'usa', brake: 'abs', audio: 'base', nav: 'no', pseat: 'no', hseat: 'no' };
+ok('VARIANT_DIMS = body, brake, audio, nav, pseat, hseat (no rear-wiper selector: the rear washer is Coupe, BCS-9; no market selector)', KEYS.join(',') === 'body,brake,audio,nav,pseat,hseat', KEYS.join(','));
+const DEF = { body: 'coupe', brake: 'abs', audio: 'base', nav: 'no', pseat: 'no', hseat: 'no' };
+const FIXED = vm.runInNewContext('(' + script.match(/const VARIANT_FIXED = (\{[^\n]*?\});/)[1] + ')');
+ok('market is fixed (VARIANT_FIXED market=usa) with no selector, label or strings left', FIXED.market === 'usa' && !/marketView|lblMarket|marketUsa|marketCanada|z33_market/.test(HTML), JSON.stringify(FIXED));
 for (const k of KEYS) {
   const d = DIMS[k];
   ok(`${k}: default = generic OEM coupe (${DEF[k]})`, d.def === DEF[k], d.def);
@@ -77,6 +81,7 @@ const CIRC = Object.fromEntries(c3.R.concat(c3.R2).map((c) => [c.id, c]));
 const checkVif = (expr) => !expr || String(expr).split('|').every((g) => g.split('&').every((t) => {
   const [k, vals] = t.split('=');
   if (k === 'trans') return vals.split(',').every((v) => v === 'mt' || v === 'at');
+  if (k === 'market') return vals.split(',').every((v) => v === 'usa' || v === 'canada');
   return DIMS[k] && vals.split(',').every((v) => DIMS[k].vals.includes(v));
 }));
 const badVif = [];
@@ -135,7 +140,7 @@ const st = () => page.evaluate(() => {
   };
 });
 let s = await st();
-ok('defaults: Coupe / USA / ABS / base audio / no options', JSON.stringify(s.vals) === JSON.stringify(DEF), JSON.stringify(s.vals));
+ok('defaults: Coupe / ABS / base audio / no options', JSON.stringify(s.vals) === JSON.stringify(DEF), JSON.stringify(s.vals));
 ok('defaults: Carrocería ABS card shown; VDC sensor M51 and Roadster soft top hidden', s.abs && !s.m51 && !s.techo, JSON.stringify([s.abs, s.m51, s.techo]));
 ok('defaults: VDC-only E108·13G empty, with an explanation', s.g13 === '—' && /Not used with the selected equipment/.test(s.note13), s.g13 + ' ' + s.note13.slice(0, 60));
 ok('defaults: no VDC/TCS/Roadster/Canada/option circuits', !['vdc_yaw', 'vdc_off', 'soft_top', 'dtrl_pkb', 'heated_seat', 'blower_gnd', 'pseat_bat', 'audio_bose_ctl'].some((c) => s.circs.includes(c)));
@@ -153,9 +158,21 @@ await sel('brakeView', 'abs');
 await sel('bodyView', 'roadster'); s = await st();
 ok('Roadster: soft top card + 46J W shown; Coupe back door switch T2·2 empty; defogger E106·12 is G', s.techo && s.j46 === 'W' && s.t2 === '—' && s.b12 === 'G', JSON.stringify([s.techo, s.j46, s.t2, s.b12]));
 await sel('bodyView', 'coupe');
-await sel('marketView', 'canada'); s = await st();
-ok('Canada: DTRL E106·6 G + dtrl circuits', s.b6 === 'G' && s.circs.includes('dtrl_pkb') && s.circs.includes('dtrl_alt'), s.b6);
-await sel('marketView', 'usa');
+const canada = await page.evaluate(() => {
+  const cell = (c, v) => { const g = document.querySelector(`.cav-hit[data-conn="${c}"][data-cav="${v}"]`); return g ? { off: g.classList.contains('cav-opt-off'), op: Number(g.getAttribute('opacity')), tip: (g.querySelector('title') || {}).textContent || '', code: ((g.querySelector('.cav-code') || {}).textContent || '').replace(/\s/g, ''), click: cavClickable(c, variantGatePin(CONN[c].pins.find((p) => p.id === v), variantView())) } : null; };
+  return { b6: cell('ix_e106_b2', '6'), g62: cell('ix_e108_m15', '62G'), pkb: cell('body_luces', 'DT-PKB'), alt: cell('body_luces', 'DT-ALT'), h13: f102PinEl('13H') && f102PinEl('13H').classList.contains('opt-off') };
+});
+const dimOk = (c, code) => !!c && c.off && c.op === 0.35 && c.tip === 'solo Canadá (luces diurnas)' && c.code === code && c.click;
+ok('Canada DTRL (no selector): E106·6 G, E108·62G W/R, Luces DT-PKB / DT-ALT drawn dimmed at 0.35, clickable, tooltip "solo Canadá (luces diurnas)"',
+  dimOk(canada.b6, 'G') && dimOk(canada.g62, 'W/R') && dimOk(canada.pkb, 'G') && dimOk(canada.alt, 'W/R'), JSON.stringify(canada));
+ok('F102·13H (alternator L, shared with the USA charge lamp) is not dimmed', canada.h13 === false, String(canada.h13));
+await page.evaluate(() => { clearSelection(); document.querySelector('.cav-hit[data-conn="ix_e108_m15"][data-cav="62G"]').dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+const c62 = await page.evaluate(() => ({ info: document.getElementById('info').textContent, hl: document.querySelector('.cav-hit[data-conn="ix_e108_m15"][data-cav="62G"]').classList.contains('hl'), alt: !!document.querySelector('.cav-hit[data-conn="f20_alt"][data-cav="3"].hl, .cav-hit[data-conn="f20_alt"][data-cav="3"].hl-group') }));
+ok('clicking dimmed E108·62G lights it + the DTRL path to alternator F20·3; info says Canada only', c62.hl && c62.alt && /Solo Canadá/.test(c62.info), JSON.stringify(c62).slice(0, 300));
+await page.evaluate(() => clearSelection());
+const tips = {};
+for (const lg of ['en', 'ja', 'es']) { await sel('lang', lg); tips[lg] = await page.evaluate(() => (document.querySelector('.cav-hit[data-conn="ix_e106_b2"][data-cav="6"] title') || {}).textContent); }
+ok('Canada tooltip es/en/ja', tips.es === 'solo Canadá (luces diurnas)' && tips.en === 'Canada only (daytime running lights)' && tips.ja === 'カナダ仕様のみ（デイライト）', JSON.stringify(tips));
 await sel('audioView', 'bose'); s = await st();
 ok('Bose: amp-ON circuit + front speaker 23J W/LG', s.circs.includes('audio_bose_ctl') && s.j23 === 'W/LG', s.j23);
 await sel('audioView', 'base');

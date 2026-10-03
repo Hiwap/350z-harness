@@ -98,7 +98,7 @@ const stale = Object.keys(BLANK).filter((k) => !data.seenBlank.includes(k));
 ok('data: BLANK list has no stale entries (each listed cavity is really blank somewhere)', stale.length === 0, stale.join(', '));
 
 /* ---------- DOM: default + each option on its own ---------- */
-const sels = await page.evaluate(() => ['model', 'loomView', 'transView', 'bodyView', 'marketView', 'brakeView', 'audioView', 'navView', 'pseatView', 'hseatView']
+const sels = await page.evaluate(() => ['model', 'loomView', 'transView', 'bodyView', 'brakeView', 'audioView', 'navView', 'pseatView', 'hseatView']
   .map((id) => { const s = document.getElementById(id); return [id, s.value, [...s.options].map((o) => o.value)]; }));
 const views = [['default', {}]];
 for (const [id, def, opts] of sels) for (const o of opts) if (o !== def) views.push([`${id}=${o}`, { [id]: o }]);
