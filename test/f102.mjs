@@ -551,7 +551,7 @@ async function setTrans(v) {
   await page.waitForFunction((v) => typeof transView === 'function' && transView() === v, {}, v);
 }
 async function routeTags() {
-  return page.$$eval('#info .path-route', (els) => els.map((e) => ({ rail: e.dataset.rail, text: e.innerText.replace(/\s+/g, ' ') })));
+  return page.$$eval('#info .path-route, .sel-desc .path-route', (els) => els.map((e) => ({ rail: e.dataset.rail, text: e.innerText.replace(/\s+/g, ' ') })));
 }
 await setTrans('mt');
 await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
@@ -646,7 +646,7 @@ for (const [lang, gndTxt, pwrTxt] of [['es', 'Masa', 'Alim. 12V'], ['en', 'Groun
   ok(t62.some((x) => x.rail === '12v' && x.text.startsWith(pwrTxt)), `${lang}: coil pin 62 keeps "${pwrTxt}" tag`);
   await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
   await clickPin(15);
-  const info15 = await page.$eval('#info', (el) => el.innerText);
+  const info15 = await page.evaluate(() => selectionInfoText());
   ok(!/SNS GND/.test(info15) && /116/.test(info15) && /F152/.test(info15), `${lang}: knock (15) shield → ECM 116 B/R → F152, no SNS GND`);
 }
 await page.select('#lang', 'es');

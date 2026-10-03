@@ -591,6 +591,12 @@
   .info { margin-top: 10px; font-size: 12px; line-height: 1.45; color: #cfd8dc; min-height: 70px;
     border-top: 1px solid var(--border); padding-top: 8px; }
   .info b { color: #fff; }
+  .info .info-short { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Selection description: the long click text (circuit notes, route, pin note) lives in the card, not the info line */
+  .sel-desc { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); font-size: 12px; line-height: 1.45; color: #cfd8dc; }
+  .sel-desc .sel-desc-h { font-weight: 600; color: #ffd54f; margin-bottom: 2px; }
+  .sel-desc b { color: #fff; }
+  .f102-panel > .sel-desc { margin: 6px 8px 8px; }
 
   /* F102 interactive verified pin grid (collapsible; idle = collapsed) */
   #ecm details.f102-panel {
@@ -4633,6 +4639,7 @@ const I18N = {
     lblLang: 'Idioma',
     collapseIdle: 'Colapsar grupos sin selección',
     railRelTitle: 'Relacionados',
+    selDesc: 'Descripción',
     railRelGnd: 'Tierras',
     railRelPower: 'Alim.',
     railRelData: 'Datos',
@@ -4845,6 +4852,7 @@ const I18N = {
     lblLang: 'Language',
     collapseIdle: 'Collapse groups with no selection',
     railRelTitle: 'Related',
+    selDesc: 'Description',
     railRelGnd: 'Grounds',
     railRelPower: 'Power',
     railRelData: 'Data',
@@ -5057,6 +5065,7 @@ const I18N = {
     lblLang: '言語',
     collapseIdle: '未選択グループを折りたたむ',
     railRelTitle: '関連',
+    selDesc: '説明',
     railRelGnd: 'アース',
     railRelPower: '電源',
     railRelData: 'データ',
@@ -7268,6 +7277,7 @@ function clearSelection(){
   lastCircIds = [];
   activeRails.clear(); updateRailButtons();
   clearHL();
+  clearSelDesc();
   const info = document.getElementById('info');
   if(info){
     delete info.dataset.locked;
@@ -8310,7 +8320,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     });
   }
   const pinInfo = focusPin!=null
-    ? `<div style="margin-bottom:6px"><b>${esc(t('pinEcm'))} ${focusPin}</b> · ${pinName(focusPin)||''} · <code>${PIN_COL[focusPin]||'—'}</code></div>`
+    ? `<div class="info-pin" style="margin-bottom:6px"><b>${esc(t('pinEcm'))} ${focusPin}</b> · ${pinName(focusPin)||''} · <code>${PIN_COL[focusPin]||'—'}</code></div>`
     : '';
   const infoEl=document.getElementById('info'); infoEl.dataset.locked='1'; infoEl.innerHTML = pinInfo + lines.join('');
   revealConns([...connSet], { collapseF102 });
@@ -8686,6 +8696,101 @@ function selectConnPin(cid, cavId, opts){
     selFocusPin = null;
   }
 }
+
+/* ---- Short click line + description in the card ----
+   The info line under the ECM grid keeps ONE short line (pin / cavity, colour, destination). Everything the
+   selection used to print there (circuit titles + notes, F102 line, route tags, pin note, option note) moves,
+   unchanged, into a "Descripción" block inside the clicked card (ECM pin click: the card that carries that pin;
+   F102 cavity: the F102 panel). Nothing is dropped: with no card to hold it, it stays under the short line. */
+function clearSelDesc(){
+  document.querySelectorAll('.sel-desc').forEach(el => el.remove());
+}
+function selDescHostFor(cid){
+  if(cid === 'ix_f102_m72') return [document.getElementById('f102Panel')].filter(Boolean);
+  return [...document.querySelectorAll(`#fichas .ficha[data-conn="${CSS.escape(cid)}"]`)];
+}
+const SEL_DESC_DEVICE_SUB = new Set(['sensors', 'actuators', 'bobinas', 'inyectores', 'pedals']);
+function selDescCardForEcm(n){
+  const carriers = [];
+  Object.entries(CONN).forEach(([cid, conf]) => {
+    if(SKIP_SEL_CONN.has(cid)) return;
+    if(!(conf.pins || []).some(q => q.ecm != null && q.ecm !== '' && Number(q.ecm) === n)) return;
+    if(!selDescHostFor(cid).length) return;
+    carriers.push(cid);
+  });
+  const lit = carriers.filter(cid => document.querySelector(`#fichas .ficha[data-conn="${CSS.escape(cid)}"].hl, #fichas .ficha-wrap[data-conn="${CSS.escape(cid)}"].hl`));
+  const pool = lit.length ? lit : carriers;
+  return pool.find(cid => SEL_DESC_DEVICE_SUB.has((CONN[cid] || {}).sub))
+    || pool.find(cid => cid !== 'ix_f102_m72') || pool[0] || null;
+}
+function selShortDest(cid, pin){
+  if(!pin) return '';
+  if(pin.ecm != null && pin.ecm !== '') return `ECM ${pin.ecm}`;
+  if(pin.src) return String(pin.src);
+  const cir = pin.circ ? CIRCUITS.find(c => c.id === pin.circ) : null;
+  return cir ? circuitTitle(cir) : '';
+}
+function compactSelectionInfo(){
+  const info = document.getElementById('info');
+  clearSelDesc();
+  if(!info || !selKey || info.dataset.railMode === '1') return;
+  const key = String(selKey);
+  let shortHtml = ''; let host = null; let skipLong = false;
+  if(key.startsWith('pin:')){
+    const n = Number(key.slice(4));
+    host = selDescCardForEcm(n);
+    const dest = host ? (host === 'ix_f102_m72' ? 'F102' : connShortLabel(host)) : '';
+    shortHtml = `<b>${esc(t('pinEcm'))} ${n}</b> · ${esc(pinName(n) || '')} · <code>${esc(PIN_COL[n] || '—')}</code>${dest ? ` → ${esc(dest)}` : ''}`;
+  } else if(key.startsWith('cav:')){
+    const rest = key.slice(4); const i = rest.indexOf(':');
+    const cid = rest.slice(0, i); const cavId = rest.slice(i + 1);
+    const conf = CONN[cid] || CONN_BASE[cid];
+    const pin0 = (conf && conf.pins || []).find(x => String(x.id) === String(cavId));
+    const pin = pin0 && (pin0.vifOff || pin0.transOff) ? (livePinOf(pin0) || pin0) : pin0;
+    const need = pin0 && (pin0.vifOff || pin0.transOff) ? optNeedLabel(pin0) : '';
+    const dest = pin && pin.unknown ? '?' : selShortDest(cid, pin);
+    host = cid;
+    shortHtml = `<b>${esc(connShortLabel(cid))}·${esc(String(cavId))}</b>${pin && pin.code ? ` · <code>${esc(pin.code)}</code>` : ''}${dest ? ` → ${esc(dest)}` : ''}${need ? ` · <i>${esc(need)}</i>` : ''}`;
+  } else if(key.startsWith('conn:')){
+    const cid = key.slice(5);
+    const conf = CONN[cid] || CONN_BASE[cid];
+    host = cid;
+    shortHtml = `<b>${esc(conf ? connField(cid, conf, 'name') : cid)}</b>`;
+    /* no circuit: the info only repeated the card's own name / meta / note, which the card already shows */
+    skipLong = !(connToCirc[cid] || []).length && cid !== 'ix_f102_m72';
+  } else return;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = info.innerHTML;
+  /* ECM pin click: the pin line is the short line itself; cavity click: the ECM pin name stays in the description */
+  tmp.querySelectorAll(key.startsWith('pin:') ? '.info-pin, .info-short' : '.info-short').forEach(el => el.remove());
+  const longHtml = tmp.innerHTML.trim();
+  info.innerHTML = `<div class="info-short">${shortHtml}</div>`;
+  if(!longHtml || skipLong) return;
+  const hosts = host ? selDescHostFor(host) : [];
+  if(!hosts.length){ info.innerHTML += `<div class="info-long">${longHtml}</div>`; return; }
+  hosts.forEach(h => {
+    const d = document.createElement('div');
+    d.className = 'sel-desc';
+    d.innerHTML = `<div class="sel-desc-h">${esc(t('selDesc'))}</div>${longHtml}`;
+    h.appendChild(d);
+  });
+}
+/** Short line + description text of the current selection (tests, copy). */
+function selectionInfoText(){
+  const info = document.getElementById('info');
+  const d = document.querySelector('.sel-desc');
+  return ((info && info.textContent) || '') + ' ' + ((d && d.textContent) || '');
+}
+function withCompactInfo(fn){
+  return function(...args){
+    const r = fn.apply(this, args);
+    compactSelectionInfo();
+    return r;
+  };
+}
+selectPin = withCompactInfo(selectPin);
+selectConnPin = withCompactInfo(selectConnPin);
+selectConn = withCompactInfo(selectConn);
 
 function applyModel(){
   const model = document.getElementById('model').value;

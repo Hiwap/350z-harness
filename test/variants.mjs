@@ -167,7 +167,7 @@ ok('Canada DTRL (no selector): E106·6 G, E108·62G W/R, Luces DT-PKB / DT-ALT d
   dimOk(canada.b6, 'G') && dimOk(canada.g62, 'W/R') && dimOk(canada.pkb, 'G') && dimOk(canada.alt, 'W/R'), JSON.stringify(canada));
 ok('F102·13H (alternator L, shared with the USA charge lamp) is not dimmed', canada.h13 === false, String(canada.h13));
 await page.evaluate(() => { clearSelection(); document.querySelector('.cav-hit[data-conn="ix_e108_m15"][data-cav="62G"]').dispatchEvent(new MouseEvent('click', { bubbles: true })); });
-const c62 = await page.evaluate(() => ({ info: document.getElementById('info').textContent, hl: document.querySelector('.cav-hit[data-conn="ix_e108_m15"][data-cav="62G"]').classList.contains('hl'), alt: !!document.querySelector('.cav-hit[data-conn="f20_alt"][data-cav="3"].hl, .cav-hit[data-conn="f20_alt"][data-cav="3"].hl-group') }));
+const c62 = await page.evaluate(() => ({ info: selectionInfoText(), hl: document.querySelector('.cav-hit[data-conn="ix_e108_m15"][data-cav="62G"]').classList.contains('hl'), alt: !!document.querySelector('.cav-hit[data-conn="f20_alt"][data-cav="3"].hl, .cav-hit[data-conn="f20_alt"][data-cav="3"].hl-group') }));
 ok('clicking dimmed E108·62G lights it + the DTRL path to alternator F20·3; info says Canada only', c62.hl && c62.alt && /Solo Canadá/.test(c62.info), JSON.stringify(c62).slice(0, 300));
 await page.evaluate(() => clearSelection());
 const tips = {};

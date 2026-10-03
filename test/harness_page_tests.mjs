@@ -658,6 +658,7 @@ if (skipBrowser) {
   runNested('variants.mjs (equipment selectors: body / brakes / options; Canada DTRL dimmed)', path.join(__dirname, 'variants.mjs'));
   runNested('ix_dest.mjs (every used intermediate cavity shows its destination line)', path.join(__dirname, 'ix_dest.mjs'));
   runNested('outline_contrast.mjs (outline-mode labels readable on every wire colour)', path.join(__dirname, 'outline_contrast.mjs'));
+  runNested('popup_short.mjs (click info = one short line; long text in the card description, es/en/ja)', path.join(__dirname, 'popup_short.mjs'));
   runNested('rel_sweep.mjs (every ECM pin × Relacionados/grouping option, every ficha cavity: route + 12V partners lit, clickable)', path.join(__dirname, 'rel_sweep.mjs'));
 }
 

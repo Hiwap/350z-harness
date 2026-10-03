@@ -12,6 +12,7 @@
  *   4. ECM siblings on that device: lit when their kind (Tierras / Alim. / Datos) is on (Ficha), never when off
  *  Every wired cavity of every visible ficha: clickable, lights itself and the whole path of its circuit; rail
  *  partners (12V / GND without ECM pin) included. Chassis grounds stay off ECM SIG clicks (fsm_sig_click gate d).
+ *  Every cavity click leaves one short info line (≤ 140 chars, no extra blocks); the long text is in the card.
  */
 import fs from 'fs';
 import path from 'path';
@@ -142,6 +143,12 @@ async function runScenario(model, trans) {
       g.dispatchEvent(new MouseEvent('click', { bubbles: true })); nCav++;
       const self = cavEl(k);
       check(!!self && (self.classList.contains('hl') || self.classList.contains('hl-group')), `${model}/${trans} ${k}: click does not light the cavity`);
+      {
+        const info = document.getElementById('info');
+        const sh = info.querySelector('.info-short');
+        const extra = [...info.children].filter((c) => !c.classList.contains('info-short'));
+        check(!!sh && sh.textContent.length <= 140 && extra.length === 0, `${model}/${trans} ${k}: click info is not one short line (${(info.textContent || '').length} chars, ${extra.length} extra blocks)`);
+      }
       if (q.vifOff || q.transOff || !onCirc) continue;
       if (isEcm) {
         const pe = document.querySelector(`#blocks .pin[data-pin="${Number(q.ecm)}"]:not(.unused)`);

@@ -176,7 +176,7 @@ await page.click('#blocks .pin[data-pin="94"]');
     const m12 = document.querySelector('.cav-hit[data-conn="ix_b1_m12"][data-cav="2J"]');
     const top = (g.querySelector('.cav-ecm') || {}).textContent || '';
     return { hl: g.classList.contains('hl'), op: Number(getComputedStyle(g).opacity), m12: !!m12 && (m12.classList.contains('hl') || m12.classList.contains('hl-group')),
-      info: document.getElementById('info').textContent, top };
+      info: selectionInfoText(), top };
   });
   ok('dimmed: clicking HS-PWR (no heated seats) lights its path B1/M12·2J, stays dimmed, info "solo con asientos calefactables", top line B37·3',
     clk.hl && clk.op < 1 && clk.m12 && /solo con asientos calefactables/.test(clk.info) && clk.top === 'B37·3', JSON.stringify(clk).slice(0, 300));
@@ -200,7 +200,7 @@ await page.click('#blocks .pin[data-pin="94"]');
     if (!g) return null;
     g.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     const lit = [...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-end')].map((e) => e.dataset.conn + '·' + e.dataset.cav);
-    return { self: g.classList.contains('hl'), lit, info: document.getElementById('info').textContent };
+    return { self: g.classList.contains('hl'), lit, info: selectionInfoText() };
   }, cid, cav);
   const f15 = await clickFuse('jb_fuse_block', '15');
   ok('fuse box: J/B 15 click lights itself + E108/M15·65G heater path', !!f15 && f15.self && f15.lit.includes('ix_e108_m15·65G'), JSON.stringify(f15 && f15.lit).slice(0, 200));

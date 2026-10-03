@@ -176,7 +176,7 @@ ok(enCards.inj1 === 'Injector 1', `en inj1 card = "Injector 1"` + (enCards.inj1 
 ok(enCards.gnd4 && !/Tierra|tierras/i.test(enCards.gnd4), `en gnd4 card has no Tierra` + (enCards.gnd4 ? ` (got ${JSON.stringify(enCards.gnd4)})` : ' (missing)'));
 
 await page.click('#blocks .pin[data-pin="1"]');
-const info1 = await page.$eval('#info', (el) => el.textContent || '');
+const info1 = await page.evaluate(() => selectionInfoText());
 ok(!/Tierra|Ruta:|Masa carrocería|Alim\./.test(info1), 'en pin 1 info has no leftover Spanish' + ( /Tierra|Ruta:|Masa carrocería|Alim\./.test(info1) ? ` (got ${JSON.stringify(info1.slice(0, 180))})` : ''));
 ok(/ground/i.test(info1), 'en pin 1 info mentions ground');
 
@@ -188,7 +188,7 @@ await page.evaluate(() => {
   }
 });
 await page.click('#blocks .pin[data-pin="3"]');
-const info3 = await page.$eval('#info', (el) => el.textContent || '');
+const info3 = await page.evaluate(() => selectionInfoText());
 ok(!/Alim\./.test(info3), 'en pin 3 + Power pill is not Alim.' + (/Alim\./.test(info3) ? ` (got ${JSON.stringify(info3.slice(0, 220))})` : ''));
 ok(/Power 12V/.test(info3), 'en pin 3 + Power shows Power 12V' + (!/Power 12V/.test(info3) ? ` (got ${JSON.stringify(info3.slice(0, 220))})` : ''));
 
@@ -204,7 +204,7 @@ ok(jaCards.inj1 === 'インジェクタ1', `ja inj1 card = "インジェクタ1"
 ok(jaCards.gnd4 && /アース/.test(jaCards.gnd4) && !/Tierra/i.test(jaCards.gnd4), `ja gnd4 card uses アース` + (jaCards.gnd4 ? ` (got ${JSON.stringify(jaCards.gnd4)})` : ' (missing)'));
 
 await page.click('#blocks .pin[data-pin="1"]');
-const info1ja = await page.$eval('#info', (el) => el.textContent || '');
+const info1ja = await page.evaluate(() => selectionInfoText());
 ok(!/Tierra|Ruta:|Masa carrocería|Alim\./.test(info1ja), 'ja pin 1 info has no leftover Spanish' + (/Tierra|Ruta:|Masa carrocería|Alim\./.test(info1ja) ? ` (got ${JSON.stringify(info1ja.slice(0, 180))})` : ''));
 ok(/アース|GND/.test(info1ja), 'ja pin 1 info mentions ground');
 
@@ -216,7 +216,7 @@ await page.evaluate(() => {
   }
 });
 await page.click('#blocks .pin[data-pin="3"]');
-const info3ja = await page.$eval('#info', (el) => el.textContent || '');
+const info3ja = await page.evaluate(() => selectionInfoText());
 ok(!/Alim\./.test(info3ja), 'ja pin 3 + Power pill is not Alim.' + (/Alim\./.test(info3ja) ? ` (got ${JSON.stringify(info3ja.slice(0, 220))})` : ''));
 ok(/電源 12V/.test(info3ja), 'ja pin 3 + Power shows 電源 12V' + (!/電源 12V/.test(info3ja) ? ` (got ${JSON.stringify(info3ja.slice(0, 220))})` : ''));
 
