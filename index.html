@@ -2841,6 +2841,7 @@ const CONN_FACE = {
   evap_press: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
   f9_starter: { src: 'faces/fsm_f9.webp', source: 'FSM 2005 SC-13' },
   f16_cond: { src: 'faces/fsm_f16.webp', source: 'FSM 2005 EC-689' },
+  vdc_m51: { src: 'faces/fsm_m51.webp', source: 'FSM 2005 BRC-101' },
   vtc_ex_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
   vtc_ex_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
   f38_evtc_b1: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
@@ -5528,6 +5529,16 @@ const CONN_LOC = {
   evap_press: {pg:63, m:[[81.9,85.9,4.47,3.23]]},
   alt_b: {pg:53, m:[[70.22,49.93,4.29,3.09]]},
   alt_e: {pg:53, m:[[68.75,55.22,4.32,3.14]]},
+  body_abs: {pg:50, m:[[86.78,42.86,4.47,3.23]]},
+  body_luces: {pg:63, m:[[44.73,89.18,4.47,3.28],[94.25,60.42,4.47,3.23],[76.89,54.71,4.47,3.23]]},
+  body_puertas: {pg:48, m:[[4.87,72.97,4.47,3.23],[6.74,83.0,4.47,3.23]]},
+  body_vidrios: {pg:57, m:[[59.96,19.86,4.51,3.28],[52.01,14.99,4.47,3.23]]},
+  body_asientos: {pg:57, m:[[56.59,15.93,4.51,3.23],[50.62,68.1,4.51,3.23],[28.9,46.7,4.51,3.28]]},
+  body_audio: {pg:48, m:[[47.44,67.03,4.47,3.23],[59.52,69.04,4.47,3.23]]},
+  body_medidores: {pg:48, m:[[38.13,28.06,4.47,3.23]]},
+  body_clima: {pg:50, m:[[23.11,83.42,4.47,3.23]]},
+  vdc_m51: {pg:48, m:[[71.9,71.62,4.51,3.23]]},
+  body_at: {pg:54, m:[[73.81,32.93,4.51,3.23]]},
 };
 /* IPDM: location only on the IPDM group header (Ezequiel) — PG-50 with every E3–E9 callout marked. */
 const IPDM_GROUP_LOC = {pg:50, m:[[42.6,42.44,4.51,3.23],[42.42,7.07,4.51,3.23],[45.35,46.09,4.47,3.23],[47.25,35.6,4.47,3.23],[46.08,16.72,4.47,3.28],[50.66,19.58,4.47,3.23],[55.53,18.13,4.47,3.28]]};
