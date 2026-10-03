@@ -208,6 +208,13 @@ await page.click('#blocks .pin[data-pin="94"]');
   ok('fuse box: J/B 7 (no circuit) opens its description (WW-P/SCKT)', !!f7 && f7.self && /WW-P\/SCKT/.test(f7.info), (f7 && f7.info || '').slice(0, 200));
   const f36 = await clickFuse('fuse_link_box', '36');
   ok('fuse box: E21 fuse 36 lights the alternator S path (F20·3)', !!f36 && f36.self && f36.lit.some((k) => k.startsWith('f20_alt·')), JSON.stringify(f36 && f36.lit).slice(0, 200));
+  const fD = await clickFuse('fuse_link_holder', 'D');
+  ok('battery + holder: link D is its own ficha, click marks it and shows its feeds (J/B)', !!fD && fD.self && /Fusible link D, 60A/.test(fD.info), (fD && fD.info || '').slice(0, 200));
+  const cell = await page.evaluate(() => { const g = (c, v) => document.querySelector(`.cav-hit[data-conn="${c}"][data-cav="${v}"]`); const t = (e) => e ? [...e.querySelectorAll('text')].map((x) => x.textContent.trim()) : null;
+    return { ipdm: t(g('ipdm_cover', '72')), jb5: t(g('jb_fuse_block', '5')), jb15: t(g('jb_fuse_block', '15')), d: t(g('fuse_link_holder', 'D')), boxD: !!g('fuse_link_box', 'D'),
+      wI: g('ipdm_cover', '72').querySelector('rect').getBoundingClientRect().width, wJ: g('jb_fuse_block', '15').querySelector('rect').getBoundingClientRect().width }; });
+  ok('fuse cells = IPDM cell: number / what it feeds / amps, same on-screen size; J/B 5 = ?',
+    cell.ipdm.join('|') === '72|HI-RH|10A' && cell.jb15.join('|') === '15|O2H|15A' && cell.jb5.join('|') === '5|?|15A' && cell.d.join('|') === 'D|J/B|60A' && !cell.boxD && Math.abs(cell.wI - cell.wJ) < 0.5, JSON.stringify(cell));
   await page.evaluate(() => clearSelection());
 }
 await page.select('#model', 'de_early');

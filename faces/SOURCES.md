@@ -38,7 +38,8 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_f16.webp | EC-689 | f16_cond (F16) — the ficha now matches this inset: fixed vertical 1 over 2 (2026-09-26 audit) |
 | fsm_m51.webp | BRC-101 | vdc_m51 (M51 yaw rate / side G sensor, B/6: 1-2-3 over 4-5-6). No web photo of the harness plug found (parts sites show only the sensor, and block downloads), so the FSM inset is used. |
 | fsm_jb_pg88.webp | PG-88 | jb_fuse_block (cabin fuse block J/B: M4/M5/E101–E104, fuses 1–22). Terminal-arrangement drawing; no web photo used. |
-| fsm_e18_pg89.webp | PG-89 | fuse_link_box (fusible link holder E1/E2/E201 + fuse and fusible link block E21 in box E18). Terminal-arrangement drawing; no web photo used. |
+| fsm_e1_pg89_holder.webp | PG-89 | fuse_link_holder (fusible link holder E1/E2/E201 on the battery + terminal, links A–E). Top crop of the PG-89 page; no web photo used. |
+| fsm_e21_pg89_box.webp | PG-89 | fuse_link_box (box E18 with fuse and fusible link block E21: fuses 31–38, links F–M, back-up lamp and horn relays). Bottom crop of the PG-89 page; no web photo used. |
 
 Not mapped in CONN_FACE:
 

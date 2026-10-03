@@ -314,7 +314,7 @@ await page.evaluate(() => {
   const shown = await page.evaluate(() => [...document.querySelectorAll('#fichas [data-conn]')]
     .filter((el) => el.getClientRects().length > 0).map((el) => el.dataset.conn));
   const hidden = ['evap_press', 'evap_vent', 'fuel_pump', 'fuel_tank_temp', 'ix_t2_b44', 'ix_b1_m12',
-    'ipdm_e7', 'ipdm_e8', 'ix_e108_m15', 'jb_fuse_block', 'fuse_link_box'];
+    'ipdm_e7', 'ipdm_e8', 'ix_e108_m15', 'jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'];
   const leak = hidden.filter((id) => shown.includes(id));
   ok(leak.length === 0, `Arnès motor hides body/rear fichas incl. EVAP T21/T20 + fuel pump (leak: ${leak.join(',') || 'none'})`);
   ok(shown.includes('ix_e11_f2') && shown.includes('evap_purge'), 'Arnès motor keeps E11/F2 and F5 EVAP purge (engine loom)');
@@ -823,7 +823,8 @@ const FSM_FACE = {
   f20_alt: { mt: "3 4", at: "3 4" },
   alt_b: { mt: "1", at: "1" },
   alt_e: { mt: "2", at: "2" },
-  fuse_link_box: { mt: "A E D C B / 31 32 33 34 F G H I / J K L M 35 36 37 38", at: "A E D C B / 31 32 33 34 F G H I / J K L M 35 36 37 38" },
+  fuse_link_holder: { mt: "A E D C B", at: "A E D C B" },
+  fuse_link_box: { mt: "31 32 33 34 F G H I / J K L M 35 36 37 38", at: "31 32 33 34 F G H I / J K L M 35 36 37 38" },
   f21_oilp: { mt: "1 2 3", at: "1 2 3" },
   f35_pnp: { mt: "1 2", at: null },
   ix_f14_f229: { mt: "1 2", at: "1 2" },
@@ -1108,7 +1109,7 @@ console.log('\nF102·10H DLC signal ground (EC-742): DLC 5 → F102·10H → F10
 console.log('\nFusibles group: every fuse card in one top-level ficha group, collapsed by default, hidden in Arnés motor, auto-opens when lit');
 {
   const setLoom = (v) => page.evaluate((v) => { const s = document.getElementById('loomView'); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })); }, v);
-  const FUSES = ['jb_fuse_block', 'fuse_link_box'];
+  const FUSES = ['jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'];
   const resetClosed = async () => {
     await page.evaluate(() => { clearSelection(); localStorage.removeItem('z33_sub_fuses'); });
     await setLoom('motor'); await setLoom('all');

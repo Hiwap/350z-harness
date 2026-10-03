@@ -1778,7 +1778,8 @@
   "alt_e": "non-ECM ring terminal E211·2 alternator E (SC-22): B -> body ground E212, B/Y link to engine ground E213; battery cable PG-53",
   "ipdm_cover": "IPDM cover fuse grid 71-89 as one ficha. Short labels are the lid text; numbers and amps are PG-26. 88 is marked X (not mounted).",
   "jb_fuse_block": "fuse box card: cabin fuse block J/B (PG-88; M4/M5/E101-E104), fuses 1-22 with amps and PG-POWER-02..11 feeds; fuse 1 10A = injector feed (EC-702), fuse 15 15A = A/F + HO2S heaters (EC-191)",
-  "fuse_link_box": "fuse box card: fuse, fusible link and relay box E18 by the battery (PG-89; holder E1/E2/E201 links A-E, block E21 links F-M + fuses 31-38); fuse 36 10A BAT -> SC-CHARGE feeds E11/F2·1 -> F20·4 S"
+  "fuse_link_holder": "fuse box card: fusible link holder E1/E2/E201 on the battery + terminal (PG-89 top), link A 120A feeds B and C internally, links B-E per PG-POWER-01; E201·5 B/GY battery direct to SC-START/SC-CHARGE",
+  "fuse_link_box": "fuse box card: fuse, fusible link and relay box E18 by the battery (PG-89 bottom; block E21 links F-M + fuses 31-38, back-up lamp and horn relays; fed from holder link B); fuse 36 10A BAT -> SC-CHARGE feeds E11/F2·1 -> F20·4 S"
  },
  "sig_click_allowlist": [
   {

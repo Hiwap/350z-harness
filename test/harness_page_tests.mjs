@@ -97,7 +97,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   const svgFns = [...script.matchAll(/function (svg\w+)\([^)]*\)\{[\s\S]*?\n\}/g)].filter((m) => m[1] !== 'svgTabN' && /flipRow|isFaceInv/.test(m[0])).map((m) => m[1]);
   ok('fixed faces: no svg* renderer other than svgTabN references flipRow/isFaceInv', svgFns.length === 0, svgFns.join(','));
   const noView = [...html.matchAll(/^  (\w+):\{group:'motor'[^\n]*$/gm)]
-    .filter((m) => !/(?:\bview|viewByTrans):\{/.test(m[0]) && !/shape:'(?:ring|jb|ixnote)'/.test(m[0]) && !/^  (?:jb_|feed_|fuse\d+_|fuse_link_box|comb_meter|ix_f103_f151)/.test(m[0]))
+    .filter((m) => !/(?:\bview|viewByTrans):\{/.test(m[0]) && !/shape:'(?:ring|jb|ixnote)'/.test(m[0]) && !/^  (?:jb_|feed_|fuse\d+_|fuse_link_box|fuse_link_holder|comb_meter|ix_f103_f151)/.test(m[0]))
     .map((m) => m[1]).filter((id) => !['ecm_f101_can', 'f152', 'e17', 'f23_gnd'].includes(id));
   ok('fixed faces: every plug ficha carries view data (FSM ref + order, or unverified reason)', noView.length === 0, noView.join(','));
   const pp = fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8');
@@ -117,7 +117,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     /alt_e:\{group:'motor', sub:'sensors'[^\n]*shape:'ring'[^\n]*\n\s*pins:\[\{id:'2',lab:'E',code:'B',ecm:null,rail:'gnd',src:'E212',srcSub:'power',circ:'alt_charge'/.test(html));
   ok('E11/F2·1 ALT-S fed by fuse 36 10A (E21·36), 12V rail, circ alt_s',
     /\{id:'1',lab:'ALT-S',code:'LG\/B',ecm:null,rail:'12v',src:'E21·36',srcSub:'fuses',circ:'alt_s'/.test(html)
-    && /\n  fuse_link_box:\{[\s\S]*?\{id:'36',lab:'36',code:'LG\/B',ecm:null,rail:'12v',src:'10A',srcSub:'power',circ:'alt_s'/.test(html));
+    && /\n  fuse_link_box:\{[\s\S]*?\{id:'36',lab:'36',fuseLab:'ALT-S',code:'LG\/B',ecm:null,rail:'12v',src:'10A',srcSub:'power',circ:'alt_s'/.test(html));
   ok('F20·4 S = 12V alt_s · F20·3 L and F102·13H = alt_l (signal, no rail)',
     /\{id:'4',lab:'S',code:'LG\/B',rail:'12v',src:'E11\/F2·1',srcSub:'pedals',circ:'alt_s'/.test(html)
     && /\{id:'3',lab:'L',code:'W\/R',src:'F102·13H',srcSub:'intermedias',circ:'alt_l'\}/.test(html)
@@ -131,11 +131,11 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
 }
 {
   /* Fuse cards: one top-level ficha group 'fuses' (Fusibles / Fuses / ヒューズ), collapsed by default, body-side (hidden in Arnés motor). */
-  const FUSES = ['jb_fuse_block', 'fuse_link_box'];
+  const FUSES = ['jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'];
   const subOf = (id) => ((html.match(new RegExp(`\\n  ${id}:\\{group:'\\w+', sub:'(\\w+)'`)) || [])[1]);
-  ok('fuse box cards (cabin J/B, battery box E18/E21) all in sub fuses', FUSES.every((id) => subOf(id) === 'fuses'), FUSES.map((id) => `${id}=${subOf(id)}`).join(','));
+  ok('fuse box cards (cabin J/B, battery + link holder, battery box E18/E21) all in sub fuses', FUSES.every((id) => subOf(id) === 'fuses'), FUSES.map((id) => `${id}=${subOf(id)}`).join(','));
   const inFuses = [...html.matchAll(/\n  (\w+):\{group:'\w+', sub:'fuses'/g)].map((m) => m[1]);
-  ok('sub fuses holds exactly the fuse cards, in J/B → E18/E21 order', inFuses.join(',') === FUSES.join(','), inFuses.join(','));
+  ok('sub fuses holds exactly the fuse cards, in J/B → holder E1/E2/E201 → E18/E21 order', inFuses.join(',') === FUSES.join(','), inFuses.join(','));
   const noFuseInFeeds = [...html.matchAll(/\n  ((?:jb_|fuse)\w*):\{group:'\w+', sub:'(\w+)'/g)].filter((m) => m[2] !== 'fuses').map((m) => m[1]);
   ok('no jb_* / fuse* card left outside the Fusibles group', noFuseInFeeds.length === 0, noFuseInFeeds.join(','));
   ok('SUB_ORDER has fuses (after feeds, before sensors)', /const SUB_ORDER = \['power','ipdm','feeds','fuses','sensors',/.test(html));
@@ -150,22 +150,39 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   const fuseLay = (id) => { const m = html.match(new RegExp(`\\n  ${id}:\\{group:[^\\n]*?fuseLayout:(\\{[^\\n]*?\\]\\]\\}|\\{[^\\n]*?\\}\\]\\})`)); return m ? m[1] : ''; };
   const layIds = (lay) => (lay.match(/'[^']*'/g) || []).map((q) => q.slice(1, -1)).filter((t) => t !== 'gap' && !t.startsWith('#') && !/^PG-|^(?:Holder|Box) /.test(t));
   const cardPinIds = (id) => { const blk = (html.match(new RegExp(`\\n  ${id}:\\{group:[\\s\\S]*?(?=\\n  \\w+:\\{group:)`)) || [''])[0]; return [...blk.matchAll(/\{id:'([^']+)'/g)].map((m) => m[1]); };
-  const jbLay = fuseLay('jb_fuse_block'), bxLay = fuseLay('fuse_link_box');
+  const jbLay = fuseLay('jb_fuse_block'), bxLay = fuseLay('fuse_link_box'), hoLay = fuseLay('fuse_link_holder');
   ok('J/B fuse layout = PG-88: 1-7, gap, 8-11, spare / 12-22, crossed slot, spare',
     jbLay.includes("rows:[['1','2','3','4','5','6','7',null,'8','9','10','11','#sp'],['12','13','14','15','16','17','18','19','20','21','22','#x','#sp']]"), jbLay.slice(0, 120));
-  ok('E18/E21 layout = PG-89: A and E D C B holder, relays, 31-34 F-I / J-M 35-38',
-    bxLay.includes("['A',null,null,null,null,null,null,null,'E','D','C','B'],'gap',['#relay:Back-up lamp relay','#relay:Horn relay',null,'31','32','33','34',null,'F','G','H','I'],['#relay+','#relay+',null,'J','K','L','M',null,'35','36','37','38']"), bxLay.slice(0, 120));
+  ok('E18/E21 layout = PG-89 box only: relays, 31-34 F-I / J-M 35-38 (no holder links)',
+    bxLay.includes("rows:[['#relay:Back-up lamp relay','#relay:Horn relay',null,'31','32','33','34',null,'F','G','H','I'],['#relay+','#relay+',null,'J','K','L','M',null,'35','36','37','38']]") && !/'[A-E]'/.test(bxLay), bxLay.slice(0, 120));
+  ok('battery + holder layout = PG-89 top: A, then E D C B (E1/E2/E201)', hoLay.includes("rows:[['A',null,'E','D','C','B']]"), hoLay.slice(0, 120));
+  ok('holder and box fichas: own PG-89 crops and own location markers (holder E1/E2, box E18/E21)',
+    /\n  fuse_link_holder: \{ src: 'faces\/fsm_e1_pg89_holder\.webp', source: 'FSM 2005 PG-89' \},/.test(html)
+    && /\n  fuse_link_box: \{ src: 'faces\/fsm_e21_pg89_box\.webp', source: 'FSM 2005 PG-89' \},/.test(html)
+    && /\n  fuse_link_holder: \{pg:50, m:\[\[63\.81,20\.28,4\.51,3\.28\],\[59\.38,20\.23,4\.47,3\.23\]\]\},/.test(html)
+    && /\n  fuse_link_box: \{pg:50, m:\[\[36\.52,43\.89,4\.51,3\.28\],\[62\.6,16\.07,4\.47,3\.23\],\[57\.22,8\.9,3\.96,2\.81\]\]\},/.test(html)
+    && !html.includes('fsm_e18_pg89.webp'));
   ok('fuse layouts place every fuse/link pin exactly once',
-    ['jb_fuse_block', 'fuse_link_box'].every((id) => { const a = layIds(fuseLay(id)).sort().join(','); const b = cardPinIds(id).sort().join(','); return a && a === b; }),
-    ['jb_fuse_block', 'fuse_link_box'].map((id) => `${id}:${layIds(fuseLay(id)).length}/${cardPinIds(id).length}`).join(' '));
+    ['jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'].every((id) => { const a = layIds(fuseLay(id)).sort().join(','); const b = cardPinIds(id).sort().join(','); return a && a === b; }),
+    ['jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'].map((id) => `${id}:${layIds(fuseLay(id)).length}/${cardPinIds(id).length}`).join(' '));
   ok('fuse boxes use the IPDM cover look and click: shape fusebox, svgFuseBox via renderConnSvg, shared fuseAmpColor, FUSE_BOX_CONNS',
-    /\n  jb_fuse_block:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html) && /\n  fuse_link_box:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html)
-    && /case 'fusebox': svg = svgFuseBox\(cid,f\); break;/.test(html)
-    && /const ampColor = fuseAmpColor;/.test(html) && /col = empty \? '#546e7a' : fuseAmpColor\(p\.src\)/.test(html)
-    && /const FUSE_BOX_CONNS = new Set\(\['ipdm_cover', 'jb_fuse_block', 'fuse_link_box'\]\);/.test(html)
+    /\n  jb_fuse_block:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html) && /\n  fuse_link_box:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html) && /\n  fuse_link_holder:\{group:'motor', sub:'fuses', [^\n]*shape:'fusebox'/.test(html)
+    && /case 'fusebox': return `<div class=\"fusebox-scroll\">\$\{wrapConnSvg\(svgFuseBox\(cid,f\)\)\}<\/div>`;/.test(html)
+    && /const ampColor = fuseAmpColor;/.test(html) && /col: empty \? '#546e7a' : fuseAmpColor\(p\.src\)/.test(html)
+    && /const FUSE_BOX_CONNS = new Set\(\['ipdm_cover', 'jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'\]\);/.test(html)
     && /if\(FUSE_BOX_CONNS\.has\(cid\)\) return !!\(pin && !pin\.unknown\);/.test(html)
     && /const related = \(pin && pin\.circ && \(CIRCUITS \|\| \[\]\)\.some\(c => c\.id === pin\.circ\)\) \? \[pin\.circ\]\n        : \(CIRCUITS \|\| \[\]\)\.filter\(cir => \{\n          const cavs = cir\.path && cir\.path\[cid\];/.test(html)
-    && /wireCodeSvg\(mid, x\+cw\/2, yy\+23, 'cav-code fuse-wire'\)/.test(html));
+    && /function fuseCellSvg\(cid, id, x, y, cw, ch, o\)\{/.test(html)
+    && /cells \+= fuseCellSvg\(cid, id, x, y, cw, ch, \{ lab: p\.lab \|\| '', amps: p\.code \|\| '', col: ampColor\(p\.code\), empty \}\);/.test(html)
+    && /body \+= fuseCellSvg\(cid, t, x, yy, cw, ch, \{\n\s+lab: empty \? '' : \(p\.fuseLab \|\| '\?'\)/.test(html)
+    && /const cw = 54, ch = 26, gap = 2, padX = 5, labH = 9;/.test(html));
+  /* line 2 of every fuse/link cell = short name of what it feeds (fuseLab), like the IPDM lid names; J/B 5 has no destination in the FSM = ? */
+  {
+    const pinsOf = (id) => { const blk = (html.match(new RegExp(`\\n  ${id}:\\{group:[\\s\\S]*?(?=\\n  \\w+:\\{group:)`)) || [''])[0]; return [...blk.matchAll(/\{id:'([^']+)',lab:'[^']*',(?:fuseLab:'([^']*)',)?[^\n]*?src:'([^']*)'/g)].map((m) => ({ id: m[1], fl: m[2], src: m[3] })); };
+    const miss = ['jb_fuse_block', 'fuse_link_holder', 'fuse_link_box'].flatMap((id) => pinsOf(id).filter((p) => p.src !== 'X' && !p.fl).map((p) => `${id}:${p.id}`));
+    const j5 = pinsOf('jb_fuse_block').find((p) => p.id === '5');
+    ok('every fitted fuse/link has a short feeds label (fuseLab); J/B 5 = ?', miss.length === 0 && j5 && j5.fl === '?', miss.join(',') || (j5 && j5.fl));
+  }
   ok('svgNote hands fuseLayout cards to svgFuseBox', /function svgNote\(cid, f\)\{\n  if\(f\.fuseLayout\) return svgFuseBox\(cid, f\);/.test(html) && /function svgFuseBox\(cid, f\)\{/.test(html));
   /* Audio unit connectors per AV-12/16/18 legends: M40 = 1-10, M41 = 11-16, M39 = 17-32 */
   ok('audio unit terminals 9 / 12-16 are not on M39 (AV-16 M40·9 earth; AV-12 / AV-18 M41·12-16)', !/M39·(?:9|1[2-6])\b/.test(html) && /src:'M41·14'/.test(html) && /src:'M41·12'/.test(html));
