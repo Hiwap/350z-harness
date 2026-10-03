@@ -168,7 +168,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('IPDM E9 H.S. rows (52–45 under the lock), turned 180 (PG-26)',
     /ipdm_e9: \{ hs:\[\['52','51','50','49','48','47','46','45'\],\['60','59','58','57','56','55','54','53'\]\], rot:180 \}/.test(html));
   ok('IPDM E9·56 hood switch LG/B (BL-159)', /\{id:'56',code:'LG\/B',ecm:null,lab:'HOOD'/.test(html));
-  ok('IPDM E8·43 = IPDM fuse 82 (PG-15)', /id:'43',src:'IGN',srcSub:'power',code:'G\/R',ecm:null,rail:'12v',note:'IGN ON vía fusible IPDM 82/.test(html));
+  ok('IPDM E8·43 = IPDM fuse 82 (PG-15)', /id:'43',src:'IGN',srcSub:'power',code:'G\/R',ecm:null,rail:'12v',note:'12 V con la llave en ON, por el fusible 82 del IPDM/.test(html));
   ok('IPDM E3–E6 H.S. rows + PG-26 turns (E3/E6 180, E4/E5 −90)',
     /ipdm_e3: \{ hs:\[\['1'\],\['2'\]\], rot:180 \}/.test(html)
     && /ipdm_e4: \{ hs:\[\['4','3'\],\['6','5'\]\], rot:-90 \}/.test(html)

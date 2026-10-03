@@ -472,7 +472,7 @@ ok('actuators render no longer nests bobinas under actuators',
 {
   /* Signal-pin clicks show the signal path; sensor ground returns are separate gndRel circuits. */
   ok('F35·2 / F38·1 / F42·1 ground cavities select their own ground circuit',
-    /circ:'pnp_mt_gnd',note:'Masa PNP/.test(html) && /circ:'evt_pos_b1_gnd'/.test(html) && /circ:'evt_pos_b2_gnd'/.test(html));
+    /circ:'pnp_mt_gnd',note:'Masa del interruptor de punto muerto \(PNP\)/.test(html) && /circ:'evt_pos_b1_gnd'/.test(html) && /circ:'evt_pos_b2_gnd'/.test(html));
   ok('F35·1 SIG still selects pnp_mt', /\{id:'1',lab:'SIG',code:'BR\/Y',ecm:102,circ:'pnp_mt'\}/.test(html));
   ok('Masa rail paints gndRel sensor-ground path cavities only',
     /if\(!cir\.gndRel\) return;/.test(html) && /gndRelOnlyConns\.has\(cid\) && !\(gndRelCavs\[cid\]/.test(html));
@@ -492,9 +492,9 @@ ok('actuators render no longer nests bobinas under actuators',
   ok('f242_eot: S → ECM 54, G → ECM 67, colour not invented', JSON.stringify(pins) === JSON.stringify(['S:SIG:—:54', 'G:GND:—:67']), pins.join(','));
   ok('f242_eot: G is gnd rail', /\{id:'G',lab:'GND',code:'—',wireUnk:true,ecm:67,rail:'gnd'/.test(b));
   ok('f242_eot note: ECM 54 + 67 splice, F242→F241/F39→F101, EC-123/PG-55/2006 EC-110, verify physically',
-    /ECM 54/.test(b) && /ECM 67/.test(b) && /F242→F241\/F39→ECM F101/.test(b) && /EC-123/.test(b) && /2006 EC-110/.test(b) && /verificar físicamente/.test(b));
-  ok('f242_eot en/ja i18n', /\n  f242_eot: \{ en:\{name:'F242 · Oil temp', meta:'GY\/2 [^']*', note:'Oil temp sensor \(35th Anniv\. M\/T only\): signal → ECM 54[^']*'\}/.test(html)
-    && /ja:\{name:'F242 · 油温', meta:'[^']*', note:'油温センサー（35th Anniversary M\/T車のみ）：信号 → ECM 54/.test(html));
+    /ECM 54/.test(b) && /ECM 67/.test(b) && /F242 → F241\/F39 → conector F101 del ECM/.test(b) && /EC-123/.test(b) && /2006 EC-110/.test(b) && /verificarlo en un 35th Anniversary real/.test(b));
+  ok('f242_eot en/ja i18n', /\n  f242_eot: \{ en:\{name:'F242 · Oil temp', meta:'GY\/2 [^']*', note:'Oil temperature sensor \(35th Anniversary M\/T only\)\. The signal goes to ECM 54[^']*'\}/.test(html)
+    && /ja:\{name:'F242 · 油温', meta:'[^']*', note:'油温センサー（35th Anniversary M\/Tのみ）。信号はECM 54へ/.test(html));
   ok('PIN_NAME 54 es/en/ja', /54:"Temp\. aceite \(35th M\/T\)"/.test(html) && /54:"Oil temp \(35th M\/T\)"/.test(html) && /54:"油温（35th M\/T）"/.test(html));
   ok('ECM 54 colour not invented (no PIN_COL entry)', !/"54":"/.test((html.match(/const PIN_COL = \{[^}]*\}/) || [''])[0]));
   ok('ECM 54 grid gate: Rev-Up + Manual', /Number\(p\)===54 && \(model !== 'de_revup' \|\| transView\(\) !== 'mt'\)\) return false;/.test(html));
