@@ -282,6 +282,7 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
     extractConstObject(script, 'VIF_VAL_LABEL'),
     extractFunction(script, 'optNeedLabel'),
     extractFunction(script, 'optOffDisplayPin'),
+    extractFunction(script, 'livePinOf'),
     'var lang = "es";',
   ].join('\n');
   const ob = { console };
@@ -293,6 +294,15 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
     const g = ob.variantGatePin(hs, V());
     const d = ob.optOffDisplayPin(g);
     return g.code === '—' && g.vifOff === 'hseat=yes' && g.offCode === 'R' && d && d.code === 'R' && d.vifOff === 'hseat=yes';
+  });
+  unit('unit: dimmed state — display pin keeps every label line of the live pin (top src / ECM, lab) and its circuit', () => {
+    const live = { id: 'HS-PWR', code: 'G', ecm: null, lab: 'HS-PWR', src: 'B37·3', srcSub: 'carroceria', circ: 'heated_seat', vif: 'hseat=yes' };
+    const g = ob.variantGatePin(live, V());
+    const d = ob.optOffDisplayPin(g);
+    const f = ob.variantGatePin({ id: '28H', code: 'BR/Y', ecm: 102, lab: 'PNP', trans: 'at' }, V());
+    const fd = ob.optOffDisplayPin(f);
+    return d.src === 'B37·3' && d.lab === 'HS-PWR' && d.circ === 'heated_seat' && d.vifOff === 'hseat=yes'
+      && ob.livePinOf(g) === live && fd.ecm === 102 && fd.lab === 'PNP' && fd.transOff === 'at' && g.ecm === null && g.lab === '';
   });
   unit('unit: dimmed state — tooltip names the option (es/en/ja)', () =>
     ob.optNeedLabel(ob.variantGatePin(hs, V()), 'es') === 'solo con asientos calefactables'
@@ -306,22 +316,26 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
     const g = ob.variantGatePin(hs, V({ hseat: 'yes' }));
     return g.code === 'R' && !g.vifOff && ob.optOffDisplayPin(g) === null;
   });
-  unit('unit: gated pin with no FSM colour (shield drain) stays blank but still gated', () => {
-    const g = ob.variantGatePin({ id: '20J', code: '—', wireUnk: true, vif: 'audio=bose' }, V());
-    return g.vifOff === 'audio=bose' && ob.optOffDisplayPin(g) === null && ob.optNeedLabel(g, 'es') === 'solo con Bose';
+  unit('unit: gated pin with no FSM colour (shield drain) keeps "?" / no colour but still gated + labelled', () => {
+    const g = ob.variantGatePin({ id: '20J', code: '—', lab: 'SHIELD', wireUnk: true, vif: 'audio=bose' }, V());
+    const d = ob.optOffDisplayPin(g);
+    return g.vifOff === 'audio=bose' && d.code === '—' && d.wireUnk === true && d.lab === 'SHIELD' && ob.optNeedLabel(g, 'es') === 'solo con Bose';
   });
   unit('unit: A/T-only F102 pin on M/T keeps its colour dimmed', () => {
     const g = ob.variantGatePin({ id: '24H', code: 'BR/Y', trans: 'at' }, V());
     return g.transOff === 'at' && ob.optOffDisplayPin(g).code === 'BR/Y';
   });
   const opac = Number((script.match(/const OPT_OFF_OPACITY = ([0-9.]+);/) || [])[1]);
-  ok('dimmed state rendered: cavGroup + F102 pins use OPT_OFF_OPACITY (<1), data-opt-off, <title> tooltip, not clickable',
+  ok('dimmed state rendered: cavGroup + F102 pins use OPT_OFF_OPACITY (<1), data-opt-off, <title> tooltip, clickable through the live pin',
     opac > 0 && opac < 1
     && /const optAttr = optOff \? ` opacity="\$\{OPT_OFF_OPACITY\}" data-opt-off="\$\{esc\(optNeed\)\}"` : '';/.test(script)
     && /const optTitle = optNeed \? `<title>\$\{esc\(optNeed\)\}<\/title>` : '';/.test(script)
     && /const noClick0 = typeof cavClickable === 'function' \? !cavClickable\(cid, pin\) : false;\n  if\(optOff\) pin = optOffDisplayPin\(pin\) \|\| pin;/.test(script)
     && /if\(optOff\)\{ d\.classList\.add\('opt-off'\); d\.style\.opacity = String\(OPT_OFF_OPACITY\);/.test(script)
-    && /if\(!optOff && hasWire && cavClickable\('ix_f102_m72', livePin\)\)/.test(script), `opacity ${opac}`);
+    && /if\(hasWire && cavClickable\('ix_f102_m72', livePin\)\)/.test(script)
+    && /if\(pin && \(pin\.vifOff \|\| pin\.transOff\)\)\{\n    const live = livePinOf\(pin\);[\s\S]{0,160}optOffCircuitsFor\(cid, pin\)\.length > 0;/.test(script)
+    && /if\(pin0 && \(pin0\.vifOff \|\| pin0\.transOff\)\)\{ selectOptOffPin\(cid, cavId, pin0, key, opts\); return; \}/.test(script)
+    && /\.cav-hit\.cav-opt-off\.hl, \.cav-hit\.cav-opt-off\.hl-group, \.cav-hit\.cav-opt-off\.hl-end \{ opacity: 0\.6 !important; \}/.test(html), `opacity ${opac}`);
 }
 
 

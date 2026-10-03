@@ -259,6 +259,11 @@
   .pin.unused { opacity: 0.35; font-size: 9px; }
   /* optional-equipment pin whose option is not selected: FSM colour, dimmed (opacity set inline), tooltip on hover */
   .pin.empty.opt-off { border-style: solid; color: var(--pin-fg, #f5f5f5); pointer-events: auto; cursor: help; }
+  .pin.empty.opt-off.opt-click { cursor: pointer; }
+  /* gated optional cells on a highlighted path: still dimmed (option not selected), outline dashed */
+  .cav-hit.cav-opt-off.hl, .cav-hit.cav-opt-off.hl-group, .cav-hit.cav-opt-off.hl-end { opacity: 0.6 !important; }
+  .cav-hit.cav-opt-off.hl .cav-face, .cav-hit.cav-opt-off.hl-group .cav-face, .cav-hit.cav-opt-off.hl-end .cav-face { stroke-dasharray: 4 3; }
+  #f102Blocks .pin.opt-off.hl, #f102Blocks .pin.opt-off.hl-group, #f102Blocks .pin.opt-off.hl-end { opacity: 0.6 !important; outline-style: dashed; }
   body[data-mode="solid"] .pin.empty.opt-off { background: var(--pin-fill, #12161d); }
   .pin.has-tracer { --tracer: #78909c; }
   .pin.has-tracer::after {
@@ -3010,7 +3015,7 @@ function variantGatePin(p, v){
   if(q.altIf && q.altCode && vifMatch(q.altIf, v)) q = Object.assign({}, q, { code:q.altCode });
   if(q.trans && q.trans !== v.trans) return transGatePin(q, v.trans);
   if(q.vif && !vifMatch(q.vif, v)){
-    return { id:q.id, code:'—', ecm:null, lab:'', vifOff:q.vif, offCode:q.code || '',
+    return { id:q.id, code:'—', ecm:null, lab:'', vifOff:q.vif, offCode:q.code || '', live:q,
       note: VARIANT_OFF.es + (q.note || ''),
       note_en: VARIANT_OFF.en + (q.note_en || q.note || ''),
       note_ja: VARIANT_OFF.ja + (q.note_ja || q.note_en || q.note || '') };
@@ -3048,12 +3053,16 @@ function optNeedLabel(pin, lg){
   if(!need) return '';
   return L === 'en' ? `only with ${need}` : (L === 'ja' ? `${need}装着車のみ` : `solo con ${need}`);
 }
-/** Gated pin drawn with its FSM colour (dimmed), or null when the pin is live / has no colour to show. */
+/** Gated pin drawn exactly like the live pin (FSM colour + top / bottom label lines), dimmed by the caller;
+    null when the pin is live. Keeps vifOff / transOff so renderers know it is gated. */
 function optOffDisplayPin(pin){
   if(!pin || !(pin.vifOff || pin.transOff)) return null;
-  const c = pin.offCode || '';
-  if(!c || isPseudoWireCode(c) || c === '—' || c === '-' || c === 'nc') return null;
-  return Object.assign({}, pin, { code:c });
+  const live = pin.live || Object.assign({}, pin, { code:pin.offCode || pin.code });
+  return Object.assign({}, live, { vifOff:pin.vifOff, transOff:pin.transOff, offCode:pin.offCode, live });
+}
+/** Live (ungated) pin behind a gated one, else the pin itself. */
+function livePinOf(pin){
+  return (pin && (pin.vifOff || pin.transOff) && pin.live) ? pin.live : pin;
 }
 function loomOfConn(id, conf){
   const c = conf || CONN_BASE[id] || CONN[id];
@@ -3078,13 +3087,30 @@ function circuitVisibleInTrans(cir){
   /* equipment filter (body / market / brakes / options); vifMatch may be absent in isolated test sandboxes */
   return !cir.vif || typeof vifMatch !== 'function' || vifMatch(cir.vif);
 }
+/* Every circuit of the model, including those hidden by transmission / equipment (dimmed optional pins still connect). */
+var CIRCUITS_ALL = [];
 function circuitsForView(model){
-  return buildCircuits(model).filter(circuitVisibleInTrans);
+  const all = buildCircuits(model);
+  CIRCUITS_ALL = all;
+  return all.filter(circuitVisibleInTrans);
+}
+/** Circuits (visible or equipment-hidden) that run through a gated optional pin. */
+function optOffCircuitsFor(cid, pin){
+  const live = livePinOf(pin);
+  if(!live) return [];
+  const id = String(live.id);
+  return (CIRCUITS_ALL && CIRCUITS_ALL.length ? CIRCUITS_ALL : CIRCUITS).filter(c => {
+    if(live.circ && c.id === live.circ) return true;
+    const pc = c.path && c.path[cid];
+    if(pc && pc.map(String).includes(id)) return true;
+    if(cid === 'ix_f102_m72' && Array.isArray(c.f102) && c.f102.map(String).includes(id)) return true;
+    return live.ecm != null && (c.ecm || []).map(Number).includes(Number(live.ecm)) && (c.conn || []).includes(cid);
+  });
 }
 /** F102 cavities tagged trans:'at' (28H PNP, 23H START, 24H TCM K-line) are empty on the other transmission. */
 function transGatePin(p, tv){
   if(!p || !p.trans || p.trans === tv) return p;
-  return { id:p.id, code:'—', ecm:null, lab:'', transOff:p.trans, offCode:p.code || '',
+  return { id:p.id, code:'—', ecm:null, lab:'', transOff:p.trans, offCode:p.code || '', live:p,
     note:p.offNote || '', note_en:p.offNote_en || p.offNote || '', note_ja:p.offNote_ja || p.offNote_en || '' };
 }
 let _f102ConfCache = { tv:null, conf:null };
@@ -3362,7 +3388,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const idY = y + h - botPad;
   const codeY = (ecmY + idY) / 2 + 1;
   const codeSw = h < 28 ? 1.05 : (h < 34 ? 1.25 : 1.45);
-  const railAttr = rail ? ` data-rail="${rail}"` : '';
+  const railAttr = (rail && !optOff) ? ` data-rail="${rail}"` : '';
   const ecmFace = isUnk ? '—' : cavTopLabel(pin);
   let topFill = isUnk ? ((mode === 'solid') ? txtFill : '#90a4ae') : cavTopFill(pin, mode, txtFill);
   const wireLetters = isUnk ? '?' : cavWireCode(pin);
@@ -5546,9 +5572,9 @@ function makeF102PinEl(pin){
   d.dataset.cav = String(pin.id);
   d.dataset.conn = 'ix_f102_m72';
   if(hasWire) d.dataset.wired = '1';
-  if(pin.ecm != null) d.dataset.ecm = String(pin.ecm); // not data-pin — avoid colliding with ECM grid
+  if(pin.ecm != null && !optOff) d.dataset.ecm = String(pin.ecm); // not data-pin — avoid colliding with ECM grid
   const rail = cavRailOf(pin);
-  if(rail) d.dataset.rail = rail;
+  if(rail && !optOff) d.dataset.rail = rail;
   d.style.borderColor = hasWire ? wcol.c1 : '#333';
   if(hasWire && wcol.tracer){
     d.classList.add('has-tracer');
@@ -5567,8 +5593,8 @@ function makeF102PinEl(pin){
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
   d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}` + (optNeed ? ` · ${optNeed}` : '') + (pin.transOff && pinNote(pin) ? ` · ${pinNote(pin)}` : '');
   if(pin.transOff) d.dataset.transOff = pin.transOff;
-  if(optOff){ d.classList.add('opt-off'); d.style.opacity = String(OPT_OFF_OPACITY); d.dataset.optOff = optNeed; delete d.dataset.wired; }
-  if(!optOff && hasWire && cavClickable('ix_f102_m72', livePin)){
+  if(optOff){ d.classList.add('opt-off'); d.style.opacity = String(OPT_OFF_OPACITY); d.dataset.optOff = optNeed; delete d.dataset.wired; if(cavClickable('ix_f102_m72', livePin)) d.classList.add('opt-click'); }
+  if(hasWire && cavClickable('ix_f102_m72', livePin)){
     d.onclick = (ev) => { ev.stopPropagation(); selectConnPin('ix_f102_m72', pin.id); };
   }
   return d;
@@ -7089,6 +7115,12 @@ function pinOnKnownCircuit(cid, pin){
   });
 }
 function cavClickable(cid, pin){
+  /* Dimmed optional pin (option not selected): clickable like the live pin, through hidden circuits too. */
+  if(pin && (pin.vifOff || pin.transOff)){
+    const live = livePinOf(pin);
+    if(!live || live === pin || !cavHasWire(live)) return false;
+    return pinOnKnownCircuit(cid, live) || optOffCircuitsFor(cid, pin).length > 0;
+  }
   /* Cover fuse cells are the lid itself: each one opens its description even with no harness circuit yet. */
   if(cid === 'ipdm_cover') return !!(pin && !pin.unknown);
   if(!cavHasWire(pin)) return false;
@@ -8223,11 +8255,31 @@ function selectConn(cid){
   }
 }
 
+/** Click on a dimmed optional pin: light its circuit(s) like a live pin, adding equipment-hidden circuits
+    for this one selection. Its cells stay dimmed (CSS .cav-opt-off) and the info line names the option. */
+function selectOptOffPin(cid, cavId, pin0, key, opts){
+  if((!opts || !opts.keep) && selKey === key){ clearSelection(); return; }
+  const live = livePinOf(pin0);
+  const circs = optOffCircuitsFor(cid, pin0);
+  const ids = circs.map(c => c.id);
+  const extra = circs.filter(c => !CIRCUITS.some(x => x.id === c.id));
+  const saved = CIRCUITS;
+  if(extra.length) CIRCUITS = CIRCUITS.concat(extra);
+  try { selectCircuits(ids, live.ecm != null ? live.ecm : null, cid, String(cavId)); }
+  finally { CIRCUITS = saved; }
+  const infoEl = document.getElementById('info');
+  const need = optNeedLabel(pin0);
+  const pnote = pinNote(live);
+  infoEl.innerHTML += `<div class="opt-off-info" style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(live.code||'')}${need ? ` · <i>${esc(need)}</i>` : ''}${pnote ? ` — ${esc(pnote)}` : ''}</div>`;
+  selKey = key;
+  selFocusPin = live.ecm != null ? Number(live.ecm) : null;
+}
 function selectConnPin(cid, cavId, opts){
   const conf0 = CONN[cid] || CONN_BASE[cid];
   const pin0 = (conf0 && conf0.pins || []).find(x => String(x.id) === String(cavId));
   if(!cavClickable(cid, pin0)) return;
   const key = 'cav:' + String(cid) + ':' + String(cavId);
+  if(pin0 && (pin0.vifOff || pin0.transOff)){ selectOptOffPin(cid, cavId, pin0, key, opts); return; }
   if(!opts || !opts.keep){
     if(selKey === key){ clearSelection(); return; }
     if(activeRails.size && cavIsActiveRailPrimary(cid, pin0)){

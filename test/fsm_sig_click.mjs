@@ -169,6 +169,22 @@ await page.click('#blocks .pin[data-pin="94"]');
     !!off && off.off && Number(off.op) < 1 && off.tip === 'solo con asientos calefactables' && off.code.replace(/\s/g, '') === 'G', JSON.stringify(off));
   const nOff = await page.evaluate(() => document.querySelectorAll('.cav-hit.cav-opt-off').length);
   ok('dimmed: optional-equipment cells across all fichas are dimmed on the default car', nOff >= 20, `${nOff}`);
+  // Dimmed pin is clickable: lights its circuit (heated_seat: B1/M12·2J) like a live pin, stays dimmed, info names the option.
+  await page.evaluate(() => { const g = document.querySelector('.cav-hit[data-conn="body_asientos"][data-cav="HS-PWR"]'); g.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+  const clk = await page.evaluate(() => {
+    const g = document.querySelector('.cav-hit[data-conn="body_asientos"][data-cav="HS-PWR"]');
+    const m12 = document.querySelector('.cav-hit[data-conn="ix_b1_m12"][data-cav="2J"]');
+    const top = (g.querySelector('.cav-ecm') || {}).textContent || '';
+    return { hl: g.classList.contains('hl'), op: Number(getComputedStyle(g).opacity), m12: !!m12 && (m12.classList.contains('hl') || m12.classList.contains('hl-group')),
+      info: document.getElementById('info').textContent, top };
+  });
+  ok('dimmed: clicking HS-PWR (no heated seats) lights its path B1/M12·2J, stays dimmed, info "solo con asientos calefactables", top line B37·3',
+    clk.hl && clk.op < 1 && clk.m12 && /solo con asientos calefactables/.test(clk.info) && clk.top === 'B37·3', JSON.stringify(clk).slice(0, 300));
+  await page.evaluate(() => clearSelection());
+  // F102·28H (A/T only) on M/T: dimmed, top line shows ECM 102, clickable.
+  const f28 = await page.evaluate(() => { const el = f102PinEl('28H'); if (!el) return null; el.click(); return { opt: el.classList.contains('opt-off'), top: (el.querySelector('.pn') || {}).textContent, hl: el.classList.contains('hl'), op: Number(getComputedStyle(el).opacity) }; });
+  ok('dimmed: F102·28H on M/T shows top line 102, dimmed, clickable (lights)', !!f28 && f28.opt && f28.top === '102' && f28.hl && f28.op < 1, JSON.stringify(f28));
+  await page.evaluate(() => clearSelection());
   await page.select('#hseatView', 'yes');
   const on = await cell();
   ok('dimmed: with heated seats selected HS-PWR is full strength (no dimming, no tooltip)', !!on && !on.off && on.op === null && on.code.replace(/\s/g, '') === 'G', JSON.stringify(on));
