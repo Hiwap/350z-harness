@@ -198,7 +198,7 @@ const CONN_BASE = {
     note:'12 V compartido del relé del ECM (IPDM E7·18, R/W), por F3, para el sensor de cigüeñal (F10·1) y el MAF (F25·2). No son pines del ECM. Las señales van a ECM 13 (CKP) y ECM 51 (MAF). EC-323 / EC-207.',},
 
   /* —— Sensores motor —— */
-  af_b1:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 1', meta:'6 pines · F22 · EC-434/529', accent:'#ef6c00', shape:'af6', view:{c:'F22',g:'f',src:'EC-529',ord:'5-3-1 / 6-4-2'},
+  af_b1:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 1', meta:'6 pines · F22 · EC-434/529', accent:'#ef6c00', shape:'af6', faceRows:[['5','3','1'],['6','4','2']], view:{c:'F22',g:'f',src:'EC-529',ord:'5-3-1 / 6-4-2'},
     pins:[
       {id:'1',code:'LG/B',ecm:16,lab:'UN'},
       {id:'2',code:'P/B',ecm:75,lab:'IA'},
@@ -208,7 +208,7 @@ const CONN_BASE = {
       {id:'6',code:'W/L',ecm:56,lab:'IP'}
     ],
     note:'Sensor de relación aire/combustible del banco 1: el pin 3 recibe 12 V con fusible y el ECM solo controla su calentador (pin 4). EC-533.'},
-  af_b2:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 2', meta:'6 pines · F34 · EC-436/531', accent:'#2e7d32', shape:'af6', view:{c:'F34',g:'f',src:'EC-531',ord:'5-3-1 / 6-4-2'},
+  af_b2:{group:'motor', sub:'sensors', name:'A/F Sensor 1 · Bank 2', meta:'6 pines · F34 · EC-436/531', accent:'#2e7d32', shape:'af6', faceRows:[['5','3','1'],['6','4','2']], view:{c:'F34',g:'f',src:'EC-531',ord:'5-3-1 / 6-4-2'},
     pins:[
       {id:'1',code:'LG',ecm:76,lab:'UN'},
       {id:'2',code:'P',ecm:77,lab:'IA'},
@@ -218,7 +218,7 @@ const CONN_BASE = {
       {id:'6',code:'W',ecm:58,lab:'IP'}
     ],
     note:'Sensor de relación aire/combustible del banco 2: el pin 3 recibe 12 V con fusible y el ECM solo controla su calentador (pin 4). EC-533.'},
-  ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 1 (post-cat)', meta:'F11 B/4 · 4 pines · EC-191', accent:'#8e24aa', shape:'ho2s4', view:{c:'F11',g:'f',src:'EC-191',ord:'3-1 / 4-2'},
+  ho2s_b1:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 1 (post-cat)', meta:'F11 B/4 · 4 pines · EC-191', accent:'#8e24aa', shape:'ho2s4', faceRound:true, faceRows:[['3','1'],['4','2']], view:{c:'F11',g:'f',src:'EC-191',ord:'3-1 / 4-2'},
     pins:[
       {id:'1',lab:'SIG',code:'OR',ecm:74},
       {id:'2',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'fuses'},
@@ -226,7 +226,7 @@ const CONN_BASE = {
       {id:'4',lab:'GND',code:'B/Y',ecm:78,rail:'gnd',lab:'SNS'}
     ],
     note:'Sonda de oxígeno trasera del banco 1 (después del catalizador); su calentador recibe 12 V en el pin 2 y el ECM lo enciende por masa. EC-195.'},
-  ho2s_b2:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 2 (post-cat)', meta:'F12 GY/4 · 4 pines · EC-193', accent:'#8e24aa', shape:'ho2s4', view:{c:'F12',g:'f',src:'EC-193',ord:'3-1 / 4-2'},
+  ho2s_b2:{group:'motor', sub:'sensors', name:'HO2S2 · Bank 2 (post-cat)', meta:'F12 GY/4 · 4 pines · EC-193', accent:'#8e24aa', shape:'ho2s4', faceRound:true, faceRows:[['3','1'],['4','2']], view:{c:'F12',g:'f',src:'EC-193',ord:'3-1 / 4-2'},
     pins:[
       {id:'1',lab:'SIG',code:'L/B',ecm:55},
       {id:'2',lab:'12V',code:'R/B',ecm:null,rail:'12v',src:'JB·15A',srcSub:'fuses'},
@@ -579,7 +579,7 @@ const CONN_BASE = {
     note:'Conector intermedio del sensor de detonación F14/F229 (EC-317). La cavidad 2 lleva la señal del sensor (cable W) al pin 15 del ECM. La cavidad 1 es la malla: se une a la línea B/R del pin 116 del ECM, pasa por F103/F151·4 y termina en la masa del motor F152.'},
   ix_f103_f151:{group:'motor', sub:'power', name:'F103 ↔ F151 · Tierras ECM', meta:'4 pines · ECM 1/115/116 → F152 · EC-169/171', accent:'#78909c', shape:'ixnote',
     pins:[], note:'Masas del ECM hacia la masa del motor. Los pines 115, 1 y 116 del ECM entran por las cavidades 2, 3 y 4 de F103/F151 (F103/F151·2/3/4) y terminan en F152. La cavidad 1 va a la masa de carrocería E17 pasando por F3/E12·6.'},
-  ix_f18_f201:{group:'motor', sub:'bobinas', name:'F18 ↔ F201 · Bobinas Bank 1 + VTC', meta:'6 pines · solo Bank 1 · EC-691/455', accent:'#f57f17', shape:'f18', view:{c:'F18',g:'f',src:'EC-691',ord:'1-2-3 / 4-5-6'},
+  ix_f18_f201:{group:'motor', sub:'bobinas', name:'F18 ↔ F201 · Bobinas Bank 1 + VTC', meta:'6 pines · solo Bank 1 · EC-691/455', accent:'#f57f17', shape:'f18', faceRows:[['1','2','3'],['4','5','6']], shellFill:'#212121', view:{c:'F18',g:'f',src:'EC-691',ord:'1-2-3 / 4-5-6'},
     pins:[
       {id:'1',lab:'GND',code:'B',ecm:null,rail:'gnd',src:'F23',srcSub:'power'},
       {id:'2',lab:'C3',code:'L/R',ecm:61},
@@ -589,7 +589,7 @@ const CONN_BASE = {
       {id:'6',lab:'12V',code:'W/L',ecm:null,rail:'12v',src:'E7·17',srcSub:'ipdm',note:'12 V para la bobina 1 (EC-691).',note_en:'12 V for coil 1 (EC-691).',note_ja:'コイル1への12V（EC-691）。'}
     ],
     note:'Empalme del banco 1 (F18) para las bobinas 1 y 3 y el VTC. La cavidad 1 (B) es masa. La 2 (L/R) lleva la orden del pin 61 del ECM a la bobina 3, y la 3 (Y/R) la del pin 62 a la bobina 1. La 4 (W/R; P del otro lado) lleva la orden del pin 11 del ECM al VTC del banco 1. Las dos llevan 12 V de IPDM E7·17 por F3·5: la 5 (W/L) a la bobina 3 y al VTC del banco 1, y la 6 (W/L) a la bobina 1 (EC-691 / EC-455). La bobina 5 y el banco 2 no pasan por aquí. Se ve la cara hembra de F18 (EC-691/EC-455 T.S.: 1-2-3 / 4-5-6).'},
-  ix_f221_f33:{group:'motor', sub:'inyectores', name:'F33 ↔ F221 · Empalme inyectores', meta:'8-pin · frente del collector · no es F18', accent:'#9ccc65', shape:'f33', view:{c:'F33',g:'f',src:'EC-278',ord:'1-2-3-4 / 5-6-7-8'},
+  ix_f221_f33:{group:'motor', sub:'inyectores', name:'F33 ↔ F221 · Empalme inyectores', meta:'8-pin · frente del collector · no es F18', accent:'#9ccc65', shape:'f33', faceRows:[['1','2','3','4'],['5','6','7','8']], view:{c:'F33',g:'f',src:'EC-278',ord:'1-2-3-4 / 5-6-7-8'},
     pins:[
       {id:'1',lab:'I5',code:'SB',ecm:21},
       {id:'2',lab:'I3',code:'R/Y',ecm:22},

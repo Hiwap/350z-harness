@@ -2822,108 +2822,12 @@ function svgFaceRows(cid, f){
   const _c = cornersFromRows(rows[0], rows[rows.length-1]);
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="${round ? 22 : 6}" style="stroke:${f.accent}"/>
+    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="${round ? 22 : 6}" style="stroke:${f.accent}${f.shellFill ? `;fill:${f.shellFill}` : ''}"/>
     ${cavities}
   ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
   </svg>`;
 }
 
-/** A/F FSM face: top 5-3-1, bottom 6-4-2 (looking into connector) */
-function svgF33(cid, f){
-  /* Ezequiel's F33 female plug as drawn in EC-278 T.S. (white guide = female terminals), lock on top:
-     top 1-2-3-4 / bot 5-6-7-8 left→right. The photo faces/f33.webp is the mating male half F221
-     (EC-279 T.S., black guide: 4-3-2-1 / 8-7-6-5) = mirror of this view.
-     Fixed view: does not follow the ECM Invertida/FSM toggle. Cavity ids/wires/ECM pins unchanged. */
-  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const orderTop = ['1','2','3','4'], orderBot = ['5','6','7','8'];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=14, topY=20;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 4*cw + 3*gap;
-  const H = botY + ch + 12;
-  let cavities='';
-  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
-  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
-  const _c = cornersFromRows(orderTop, orderBot);
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="8" style="stroke:${f.accent}"/>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
-
-function svgF18(cid, f){
-  /* F18 engine-harness plug as drawn in EC-691 / EC-455 T.S. (single outline, white guide = female terminals),
-     black 6-pin, lock on top: top 1-2-3 / bot 4-5-6 left→right.
-     Fixed view: does not follow the ECM Invertida/FSM toggle. Cavity ids/wires/ECM pins unchanged. */
-  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const orderTop = ['1','2','3'], orderBot = ['4','5','6'];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=22, topY=20;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 3*cw + 2*gap;
-  const H = botY + ch + 12;
-  let cavities='';
-  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
-  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
-  const _c = cornersFromRows(orderTop, orderBot);
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="8" style="stroke:${f.accent};fill:#212121"/>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
-
-/** HO2S2 F11 (B) / F12 (GY) harness plug as drawn in EC-191/193 (and EC-195 T.S.): single outline, white guide =
-    female terminals, round 2×2, lock on top: top 3-1 / bot 4-2 left→right. Fixed view: does not follow the ECM
-    Invertida/FSM toggle (Ezequiel: show his harness plug as the FSM draws it). Cavity ids/wires/ECM pins unchanged. */
-function svgHo2s4(cid, f){
-  const byId = Object.fromEntries((f.pins||[]).map(p=>[String(p.id),p]));
-  const orderTop = ['3','1'], orderBot = ['4','2'];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=18, topY=20;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 2*cw + gap;
-  const H = botY + ch + 14;
-  let cavities='';
-  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
-  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
-  const _c = cornersFromRows(orderTop, orderBot);
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="22" style="stroke:${f.accent}"/>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
-/** A/F sensor 1 F22 (B1) / F34 (B2), B/6: harness plug as drawn in EC-529/531 and EC-533 T.S., lock hood on top:
-    top 5-3-1 / bot 6-4-2 left→right. Fixed view (does not follow the ECM Invertida/FSM toggle); this is the mirror
-    of the old default (Invertida) 1-3-5 / 2-4-6, as Ezequiel confirmed against the physical plug. */
-function svgAf6(cid, f){
-  const byId = Object.fromEntries(f.pins.map(p=>[p.id,p]));
-  const orderTop = ['5','3','1'], orderBot = ['6','4','2'];
-  const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
-  const padX=14, topY=20;
-  const botY = topY + ch + gap;
-  const W = padX*2 + 3*cw + 2*gap;
-  const H = botY + ch + 12;
-  let cavities='';
-  orderTop.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), topY, cw, ch, 4); });
-  orderBot.forEach((id,i)=>{ const p=byId[id]; if(p) cavities+=cavGroup(cid,p, padX+i*(cw+gap), botY, cw, ch, 4); });
-  const _c = cornersFromRows(orderTop, orderBot);
-
-  return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <path class="lock-tab" d="M${W/2-16} 2 h32 l6 10 H${W/2-22} Z" style="stroke:${f.accent}"/>
-    <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="6" style="stroke:${f.accent}"/>
-    ${cavities}
-  ${svgCornerPins(_c.tl, _c.tr, _c.bl, _c.br, W, H)}
-  </svg>`;
-}
 function svgRect6(cid, f){
   const cw=CAV_STD_W, ch=CAV_STD_H, gap=CAV_GAP;
   const padX=14, topY=20;
@@ -3775,10 +3679,10 @@ function renderConnSvg(cid, f){
   f = Object.assign({}, f, { accent: accentForConn(f, cid) });
   let svg;
   switch(f.shape){
-    case 'f33': svg = svgF33(cid,f); break;
-    case 'f18': svg = svgF18(cid,f); break;
-    case 'af6': svg = svgAf6(cid,f); break;
-    case 'ho2s4': svg = svgHo2s4(cid,f); break;
+    case 'f33':
+    case 'f18':
+    case 'af6':
+    case 'ho2s4': svg = svgFaceRows(cid,f); break;
     case 'rect6': svg = svgRect6(cid,f); break;
     case 'rect10': svg = svgRect10(cid,f); break;
     case 'grid': svg = svgFaceRows(cid,f); break;
