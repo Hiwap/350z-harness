@@ -15,6 +15,7 @@ import path from 'path';
 import vm from 'vm';
 import { createRequire } from 'module';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { loadMap } from './load_map.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -70,10 +71,7 @@ ok('vifMatch: value list (brake=tcs,vdc)', !ctx.vifMatch('brake=tcs,vdc', V) && 
 ok('vifMatch: AND (&)', !ctx.vifMatch('body=roadster&pseat=yes', { ...V, body: 'roadster' }) && ctx.vifMatch('body=roadster&pseat=yes', { ...V, body: 'roadster', pseat: 'yes' }));
 ok('vifMatch: OR (|) incl. trans', ctx.vifMatch('audio=bose|trans=at', { ...V, trans: 'at' }) && !ctx.vifMatch('audio=bose|trans=at', V));
 
-const ci = script.indexOf('const CONN_BASE = {'); const cj = script.indexOf('const CONN_FACE = {', ci + 1);
-const c2 = {}; vm.createContext(c2);
-vm.runInContext(script.slice(ci, cj) + '\nthis.C = CONN_BASE;', c2);
-const C = c2.C;
+const { CONN_BASE: C } = loadMap(path.join(root, 'index.html'));
 const bi = script.indexOf('function buildCircuits('); const bj = script.indexOf('\n/* ========== Connectors', bi);
 const c3 = {}; vm.createContext(c3);
 vm.runInContext(script.slice(bi, bj) + '\nthis.R = buildCircuits("de_early"); this.R2 = buildCircuits("de_revup");', c3);
