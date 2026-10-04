@@ -12,6 +12,7 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
+import { loadLoomBodyExtra } from './load_map.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -26,7 +27,14 @@ if (!HTML) {
   console.error('HTML not found. Tried:', HTML_CANDIDATES.join(', '));
   process.exit(1);
 }
-const html = fs.readFileSync(HTML, 'utf8');
+const html = fs.readFileSync(HTML, 'utf8').replace(
+  'let CONN = {};',
+  fs.readFileSync(path.join(ROOT, 'data', 'conn.js'), 'utf8')
+    + fs.readFileSync(path.join(ROOT, 'data', 'i18n.js'), 'utf8')
+    + 'let CONN = {};\n'
+    + fs.readFileSync(path.join(ROOT, 'js', 'selection.js'), 'utf8'),
+);
+const LOOM_BODY_EXTRA = loadLoomBodyExtra(html);
 const failures = [];
 const passes = [];
 
@@ -127,7 +135,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     && /\{id:'alt_s'[\s\S]*?path:\{fuse_link_box:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['4'\]\}/.test(html)
     && /\{id:'alt_l'[\s\S]*?path:\{f20_alt:\['3'\],ix_f102_m72:\['13H'\]\}/.test(html));
   ok('Arnés motor hides alternator B/E (battery cable PG-53) and the E18/E21 fuse box (fuse 36)',
-    /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'fuse_link_box'[\s\S]*?'alt_b', 'alt_e'[\s\S]*?\]\);/.test(html));
+    LOOM_BODY_EXTRA.has('fuse_link_box') && LOOM_BODY_EXTRA.has('alt_b') && LOOM_BODY_EXTRA.has('alt_e'));
 }
 {
   /* Fuse cards: one top-level ficha group 'fuses' (Fusibles / Fuses / ヒューズ), collapsed by default, body-side (hidden in Arnés motor). */
@@ -143,7 +151,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('SUB_ACCENT has fuses colour', /SUB_ACCENT = \{[\s\S]*?\n  fuses:\s*'#[0-9a-f]{6}'/.test(html));
   ok('Fusibles group collapsed by default (SUB_DEFAULT_CLOSED)', /const SUB_DEFAULT_CLOSED = new Set\(\['fuses'\]\)/.test(html)
     && /sec\.open = saved === null \? !SUB_DEFAULT_CLOSED\.has\(sk\) : saved === '1'/.test(html));
-  ok('LOOM_BODY_EXTRA keeps every fuse card (hidden in Arnés motor)', FUSES.every((id) => new RegExp(`const LOOM_BODY_EXTRA = new Set\\(\\[[\\s\\S]*?'${id}'[\\s\\S]*?\\]\\);`).test(html)));
+  ok('LOOM_BODY_EXTRA keeps every fuse card (hidden in Arnés motor)', FUSES.every((id) => LOOM_BODY_EXTRA.has(id)));
   ok('power-path helpers treat fuses like feeds', /f\.sub === 'feeds' \|\| f\.sub === 'fuses'/.test(html) && /f\.sub === 'feeds' \|\| f\.sub === 'fuses'\)\) connSet\.add/.test(html)
     && /HL_GROUP_SUB_PRIORITY = \[[^\]]*'fuses'/.test(html));
   /* Fuse box fichas drawn like the FSM terminal arrangement (PG-88 J/B, PG-89 E18/E21) */
@@ -424,22 +432,42 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       && (html.match(/faceNoteMateMirror: '/g) || []).length === 3,
       faceOf('ix_f221_f33'));
     {
-      const fn = (html.match(/function svgF33\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
-      ok('svgF33: fixed F33 female order top 1-2-3-4 / bot 5-6-7-8 (EC-278 T.S.), no ECM-orient flipRow',
-        /const orderTop = \['1','2','3','4'\], orderBot = \['5','6','7','8'\];/.test(fn) && !/flipRow/.test(fn));
-      const fnHo = (html.match(/function svgHo2s4\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
-      ok('svgHo2s4 (HO2S2 F11/F12): fixed 2×2 order top 3-1 / bot 4-2 (EC-191/193/195 T.S.), no flipRow; both banks use it',
-        /const orderTop = \['3','1'\], orderBot = \['4','2'\];/.test(fnHo) && !/flipRow/.test(fnHo)
-        && /ho2s_b1:\{[^\n]*shape:'ho2s4'/.test(html) && /ho2s_b2:\{[^\n]*shape:'ho2s4'/.test(html));
-      const fnAf = (html.match(/function svgAf6\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
-      ok('svgAf6 (A/F F22/F34): fixed order top 5-3-1 / bot 6-4-2 (EC-529/531/533 T.S.), no flipRow',
-        /const orderTop = \['5','3','1'\], orderBot = \['6','4','2'\];/.test(fnAf) && !/flipRow/.test(fnAf));
+      const banned = ['svgF33', 'svgF18', 'svgHo2s4', 'svgAf6'];
+      const stillFn = banned.filter((name) => new RegExp('function ' + name + '\\(').test(script));
+      ok('svgF33, svgF18, svgHo2s4, svgAf6 are not functions', stillFn.length === 0, stillFn.join(','));
+      const cards = {};
+      vm.createContext(cards);
+      vm.runInContext(
+        fs.readFileSync(path.join(ROOT, 'data', 'conn.js'), 'utf8') + '\nvar __cards = CONN_BASE;',
+        cards,
+      );
+      const wantRows = {
+        af_b1: [['5', '3', '1'], ['6', '4', '2']],
+        af_b2: [['5', '3', '1'], ['6', '4', '2']],
+        ho2s_b1: [['3', '1'], ['4', '2']],
+        ho2s_b2: [['3', '1'], ['4', '2']],
+        ix_f18_f201: [['1', '2', '3'], ['4', '5', '6']],
+        ix_f221_f33: [['1', '2', '3', '4'], ['5', '6', '7', '8']],
+      };
+      const rowBad = Object.entries(wantRows).filter(([id, rows]) =>
+        JSON.stringify(cards.__cards[id] && cards.__cards[id].faceRows) !== JSON.stringify(rows));
+      ok('loaded faceRows on af_b1, af_b2, ho2s_b1, ho2s_b2, ix_f18_f201, ix_f221_f33',
+        rowBad.length === 0, rowBad.map(([id, rows]) => id + ' want ' + JSON.stringify(rows)).join('; '));
+      const base = cards.__cards;
+      const shapeOk = base.af_b1.shape === 'af6' && base.af_b2.shape === 'af6'
+        && base.ho2s_b1.shape === 'ho2s4' && base.ho2s_b1.faceRound === true
+        && base.ho2s_b2.shape === 'ho2s4' && base.ho2s_b2.faceRound === true
+        && base.ix_f18_f201.shape === 'f18' && base.ix_f18_f201.shellFill === '#212121'
+        && base.ix_f221_f33.shape === 'f33';
+      const otherFill = Object.entries(base).filter(([id, card]) => card && card.shellFill && id !== 'ix_f18_f201').map(([id]) => id);
+      ok('shellFill is only #212121 on ix_f18_f201, HO2S stays faceRound, shapes stay af6/ho2s4/f18/f33',
+        shapeOk && otherFill.length === 0, otherFill.join(','));
+      ok('f33, f18, af6, and ho2s4 call svgFaceRows',
+        /case 'f33':\r?\n    case 'f18':\r?\n    case 'af6':\r?\n    case 'ho2s4': svg = svgFaceRows\(cid,f\); break;/.test(script));
       const pp = fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8');
-      ok('print pack af6 uses the same fixed 5-3-1 / 6-4-2 order (no FACE_INV mirror)',
-        /order = \[\["5", "3", "1"\], \["6", "4", "2"\]\]/.test(pp));
-      const fn18 = (html.match(/function svgF18\(cid, f\)\{[\s\S]*?\n\}/) || [''])[0];
-      ok('svgF18: fixed F18 female order top 1-2-3 / bot 4-5-6 (EC-691/455 T.S.), no ECM-orient flipRow',
-        /const orderTop = \['1','2','3'\], orderBot = \['4','5','6'\];/.test(fn18) && !/flipRow/.test(fn18));
+      ok('print pack af6 has no private 5-3-1 / 6-4-2 order; af_b1.faceRows is still that order',
+        !/order = \[\["5", "3", "1"\], \["6", "4", "2"\]\]/.test(pp)
+        && JSON.stringify(base.af_b1 && base.af_b1.faceRows) === JSON.stringify([['5', '3', '1'], ['6', '4', '2']]));
     }
     ok('A/F face caption carries the localized similar/lock note', /af_b1:[^\n]*note: 'faceNoteSimilarLock'/.test(faceBlock[1])
       && (html.match(/faceNoteSimilarLock: '/g) || []).length === 3 /* es + en + ja packs */);

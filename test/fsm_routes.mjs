@@ -17,32 +17,15 @@
  */
 import fs from 'fs';
 import path from 'path';
-import vm from 'vm';
 import { fileURLToPath } from 'url';
+import { loadMap } from './load_map.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const HTML = process.argv[2] || path.join(ROOT, 'index.html');
 const TABLE = JSON.parse(fs.readFileSync(path.join(__dirname, 'fsm_ecm_routes.json'), 'utf8'));
 
-export function loadMap(htmlPath = HTML) {
-  const html = fs.readFileSync(htmlPath, 'utf8');
-  const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-  const i = script.indexOf('const CONN_BASE = {');
-  const j = script.indexOf('const CONN_FACE = {', i + 1);
-  if (i < 0 || j < 0) throw new Error('CONN_BASE block not found');
-  const src = script.slice(i, j) + '\n'
-    + script.match(/const PIN_COL = \{[\s\S]*?\};/)[0] + '\n'
-    + script.match(/const PIN_RAIL = \{[\s\S]*?\};/)[0] + '\n'
-    + script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/)[0]
-    + '\nresult = {CONN_BASE, PIN_COL, PIN_RAIL, early: buildCircuits("de_early"), rev: buildCircuits("de_revup")};';
-  const ctx = { result: null };
-  vm.createContext(ctx);
-  vm.runInContext(src, ctx);
-  return ctx.result;
-}
-
-const { CONN_BASE, PIN_COL, PIN_RAIL, early, rev } = loadMap();
+const { CONN_BASE, PIN_COL, PIN_RAIL, early, rev } = loadMap(HTML);
 const CIRCUITS = [...new Map([...early, ...rev].map((c) => [c.id, c])).values()];
 
 let pass = 0, skip = 0;

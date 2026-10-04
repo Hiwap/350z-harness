@@ -9,6 +9,7 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
+import { loadLoomBodyExtra } from './load_map.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -23,7 +24,14 @@ if (!HTML) {
   console.error('HTML not found. Tried:', HTML_CANDIDATES.join(', '));
   process.exit(1);
 }
-const html = fs.readFileSync(HTML, 'utf8');
+const html = fs.readFileSync(HTML, 'utf8').replace(
+  'let CONN = {};',
+  fs.readFileSync(path.join(ROOT, 'data', 'conn.js'), 'utf8')
+    + fs.readFileSync(path.join(ROOT, 'data', 'i18n.js'), 'utf8')
+    + 'let CONN = {};\n'
+    + fs.readFileSync(path.join(ROOT, 'js', 'selection.js'), 'utf8'),
+);
+const LOOM_BODY_EXTRA = loadLoomBodyExtra(html);
 const failures = [];
 const passes = [];
 
@@ -55,20 +63,16 @@ ok('node --check extracted script', chk.status === 0, chk.stderr?.trim() || 'syn
    fuel pump / level unit B27 is Body harness (EC-710). Same treatment as IPDM / E108 / JB fuses. */
 for (const id of ['evap_press', 'evap_vent', 'fuel_pump', 'ix_t2_b44']) {
   ok(`${id} in LOOM_BODY_EXTRA (rear/tank, not on pulled motor loom)`,
-    html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0].includes(`'${id}'`));
+    LOOM_BODY_EXTRA.has(id));
 }
-ok('ac_press in LOOM_BODY_EXTRA',
-  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'ac_press'[\s\S]*?\]\)/.test(html));
+ok('ac_press in LOOM_BODY_EXTRA', LOOM_BODY_EXTRA.has('ac_press'));
 ok('cabin JB fuse notes in LOOM_BODY_EXTRA',
-  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'jb_fuse_block'[\s\S]*?'fuse_link_box'[\s\S]*?\]\)/.test(html));
-ok('F9 starter not on pulled motor loom',
-  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'f9_starter'[\s\S]*?\]\)/.test(html));
+  LOOM_BODY_EXTRA.has('jb_fuse_block') && LOOM_BODY_EXTRA.has('fuse_link_box'));
+ok('F9 starter not on pulled motor loom', LOOM_BODY_EXTRA.has('f9_starter'));
 ok('F16 condenser and F24 A/C clutch not on pulled motor loom',
-  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'f16_cond'[\s\S]*?'f24_comp'[\s\S]*?\]\)/.test(html));
-ok('F21 oil pressure not on pulled motor loom',
-  /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'f21_oilp'[\s\S]*?\]\)/.test(html));
-ok('F20 alternator stays on motor loom',
-  !html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0].includes("'f20_alt'"));
+  LOOM_BODY_EXTRA.has('f16_cond') && LOOM_BODY_EXTRA.has('f24_comp'));
+ok('F21 oil pressure not on pulled motor loom', LOOM_BODY_EXTRA.has('f21_oilp'));
+ok('F20 alternator stays on motor loom', !LOOM_BODY_EXTRA.has('f20_alt'));
 ok('evap_press CONN exists', /\n  evap_press:\{/.test(html));
 
 {
@@ -151,12 +155,10 @@ ok('actuators render no longer nests bobinas under actuators',
   try {
     const ctx = { console, result: {} };
     vm.createContext(ctx);
-    const loomOnly = html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0];
-    vm.runInContext(loomOnly + '; result.loom = [...LOOM_BODY_EXTRA];', ctx);
     ok('eval LOOM_BODY_EXTRA has evap_press (T21 Tail harness PG-63)',
-      ctx.result.loom.includes('evap_press'),
-      JSON.stringify(ctx.result.loom.filter(x => x.startsWith('evap') || x.startsWith('fuel') || x === 'ac_press')));
-    ok('eval LOOM_BODY_EXTRA has ac_press', ctx.result.loom.includes('ac_press'));
+      LOOM_BODY_EXTRA.has('evap_press'),
+      [...LOOM_BODY_EXTRA].filter(x => x.startsWith('evap') || x.startsWith('fuel') || x === 'ac_press').join(','));
+    ok('eval LOOM_BODY_EXTRA has ac_press', LOOM_BODY_EXTRA.has('ac_press'));
 
     const buildFn = script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/);
     if (buildFn) {
@@ -268,7 +270,7 @@ ok('actuators render no longer nests bobinas under actuators',
   ok('f152 engine ground ficha (motor/power ring)',
     /\n  f152:\{group:'motor', sub:'power', name:'Masa motor · F152', meta:'punto de masa F152 · EC-169'[^\n]*shape:'ring'/.test(html));
   ok('f152 not hidden from Arnès motor (LOOM_BODY_EXTRA)',
-    !html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0].includes("'f152'"));
+    !LOOM_BODY_EXTRA.has('f152'));
   ok('f152 has CONN_I18N en/ja', /\n  f152: \{\n    en: \{ name:'Engine ground · F152'/.test(html) && /ja: \{ name:'エンジンアース · F152'/.test(html));
   ok('no stale F103·A/B/C/D or "→ D → E17" strings',
     !/F103·[ABCD]\b/.test(html) && !/→ D → E17/.test(html) && !/D→E17/.test(html) && !/A\/B\/C/.test(html));
@@ -276,10 +278,9 @@ ok('actuators render no longer nests bobinas under actuators',
   ok('print pack F103 uses cavities 1-4 (not A/B/C/D)',
     !pp || (!/\("A", "B", "1"\)/.test(pp) && /\("4", "B\/R", "116"\)/.test(pp)));
   try {
-    const ctx = { result: {} };
+    const ctx = { result: {}, LOOM_BODY_EXTRA };
     vm.createContext(ctx);
-    const loomSrc = html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0]
-      + "\nconst LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);\nconst CONN_BASE = { f152:{group:'motor'}, e17:{group:'motor'} }; const CONN = {};\n"
+    const loomSrc = "const LOOM_MOTOR_KEEP = new Set(['ix_e10_f1', 'ix_e11_f2', 'ix_e12_f3']);\nconst CONN_BASE = { f152:{group:'motor'}, e17:{group:'motor'} }; const CONN = {};\n"
       + script.match(/function loomOfConn\([\s\S]*?\n\}/)[0];
     vm.runInContext(loomSrc + "; result.f152 = loomOfConn('f152');", ctx);
     ok('loomOfConn(f152) === motor (visible in Arnès motor)', ctx.result.f152 === 'motor', ctx.result.f152);
@@ -438,7 +439,7 @@ ok('actuators render no longer nests bobinas under actuators',
   ok('EVT fichas hidden on VQ35DE sin VTC escape',
     /id !== 'f38_evtc_b1' && id !== 'f42_evtc_b2'/.test(html));
   ok('EVT fichas not in LOOM_BODY_EXTRA (engine loom)',
-    !/'f38_evtc_b1'|'f42_evtc_b2'/.test(html.match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/)[0]));
+    !LOOM_BODY_EXTRA.has('f38_evtc_b1') && !LOOM_BODY_EXTRA.has('f42_evtc_b2'));
   ok('ECM 53/72 inactive unless Rev-Up',
     /\(Number\(p\)===53 \|\| Number\(p\)===72\) && model !== 'de_revup'/.test(html));
   ok('PIN_COL 53 L/B · 72 L/W', /"53":"L\/B"/.test(html) && /"72":"L\/W"/.test(html));

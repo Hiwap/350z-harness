@@ -1,18 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { loadMap } from './load_map.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-
-function extractI18N() {
-  const start = html.indexOf('const I18N = {');
-  const end = html.indexOf('\nconst TITLES_I18N');
-  if (start < 0 || end < 0) throw new Error('Could not find I18N object in index.html');
-  return Function(html.slice(start, end) + '; return I18N;')();
-}
-
-const I18N = extractI18N();
+const loaded = loadMap(path.join(root, 'index.html'));
+const I18N = loaded.I18N;
 const LANGS = ['es', 'en', 'ja'];
 let failed = 0;
 function ok(cond, msg) {
@@ -82,15 +76,8 @@ for (const key of used) {
   }
 }
 
-function grab(startTok, endTok) {
-  const s = html.indexOf(startTok);
-  const e = html.indexOf(endTok, s + 1);
-  if (s < 0 || e < 0) throw new Error('missing ' + startTok);
-  return html.slice(s, e);
-}
-
 console.log('\ncavity notes have note_en');
-const CONN_BASE = Function(grab('const CONN_BASE = {', 'const CONN_FACE = {') + '; return CONN_BASE;')();
+const CONN_BASE = loaded.CONN_BASE;
 const missingNoteEn = [];
 for (const id of Object.keys(CONN_BASE)) {
   for (const pin of CONN_BASE[id].pins || []) {
@@ -98,6 +85,14 @@ for (const id of Object.keys(CONN_BASE)) {
   }
 }
 ok(missingNoteEn.length === 0, 'every pin.note has note_en' + (missingNoteEn.length ? ` missing: ${missingNoteEn.join(', ')}` : ''));
+
+const missingNoteJa = [];
+for (const id of Object.keys(CONN_BASE)) {
+  for (const pin of CONN_BASE[id].pins || []) {
+    if (pin.note && !pin.note_ja) missingNoteJa.push(id + '·' + pin.id);
+  }
+}
+ok(missingNoteJa.length === 0, 'every pin.note has note_ja' + (missingNoteJa.length ? ` missing: ${missingNoteJa.join(', ')}` : ''));
 
 console.log('\nEnglish packs stay English');
 const esLeak = /[áéíóúñ¿¡]|\b(Ruta:|Arnés|ficha|Fichas|calentador|Bobina|Inyector|venteo|habitáculo|carrocería|embrague|Arranque|admisión|mariposa|seleccionados)\b/i;
@@ -111,15 +106,38 @@ function walkLeak(obj, p, hits) {
     hits.push(p + ': ' + obj.slice(0, 120));
   }
 }
-const TITLES = Function(grab('const TITLES_I18N = {', 'const NOTES_I18N = {') + '; return TITLES_I18N;')();
-const NOTES = Function(grab('const NOTES_I18N = {', 'function t(key)') + '; return NOTES_I18N;')();
-const CONN_I18N = Function(grab('const CONN_I18N = {', 'function connField') + '; return CONN_I18N;')();
+const TITLES = loaded.TITLES_I18N;
+const NOTES = loaded.NOTES_I18N;
+const CONN_I18N = loaded.CONN_I18N;
 const leaks = [];
 walkLeak(I18N, 'I18N', leaks);
 walkLeak(TITLES, 'TITLES', leaks);
 walkLeak(NOTES, 'NOTES', leaks);
 walkLeak(CONN_I18N, 'CONN', leaks);
 ok(leaks.length === 0, 'no Spanish leftovers in EN strings' + (leaks.length ? `\n    ${leaks.slice(0, 12).join('\n    ')}` : ''));
+
+const missingConnLang = [];
+for (const id of Object.keys(CONN_BASE)) {
+  const tr = CONN_I18N[id];
+  if (!tr || tr.en == null) missingConnLang.push(id + '.en');
+  if (!tr || tr.ja == null) missingConnLang.push(id + '.ja');
+}
+ok(missingConnLang.length === 0, 'every CONN_BASE id has CONN_I18N en and ja' + (missingConnLang.length ? ` missing: ${missingConnLang.join(', ')}` : ''));
+
+const badLangValue = [];
+for (const [name, table] of [['TITLES_I18N', TITLES], ['NOTES_I18N', NOTES]]) {
+  for (const id of Object.keys(table)) {
+    const row = table[id];
+    if (!row || typeof row !== 'object') {
+      badLangValue.push(name + '.' + id);
+      continue;
+    }
+    for (const [lang, value] of Object.entries(row)) {
+      if (typeof value !== 'string') badLangValue.push(name + '.' + id + '.' + lang);
+    }
+  }
+}
+ok(badLangValue.length === 0, 'TITLES_I18N and NOTES_I18N language values are strings' + (badLangValue.length ? ` bad: ${badLangValue.join(', ')}` : ''));
 
 ok(!/>Alim\. 12V</.test(html), 'info Power-12V pill uses t(), not hardcoded Alim.');
 ok(/t\('hdrTitle'\)/.test(html) && /t\('pageTitle'\)/.test(html), 'applyLang sets h1 + document.title');

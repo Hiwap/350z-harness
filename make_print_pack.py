@@ -43,28 +43,12 @@ if LANG == "ja":
 import subprocess
 
 def _load_map_i18n():
-    """Load const I18N / CONN_BASE / CONN_I18N from index.html via Node (same as test/i18n.mjs)."""
-    script = r"""
-const fs = require('fs');
-const html = fs.readFileSync(process.argv[1], 'utf8');
-function extract(name, endRe) {
-  const start = html.indexOf('const ' + name + ' = {');
-  if (start < 0) throw new Error('missing ' + name);
-  const rest = html.slice(start + 1);
-  const m = rest.match(endRe);
-  if (!m) throw new Error('no end for ' + name);
-  const end = start + 1 + m.index;
-  return Function(html.slice(start, end) + '; return ' + name + ';')();
-}
-const I18N = extract('I18N', /\nconst TITLES_I18N/);
-const CONN_BASE = extract('CONN_BASE', /\nconst LS_LOOM/);
-const CONN_I18N = extract('CONN_I18N', /\nconst IPDM_DISPLAY_ORDER/);
-console.log(JSON.stringify({ I18N, CONN_BASE, CONN_I18N }));
-"""
+    """I18N, CONN_BASE, and CONN_I18N from test/load_map.mjs."""
     map_html = os.path.join(_ROOT, 'index.html')
     if not os.path.isfile(map_html):
         map_html = '/workspace/350z-harness-pages/index.html'
-    raw = subprocess.check_output(['node', '-e', script, map_html], text=True)
+    loader = os.path.join(_ROOT, 'test', 'load_map.mjs')
+    raw = subprocess.check_output(['node', loader, map_html], text=True)
     return json.loads(raw)
 
 _MAP = _load_map_i18n()
@@ -393,7 +377,7 @@ def draw_ficha_header(x, y, w, h, title, subtitle="", accent=None, qty=""):
     return band_h
 
 
-def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None, subtitle="", rail_5v=False, face_inv=None):
+def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None, subtitle="", rail_5v=False, face_inv=None, cid=None):
     """
     Connector card: group-colored outline (web SUB_ACCENT). Optional amber outer ring for 5V.
     Wire color only on cavity stroke + codes. Invertida L/R on faces.
@@ -501,17 +485,20 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     face_w = w - 7
     face_h = max(18, h - title_band - 3)
 
-    # ---- AF6: fixed harness-plug face as FSM T.S. (EC-529/531/533): top 5-3-1 / bot 6-4-2 ----
-    # Same fixed view as the map (svgAf6); not mirrored by FACE_INV (Ezequiel checked the physical plug).
-    if face == "af6" and all(k in by for k in ("1", "2", "3", "4", "5", "6")):
-        order = [["5", "3", "1"], ["6", "4", "2"]]
-        cw, ch = cav_fit(face_w, face_h, 3, 2)
-        ox = face_x + max(0, (face_w - 3 * cw) / 2)
-        oy = face_y + max(0, (face_h - 2 * ch) / 2)
-        for ri, row in enumerate(order):
+    # Fixed FSM T.S. plug face. Not mirrored by FACE_INV.
+    if face == "af6":
+        rows = (CONN_BASE.get(cid) or {}).get("faceRows") if cid else None
+        if not rows:
+            raise SystemExit("print pack: %s has no faceRows" % cid)
+        n_rows = len(rows)
+        cols = max(len(row) for row in rows)
+        cw, ch = cav_fit(face_w, face_h, cols, n_rows)
+        ox = face_x + max(0, (face_w - cols * cw) / 2)
+        oy = face_y + max(0, (face_h - n_rows * ch) / 2)
+        for ri, row in enumerate(rows):
             for ci, key in enumerate(row):
-                lab, col, note = _pin_disp(by[key])
-                draw_cavity(ox + ci * cw, oy + (1 - ri) * ch, cw, ch, lab, col, note, fs=4.0)
+                lab, col, note = _pin_disp(by[str(key)])
+                draw_cavity(ox + ci * cw, oy + (n_rows - 1 - ri) * ch, cw, ch, lab, col, note, fs=4.0)
         return
 
     # ---- E113 APP FSM face (EC-523 T.S.): fixed top 3-2-1 / bot 6-5-4 ----
@@ -1177,11 +1164,11 @@ cw_ho = (usable_w - 2 * cw_af - GAP) / 2
 ficha(ML, y - ch_af, cw_af, ch_af, t("title_af_b1"),
       [("1", "LG/B", "16"), ("2", "P/B", "75"), ("3", "12V", "fuse"),
        ("4", "GY/R", "2"), ("5", "L/W", "35"), ("6", "W/L", "56")],
-      "af6", face="af6", subtitle=t("sub_af_b1"), accent=GRP["sensors"])
+      "af6", face="af6", subtitle=t("sub_af_b1"), accent=GRP["sensors"], cid="af_b1")
 ficha(ML + cw_af + GAP, y - ch_af, cw_af, ch_af, t("title_af_b2"),
       [("1", "LG", "76"), ("2", "P", "77"), ("3", "12V", "fuse"),
        ("4", "GY", "24"), ("5", "L", "57"), ("6", "W", "58")],
-      "af6", face="af6", subtitle=t("sub_af_b2"), accent=GRP["sensors"])
+      "af6", face="af6", subtitle=t("sub_af_b2"), accent=GRP["sensors"], cid="af_b2")
 ficha(ML + 2 * (cw_af + GAP), y - ch_af, cw_ho, ch_af, t("title_f11"),
       [("htr", "P/B", "25"), ("12V", "12V", "fuse")],
       "tab2", subtitle=t("sub_f11"), accent=GRP["sensors"])
