@@ -43,28 +43,12 @@ if LANG == "ja":
 import subprocess
 
 def _load_map_i18n():
-    """Load const I18N / CONN_BASE / CONN_I18N from index.html via Node (same as test/i18n.mjs)."""
-    script = r"""
-const fs = require('fs');
-const html = fs.readFileSync(process.argv[1], 'utf8');
-function extract(name, endRe) {
-  const start = html.indexOf('const ' + name + ' = {');
-  if (start < 0) throw new Error('missing ' + name);
-  const rest = html.slice(start + 1);
-  const m = rest.match(endRe);
-  if (!m) throw new Error('no end for ' + name);
-  const end = start + 1 + m.index;
-  return Function(html.slice(start, end) + '; return ' + name + ';')();
-}
-const I18N = extract('I18N', /\nconst TITLES_I18N/);
-const CONN_BASE = extract('CONN_BASE', /\nconst LS_LOOM/);
-const CONN_I18N = extract('CONN_I18N', /\nconst IPDM_DISPLAY_ORDER/);
-console.log(JSON.stringify({ I18N, CONN_BASE, CONN_I18N }));
-"""
+    """I18N, CONN_BASE, and CONN_I18N from test/load_map.mjs."""
     map_html = os.path.join(_ROOT, 'index.html')
     if not os.path.isfile(map_html):
         map_html = '/workspace/350z-harness-pages/index.html'
-    raw = subprocess.check_output(['node', '-e', script, map_html], text=True)
+    loader = os.path.join(_ROOT, 'test', 'load_map.mjs')
+    raw = subprocess.check_output(['node', loader, map_html], text=True)
     return json.loads(raw)
 
 _MAP = _load_map_i18n()
