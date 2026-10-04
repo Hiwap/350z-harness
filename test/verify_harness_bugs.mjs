@@ -23,7 +23,10 @@ if (!HTML) {
   console.error('HTML not found. Tried:', HTML_CANDIDATES.join(', '));
   process.exit(1);
 }
-const html = fs.readFileSync(HTML, 'utf8');
+const html = fs.readFileSync(HTML, 'utf8').replace(
+  'let CONN = {};',
+  fs.readFileSync(path.join(ROOT, 'data', 'conn.js'), 'utf8') + 'let CONN = {};',
+);
 const failures = [];
 const passes = [];
 

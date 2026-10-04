@@ -13,10 +13,8 @@ function cut(script, startTok, endTok) {
 export function loadMap(htmlPath) {
   const html = fs.readFileSync(htmlPath, 'utf8');
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-  const i = script.indexOf('const CONN_BASE = {');
-  const j = script.indexOf('const CONN_FACE = {', i + 1);
-  if (i < 0 || j < 0) throw new Error('anchor missing');
-  const src = script.slice(i, j) + '\n'
+  const connSrc = fs.readFileSync(path.join(path.dirname(path.resolve(htmlPath)), 'data', 'conn.js'), 'utf8');
+  const src = connSrc + '\n'
     + script.match(/const PIN_COL = \{[\s\S]*?\};/)[0] + '\n'
     + script.match(/const PIN_RAIL = \{[\s\S]*?\};/)[0] + '\n'
     + script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/)[0] + '\n'
