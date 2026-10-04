@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const LIMIT = 117;
+const LIMIT = 115;
 const here = path.dirname(fileURLToPath(import.meta.url));
 const target = process.argv[2]
   ? path.resolve(process.argv[2])

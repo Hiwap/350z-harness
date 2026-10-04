@@ -3,6 +3,17 @@ import path from 'path';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
 
+export function loadLoomBodyExtra(html) {
+  const script = html.match(/<script>([\s\S]*?)<\/script>/);
+  if (!script) throw new Error('no <script> block');
+  const decl = script[1].match(/const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?\]\);/);
+  if (!decl) throw new Error('LOOM_BODY_EXTRA missing');
+  const ctx = { result: null };
+  vm.createContext(ctx);
+  vm.runInContext(decl[0] + '; result = LOOM_BODY_EXTRA;', ctx);
+  return ctx.result;
+}
+
 export function loadMap(htmlPath) {
   const html = fs.readFileSync(htmlPath, 'utf8');
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
@@ -18,6 +29,7 @@ export function loadMap(htmlPath) {
   const ctx = { result: null };
   vm.createContext(ctx);
   vm.runInContext(src, ctx);
+  ctx.result.LOOM_BODY_EXTRA = loadLoomBodyExtra(html);
   return ctx.result;
 }
 

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node test/html_source_limit.mjs && node test/harness_page_tests.mjs",
-    "test:static": "HARNESS_SKIP_BROWSER=1 node test/harness_page_tests.mjs",
+    "test:static": "node test/html_source_limit.mjs && HARNESS_SKIP_BROWSER=1 node test/harness_page_tests.mjs",
     "test:i18n": "node test/i18n.mjs",
     "test:ui": "node test/ui-lang.mjs",
     "test:f102": "node test/f102.mjs",

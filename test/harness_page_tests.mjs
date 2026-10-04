@@ -12,6 +12,7 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
+import { loadLoomBodyExtra } from './load_map.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -33,6 +34,7 @@ const html = fs.readFileSync(HTML, 'utf8').replace(
     + 'let CONN = {};\n'
     + fs.readFileSync(path.join(ROOT, 'js', 'selection.js'), 'utf8'),
 );
+const LOOM_BODY_EXTRA = loadLoomBodyExtra(html);
 const failures = [];
 const passes = [];
 
@@ -133,7 +135,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     && /\{id:'alt_s'[\s\S]*?path:\{fuse_link_box:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['4'\]\}/.test(html)
     && /\{id:'alt_l'[\s\S]*?path:\{f20_alt:\['3'\],ix_f102_m72:\['13H'\]\}/.test(html));
   ok('Arnés motor hides alternator B/E (battery cable PG-53) and the E18/E21 fuse box (fuse 36)',
-    /const LOOM_BODY_EXTRA = new Set\(\[[\s\S]*?'fuse_link_box'[\s\S]*?'alt_b', 'alt_e'[\s\S]*?\]\);/.test(html));
+    LOOM_BODY_EXTRA.has('fuse_link_box') && LOOM_BODY_EXTRA.has('alt_b') && LOOM_BODY_EXTRA.has('alt_e'));
 }
 {
   /* Fuse cards: one top-level ficha group 'fuses' (Fusibles / Fuses / ヒューズ), collapsed by default, body-side (hidden in Arnés motor). */
@@ -149,7 +151,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('SUB_ACCENT has fuses colour', /SUB_ACCENT = \{[\s\S]*?\n  fuses:\s*'#[0-9a-f]{6}'/.test(html));
   ok('Fusibles group collapsed by default (SUB_DEFAULT_CLOSED)', /const SUB_DEFAULT_CLOSED = new Set\(\['fuses'\]\)/.test(html)
     && /sec\.open = saved === null \? !SUB_DEFAULT_CLOSED\.has\(sk\) : saved === '1'/.test(html));
-  ok('LOOM_BODY_EXTRA keeps every fuse card (hidden in Arnés motor)', FUSES.every((id) => new RegExp(`const LOOM_BODY_EXTRA = new Set\\(\\[[\\s\\S]*?'${id}'[\\s\\S]*?\\]\\);`).test(html)));
+  ok('LOOM_BODY_EXTRA keeps every fuse card (hidden in Arnés motor)', FUSES.every((id) => LOOM_BODY_EXTRA.has(id)));
   ok('power-path helpers treat fuses like feeds', /f\.sub === 'feeds' \|\| f\.sub === 'fuses'/.test(html) && /f\.sub === 'feeds' \|\| f\.sub === 'fuses'\)\) connSet\.add/.test(html)
     && /HL_GROUP_SUB_PRIORITY = \[[^\]]*'fuses'/.test(html));
   /* Fuse box fichas drawn like the FSM terminal arrangement (PG-88 J/B, PG-89 E18/E21) */
