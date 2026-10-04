@@ -462,8 +462,9 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       ok('f33, f18, af6, and ho2s4 call svgFaceRows',
         /case 'f33':\r?\n    case 'f18':\r?\n    case 'af6':\r?\n    case 'ho2s4': svg = svgFaceRows\(cid,f\); break;/.test(script));
       const pp = fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8');
-      ok('print pack af6 uses the same fixed 5-3-1 / 6-4-2 order (no FACE_INV mirror)',
-        /order = \[\["5", "3", "1"\], \["6", "4", "2"\]\]/.test(pp));
+      ok('print pack af6 has no private 5-3-1 / 6-4-2 order; af_b1.faceRows is still that order',
+        !/order = \[\["5", "3", "1"\], \["6", "4", "2"\]\]/.test(pp)
+        && JSON.stringify(base.af_b1 && base.af_b1.faceRows) === JSON.stringify([['5', '3', '1'], ['6', '4', '2']]));
     }
     ok('A/F face caption carries the localized similar/lock note', /af_b1:[^\n]*note: 'faceNoteSimilarLock'/.test(faceBlock[1])
       && (html.match(/faceNoteSimilarLock: '/g) || []).length === 3 /* es + en + ja packs */);
