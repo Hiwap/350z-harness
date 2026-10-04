@@ -60,6 +60,7 @@
     margin: 0 0 8px;
   }
   #ecm .ecm-head h2 { margin: 0; }
+  #ecm .ecm-head-tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
   #ecm .ecm-sel-pins {
     margin: 8px 0 10px;
     font-size: 12px; font-weight: 700; color: #ffe082;
@@ -418,7 +419,8 @@
   .ipdm-grid > .ficha-wrap > .ficha { width: 100%; max-width: 100%; flex: 1 1 auto; display: flex; flex-direction: column; }
   .ipdm-grid > .ficha-wrap > .ficha .conn-svg { align-self: center; }
   @container ipdmsec (min-width: 480px) {
-    .fichas-grid.ipdm-grid { grid-template-columns: minmax(max-content, 1fr) minmax(max-content, 1fr); }
+    /* 0, not max-content: the fuse note is one long line and was the column minimum, so E3–E5 fell off the pane. */
+    .fichas-grid.ipdm-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
     .ipdm-grid > .ficha-wrap[data-conn="ipdm_cover"] { grid-column: 1; grid-row: 1 / span 3; }
     .ipdm-grid > .ficha-wrap[data-conn="ipdm_e3"] { grid-column: 2; grid-row: 1; }
     .ipdm-grid > .ficha-wrap[data-conn="ipdm_e4"] { grid-column: 2; grid-row: 2; }
@@ -426,7 +428,7 @@
     .ipdm-grid > .ficha-wrap[data-conn="ipdm_e6"] { grid-column: 1; grid-row: 4; }
     .ipdm-grid > .ficha-wrap[data-conn="ipdm_e7"] { grid-column: 2; grid-row: 4 / span 2; }
     .ipdm-grid > .ficha-wrap[data-conn="ipdm_e8"] { grid-column: 1; grid-row: 5; }
-    .ipdm-grid > .ficha-wrap[data-conn="ipdm_e9"] { grid-column: 1 / -1; grid-row: 6; width: 0; min-width: 100%; } /* spans both columns without widening them */
+    .ipdm-grid > .ficha-wrap[data-conn="ipdm_e9"] { grid-column: 1 / -1; grid-row: 6; min-width: 0; max-width: 100%; }
     .ipdm-grid > .ficha-wrap[data-conn="ipdm_legend"] { grid-column: 1 / -1; }
   }
   /* Stack E3 under E8 in IPDM (use empty vertical space) */
@@ -471,6 +473,9 @@
     border-color: var(--accent, #4fc3f7); color: #fff; outline: none;
   }
   .ficha-face-btn svg { width: 14px; height: 14px; pointer-events: none; }
+  .ficha-mirror-btn.on { border-color: var(--accent, #4fc3f7); color: #4fc3f7; background: #152433; }
+  .conn-svg.mirrored { transform: scaleX(-1); }
+  .conn-svg.mirrored text { transform: scaleX(-1); transform-box: fill-box; transform-origin: center; }
   .ficha-loc-btn {
     flex: 0 0 auto; width: 22px; height: 22px; padding: 0;
     display: inline-flex; align-items: center; justify-content: center;
@@ -505,7 +510,8 @@
   }
   #faceLightbox .face-lb-close:hover { border-color: var(--accent); }
   .ficha .meta, .ficha .note-body, .ficha .note-pins { display: none; font-size: 11px; color: #d0d5dd; margin-bottom: 6px; }
-  .ficha.hl .meta, .ficha.hl .note-body, .ficha.hl .note-pins { display: block; }
+  .ficha.hl .meta { display: block; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  .ipdm-grid .note-body { display: none !important; }
   #fichas { display: flex; flex-direction: column; gap: 10px; }
   .ficha-sec.sel-top > summary { background: #2a2410; border-color: #5d4e1a; color: #ffe082; }
   .ficha-sec.sel-top > summary span {
@@ -1138,12 +1144,10 @@
           <option value="solid" id="optSolid">Sólidos</option>
         </select>
       </label>
-      <label id="lblOrient">Orientación ECM
-        <select id="ecmOrient">
-          <option value="invertida" id="optInv">Invertida (bancada)</option>
-          <option value="fsm" id="optFsm">FSM normal</option>
-        </select>
-      </label>
+      <select id="ecmOrient" hidden aria-hidden="true">
+        <option value="invertida" id="optInv">Invertida (bancada)</option>
+        <option value="fsm" id="optFsm">FSM normal</option>
+      </select>
       <label id="lblLang">Idioma
         <select id="lang">
           <option value="es">Español</option>
@@ -1195,6 +1199,7 @@
   <section class="card" id="ecm">
     <div class="ecm-head">
       <h2 id="ecmTitle">EC-123 · ECM pin grid</h2>
+      <div class="ecm-head-tools" id="ecmTools"></div>
     </div>
     <details class="banner-hr" id="modelBannerBox">
       <summary id="modelBannerSum"></summary>
@@ -1637,32 +1642,32 @@ function buildCircuits(model){
     {id:'starter', title:'Motor de arranque', color:'#ef5350',
       ecm:[], conn:['f9_starter','ix_e10_f1','ipdm_e4'],
       path:{ipdm_e4:['3'],ix_e10_f1:['1'],f9_starter:['1']},
-      notes:'Arranque. Al girar la llave a START, el IPDM (E4·3, cable B/Y) alimenta el solenoide del motor de arranque por E10/F1·1 hasta F9·1. SC-13.'},
+      notes:'Al girar la llave a START, el IPDM alimenta el solenoide del motor de arranque. SC-13.'},
     {id:'alt_charge', title:'Alternador · carga (B/E + S/L)', color:'#ffa726',
       ecm:[], conn:['alt_b','alt_e','f20_alt','ix_e11_f2','fuse_link_box','ix_f102_m72'], f102:['13H'],
       path:{alt_b:['1'],alt_e:['2'],fuse_link_box:['36'],ix_e11_f2:['1'],f20_alt:['3','4'],ix_f102_m72:['13H']},
-      notes:'Sistema de carga del alternador (SC-22 / SC-CHARGE-01), con sus cuatro conexiones. B (salida de carga): E202·1 B/GY → portafusibles E201·5 → borne (+) de la batería; es la barra de batería antes de los fusible-link (PG-POWER-01) y comparte el cable con el arranque E203. E (masa): E211·2 B → masas E212 (carrocería) y E213 (motor) (B/Y). S (medición de voltaje): fusible 36 de 10A (batería) → E11/F2·1 LG/B → F20·4. L (testigo): F20·3 W/R → F102·13H → M72 G/R → testigo de carga M19·17.'},
+      notes:'Carga del alternador, con cuatro conexiones: B es la salida a batería (antes de los fusible-link y comparte cable con el arranque), E es masa, S mide el voltaje y L es el testigo. SC-22 / SC-CHARGE-01.'},
     {id:'alt_s', title:'Alternador · S (sensado 12V BAT, fusible 36)', color:'#ffee58',
       ecm:[], conn:['fuse_link_box','ix_e11_f2','f20_alt'],
       path:{fuse_link_box:['36'],ix_e11_f2:['1'],f20_alt:['4']},
-      notes:'Medición de voltaje del alternador (terminal S). El alternador mide el voltaje de la batería por aquí: fusible 36 de 10A (en el bloque de fusibles y fusible-link E21, con batería siempre) → cable LG/B → E11/F2·1 → F20·4 "S". PG-POWER-02 / SC-22.'},
+      notes:'El alternador lee el voltaje de batería por el terminal S, siempre con corriente, a través del fusible 36. PG-POWER-02 / SC-22.'},
     {id:'oilp_gauge', title:'Sensor presión de aceite → triple meter', color:'#8d6e63',
       ecm:[], conn:['f21_oilp','ix_f102_m72'], f102:['14H','15H','16H'],
       path:{f21_oilp:['1','2','3'],ix_f102_m72:['14H','15H','16H']},
-      notes:'Manómetro de presión de aceite del triple meter M44 (DI-34 / DI-66). El medidor alimenta al sensor con unos 5 V (M44·9 → M72 R/L → F102·15H → F21·1 R/L), recibe la señal (F21·2 G → F102·14H → M72 LG/R → M44·8) y le da su propia masa de sensor (F21·3 B → F102·16H → M72 G/OR → M44·7). No usa ningún pin del ECM. Prueba: DI-45/46.'},
+      notes:'El triple meter alimenta el sensor con unos 5 V y le da masa propia, sin usar ningún pin del ECM. DI-34 / DI-66, prueba DI-45/46.'},
     {id:'alt_l', title:'Alternador · L (testigo de carga)', color:'#ffa726',
       ecm:[], conn:['f20_alt','ix_f102_m72'], f102:['13H'],
       path:{f20_alt:['3'],ix_f102_m72:['13H']},
-      notes:'Testigo de carga (terminal L). El alternador pone a masa el testigo CHARGE mientras no carga: F20·3 W/R → F102·13H → M72 G/R → cuadro M19·17. El otro lado del testigo, M19·23 G/Y, recibe 12 V del fusible 14 de 10A de la caja de fusibles por M4·5A (llave en ON o START). SC-22.'},
+      notes:'El alternador pone a masa el testigo CHARGE mientras no carga, y el otro lado del testigo toma 12 V con la llave en ON o START. SC-22.'},
     {id:'ac_clutch', title:'A/C · embrague compresor', color:'#29b6f6',
       ecm:[], conn:['f24_comp','ipdm_e8','ix_e12_f3'],
       path:{ipdm_e8:['33'],ix_e12_f3:['2'],f24_comp:['1']},
-      notes:'Embrague del compresor de A/C. El relé A/C del IPDM (E8·33, cable L/Y) lo alimenta a través de E12/F3·2 hasta F24·1. ATC-80.'},
+      notes:'El relé de A/C del IPDM alimenta el embrague del compresor. ATC-80.'},
 
     {id:'backup_lamp', title:'Luces de marcha atrás (M/T)', color:'#ffb300',
       ecm:[], conn:['backup_sw','ix_f102_m72','ix_b1_m12','ix_t2_b44'], f102:['22H'],
       path:{ipdm_e7:['26'],ix_e10_f1:['2'],backup_sw:['1','2'],ix_f102_m72:['22H'],ipdm_cover:['83'],ix_b1_m12:['64J'],ix_t2_b44:['12']},
-      notes:'Luces de marcha atrás en M/T (LT-183). El interruptor F36 recibe 12 V con la llave en ON o START: fusible 83 del IPDM (10A) → E7·26 G/W → E10/F1·2 Y/R → F36·1. Al poner reversa, F36·2 (OR) da 12 V a las luces: F102·22H → M72 → B1/M12·64J → T2/B44·12 LG → luces T10/T18. F36·2 es una salida conmutada, no un riel de 12 V.'},
+      notes:'En M/T el interruptor de marcha atrás recibe 12 V con la llave en ON o START y, en reversa, alimenta las luces. Esa salida es conmutada, no un riel de 12 V. LT-183.'},
 
     {id:'gnd_ecm_1', title:'Tierra ECM 1 → F103·3 → F152', color:'#66bb6a',
       ecm:[1], conn:['gnd4','f152'],
@@ -1679,7 +1684,7 @@ function buildCircuits(model){
     {id:'gnd_f152_e17', title:'Puente masa F152 ↔ E17 (F103·1 → F3·6)', color:'#66bb6a',
       ecm:[], conn:['gnd4','ix_e12_f3','e17','f152'],
       path:{f152:['ring'],gnd4:['1'],ix_e12_f3:['6'],e17:['ring']},
-      notes:'Unión de masa entre motor y carrocería: F152 → F151/F103·1 (B) → F3/E12·6 → E17 (unido a E43). Ningún pin del ECM pasa por aquí. EC-169.'},
+      notes:'Puente de masa entre el motor y la carrocería. Ningún pin del ECM pasa por aquí. EC-169.'},
 
     {id:'sns_gnd', title:'SNS GND · HO2S', color:'#ef6c00',
       ecm:[78], conn:[],
@@ -1697,22 +1702,22 @@ function buildCircuits(model){
     /* CKP / CMP 12V (Alim.) and chassis ground (Masa, gndRel) as separate circuits, like EVT F38/F42 (EC-323/331/333) */
     {id:'ckp_pwr', title:'CKP · 12V', color:'#ab47bc',
       ecm:[], conn:['ckp','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],feed_ckp_maf_12v:['CKP+'],ckp:['1'],ipdm_cover:['77']},
-      notes:'12 V del sensor de cigüeñal: salen del relé del ECM en el IPDM (E7·18, R/W), pasan por F3 y llegan a F10·1. EC-323.'},
+      notes:'12 V del sensor de cigüeñal, desde el relé del ECM. EC-323.'},
     {id:'ckp_gnd', gndRel:true, title:'CKP · masa F10·3', color:'#ab47bc',
       ecm:[], conn:['ckp','gnd4','f152'], path:{ckp:['3'],gnd4:['3'],f152:['ring']},
-      notes:'Masa del sensor de cigüeñal: sale de F10·3 (B), pasa por F103/F151·3 y termina en la masa del motor F152. EC-323.'},
+      notes:'Masa del sensor de cigüeñal, hasta la masa del motor. EC-323.'},
     {id:'cmp_b1_pwr', title:'CMP B1 · 12V', color:'#ec407a',
       ecm:[], conn:['cmp_b1','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],cmp_b1:['3'],ipdm_cover:['77']},
-      notes:'12 V del sensor de levas del banco 1: salen del relé del ECM en el IPDM (E7·18, R/W), pasan por F3·7 y llegan a F4·3. EC-331.'},
+      notes:'12 V del sensor de levas del banco 1, desde el relé del ECM. EC-331.'},
     {id:'cmp_b1_gnd', gndRel:true, title:'CMP B1 · masa F4·1', color:'#ec407a',
       ecm:[], conn:['cmp_b1','gnd4','f152'], path:{cmp_b1:['1'],gnd4:['3'],f152:['ring']},
-      notes:'Masa del sensor de levas del banco 1: sale de F4·1 (B), pasa por F103/F151·3 y termina en la masa del motor F152. EC-331.'},
+      notes:'Masa del sensor de levas del banco 1, hasta la masa del motor. EC-331.'},
     {id:'cmp_b2_pwr', title:'CMP B2 · 12V', color:'#ec407a',
       ecm:[], conn:['cmp_b2','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],cmp_b2:['3'],ipdm_cover:['77']},
-      notes:'12 V del sensor de levas del banco 2: salen del relé del ECM en el IPDM (E7·18, R/W), pasan por F3·7 y llegan a F32·3. EC-333.'},
+      notes:'12 V del sensor de levas del banco 2, desde el relé del ECM. EC-333.'},
     {id:'cmp_b2_gnd', gndRel:true, title:'CMP B2 · masa F32·1', color:'#ec407a',
       ecm:[], conn:['cmp_b2','gnd4','f152'], path:{cmp_b2:['1'],gnd4:['3'],f152:['ring']},
-      notes:'Masa del sensor de levas del banco 2: sale de F32·1 (B), pasa por F103/F151·3 y termina en la masa del motor F152. EC-333.'},
+      notes:'Masa del sensor de levas del banco 2, hasta la masa del motor. EC-333.'},
     {id:'iat', chan:'iat', title:'IAT', color:'#8d6e63',
       ecm:[34,67], conn:['maf'], path:{maf:['5']}, notes:'Temperatura del aire de admisión, medida dentro del MAF; su masa es ECM 67. EC-223.'},
     {id:'ect', title:'ECT', color:'#5c6bc0',
@@ -1773,14 +1778,14 @@ function buildCircuits(model){
     {id:'dlc_gnd', title:'DLC · masa de señal (F102·10H → F152)', color:'#66bb6a',
       ecm:[], conn:['dlc','ix_f102_m72','gnd4','f152'], f102:['10H'],
       path:{dlc:['5'],ix_f102_m72:['10H'],gnd4:['2'],f152:['ring']},
-      notes:'Masa de señal del conector de diagnóstico. Según EC-742: DLC M8·5 (B/W) → M72·10H → F102·10H (B/W) → F103/F151·2, empalmada con la masa ECM 115 → masa del motor F152. No usa ningún pin del ECM. En la vista "Arnés motor" se ve F102 → F103 → F152; en la vista completa también el conector de diagnóstico.'},
+      notes:'Masa de señal del conector de diagnóstico, empalmada con la masa del ECM 115: en la vista de arnés motor se ve hasta la masa del motor y en la vista completa también el conector. EC-742.'},
     {id:'can', title:'CAN / DLC / unified meter', color:'#7e57c2',
       ecm:[86,94], conn:['ipdm_e9','ix_f102_m72','ix_e108_m15','dlc','comb_meter'], notes:'Red CAN por la que se comunican los módulos: DLC, unified meter, BCM, IPDM, ABS/VDC y, en A/T, el TCM; el combination meter M19 no está en el CAN. LAN-31/55/76/97/119.'},
     {id:'maf', chan:'maf', title:'MAF', color:'#fb8c00',
       ecm:[51,67], conn:['maf'], notes:'Caudal de aire de admisión; su masa es ECM 67 (MAF·3). EC-210.'},
     {id:'maf_pwr', chan:'maf', title:'MAF · 12V', color:'#fb8c00',
       ecm:[], conn:['maf','ix_e12_f3'], path:{ipdm_e7:['18'],ix_e12_f3:['7'],feed_ckp_maf_12v:['MAF+'],maf:['2'],ipdm_cover:['77']},
-      notes:'12 V del MAF: salen del relé del ECM en el IPDM (E7·18, R/W), pasan por F3 y llegan a F25·2. EC-207.'},
+      notes:'12 V del MAF, desde el relé del ECM. EC-207.'},
     {id:'tb1', chan:'tb1', title:'ETC · sensor 1 (T1)', color:'#029eb7',
       ecm:[47,50,66], conn:['etc'], notes:'Sensor 1 de posición de la mariposa; comparte el 5 V y la masa con el sensor 2. EC-238.'},
     {id:'tb2', chan:'tb2', title:'ETC · sensor 2 (T2)', color:'#029eb7',
@@ -1792,13 +1797,13 @@ function buildCircuits(model){
     {id:'ho2s_b1_htr', title:'HO2S2 B1 · calentador', color:'#8e24aa',
       ecm:[25], conn:['ho2s_b1'], notes:'Calentador de la sonda de oxígeno trasera del banco 1, controlado por el ECM. EC-191.'},
     {id:'ho2s_b1_pwr', title:'HO2S2 B1 · 12V', color:'#8e24aa',
-      ecm:[], conn:['ho2s_b1','ix_e108_m15','ix_e12_f3'], path:{jb_fuse_block:['15'],feed_ho2s_12v:['B1-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b1:['2']}, notes:'12 V para el calentador de la sonda de oxígeno trasera del banco 1: fusible 15A → E108·65G → F3·3 → F11·2. EC-191.'},
+      ecm:[], conn:['ho2s_b1','ix_e108_m15','ix_e12_f3'], path:{jb_fuse_block:['15'],feed_ho2s_12v:['B1-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b1:['2']}, notes:'12 V del calentador de la sonda trasera del banco 1, desde el fusible de 15 A. EC-191.'},
     {id:'ho2s_b2', title:'HO2S2 · Bank 2', color:'#8e24aa',
       ecm:[55,78], conn:['ho2s_b2'], notes:'Sonda de oxígeno trasera del banco 2 (después del catalizador); su masa es ECM 78.'},
     {id:'ho2s_b2_htr', title:'HO2S2 B2 · calentador', color:'#8e24aa',
       ecm:[6], conn:['ho2s_b2'], notes:'Calentador de la sonda de oxígeno trasera del banco 2, controlado por el ECM. EC-193.'},
     {id:'ho2s_b2_pwr', title:'HO2S2 B2 · 12V', color:'#8e24aa',
-      ecm:[], conn:['ho2s_b2','ix_e108_m15','ix_e12_f3'], path:{jb_fuse_block:['15'],feed_ho2s_12v:['B2-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b2:['2']}, notes:'12 V para el calentador de la sonda de oxígeno trasera del banco 2: fusible 15A → E108·65G → F3·3 → F12·2. EC-193.'},
+      ecm:[], conn:['ho2s_b2','ix_e108_m15','ix_e12_f3'], path:{jb_fuse_block:['15'],feed_ho2s_12v:['B2-12V'],ix_e108_m15:['65G'],ix_e12_f3:['3'],ho2s_b2:['2']}, notes:'12 V del calentador de la sonda trasera del banco 2, desde el fusible de 15 A. EC-193.'},
     {id:'evap_press', title:'EVAP · presión', color:'#7b1fa2',
       ecm:[32,48,67], conn:['evap_press','ix_t2_b44','ix_b1_m12','ix_f102_m72'], f102:['18H','19H','20H'], notes:'Presión del sistema EVAP (vapores de combustible), medida junto al cánister; sus tres cables cruzan T2/B44, B1/M12 y F102. EC-379.'},
     {id:'evap_purge', title:'EVAP · purga', color:'#8e24aa',
@@ -1810,7 +1815,7 @@ function buildCircuits(model){
     {id:'evap_vent_pwr', title:'EVAP venteo · 12V', color:'#6a1b9a',
       ecm:[], conn:['evap_vent','ix_e106_b2','ix_b43_t1','ipdm_e7'],
       path:{evap_vent:['1'],ix_e106_b2:['13'],ix_b43_t1:['2'],ipdm_e7:['17']},
-      notes:'12 V de la válvula de ventilación EVAP: IPDM E7·17 → E106/B2·13 → B43/T1·2 → T20·1. EC-371.'},
+      notes:'12 V de la válvula de ventilación EVAP, desde el relé del ECM. EC-371.'},
     {id:'brake_stop', title:'Interruptor de freno', color:'#e53935',
       ecm:[101], conn:['stop_lamp','ix_e108_m15','ix_f102_m72'], path:{stop_lamp:['2'],ix_e108_m15:['38G'],ix_f102_m72:['21H']}, notes:'Aviso de freno al ECM desde el interruptor de luces de freno, bajo el pedal.'},
     {id:'ascd_brake', title:'ASCD freno (+ embrague M/T)', color:'#fb8c00',
@@ -1821,50 +1826,50 @@ function buildCircuits(model){
     {id:'pnp_mt', trans:'mt', title:'PNP · Park/Neutral (M/T) · F35', color:'#ab47bc',
       ecm:[102], conn:['f35_pnp'], path:{f35_pnp:['1']}, notes:'Interruptor de park/neutral de la caja manual: en punto muerto cierra a masa (ECM 102 ≈ 0 V) y en las demás marchas hay 12 V. Su masa se ve con el filtro "Masa" o al hacer clic en F35·2. EC-646/648.'},
     {id:'pnp_mt_gnd', trans:'mt', gndRel:true, title:'PNP (M/T) · masa F35·2', color:'#ab47bc',
-      ecm:[], conn:['f35_pnp','gnd4','f152'], path:{f35_pnp:['2'],gnd4:['3'],f152:['ring']}, notes:'Masa del interruptor de punto muerto (M/T): F35·2 (B) → F103/F151·3 → masa del motor F152. EC-646.'},
+      ecm:[], conn:['f35_pnp','gnd4','f152'], path:{f35_pnp:['2'],gnd4:['3'],f152:['ring']}, notes:'Masa del interruptor de punto muerto (M/T), hasta la masa del motor. EC-646.'},
     /* Rail partners without an ECM pin (12V feed / chassis ground of each actuator): own circuits so they light with Alim./Masa and can be clicked */
     {id:'coil1_gnd', gndRel:true, title:'Bobina 1 · masa F23', color:'#26a69a',
       ecm:[], conn:['coil1','ix_f18_f201','f23_gnd'], path:{coil1:['2'],ix_f18_f201:['1'],f23_gnd:['ring']},
-      notes:'Masa de la bobina 1: su pin 2 (B) se une con la de la otra bobina del banco 1, pasa por F18/F201·1 y termina en la masa del motor F23. EC-691.'},
+      notes:'Masa de la bobina 1, unida a la otra bobina del banco 1, hasta la masa del motor. EC-691.'},
     {id:'coil3_gnd', gndRel:true, title:'Bobina 3 · masa F23', color:'#26a69a',
       ecm:[], conn:['coil3','ix_f18_f201','f23_gnd'], path:{coil3:['2'],ix_f18_f201:['1'],f23_gnd:['ring']},
-      notes:'Masa de la bobina 3: su pin 2 (B) se une con la de la otra bobina del banco 1, pasa por F18/F201·1 y termina en la masa del motor F23. EC-691.'},
+      notes:'Masa de la bobina 3, unida a la otra bobina del banco 1, hasta la masa del motor. EC-691.'},
     {id:'coil5_gnd', gndRel:true, title:'Bobina 5 · masa F23', color:'#26a69a',
       ecm:[], conn:['coil5','f23_gnd'], path:{coil5:['2'],f23_gnd:['ring']},
-      notes:'Masa de la bobina 5: su pin 2 (B) va directo a la masa del motor F23, sin pasar por F18. EC-691.'},
+      notes:'Masa de la bobina 5, directa a la masa del motor, sin el empalme del banco 1. EC-691.'},
     {id:'coil2_gnd', gndRel:true, title:'Bobina 2 · masa F23', color:'#26a69a',
       ecm:[], conn:['coil2','f23_gnd'], path:{coil2:['2'],f23_gnd:['ring']},
-      notes:'Masa de la bobina 2: su pin 2 (B) va directo a la masa del motor F23, sin pasar por F18. EC-693.'},
+      notes:'Masa de la bobina 2, directa a la masa del motor, sin el empalme del banco 1. EC-693.'},
     {id:'coil4_gnd', gndRel:true, title:'Bobina 4 · masa F23', color:'#26a69a',
       ecm:[], conn:['coil4','f23_gnd'], path:{coil4:['2'],f23_gnd:['ring']},
-      notes:'Masa de la bobina 4: su pin 2 (B) va directo a la masa del motor F23, sin pasar por F18. EC-693.'},
+      notes:'Masa de la bobina 4, directa a la masa del motor, sin el empalme del banco 1. EC-693.'},
     {id:'coil6_gnd', gndRel:true, title:'Bobina 6 · masa F23', color:'#26a69a',
       ecm:[], conn:['coil6','f23_gnd'], path:{coil6:['2'],f23_gnd:['ring']},
-      notes:'Masa de la bobina 6: su pin 2 (B) va directo a la masa del motor F23, sin pasar por F18. EC-693.'},
+      notes:'Masa de la bobina 6, directa a la masa del motor, sin el empalme del banco 1. EC-693.'},
     {id:'f16_cond_gnd', gndRel:true, title:'Condensador F16 · masa F23', color:'#26a69a',
       ecm:[], conn:['f16_cond','f23_gnd'], path:{f16_cond:['2'],f23_gnd:['ring']},
-      notes:'Masa del condensador de encendido: F16·2 (B) va a la masa del motor F23. EC-689.'},
+      notes:'Masa del condensador de encendido, a la masa del motor. EC-689.'},
     {id:'f16_cond_pwr', title:'Condensador F16 · 12V', color:'#26a69a',
       ecm:[], conn:['f16_cond','ix_e12_f3'], path:{ipdm_e7:['17'],ix_e12_f3:['5'],f16_cond:['1']},
-      notes:'12 V del condensador de encendido F16: los mismos 12 V de las bobinas, que salen de IPDM E7·17 (W/L), pasan por F3·5 y llegan a F16·1. EC-689.'},
+      notes:'12 V del condensador de encendido, los mismos de las bobinas. EC-689.'},
     {id:'fuel_pump_pwr', title:'Bomba de combustible · 12V', color:'#ef5350',
       ecm:[], conn:['fuel_pump','ipdm_e8'], path:{ipdm_cover:['81'],ipdm_e8:['39'],fuel_pump:['1']},
-      notes:'12 V de la bomba de combustible: el relé de la bomba en el IPDM (fusible 81, 15A) sale por E8·39 (B/Y) y llega al pin 1 de la bomba. EC-710.'},
+      notes:'12 V de la bomba, desde el relé del IPDM (fusible 81, 15 A). EC-710.'},
     {id:'fuel_pump_gnd', gndRel:true, title:'Bomba de combustible · masa B5', color:'#ef5350',
       ecm:[], conn:['fuel_pump','b5_gnd'], path:{fuel_pump:['3'],b5_gnd:['ring']},
-      notes:'Masa de la bomba de combustible: el pin 3 (B) va a la masa de carrocería B5 (suelo, lado izquierdo). En el mismo empalme están también el condensador B26 y las masas B6, T14 y D105. EC-710 · PG-37.'},
+      notes:'Masa de la bomba, a la masa de carrocería del piso izquierdo. En el mismo empalme están el condensador y las masas B6, T14 y D105. EC-710 · PG-37.'},
     {id:'stop_lamp_pwr', title:'Interruptor de freno · 12V', color:'#e53935',
       ecm:[], conn:['stop_lamp'], path:{stop_lamp:['1']},
-      notes:'12 V del interruptor de luces de freno (pin 1, R/Y). Su fusible no está dibujado en el mapa. EC-626 / EC-628.'},
+      notes:'12 V del interruptor de luces de freno. Su fusible no está dibujado en el mapa. EC-626 / EC-628.'},
     {id:'ascd_brake_pwr', title:'ASCD freno · 12V', color:'#fb8c00',
       ecm:[], conn:['ascd_brake'], path:{ascd_brake:['1']},
-      notes:'12 V del interruptor de freno del ASCD (E110·1, Y/G). Su fusible no está dibujado en el mapa. EC-626 / EC-628.'},
+      notes:'12 V del interruptor de freno del control de crucero. Su fusible no está dibujado en el mapa. EC-626 / EC-628.'},
     {id:'tcm_batt', trans:'at', title:'TCM (A/T) · batería F6', color:'#7e57c2',
       ecm:[], conn:['f6_at','ix_e12_f3'], path:{ix_e12_f3:['1'],f6_at:['1','2']},
-      notes:'Solo A/T. Batería del TCM: los pines 1 y 2 (R/W) del conector F6 de la caja; la línea pasa por E12/F3·1. AT-186.'},
+      notes:'Solo A/T. Batería del módulo de la caja, por el arnés del motor. AT-186.'},
     {id:'tcm_gnd', trans:'at', gndRel:true, title:'TCM (A/T) · masa F23', color:'#7e57c2',
       ecm:[], conn:['f6_at','f23_gnd'], path:{f6_at:['5','10'],f23_gnd:['ring']},
-      notes:'Solo A/T. Masa del TCM: los pines 5 y 10 (B) del conector F6 se unen y van a la masa del motor F23. AT-186.'},
+      notes:'Solo A/T. Masa del módulo de la caja, a la masa del motor. AT-186.'},
     {id:'can_tcm', trans:'at', title:'CAN · TCM (A/T) · F6', color:'#7e57c2',
       ecm:[94,86], conn:['f6_at'], path:{f6_at:['3','8']}, notes:'Solo A/T. El módulo de la caja automática (TCM, F502, dentro del conjunto de la caja) se conecta al CAN entre el ECM y F102. CAN-H: ECM 94 (L) → F6·3 (L; BR dentro de la caja) → F502·1. CAN-L: ECM 86 (P) → F6·8 (P; L/Y dentro) → F502·2. LAN-31/119.'},
     {id:'pnp_at', trans:'at', title:'PNP · Park/Neutral (A/T) · vía medidor', color:'#ab47bc',
@@ -1873,166 +1878,166 @@ function buildCircuits(model){
     /* Body circuits (2005 FSM BRC/LT/BL/GW/SE/AV/DI/ATC/WW/AT/RF). vif = equipment filter (see VARIANT_DIMS). */
     {id:'abs_rl', title:'ABS · sensor rueda trasera izq.', color:'#ef5350',
       ecm:[], conn:['body_abs','ix_e106_b2','ix_t2_b44'], path:{body_abs:['RL-VB','RL-SIG'],ix_e106_b2:['3','4'],ix_t2_b44:['7','16']},
-      notes:'Sensor de velocidad de la rueda trasera izquierda (T5). La unidad ABS E51 le da alimentación por E51·26 (cable OR) y recibe la señal en E51·11 (cable P). Los dos cables pasan por E106/B2·3/4 y T2/B44·7/16 hasta T5·3/4. BRC-16 / BRC-53.'},
+      notes:'Sensor de velocidad de la rueda trasera izquierda. La unidad ABS lo alimenta y lee la señal. BRC-16 / BRC-53.'},
     {id:'abs_rr', title:'ABS · sensor rueda trasera der.', color:'#ef5350',
       ecm:[], conn:['body_abs','ix_e106_b2','ix_t2_b44'], path:{body_abs:['RR-VB','RR-SIG'],ix_e106_b2:['1','2'],ix_t2_b44:['6','15']},
-      notes:'Sensor de velocidad de la rueda trasera derecha (T5). La unidad ABS E51 le da alimentación por E51·28 (BR) y recibe la señal en E51·13 (BR/W). Los cables pasan por E106/B2·1/2 y T2/B44·6/15 (allí los colores se invierten: BR/W y BR) hasta T5·1/2. BRC-16 / BRC-53.'},
+      notes:'Sensor de velocidad de la rueda trasera derecha. En el tramo trasero los colores de los dos cables se invierten. BRC-16 / BRC-53.'},
     {id:'abs_kline', title:'ABS · línea K de diagnóstico', color:'#ef5350',
       ecm:[], conn:['body_abs','ix_e108_m15','dlc'], path:{body_abs:['K-ABS'],ix_e108_m15:['34G'],dlc:['7']},
-      notes:'Línea de diagnóstico (línea K) de la unidad ABS: sale de E51·6 (PU), cruza E108/M15·34G y se une a la línea K verde claro (LG) que termina en el conector de diagnóstico M8·7. BRC-15 / BRC-52.'},
+      notes:'Línea de diagnóstico del ABS, que se une a la línea K del conector de diagnóstico. BRC-15 / BRC-52.'},
     {id:'vdc_off', vif:'brake=tcs,vdc', title:'TCS/VDC · botón OFF', color:'#ef5350',
       ecm:[], conn:['body_abs','ix_e108_m15'], path:{body_abs:['VDC-OFF'],ix_e108_m15:['35G']},
-      notes:'Botón para desconectar el control de tracción/estabilidad. La unidad E118·44 lo lee por E108/M15·35G (L/Y) hasta el interruptor M9·1; M9·3 (R/L) es la iluminación del botón. Solo en autos con TCS o VDC. BRC-52 / BRC-56 / BRC-100.'},
+      notes:'Botón para apagar el control de tracción o estabilidad, más la luz del botón. Solo con TCS o VDC. BRC-52 / BRC-56 / BRC-100.'},
     {id:'vdc_pkb', vif:'brake=vdc', title:'VDC · freno de mano', color:'#ef5350',
       ecm:[], conn:['body_abs','ix_e108_m15','ix_b1_m12'], path:{body_abs:['PKB'],ix_e108_m15:['12G'],ix_b1_m12:['44J']},
-      notes:'La unidad VDC necesita saber si el freno de mano está puesto: E118·76 (GY) → E108/M15·12G (P/B del lado M15) → B1/M12·44J → interruptor de freno de mano B47·1. Solo con VDC. BRC-100.'},
+      notes:'La unidad VDC lee si el freno de mano está puesto. Solo con VDC. BRC-100.'},
     {id:'vdc_yaw', vif:'brake=vdc', title:'VDC · sensor de giro / acel. lateral M51', color:'#ef5350',
       ecm:[], conn:['vdc_m51','ix_e108_m15'], path:{vdc_m51:['1','2','3','4','5','6'],ix_e108_m15:['13G','14G','15G','16G','17G','18G']},
-      notes:'Sensor que mide cuánto gira el auto y la aceleración lateral, para el control de estabilidad. Sus seis cables van a la unidad VDC E118 a través de E108/M15·13G–18G: masa M51·6, salida "BS" M51·5, salida "DRS" M51·4, alimentación M51·3 (el FSM la marca "12V", pero es alimentación del sensor desde E118·34, no un riel), autotest "BITE" M51·2 y referencia M51·1. Solo con VDC. BRC-101.'},
+      notes:'Sensor de giro y aceleración lateral: seis cables hacia la unidad VDC, y la alimentación que el FSM marca como 12 V sale de la unidad, no de un riel. Solo con VDC. BRC-101.'},
     {id:'turn_lh', title:'Intermitente izquierdo', color:'#ffb300',
       ecm:[], conn:['body_luces','ix_e108_m15','ix_b1_m12','ix_b43_t1'], path:{body_luces:['TURN-L'],ix_e108_m15:['37G'],ix_b1_m12:['63J'],ix_b43_t1:['4']},
-      notes:'El BCM (M91·45) hace parpadear las luces de giro izquierdas. Delante: E108/M15·37G (G/W) → faro izquierdo E40·2 (xenón) o E41·1 (halógeno). Detrás: B1/M12·63J → B43/T1·4 → luz trasera izquierda T10·2. LT-153 / LT-157.'},
+      notes:'El módulo de carrocería hace parpadear las luces de giro izquierdas, adelante y atrás. LT-153 / LT-157.'},
     {id:'turn_rh', title:'Intermitente derecho', color:'#ffb300',
       ecm:[], conn:['body_luces','ix_e108_m15','ix_b1_m12','ix_b43_t1'], path:{body_luces:['TURN-R'],ix_e108_m15:['36G'],ix_b1_m12:['62J'],ix_b43_t1:['3']},
-      notes:'El BCM (M91·46) hace parpadear las luces de giro derechas. Delante: E108/M15·36G (PU/W) → faro derecho E24·2 (xenón) o E25·1 (halógeno). Detrás: B1/M12·62J → B43/T1·3 (R/W) → luz trasera derecha T18·2. LT-154 / LT-158.'},
+      notes:'El módulo de carrocería hace parpadear las luces de giro derechas, adelante y atrás. LT-154 / LT-158.'},
     {id:'illum', title:'Iluminación del tablero', color:'#ffb300',
       ecm:[], conn:['ipdm_e7','ix_e108_m15','body_luces'], path:{ipdm_e7:['22'],ix_e108_m15:['4G'],body_luces:['ILL']},
-      notes:'Cuando se encienden las luces de posición, el relé de cola del IPDM (E7·22) alimenta la iluminación del tablero por E108/M15·4G (R). LT-245.'},
+      notes:'Con las luces de posición encendidas, el relé de cola alimenta la iluminación del tablero. LT-245.'},
     {id:'stop_lamps', title:'Luces de freno', color:'#e53935',
       ecm:[], conn:['stop_lamp','ix_e108_m15','ix_b1_m12','ix_t2_b44','body_luces'], path:{stop_lamp:['2'],ix_e108_m15:['38G'],ix_b1_m12:['61J'],ix_t2_b44:['14'],body_luces:['STOP']},
-      notes:'Al pisar el freno, el interruptor (E112 en M/T, E111 en A/T) da 12 V a las luces de freno: E108/M15·38G → B1/M12·61J (P/L) → luces de freno traseras. El mismo cable también avisa al ECM (circuito aparte, ECM 101). LT-178.'},
+      notes:'Al pisar el freno, el interruptor alimenta las luces traseras. El mismo cable avisa al ECM en un circuito aparte. LT-178.'},
     {id:'luggage_lamp', title:'Luz del maletero', color:'#ffb300',
       ecm:[], conn:['ix_b1_m12','ix_t2_b44','body_luces'], path:{ix_b1_m12:['15J'],ix_t2_b44:['1'],body_luces:['LUG']},
-      notes:'En Coupé, la luz del maletero toma corriente del circuito de la luz de techo: cable R/B → B1/M12·15J (Y del lado B1) → T2/B44·1 → luz T13·1. LT-220 (Roadster: LT-224). Nota: LT-220 dibuja el otro lado de la luz (T13·2 R/W) hacia B43/T1·1 R/W, pero este mapa tiene B43/T1·1 como masa B; queda señalado, sin cambiar.'},
+      notes:'En el Coupé la luz del maletero sale del circuito de la luz de techo (LT-220; Roadster LT-224). LT-220 dibuja el retorno con color, pero este mapa lo tiene como masa, y queda señalado sin cambiar.'},
     {id:'dtrl_pkb', vif:'market=canada', title:'Luz diurna (Canadá) · freno de mano', color:'#ffb300',
       ecm:[], conn:['body_luces','ix_e106_b2'], path:{body_luces:['DT-PKB'],ix_e106_b2:['6']},
-      notes:'Solo Canadá. La unidad de luces diurnas (DTRL) apaga las luces con el freno de mano puesto: E14/E15·17 (G) → E106/B2·6 → se une al cable PU del interruptor de freno de mano B47·1. LT-117 / LT-77.'},
+      notes:'Solo Canadá. La unidad de luces diurnas las apaga con el freno de mano puesto. LT-117 / LT-77.'},
     {id:'dtrl_alt', vif:'market=canada', title:'Luz diurna (Canadá) · alternador', color:'#ffb300',
       ecm:[], conn:['body_luces','ix_e108_m15','ix_f102_m72','f20_alt'], f102:['13H'], path:{body_luces:['DT-ALT'],ix_e108_m15:['62G'],ix_f102_m72:['13H'],f20_alt:['3']},
-      notes:'Solo Canadá. La unidad DTRL enciende las luces diurnas cuando el motor está en marcha; lo sabe por la señal L del alternador: E14/E15·1 (ALT-L) → E108/M15·62G → se une al cable G/R de M72·13H → F102·13H → alternador F20·3. LT-117.'},
+      notes:'Solo Canadá. La unidad enciende las diurnas cuando el motor gira, usando la señal L del alternador. LT-117.'},
     {id:'bcm_bat', title:'BCM · batería (40A)', color:'#8d6e63',
       ecm:[], conn:['body_puertas','ix_e108_m15'], path:{body_puertas:['BAT'],ix_e108_m15:['60G']},
-      notes:'Alimentación principal del BCM (módulo de carrocería) directa de batería por el fusible F de 40A: E108/M15·60G (R) → BCM M90/M91·55. De aquí salen cierre centralizado, luces interiores, elevalunas, etc. LT-11, WW-12, SE-12, BL-125.'},
+      notes:'Alimentación de batería del módulo de carrocería, por el fusible link de 40 A. De aquí salen cierre, luces interiores y elevalunas. LT-11, WW-12, SE-12, BL-125.'},
     {id:'door_sw_as', title:'Interruptor puerta acompañante', color:'#8d6e63',
       ecm:[], conn:['body_puertas','ix_b1_m12'], path:{body_puertas:['DOOR-AS'],ix_b1_m12:['14J']},
-      notes:'El BCM sabe si la puerta del acompañante está abierta por este cable: M90·12 → B1/M12·14J (P) → interruptor B23·1. Lo usan luces interiores, alarma y avisos. BL-27, LT-221, DI-68.'},
+      notes:'El módulo de carrocería sabe si la puerta del acompañante está abierta. Lo usan luces interiores, alarma y avisos. BL-27, LT-221, DI-68.'},
     {id:'back_door_sw', vif:'body=coupe', title:'Interruptor portón trasero', color:'#8d6e63',
       ecm:[], conn:['body_puertas','ix_t2_b44'], path:{body_puertas:['BK-DOOR'],ix_t2_b44:['2']},
-      notes:'Solo Coupé. El BCM detecta el portón abierto: M90·58 → T2/B44·2 (R) → interruptor T12·1; T12·3 va a masa. BL-27, BL-140, DI-68, LT-221.'},
+      notes:'Solo Coupé. El módulo detecta el portón abierto, y el otro lado del interruptor va a masa. BL-27, BL-140, DI-68, LT-221.'},
     {id:'back_door_open', title:'Apertura portón / maletero · interruptor', color:'#8d6e63',
       ecm:[], conn:['body_puertas','ix_b1_m12','ix_t2_b44'], path:{body_puertas:['OPEN-SW'],ix_b1_m12:['69J','68J'],ix_t2_b44:['5','3']},
-      notes:'Interruptor para abrir el portón (Coupé) o el maletero (Roadster). El BCM (M90·30) manda la señal por B1/M12·69J; en Coupé sigue por T2/B44·5 hasta el interruptor T103·1 y vuelve por T103·2 → T2/B44·3 → B1/M12·68J → M11/D1·6K → sensor de desbloqueo D11·2 (solo abre si el auto está desbloqueado). BL-30 (Coupé), BL-125 (Roadster).'},
+      notes:'Interruptor del portón (Coupé) o del maletero (Roadster). Solo abre si el auto está desbloqueado. BL-30 (Coupé), BL-125 (Roadster).'},
     {id:'back_door_motor', vif:'body=coupe', title:'Apertura portón · actuador', color:'#8d6e63',
       ecm:[], conn:['body_puertas','ix_t2_b44'], path:{body_puertas:['OPEN-M'],ix_t2_b44:['4']},
-      notes:'Solo Coupé. El BCM acciona el actuador que suelta el portón: M90·68 → T2/B44·4 (PU) → actuador T11·1; T11·2 va a masa. BL-30.'},
+      notes:'Solo Coupé. El módulo acciona el actuador que suelta el portón, y el otro lado va a masa. BL-30.'},
     {id:'fuel_lid', title:'Tapa de combustible (Coupé)', color:'#8d6e63',
       ecm:[], conn:['body_puertas','ix_b1_m12','ix_b43_t1'], path:{body_puertas:['F/LID'],ix_b1_m12:['65J'],ix_b43_t1:['5']},
-      notes:'Solo Coupé. El relé de apertura M59·3 alimenta el actuador de la tapa de combustible: B1/M12·65J (Y/B) → B43/T1·5 (W/L) → actuador T19·1. BL-54.'},
+      notes:'Solo Coupé. El relé de apertura alimenta el actuador de la tapa de combustible. BL-54.'},
     {id:'fuel_lid_r', vif:'body=roadster', title:'Tapa de combustible (Roadster)', color:'#8d6e63',
       ecm:[], conn:['body_puertas','ix_b1_m12'], path:{body_puertas:['F/LID-R'],ix_b1_m12:['66J']},
-      notes:'Solo Roadster. Apertura de la tapa de combustible por B1/M12·66J (L/R). BL-55.'},
+      notes:'Solo Roadster. Apertura de la tapa de combustible. BL-55.'},
     {id:'rear_defog', title:'Desempañador de luneta', color:'#26a69a',
       ecm:[], conn:['body_vidrios','ipdm_e9','ix_e106_b2','ix_b1_m12'], path:{body_vidrios:['DEF-RLY','DEF+','DEF'],ipdm_e9:['52'],ix_e106_b2:['12','18'],ix_b1_m12:['60J']},
-      notes:'El IPDM (E9·52) activa el relé del desempañador B34 por E106/B2·12 (G/R; G en Roadster) hacia la bobina B34·2. La bobina se alimenta por B2·18 (G) desde PG-POWER-07 hasta B34·1. B1/M12·60J (B/W) también es parte del circuito. PG-13, GW-61/63/65/67.'},
+      notes:'El IPDM activa el relé del desempañador. En el Roadster el cable de mando cambia de color. PG-13, GW-61/63/65/67.'},
     {id:'pwr_socket', title:'Toma de corriente del maletero', color:'#26a69a',
       ecm:[], conn:['body_vidrios','ix_b1_m12'], path:{body_vidrios:['SOCKET'],ix_b1_m12:['67J']},
-      notes:'Toma de 12 V en el maletero. Tiene corriente con la llave en ACC: fusible 7 (15A) → B1/M12·67J (R/G; R/B del lado B1) → toma B36·1. WW-54.'},
+      notes:'Toma de 12 V del maletero, con corriente en ACC por el fusible 7. El color cambia de un lado al otro del conector. WW-54.'},
     {id:'pw_down_req', vif:'body=roadster', title:'Techo blando · bajar ventanilla', color:'#5c6bc0',
       ecm:[], conn:['body_techo','ix_b1_m12'], path:{body_techo:['P/W-DN'],ix_b1_m12:['47J']},
-      notes:'Solo Roadster. Al mover la capota, la unidad del techo blando pide bajar la ventanilla: B67·36 → B1/M12·47J (Y/G) → subinterruptor de elevalunas del acompañante D37·13. GW-25, RF-27.'},
+      notes:'Solo Roadster. Al mover la capota, la unidad pide bajar la ventanilla. GW-25, RF-27.'},
     {id:'soft_top_ind', vif:'body=roadster', title:'Techo blando · testigo', color:'#5c6bc0',
       ecm:[], conn:['body_techo','ix_b1_m12'], path:{body_techo:['IND'],ix_b1_m12:['48J']},
-      notes:'Solo Roadster. Testigo del techo blando en el cuadro: M19·13 → B1/M12·48J (G/W; BR del lado B1) → unidad B67·35. DI-69, RF-25.'},
+      notes:'Solo Roadster. Testigo del techo blando en el cuadro. El color cambia de un lado al otro del conector. DI-69, RF-25.'},
     {id:'soft_top', vif:'body=roadster', title:'Techo blando · capota eléctrica', color:'#5c6bc0',
       ecm:[], conn:['body_techo','ix_b1_m12'], path:{body_techo:['TOP'],ix_b1_m12:['46J','49J','50J','51J']},
-      notes:'Solo Roadster. Cables de la capota eléctrica que cruzan B1/M12: 46J (W), 49J (W/G), 50J (R/G) y 51J (L/B). El FSM los comparte con el asiento eléctrico; ver RF-26/27 y SE-29/31 para los extremos.'},
+      notes:'Solo Roadster. Cables de la capota que el FSM comparte con el asiento eléctrico. Los extremos están en RF-26/27 y SE-29/31.'},
     {id:'pseat_r', vif:'body=roadster&pseat=yes', title:'Asiento eléctrico (Roadster)', color:'#8e24aa',
       ecm:[], conn:['ix_e106_b2','ix_b1_m12'], path:{ix_e106_b2:['7'],ix_b1_m12:['52J']},
-      notes:'Solo Roadster con asiento eléctrico. E106/B2·7 (P) y B1/M12·52J (Y/R del lado B1) son cables del asiento; el FSM no detalla los extremos en esta vista. SE-29.'},
+      notes:'Solo Roadster con asiento eléctrico. El FSM no detalla los extremos en esta vista. SE-29.'},
     {id:'heated_seat', vif:'hseat=yes', title:'Asientos calefactables · relé', color:'#8e24aa',
       ecm:[], conn:['body_asientos','ix_b1_m12','ix_e106_b2'], path:{body_asientos:['HS-IGN','HS-BAT','HS-PWR'],ix_b1_m12:['3J','2J'],ix_e106_b2:['14']},
-      notes:'Solo con asientos calefactables. El relé B37 se activa con el encendido (fusible 12 → B1/M12·3J → bobina B37·2) y deja pasar la batería del fusible 38 de 10A (E106/B2·14 → B37·5). Su salida B37·3 va por B1/M12·2J (G) hasta los interruptores de los asientos (M52/M151·10). SE-59 / SE-62.'},
+      notes:'Solo con calefacción. El relé se activa con el encendido y deja pasar la batería del fusible 38 hacia los interruptores. SE-59 / SE-62.'},
     {id:'heated_seat_dr', vif:'hseat=yes', title:'Asiento calefactable conductor', color:'#8e24aa',
       ecm:[], conn:['body_asientos','ix_b1_m12'], path:{body_asientos:['HSD-LO','HSD-HI'],ix_b1_m12:['7J','8J']},
-      notes:'Solo con asientos calefactables. El interruptor del conductor M154 elige nivel bajo (M154·2 → B1/M12·7J GY → asiento B7·41) o alto (M154·3 → B1/M12·8J GY/R → asiento B7·42). SE-60 / SE-63.'},
+      notes:'Solo con calefacción. El interruptor del conductor elige nivel bajo o alto. SE-60 / SE-63.'},
     {id:'heated_seat_as', vif:'hseat=yes', title:'Asiento calefactable (SE-61)', color:'#8e24aa',
       ecm:[], conn:['body_asientos','ix_b1_m12'], path:{body_asientos:['HSP'],ix_b1_m12:['9J','10J']},
-      notes:'Solo con asientos calefactables. B1/M12·9J (GY/L) y 10J (SB; Y/R del lado B1) aparecen en SE-61/64; el FSM no nombra los extremos.'},
+      notes:'Solo con calefacción. Estas dos cavidades figuran en el FSM sin nombrar los extremos. SE-61/64.'},
     {id:'pseat_bat', vif:'pseat=yes', title:'Asiento eléctrico · batería', color:'#8e24aa',
       ecm:[], conn:['body_asientos','ix_b1_m12'], path:{body_asientos:['PS-BAT'],ix_b1_m12:['4J']},
-      notes:'Solo con asiento eléctrico. El BCM entrega la alimentación de elevalunas (batería) en M91·54, que llega al asiento por B1/M12·4J (W). SE-12 / SE-14 / SE-26.'},
+      notes:'Solo con asiento eléctrico. El módulo de carrocería entrega la alimentación de elevalunas, que llega al asiento. SE-12 / SE-14 / SE-26.'},
     {id:'belt_dr', title:'Cinturón del conductor', color:'#8e24aa',
       ecm:[], conn:['body_asientos','ix_b1_m12'], path:{body_asientos:['BELT'],ix_b1_m12:['43J','35J']},
-      notes:'El interruptor de la hebilla del conductor (B8·1) lo leen dos módulos: el cuadro, para el testigo de cinturón (M19·1 → B1/M12·43J), y la unidad de airbag (·41 → B49/B50·1 → B1/M12·35J → 43J). DI-69 / DI-85 / SRS-12.'},
+      notes:'El interruptor de la hebilla del conductor lo leen el cuadro, para el testigo, y la unidad de airbag. DI-69 / DI-85 / SRS-12.'},
     {id:'belt_as_gnd', title:'Cinturón acompañante · masa', color:'#8e24aa',
       ecm:[], conn:['body_asientos','ix_b1_m12'], path:{body_asientos:['BLT-GND'],ix_b1_m12:['34J']},
-      notes:'Masa del interruptor de la hebilla del acompañante: B11·2 → B29/B31·1 → B1/M12·34J (B) → punto de masa M30. SRS-12 / SRS-16 / SE-30.'},
+      notes:'Masa del interruptor de la hebilla del acompañante, hasta un punto de masa de carrocería. SRS-12 / SRS-16 / SE-30.'},
     {id:'audio_backup', title:'Audio · memoria (batería)', color:'#ab47bc',
       ecm:[], conn:['body_audio','ix_e108_m15'], path:{body_audio:['BACKUP'],ix_e108_m15:['1G']},
-      notes:'Batería permanente para que la radio guarde emisoras y ajustes: fusible 37 (15A) → E108/M15·1G (Y) → radio M40·6. AV-11 / AV-13 / AV-15.'},
+      notes:'Batería permanente para que la radio guarde emisoras, por el fusible 37. AV-11 / AV-13 / AV-15.'},
     {id:'audio_fr_l', vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada', title:'Audio · altavoz delantero izq.', color:'#ab47bc',
       ecm:[], conn:['body_audio','ix_b1_m12'], path:{body_audio:['FR-L'],ix_b1_m12:['23J','24J','27J','26J']},
-      notes:'Altavoz y tweeter de la puerta del conductor. La radio (M40·2 +, M40·1 −) entra por B1/M12·23J/24J y vuelve hacia la puerta por 27J/26J → M11/D1·28K/29K → altavoz D4 y tweeter D3. Con Bose: M40 → amplificador, y el amplificador (T7·23/24) alimenta la puerta por 27J/26J. Sin Bose, estos cables solo pasan por B1/M12 fuera del paquete "BS" (M/T sin navegador, VDC ni asiento eléctrico, EE. UU.); en "BS" van directos sin pasar por el conector (AV-11). AV-11 / AV-16 / AV-17.'},
+      notes:'Altavoz y tweeter de la puerta del conductor: con Bose los maneja el amplificador, y sin Bose solo cruzan el conector fuera del paquete BS (M/T de US sin navegador, VDC ni asiento eléctrico). AV-11 / AV-16 / AV-17.'},
     {id:'audio_fr_r', vif:'audio=bose|trans=at|nav=yes|brake=vdc|pseat=yes|market=canada', title:'Audio · altavoz delantero der.', color:'#ab47bc',
       ecm:[], conn:['body_audio','ix_b1_m12'], path:{body_audio:['FR-R'],ix_b1_m12:['21J','22J','17J','18J']},
-      notes:'Altavoz y tweeter de la puerta del acompañante. La radio (M40·4 +, M40·3 −) entra por B1/M12·21J/22J y vuelve hacia la puerta por 17J/18J → M74/D31·28L/29L → altavoz D34 y tweeter D33. Con Bose: amplificador T7·25/26 → 17J/18J → D35. Sin Bose, estos cables solo pasan por B1/M12 fuera del paquete "BS" (M/T sin navegador, VDC ni asiento eléctrico, EE. UU.); en "BS" van directos sin pasar por el conector (AV-11). AV-11 / AV-16 / AV-17.'},
+      notes:'Altavoz y tweeter de la puerta del acompañante: con Bose los maneja el amplificador, y sin Bose solo cruzan el conector fuera del paquete BS (M/T de US sin navegador, VDC ni asiento eléctrico). AV-11 / AV-16 / AV-17.'},
     {id:'audio_rr_l', title:'Audio · altavoz trasero izq.', color:'#ab47bc',
       ecm:[], conn:['body_audio','ix_b1_m12'], path:{body_audio:['RR-L'],ix_b1_m12:['29J','30J']},
-      notes:'Altavoz trasero izquierdo: radio M41·14 (+) y M41·13 (−) → B1/M12·29J/30J → altavoz B40·1/2. Del lado M12 los colores cambian según el equipo: en "BS" LG/R, B/Y, L/OR, B/P; en el resto (y con Bose) BR, B/R, L, P. AV-12 / AV-14 / AV-18.'},
+      notes:'Altavoz trasero izquierdo. Del otro lado del conector los colores cambian en el paquete BS. AV-12 / AV-14 / AV-18.'},
     {id:'audio_rr_r', title:'Audio · altavoz trasero der.', color:'#ab47bc',
       ecm:[], conn:['body_audio','ix_b1_m12'], path:{body_audio:['RR-R'],ix_b1_m12:['31J','32J']},
-      notes:'Altavoz trasero derecho: radio M41·16 (+) y M41·15 (−) → B1/M12·31J/32J → altavoz B42·1/2. Del lado M12 los colores cambian según el equipo: en "BS" LG/R, B/Y, L/OR, B/P; en el resto (y con Bose) BR, B/R, L, P. AV-12 / AV-14 / AV-18.'},
+      notes:'Altavoz trasero derecho. Del otro lado del conector los colores cambian en el paquete BS. AV-12 / AV-14 / AV-18.'},
     {id:'audio_bose_ctl', vif:'audio=bose', title:'Audio Bose · encendido amplificador / AudioPilot', color:'#ab47bc',
       ecm:[], conn:['body_audio','ix_b1_m12'], path:{body_audio:['AMP-ON','APILOT'],ix_b1_m12:['19J','16J']},
-      notes:'Solo Bose. La radio enciende el amplificador por M41·12 → B1/M12·19J → B46/T4·3 y activa AudioPilot (ajuste automático de volumen según el ruido) por M39·17 → B1/M12·16J → B45/T3·5. AV-18.'},
+      notes:'Solo Bose. La radio enciende el amplificador y activa AudioPilot, que compensa el volumen según el ruido. AV-18.'},
     {id:'audio_bose_misc', vif:'audio=bose', title:'Audio Bose · otros cables y mallas', color:'#ab47bc',
       ecm:[], conn:['ix_b1_m12','ix_e106_b2'], path:{ix_b1_m12:['5J','20J','25J','28J','33J'],ix_e106_b2:['15','16']},
-      notes:'Solo Bose. B1/M12·20J/25J/28J/33J son mallas (blindajes) de cables de altavoz: 20J/25J a masa en M40·9 (AV-16) y 28J/33J a masa en M41·11 (AV-18), sin color en el FSM. B1/M12·5J (Y) y E106/B2·15/16 (R/B, R/W) aparecen en AV-15/22 sin extremos nombrados.'},
+      notes:'Solo Bose. Cuatro cavidades son mallas de altavoz, sin color en el FSM, y otras tres aparecen sin extremos nombrados. AV-15/16/18/22.'},
     {id:'brake_fluid', title:'Testigo nivel líquido de frenos', color:'#26c6da',
       ecm:[], conn:['body_medidores','ix_e108_m15'], path:{body_medidores:['BRK-LV'],ix_e108_m15:['9G']},
-      notes:'Si baja el líquido de frenos, el interruptor E44·1 cierra a masa y enciende el testigo BRAKE del cuadro: E44·1 → E108/M15·9G (W; W/L del lado M15) → M19·15. DI-67.'},
+      notes:'Si baja el líquido, el interruptor cierra a masa y enciende el testigo BRAKE. El color cambia de un lado al otro del conector. DI-67.'},
     {id:'pkb_warn', title:'Testigo de freno de mano', color:'#26c6da',
       ecm:[], conn:['body_medidores','ix_b1_m12'], path:{body_medidores:['PKB'],ix_b1_m12:['44J']},
-      notes:'El testigo de freno de mano se enciende cuando el interruptor B47·1 cierra a masa: M19·16 → B1/M12·44J (P/B; PU del lado B1) → B47·1. Con VDC, la unidad E118 también lee este interruptor (por E108/M15·12G). DI-67.'},
+      notes:'El testigo de freno de mano se enciende cuando el interruptor cierra a masa. Con VDC, la unidad también lo lee. DI-67.'},
     {id:'fuel_level', title:'Nivel de combustible', color:'#26c6da',
       ecm:[], conn:['fuel_level_sub','ix_b1_m12','unified_m49','body_medidores'], path:{fuel_level_sub:['1','2'],ix_b1_m12:['42J'],unified_m49:['28'],body_medidores:['FUEL']},
-      notes:'Señal del sensor de nivel de combustible hacia el cuadro: sale del sensor secundario B28·1 (W/B), pasa por B1/M12·42J y llega al unified meter M49·28. B28·2 (Y) une el sensor secundario con el principal (B27·2), y la masa vuelve de B27·5 por 41J a M49·36 (circuito de la temperatura del depósito). DI-9 / DI-12 / DI-19 / DI-20 / DI-66.'},
+      notes:'Señal del sensor de nivel hacia el cuadro. El sensor secundario se une al principal, y la masa vuelve por el circuito de temperatura del depósito. DI-9 / DI-12 / DI-19 / DI-20 / DI-66.'},
     {id:'ftt_gnd', sensorReturn:true, title:'Masa sensor nivel / temperatura depósito', color:'#26c6da',
       ecm:[], conn:['fuel_tank_temp','ix_b1_m12','unified_m49'], path:{fuel_tank_temp:['5'],ix_b1_m12:['41J'],unified_m49:['36']},
-      notes:'Masa compartida del sensor de nivel y del sensor de temperatura del depósito: B27·5 → B1/M12·41J (R/B; B/R del lado B1) → cuadro M49·36. No es una masa de chasis. EC-291, DI-9.'},
+      notes:'Masa compartida del nivel y de la temperatura del depósito, hasta el cuadro. No es masa de chasis. EC-291, DI-9.'},
     {id:'dlc_ign', title:'Conector diagnóstico · encendido', color:'#7e57c2',
       ecm:[], conn:['ipdm_e7','ix_e108_m15','dlc'], path:{ipdm_e7:['25'],ix_e108_m15:['29G'],dlc:['8']},
-      notes:'El conector de diagnóstico recibe encendido en M8·8 para que el escáner sepa que la llave está en ON: IPDM E7·25 (fusible 89) → E108/M15·29G (G/Y) → M8·8. Alimentación conmutada, no un riel. EC-742 / AT-194.'},
+      notes:'El conector de diagnóstico recibe encendido para que el escáner vea la llave en ON. Es alimentación conmutada, no un riel. EC-742 / AT-194.'},
     {id:'dlc_bat', title:'Conector diagnóstico · batería', color:'#7e57c2',
       ecm:[], conn:['ix_e108_m15','dlc'], path:{ix_e108_m15:['68G'],dlc:['16']},
-      notes:'Batería permanente del conector de diagnóstico (alimenta el escáner): fusible 34 (15A) → E108/M15·68G (R/W) → M8·16. AT-194.'},
+      notes:'Batería permanente del conector de diagnóstico, para alimentar el escáner. AT-194.'},
     {id:'ambient', title:'Sensor de temperatura exterior', color:'#29b6f6',
       ecm:[], conn:['body_clima','ix_e108_m15'], path:{body_clima:['AMB','AMB-GND'],ix_e108_m15:['32G','33G']},
-      notes:'Sensor de temperatura exterior en el frente del auto (E34). Su señal va al cuadro y amplificador de A/C (terminal 39) por E108/M15·32G (Y/G) y su masa vuelve por 33G (W/G), una masa de sensores compartida. ATC-44, DI-32.'},
+      notes:'Temperatura exterior: la señal va al cuadro y al amplificador de A/C, y la masa es de sensores compartida. ATC-44, DI-32.'},
     {id:'blower_gnd', vif:'nav=yes', title:'Ventilador A/C · masa (con navegador)', color:'#29b6f6',
       ecm:[], conn:['body_clima','ix_b1_m12'], path:{body_clima:['BLW-GND'],ix_b1_m12:['1J','6J']},
-      notes:'Solo con navegador. La masa del motor del ventilador (M62·3) pasa por B1/M12·1J y 6J (B) hasta el punto de masa B5. ATC-42.'},
+      notes:'Solo con navegador. La masa del ventilador llega a la masa de carrocería del piso. ATC-42.'},
     {id:'front_wiper', title:'Limpiaparabrisas delantero', color:'#78909c',
       ecm:[], conn:['body_limpia','ix_e108_m15'], path:{body_limpia:['WIPER'],ix_e108_m15:['5G']},
-      notes:'E108/M15·5G (P) es parte del circuito del limpiaparabrisas delantero. WW-12 lo dibuja pero continúa en otra página sin nombrar los extremos.'},
+      notes:'Parte del limpiaparabrisas delantero. El FSM lo dibuja y sigue en otra página sin nombrar los extremos. WW-12.'},
     {id:'rear_washer', vif:'body=coupe', title:'Lavaluneta trasero (Coupé)', color:'#78909c',
       ecm:[], conn:['body_limpia','ix_e108_m15'], path:{body_limpia:['RR-WASH'],ix_e108_m15:['8G']},
-      notes:'Solo Coupé (el FSM pone el limpiaparabrisas trasero en los modelos Coupé, BCS-9). El motor del lavaluneta trasero E28 recibe 12 V por el pin 2 (fusible 84 del IPDM, 10A, terminal 44, OR). Su pin 1 (LG/B) va por E108/M15·8G al pin 13 del interruptor combinado M29, que lo pone a masa al accionar el lavaluneta. El motor del limpialuneta D106 está en el arnés del portón y no pasa por E108. WW-40 / WW-41.'},
+      notes:'Solo Coupé: el lavaluneta recibe 12 V del fusible 84 y el interruptor lo pone a masa, y el motor del limpialuneta va por el arnés del portón sin pasar por aquí. WW-40 / WW-41 (BCS-9).'},
     {id:'at_tcm_ign', trans:'at', title:'A/T · encendido del TCM', color:'#7e57c2',
       ecm:[], conn:['body_at','ipdm_e7','ix_e10_f1','f6_at'], path:{body_at:['IGN-TCM'],ipdm_e7:['26'],ix_e10_f1:['4'],f6_at:['6']},
-      notes:'Solo A/T. El módulo de la caja automática (TCM) recibe encendido del IPDM E7·26 (fusible 83, 10A) por E10/F1·4 (Y/R) hasta F6·6. Alimentación conmutada. AT-186.'},
+      notes:'Solo A/T. El módulo de la caja recibe encendido del fusible 83. Es alimentación conmutada. AT-186.'},
     {id:'backup_lamp_at', trans:'at', title:'A/T · luces de marcha atrás', color:'#ffb300',
       ecm:[], conn:['body_at','f6_at','ix_e10_f1','ix_b1_m12','ix_t2_b44'], path:{body_at:['BACK-AT'],f6_at:['7'],ix_e10_f1:['2','6'],ix_b1_m12:['64J'],ix_t2_b44:['12']},
-      notes:'Solo A/T. En automático no hay interruptor de marcha atrás en la caja: el TCM (F502·7 → F6·7 OR) activa el relé de marcha atrás por E10/F1·2 (P en A/T) hasta E19·2, y el relé (E19·5) alimenta las luces por E10/F1·6 (OR) → B1/M12·64J → T2/B44·12. AT-194, LT-182/184.'},
+      notes:'Solo A/T. No hay interruptor en la caja: el módulo activa un relé y el relé alimenta las luces. AT-194, LT-182/184.'},
     {id:'start_at', trans:'at', title:'A/T · relé de arranque', color:'#7e57c2',
       ecm:[], conn:['body_at','ipdm_e9','ix_e10_f1','f6_at'], path:{body_at:['STR-AT'],ipdm_e9:['53'],ix_e10_f1:['7'],f6_at:['9']},
-      notes:'Solo A/T. El circuito del relé de arranque pasa entre el IPDM (E9·53) y el terminal de relé de arranque del TCM F6·9, por E10/F1·7 (GY/R), para que el motor solo arranque en P o N. En M/T este cable va al interruptor de embrague. SC-14.'},
+      notes:'Solo A/T. El relé de arranque pasa por el módulo para que solo arranque en P o N. En M/T ese cable va al interruptor de embrague. SC-14.'},
     {id:'tcm_kline', trans:'at', title:'A/T · línea K de diagnóstico del TCM', color:'#7e57c2',
       ecm:[], conn:['body_at','f6_at','ix_f102_m72','dlc'], f102:['24H'], path:{body_at:['K-TCM'],f6_at:['4'],ix_f102_m72:['24H'],dlc:['7']},
-      notes:'Solo A/T. Línea de diagnóstico del TCM: F502·6 → F6·4 (PU/W) → F102·24H → M72 (PU) → se une a la línea K verde claro (LG) que llega al conector de diagnóstico M8·7. AT-194.'},
+      notes:'Solo A/T. Línea de diagnóstico del módulo de la caja, unida a la línea K del conector de diagnóstico. AT-194.'},
     {id:'at_shiftlock', trans:'at', title:'A/T · bloqueo de palanca', color:'#7e57c2',
       ecm:[], conn:['body_at','ix_e108_m15'], path:{body_at:['SHIFT'],ix_e108_m15:['63G','64G']},
-      notes:'Solo A/T. El bloqueo de palanca (no deja salir de P sin pisar el freno) usa E108/M15·63G (B/Y) y 64G (Y/B del lado M15). AT-240.'}
+      notes:'Solo A/T. El bloqueo de palanca no deja salir de P sin pisar el freno. AT-240.'}
   ];
   if(model === 'de_early'){
     base.push(
@@ -4084,6 +4089,57 @@ function locBtnHtml(cid){
   const lab = t('locOpen');
   return `<button type="button" class="ficha-loc-btn" data-loc-conn="${esc(cid)}" aria-label="${esc(lab)}" title="${esc(lab)}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.2 7-12.5A7 7 0 0 0 5 9.5C5 14.8 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>`;
 }
+/* User mirror. ECM (and the F101 excerpt) follow #ecmOrient: pressed = invertida.
+   Fuse grids have no mirror. Every other plug starts as drawn; pressed = this card is flipped. */
+const FICHA_MIRROR = new Set();
+function loadFichaMirror(){
+  FICHA_MIRROR.clear();
+  try {
+    const raw = JSON.parse(localStorage.getItem('z33_fichaMirror') || '[]');
+    if(Array.isArray(raw)) raw.forEach(id => { if(id) FICHA_MIRROR.add(String(id)); });
+  } catch(e) {}
+}
+loadFichaMirror();
+function fichaMirrorMode(id, f){
+  if(typeof FACE_FOLLOWS_ECM_ORIENT !== 'undefined' && FACE_FOLLOWS_ECM_ORIENT.has(id)) return 'ecm';
+  if(!f || f.shape === 'note' || f.shape === 'ixnote' || f.shape === 'ring' || f.shape === 'ipdm_cover' || f.shape === 'fusebox') return '';
+  return 'ficha';
+}
+function mirrorIsOn(id, mode){
+  if(mode === 'ecm'){
+    const el = document.getElementById('ecmOrient');
+    return !el || el.value === 'invertida';
+  }
+  return FICHA_MIRROR.has(id);
+}
+function mirrorBtnHtml(id, mode){
+  if(!mode) return '';
+  const on = mirrorIsOn(id, mode);
+  const lab = on ? t('mirrorOn') : t('mirrorDo');
+  return `<button type="button" class="ficha-face-btn ficha-mirror-btn${on ? ' on' : ''}" data-mirror-conn="${esc(id)}" data-mirror-mode="${mode}" aria-pressed="${on ? 'true' : 'false'}" aria-label="${esc(lab)}" title="${esc(lab)}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h5.5L12 12l-2.5 5H4z"/><path d="M20 7h-5.5L12 12l2.5 5H20z"/><path d="M12 4v16" stroke-dasharray="2 2"/></svg></button>`;
+}
+function paintMirrorBtn(btn, on){
+  if(!btn) return;
+  btn.classList.toggle('on', on);
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  const lab = on ? t('mirrorOn') : t('mirrorDo');
+  btn.setAttribute('aria-label', lab);
+  btn.title = lab;
+}
+function toggleEcmOrient(){
+  const el = document.getElementById('ecmOrient');
+  if(!el) return;
+  el.value = el.value === 'fsm' ? 'invertida' : 'fsm';
+  el.dispatchEvent(new Event('change'));
+}
+function toggleFichaMirror(id){
+  if(FICHA_MIRROR.has(id)) FICHA_MIRROR.delete(id);
+  else FICHA_MIRROR.add(id);
+  const on = FICHA_MIRROR.has(id);
+  try { localStorage.setItem('z33_fichaMirror', JSON.stringify([...FICHA_MIRROR])); } catch(e) {}
+  document.querySelectorAll(`.ficha[data-conn="${CSS.escape(id)}"] .conn-svg`).forEach(svg => svg.classList.toggle('mirrored', on));
+  document.querySelectorAll(`.ficha-mirror-btn[data-mirror-mode="ficha"][data-mirror-conn="${CSS.escape(id)}"]`).forEach(btn => paintMirrorBtn(btn, on));
+}
 function openLocLightbox(cid){
   const loc = locOf(cid);
   if(!loc) return;
@@ -4256,6 +4312,21 @@ function renderECM(){
   const blocksEl = document.getElementById('blocks');
   const title = document.getElementById('ecmTitle');
   updateOrientBanner();
+  const tools = document.getElementById('ecmTools');
+  if(tools){
+    tools.innerHTML = `${locBtnHtml('ecm_f101_can')}${faceBtnHtml('ecm_f101_can')}${mirrorBtnHtml('ecm', 'ecm')}`;
+    if(!tools.dataset.bound){
+      tools.dataset.bound = '1';
+      tools.addEventListener('click', e => {
+        const locBtn = e.target.closest && e.target.closest('.ficha-loc-btn');
+        if(locBtn){ e.preventDefault(); openLocLightbox(locBtn.dataset.locConn || 'ecm_f101_can'); return; }
+        const mirBtn = e.target.closest && e.target.closest('.ficha-mirror-btn');
+        if(mirBtn){ e.preventDefault(); toggleEcmOrient(); return; }
+        const faceBtn = e.target.closest && e.target.closest('.ficha-face-btn');
+        if(faceBtn){ e.preventDefault(); openFaceLightbox(faceBtn.dataset.faceConn || 'ecm_f101_can'); }
+      });
+    }
+  }
   const modelBannerBox = document.getElementById('modelBannerBox');
   const modelBannerSum = document.getElementById('modelBannerSum');
   function showModelBanner(sumKey, bodyHtml){
@@ -4455,9 +4526,11 @@ const IPDM_FSM_MARK = {
   ipdm_e7: {l:8.58, t:48.11, w:7.99, h:17.02},
   ipdm_e8: {l:73.67, t:57.56, w:7.99, h:14.08},
   ipdm_e9: {l:60.95, t:80.88, w:18.05, h:8.61},
+  ipdm_cover: {l:9.47, t:8.82, w:17.90, h:23.84},
 };
 function ipdmFsmLabel(connId){
   if(!connId) return '';
+  if(connId === 'ipdm_cover') return '71–89';
   return String(connId).replace(/^ipdm_/i, '').toUpperCase();
 }
 function ipdmFsmBtnHtml(connId){
@@ -4571,7 +4644,12 @@ function makeFichaEl(id, f, opts){
   if(viewTxt) extra += `<div class="note-body view-note">${esc(viewTxt)}</div>`;
   const showIpdm = !!(opts && opts.ipdmIcon && IPDM_FSM_MARK[id]);
   const faceBtn = showIpdm ? ipdmFsmBtnHtml(id) : faceBtnHtml(id);
-  el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
+  const mirMode = fichaMirrorMode(id, f);
+  el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}${mirrorBtnHtml(id, mirMode)}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
+  if(mirMode === 'ficha' && FICHA_MIRROR.has(id)){
+    const svg = el.querySelector('.conn-svg');
+    if(svg) svg.classList.add('mirrored');
+  }
   /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
   wrap.addEventListener('click', e=>{
     const locBtnEl = e.target.closest && e.target.closest('.ficha-loc-btn');
@@ -4586,6 +4664,14 @@ function makeFichaEl(id, f, opts){
       e.preventDefault();
       e.stopPropagation();
       openIpdmFsm(ipdmBtn.dataset.ipdmConn || id);
+      return;
+    }
+    const mirBtn = e.target.closest && e.target.closest('.ficha-mirror-btn');
+    if(mirBtn && wrap.contains(mirBtn)){
+      e.preventDefault();
+      e.stopPropagation();
+      if(mirBtn.dataset.mirrorMode === 'ecm') toggleEcmOrient();
+      else toggleFichaMirror(mirBtn.dataset.mirrorConn || id);
       return;
     }
     const faceBtnEl = e.target.closest && e.target.closest('.ficha-face-btn');
@@ -5740,10 +5826,9 @@ function selectOptOffPin(cid, cavId, pin0, key, opts){
 }
 
 /* ---- Short click line + Descripción in the details panel ----
-   The details panel (#info, under the ECM grid) shows ONE short line (pin / cavity, colour, destination) and,
-   below it, a "Descripción" block with the rest of what the selection used to print (circuit titles + notes,
-   F102 line, route tags, pin note). Lines that only repeated the short line (the "Pin ECM n" line, the
-   "conn·cav · colour … → dest" prefix) are dropped; their note text is kept. The ficha cards stay as they are. */
+   #info shows one short line, then a Descripción block (circuit text, route, pin note, connector note).
+   View lines (Vista / View / 表示) stay out of the panel and off the card. The .view-note node stays in the
+   card so face checks can find it. */
 function clearSelDesc(){
   document.querySelectorAll('.sel-desc').forEach(el => el.remove());
 }
@@ -5765,6 +5850,29 @@ function selShortDest(cid, pin){
   if(pin.src) return String(pin.src);
   const cir = pin.circ ? CIRCUITS.find(c => c.id === pin.circ) : null;
   return cir ? circuitTitle(cir) : '';
+}
+function selectionCardBlurbs(){
+  const ids = [];
+  const key = String(selKey || '');
+  if(key.startsWith('cav:')){
+    const rest = key.slice(4);
+    const i = rest.indexOf(':');
+    if(i > 0) ids.push(rest.slice(0, i));
+  } else if(key.startsWith('conn:')){
+    ids.push(key.slice(5));
+  } else if(key.startsWith('pin:')){
+    const host = selDescCardForEcm(Number(key.slice(4)));
+    if(host) ids.push(host);
+  }
+  (lastSelConnIds || []).forEach(id => { if(id && !ids.includes(id)) ids.push(id); });
+  const out = [];
+  ids.forEach(cid => {
+    const conf = CONN[cid] || CONN_BASE[cid];
+    if(!conf) return;
+    const note = connField(cid, conf, 'note');
+    if(note) out.push(note);
+  });
+  return out;
 }
 function compactSelectionInfo(){
   const info = document.getElementById('info');
@@ -5802,11 +5910,16 @@ function compactSelectionInfo(){
     else el.remove();
   });
   const longHtml = tmp.innerHTML.trim();
+  const blurbHtml = selectionCardBlurbs().filter(text => {
+    const plain = String(text);
+    return plain && !longHtml.includes(plain) && !longHtml.includes(esc(plain));
+  }).map(text => `<div class="sel-pin-note">${esc(text)}</div>`).join('');
+  const body = (skipLong ? '' : longHtml) + blurbHtml;
   info.innerHTML = `<div class="info-short">${shortHtml}</div>`;
-  if(!longHtml || skipLong) return;
+  if(!body.trim()) return;
   const d = document.createElement('div');
   d.className = 'sel-desc';
-  d.innerHTML = `<div class="sel-desc-h">${esc(t('selDesc'))}</div>${longHtml}`;
+  d.innerHTML = `<div class="sel-desc-h">${esc(t('selDesc'))}</div>${body}`;
   info.appendChild(d);
 }
 /** Short line + Descripción text of the current selection (tests, copy). */

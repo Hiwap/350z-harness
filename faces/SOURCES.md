@@ -10,13 +10,13 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | coil.webp | Wiring Specialties | coil1–6 | VQ35 Coil Connector |
 | maf.webp | Wiring Specialties | maf | VQ35 MAFS |
 | ckp.webp | Wiring Specialties | ckp | VQ35 Crank Sensor Connector, SKU WRS-VQCRNK-BK (F10 B/3 · Nissan RK03FB shell, same part as Ballenger CONN-86050). Not cmp.webp (cam). |
-| cmp.webp | Wiring Specialties | cmp_b1 | VQ35 Cam Sensor Connector Black |
-| cmp_g.webp | Wiring Specialties | cmp_b2 | VQ35 Cam Sensor Connector Green |
+| cmp.webp | Wiring Specialties | cmp_b1 | VQ35 Cam Sensor Connector Black. Photo housing is black. FSM cmp_b1 is F4 GY/3 (grey, EC-331). The black shell is closer to F32 than to F4. Do not swap with cmp_g.webp without confirmation. |
+| cmp_g.webp | Wiring Specialties | cmp_b2 | VQ35 Cam Sensor Connector Green. Photo housing is green. FSM cmp_b2 is F32 B/3 (black, EC-333). Do not swap with cmp.webp without confirmation. |
 | knock.webp | Wiring Specialties | knock | VQ35DE Knock Sensor Connector |
 | ect.webp | Wiring Specialties | ect, iat | VQ35/VQ37 Coolant Temperature 2-pin (same shell as IAT) |
 | e113.webp | Wiring Specialties | app | 350Z pedal connector DBW, WRS-350Z-PDL (E113 GY/6) |
 | ho2s.webp | Wiring Specialties | ho2s_b1, ho2s_b2, vtc_ex_b1, vtc_ex_b2 | VQ35 Oxygen Sensor 4-pin (F11/F12 HO2S · F40/F41 4-cavity) · Round 2×2 insert, lock on top = same arrangement as the FSM F11/F12 face (EC-191/193/195 T.S.: 3-1 / 4-2, female); housing in photo is dark green vs FSM F11 B / F12 GY. Fichas drawn fixed 3-1 / 4-2. |
-| oil.webp | Wiring Specialties | f21_oilp, psp, ac_press, evap_press, f38_evtc_b1, f42_evtc_b2 | 3-pin 5V/SIG/GND (PSP · A/C press · EVAP press · oil · EVT pos) |
+| oil.webp | Wiring Specialties | f21_oilp, psp, ac_press, evap_press, f38_evtc_b1, f42_evtc_b2 | 3-pin 5V/SIG/GND (PSP · A/C press · EVAP press · oil · EVT pos). Photo housing is black, which matches FSM F21 B/3 (DI-34/66). Rechecked 2026-10-04 for F21 only. |
 | vtc.webp | Wiring Specialties | vtc_b1, vtc_b2 | VQ35DE VVT Connector |
 | f1.webp | Wiring Specialties | ix_e10_f1 | VQ35 F1 Connector 9 pin |
 | f2.webp | Wiring Specialties | ix_e11_f2 | VQ35DE F2 Connector 10 Pin |
