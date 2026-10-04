@@ -30,7 +30,8 @@ const html = fs.readFileSync(HTML, 'utf8').replace(
   'let CONN = {};',
   fs.readFileSync(path.join(ROOT, 'data', 'conn.js'), 'utf8')
     + fs.readFileSync(path.join(ROOT, 'data', 'i18n.js'), 'utf8')
-    + 'let CONN = {};',
+    + 'let CONN = {};\n'
+    + fs.readFileSync(path.join(ROOT, 'js', 'selection.js'), 'utf8'),
 );
 const failures = [];
 const passes = [];
