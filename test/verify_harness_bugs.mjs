@@ -25,7 +25,9 @@ if (!HTML) {
 }
 const html = fs.readFileSync(HTML, 'utf8').replace(
   'let CONN = {};',
-  fs.readFileSync(path.join(ROOT, 'data', 'conn.js'), 'utf8') + 'let CONN = {};',
+  fs.readFileSync(path.join(ROOT, 'data', 'conn.js'), 'utf8')
+    + fs.readFileSync(path.join(ROOT, 'data', 'i18n.js'), 'utf8')
+    + 'let CONN = {};',
 );
 const failures = [];
 const passes = [];

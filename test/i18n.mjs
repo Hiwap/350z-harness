@@ -86,6 +86,14 @@ for (const id of Object.keys(CONN_BASE)) {
 }
 ok(missingNoteEn.length === 0, 'every pin.note has note_en' + (missingNoteEn.length ? ` missing: ${missingNoteEn.join(', ')}` : ''));
 
+const missingNoteJa = [];
+for (const id of Object.keys(CONN_BASE)) {
+  for (const pin of CONN_BASE[id].pins || []) {
+    if (pin.note && !pin.note_ja) missingNoteJa.push(id + '·' + pin.id);
+  }
+}
+ok(missingNoteJa.length === 0, 'every pin.note has note_ja' + (missingNoteJa.length ? ` missing: ${missingNoteJa.join(', ')}` : ''));
+
 console.log('\nEnglish packs stay English');
 const esLeak = /[áéíóúñ¿¡]|\b(Ruta:|Arnés|ficha|Fichas|calentador|Bobina|Inyector|venteo|habitáculo|carrocería|embrague|Arranque|admisión|mariposa|seleccionados)\b/i;
 function walkLeak(obj, p, hits) {
@@ -107,6 +115,29 @@ walkLeak(TITLES, 'TITLES', leaks);
 walkLeak(NOTES, 'NOTES', leaks);
 walkLeak(CONN_I18N, 'CONN', leaks);
 ok(leaks.length === 0, 'no Spanish leftovers in EN strings' + (leaks.length ? `\n    ${leaks.slice(0, 12).join('\n    ')}` : ''));
+
+const missingConnLang = [];
+for (const id of Object.keys(CONN_BASE)) {
+  const tr = CONN_I18N[id];
+  if (!tr || tr.en == null) missingConnLang.push(id + '.en');
+  if (!tr || tr.ja == null) missingConnLang.push(id + '.ja');
+}
+ok(missingConnLang.length === 0, 'every CONN_BASE id has CONN_I18N en and ja' + (missingConnLang.length ? ` missing: ${missingConnLang.join(', ')}` : ''));
+
+const badLangValue = [];
+for (const [name, table] of [['TITLES_I18N', TITLES], ['NOTES_I18N', NOTES]]) {
+  for (const id of Object.keys(table)) {
+    const row = table[id];
+    if (!row || typeof row !== 'object') {
+      badLangValue.push(name + '.' + id);
+      continue;
+    }
+    for (const [lang, value] of Object.entries(row)) {
+      if (typeof value !== 'string') badLangValue.push(name + '.' + id + '.' + lang);
+    }
+  }
+}
+ok(badLangValue.length === 0, 'TITLES_I18N and NOTES_I18N language values are strings' + (badLangValue.length ? ` bad: ${badLangValue.join(', ')}` : ''));
 
 ok(!/>Alim\. 12V</.test(html), 'info Power-12V pill uses t(), not hardcoded Alim.');
 ok(/t\('hdrTitle'\)/.test(html) && /t\('pageTitle'\)/.test(html), 'applyLang sets h1 + document.title');
