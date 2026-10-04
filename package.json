@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node test/harness_page_tests.mjs",
+    "test": "node test/html_source_limit.mjs && node test/harness_page_tests.mjs",
     "test:static": "HARNESS_SKIP_BROWSER=1 node test/harness_page_tests.mjs",
     "test:i18n": "node test/i18n.mjs",
     "test:ui": "node test/ui-lang.mjs",
