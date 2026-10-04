@@ -53,5 +53,3 @@ The ECM orientation dropdown stays in the DOM, hidden, default `invertida` (pin 
 A 12 V path highlight does not use `markFichaHL`. Clicking the F102 card does not open every circuit that crosses it. Do not fan out from a shared cavity or a shared ficha. Empty declared F102 cavities means do not auto-attach F102. The Datos related attach adds ECM pins only and does not merge `.path`. Do not mix a circuit retarget with rail mode. Auto-open of a closed group is not written to `localStorage`. Do not restore collapsed groups before applying the selection.
 
 Find those rules by the comment text. Do not delete the comments.
-
-GoatCounter site `350z-harness` exists as of 2026-10-04. The script and the README link already point at it. The login is the git email. Do not store the password in the repo.
