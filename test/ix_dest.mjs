@@ -33,22 +33,9 @@ function findChrome() {
 
 /* Cavities left without a destination: the FSM does not name the far end. when = vif expression ('' = always). */
 const BLANK = {
-  'ix_e108_m15·5G':  { when: '', why: 'front wiper: WW-12 continues on another page without naming the ends' },
-  'ix_e108_m15·63G': { when: '', why: 'A/T shift lock: AT-240 names no end terminal' },
-  'ix_e108_m15·64G': { when: '', why: 'A/T shift lock: AT-240 names no end terminal (only the M15-side colour)' },
   'ix_e106_b2·15':   { when: '', why: 'Bose: AV-15 / AV-22 do not name the end terminals' },
   'ix_e106_b2·16':   { when: '', why: 'Bose: AV-15 / AV-22 do not name the end terminals' },
-  'ix_b1_m12·5J':    { when: '', why: 'Bose: AV-15 / AV-22 do not name the end terminals' },
-  'ix_b1_m12·9J':    { when: '', why: 'heated seat: SE-61 / SE-64 do not name the end terminal' },
-  'ix_b1_m12·10J':   { when: '', why: 'heated seat: SE-61 / SE-64 do not name the end terminal' },
-  'ix_b1_m12·60J':   { when: '', why: 'rear defogger: GW-61 / GW-65 show the wire with no end pin' },
-  'ix_b1_m12·46J':   { when: '', why: 'Roadster soft top: ends are on RF-26/27 and SE-29/31, not in the data' },
-  'ix_b1_m12·49J':   { when: '', why: 'Roadster soft top: ends are on RF-26/27 and SE-29/31, not in the data' },
-  'ix_b1_m12·50J':   { when: '', why: 'Roadster soft top: ends are on RF-26/27 and SE-29/31, not in the data' },
-  'ix_b1_m12·51J':   { when: '', why: 'Roadster soft top: ends are on RF-26/27 and SE-29/31, not in the data' },
   'ix_e106_b2·7':    { when: '', why: 'Roadster power seat: SE-29 does not detail the ends in this view' },
-  'ix_b1_m12·52J':   { when: '', why: 'Roadster power seat: SE-29 does not detail the ends in this view' },
-  'ix_b1_m12·66J':   { when: '', why: 'Roadster fuel lid opener: BL-55 names no end pin' },
   'ix_b1_m12·15J':   { when: 'body=roadster', why: 'luggage lamp: only the Coupe end (T13·1, LT-220) is known; the Roadster LT-224 end is not in the data' },
   'ix_b43_t1·5':     { when: 'body=roadster', why: 'fuel lid actuator T19·1 is the Coupe circuit (BL-54); no Roadster end in the data' },
   'ix_e12_f3·1':     { when: 'trans=mt', why: 'battery feed for the TCM F6 (AT-186); the FSM names no M/T end' },

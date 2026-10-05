@@ -245,7 +245,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     /\{id:'oilp_gauge',[^\n]*\n\s*ecm:\[\], conn:\['f21_oilp','ix_f102_m72'\], f102:\['14H','15H','16H'\],\n\s*path:\{f21_oilp:\['1','2','3'\],ix_f102_m72:\['14H','15H','16H'\]\}/.test(html)
     && (html.match(/\n  oilp_gauge: \{en:'[^']+', ja:'[^']+'\},/g) || []).length === 2
     && /f21_oilp:\{group:'motor'[^\n]*meta:'B\/3 · DI-34\/66'/.test(html) && (html.match(/meta:'B\/3 · DI-34\/66'/g) || []).length === 3
-    && /\{id:'3',code:'B',lab:'SNS-GND',circ:'oilp_gauge'\}/.test(html));
+    && /\{id:'3',code:'B',lab:'SNS-GND',src:'M44·7',circ:'oilp_gauge'\}/.test(html));
   /* F102·10H = DLC signal ground (EC-742): DLC M8·5 B/W → M72·10H → F102·10H → F103·2 (ECM 115 splice) → F152 */
   ok('F102·10H B/W GND rail, src F103·2, circ dlc_gnd (EC-742)',
     /\{id:'10H',code:'B\/W',ecm:null,rail:'gnd',lab:'GND',src:'F103·2',srcSub:'power',circ:'dlc_gnd',note:'[^']*EC-742[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html));
