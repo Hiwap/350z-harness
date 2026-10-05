@@ -26,7 +26,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | f14.webp | Wiring Specialties | ix_f14_f229 | VQ35 Knock Sensor Sub Harness (sensor 2-pin + F14/F229) |
 | f18.webp | Ballenger Motorsports | ix_f18_f201 | Sumitomo 6-way 2×3 sealed (CONN-75847) — interim ID for F18. Female housing + receptacle terminals = same half as F18 (EC-691/455 T.S., white guide = female), so no mirror note; photo housing is grey vs FSM F18 B (black). Ficha fixed 1-2-3 / 4-5-6. |
 | f33.webp | EFI Hardware | ix_f221_f33 | "Nissan 8 Pin Injector Loom Male Pin Connector Grey" (SKU C08M-9001, "injector harness engine loom side"), https://www.efihardware.com/products/2207/Nissan-8-Pin-Injector-Loom-Male-Pin-Connector-Grey · 4th gallery thumbnail (images/3090, mating face with orange seal), chosen for this car. Replaced the earlier female-side photo. FSM gender (GI-15: black guide = male, white = female): F33 GY/8 has the **female** terminals (EC-278 T.S., white guide, 1-2-3-4 / 5-6-7-8); F221 has the **male** terminals (EC-279 T.S., black guide, 4-3-2-1 / 8-7-6-5). So this male photo is the F221 face; PG-55 lists F221 as G/8 (green) vs the grey product. The ficha shows the car's F33 female plug (EC-278 T.S., 1-2-3-4 / 5-6-7-8); the caption adds the localized `faceNoteMateMirror` note (mating male half, mirrored vs the ficha). |
-| reverse.webp | Wiring Specialties | backup_sw, evap_purge | VQ35 Reverse Switch 2-pin (F36 B/2 · F5 GY/2 purge same 2-way) |
+| reverse.webp | Wiring Specialties | backup_sw, evap_purge, f35_pnp | VQ35 Reverse Switch 2-pin (F36 B/2 · F5 GY/2 purge same 2-way · F35 B/2 park/neutral same 2-way) |
 | alt.webp | Wiring Specialties | f20_alt | VQ35 Alternator Plug Connector (SKU WRS-VQ35ALT-CON, https://www.wiringspecialties.com/vq35-alternator-plug-connector/) — harness-side 2-cavity S/L plug = same half as F20 GY/2 (SC-22: 3 L / 4 S), so no mirror note. Re-checked 2026-09-26 for the alternator charge fichas: still the best product photo. The B (E202) and E (E211) ring terminals of the battery cable (PG-53) have no photo (generic ring lugs; skipped on purpose). |
 
 FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not product photos):
@@ -48,6 +48,10 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_e122.webp | EC-628 | ascd_clutch (E122 L: 1-2, lock above). M/T only. |
 | fsm_m23.webp | EC-618 | clock_spring (M23 GY: 27-26-25-24 over 34-33-32-31). The ficha draws that half; only 34 and 33 are wired. M203, the other half of that dashed box, is not this connector. |
 | fsm_m8.webp | EC-742 | dlc (M8 W/16: 16-9 over 8-1). |
+| fsm_e52.webp | WW-11 | wiper_e52 (E52 GY/5: 1-2-3 over 4-5, lock on the top row). Cavity 5 is drawn empty. |
+| fsm_e29.webp | WW-12 | washer_e29 (E29 GY/2: 1-2, lock on top). |
+| fsm_e28.webp | WW-40 | washer_e28 (E28 GY/2: 1-2, lock on top). Coupe only. Separate crop from E29. |
+| fsm_d106.webp | WW-40 | wiper_d106 (D106 W/4: 1-2-3-4, lock over the middle). Cavity 3 is drawn empty. Coupe only. |
 
 Not mapped in CONN_FACE:
 

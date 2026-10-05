@@ -49,7 +49,7 @@ const UNCONNECTED = [
   'ix_b1_m12·44J', 'ix_e108_m15·9G',                                 /* parking brake B47 / brake fluid E44 switch, meter M19 not drawn */
   'ix_b1_m12·67J',                                                   /* power socket B36 not drawn */
   'ix_e108_m15·32G', 'ix_e108_m15·33G',                              /* ambient sensor E34 / A/C amp not drawn */
-  'ix_e108_m15·5G', 'ix_e108_m15·8G',                                /* wiper / rear washer: FSM page names no end pin / not drawn */
+  'wiper_d106·1', 'wiper_d106·2', 'wiper_d106·4',                     /* rear wiper motor: BCM B83 and ground D105 are not drawn */
   'ix_e108_m15·63G', 'ix_e108_m15·64G',                              /* A/T shift lock: AT-240 names no end terminal */
 ];
 /* ECM signal pin → sensor-ground cavities on its card that belong to ANOTHER element (not required to light) */

@@ -868,8 +868,9 @@ const FSM_FACE = {
   clock_spring: { mt: "34 33", at: "34 33" },
   /* DLC M8·8 G/Y ignition feed (EC-742 / AT-194) */
   dlc: { mt: "16 14 / 8 7 6 5 4", at: "16 14 / 8 7 6 5 4" },
-  /* Carrocería body-circuit lists (shape note, one box per circuit; not plug faces). Equipment-only cards
-     (vdc_m51 VDC, body_techo Roadster) are hidden with the default generic OEM coupe. */
+  /* Carrocería body-circuit lists (shape note, one box per circuit; not plug faces).
+     Wiper and washer cards are the real shells (empty cavities are not in this string).
+     Equipment-only cards (vdc_m51 VDC, body_techo Roadster) are hidden with the default generic OEM coupe. */
   body_abs: { mt: "RL-VB RL-SIG RR-VB RR-SIG / K-ABS VDC-OFF PKB", at: "RL-VB RL-SIG RR-VB RR-SIG / K-ABS VDC-OFF PKB" },
   body_luces: { mt: "TURN-L TURN-R ILL STOP / LUG DT-PKB DT-ALT", at: "TURN-L TURN-R ILL STOP / LUG DT-PKB DT-ALT" },
   body_puertas: { mt: "BAT DOOR-AS BK-DOOR OPEN-SW / OPEN-M F/LID F/LID-R", at: "BAT DOOR-AS BK-DOOR OPEN-SW / OPEN-M F/LID F/LID-R" },
@@ -878,7 +879,10 @@ const FSM_FACE = {
   body_audio: { mt: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT", at: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT" },
   body_medidores: { mt: "BRK-LV PKB FUEL", at: "BRK-LV PKB FUEL" },
   body_clima: { mt: "AMB AMB-GND BLW-GND", at: "AMB AMB-GND BLW-GND" },
-  body_limpia: { mt: "WIPER RR-WASH", at: "WIPER RR-WASH" },
+  wiper_e52: { mt: "1 2 3 / 4", at: "1 2 3 / 4" },
+  washer_e29: { mt: "1 2", at: "1 2" },
+  washer_e28: { mt: "1 2", at: "1 2" },
+  wiper_d106: { mt: "1 2 4", at: "1 2 4" },
   body_at: { mt: null, at: "IGN-TCM BACK-AT STR-AT / K-TCM SHIFT" },
   vdc_m51: { mt: null, at: null },
   body_techo: { mt: null, at: null },

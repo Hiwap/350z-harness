@@ -410,7 +410,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       'faces/af.webp': ['af_b1', 'af_b2'], /* A/F F22/F34: same 6-way part both banks (Connector Experts i-26377349, similar) */
       'faces/ho2s.webp': ['ho2s_b1', 'ho2s_b2', 'vtc_ex_b1', 'vtc_ex_b2'],
       'faces/oil.webp': ['f21_oilp', 'psp', 'ac_press', 'evap_press', 'f38_evtc_b1', 'f42_evtc_b2'],
-      'faces/reverse.webp': ['backup_sw', 'evap_purge'],
+      'faces/reverse.webp': ['backup_sw', 'evap_purge', 'f35_pnp'],
       /* B27 GY/5 is one shell: fuel pump draws 3/1, tank temp draws 5/4. Same EC-710 inset. */
       'faces/fsm_b27.webp': ['fuel_pump', 'fuel_tank_temp'],
     };
@@ -546,6 +546,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       f21_oilp: 3,
       vtc_b1: 2, vtc_b2: 2,
       backup_sw: 2,
+      f35_pnp: 2,
       f20_alt: 2,
       gnd4: 4,
       evap_purge: 2,
@@ -563,6 +564,10 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       stop_lamp: 2,
       clock_spring: 2,
       dlc: 16,
+      wiper_e52: 4, /* shell E52 GY/5; cavity 5 empty */
+      washer_e29: 2,
+      washer_e28: 2,
+      wiper_d106: 3, /* shell D106 W/4; cavity 3 empty */
     };
     function expectedFacePins(id) {
       if (Object.prototype.hasOwnProperty.call(EXPECTED_FACE_PINS, id)) return EXPECTED_FACE_PINS[id];

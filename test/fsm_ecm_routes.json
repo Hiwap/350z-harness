@@ -1807,6 +1807,74 @@
     "DI-20"
    ],
    "note": "fuel level sensor unit (sub): 1 W/B to M49·28, 2 Y to B27·2; face not published in DI"
+  },
+  "wiper_e52": {
+   "fsm": "E52",
+   "half": "E52",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+   ],
+   "wired": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "cite": [
+    "WW-11"
+   ],
+   "note": "front wiper motor GY/5; cavity 5 not wired; low E7·21 to pin 3, high E7·31 to pin 2, auto-stop pin 1 to E7·32, pin 4 ground"
+  },
+  "washer_e29": {
+   "fsm": "E29",
+   "half": "E29",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "WW-12",
+    "WW-13"
+   ],
+   "note": "front washer motor GY/2; pin 2 OR 12 V from IPDM E8·44 fuse 84, pin 1 P through E108·5G to switch M29·11"
+  },
+  "washer_e28": {
+   "fsm": "E28",
+   "half": "E28",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "WW-40",
+    "WW-41"
+   ],
+   "note": "Coupe rear washer motor GY/2; pin 2 OR 12 V from the same E8·44, pin 1 LG/B through E108·8G to switch M29·13"
+  },
+  "wiper_d106": {
+   "fsm": "D106",
+   "half": "D106",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "wired": [
+    "1",
+    "2",
+    "4"
+   ],
+   "cite": [
+    "WW-40",
+    "WW-48",
+    "WW-49"
+   ],
+   "note": "Coupe rear wiper motor W/4 in the back-door harness; cavity 3 not wired; pin 4 SB from BCM B83·70, pin 2 OR auto-stop from B83·59, pin 1 B to ground D105"
   }
  },
  "pseudo_cards": {
@@ -1818,7 +1886,6 @@
   "body_audio": "body-circuit list: audio circuits (AV), not a connector",
   "body_medidores": "body-circuit list: meter warning circuits (DI), not a connector",
   "body_clima": "body-circuit list: climate circuits (ATC), not a connector",
-  "body_limpia": "body-circuit list: wiper circuits (WW), not a connector",
   "body_techo": "body-circuit list: Roadster soft top circuits (RF), not a connector",
   "body_at": "body-circuit list: A/T body-side circuits (AT), not a connector",
   "vdc_m51": "pin list of VDC yaw rate / side G sensor M51 (BRC-101); plug face not drawn",
