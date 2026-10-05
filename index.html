@@ -606,6 +606,15 @@
   .sel-desc .sel-desc-h { font-weight: 600; color: #ffd54f; margin-bottom: 2px; }
   .sel-desc b { color: #fff; }
   .sel-desc .sel-pin-note { color: var(--muted); margin-top: 4px; }
+  .sel-desc .sel-ficha-blurb { margin-top: 8px; }
+  .sel-desc .sel-ficha-name {
+    display: block; margin: 0; padding: 0; border: 0; border-radius: 0;
+    background: none; color: #fff; font: inherit; font-weight: 600; text-align: left;
+  }
+  .sel-desc button.sel-ficha-name {
+    cursor: pointer; text-decoration: underline; text-underline-offset: 2px; color: #ffd54f;
+  }
+  .sel-desc button.sel-ficha-name:hover { border-color: transparent; color: #fff; }
 
   /* F102 interactive verified pin grid (collapsible; idle = collapsed) */
   #ecm details.f102-panel {
@@ -2411,6 +2420,31 @@ function optNeedLabel(pin, lg){
   /* Canada-only (no market selector): the daytime running light (DTRL) cavities */
   if(pin && pin.vifOff === 'market=canada') return { es:'solo Canadá (luces diurnas)', en:'Canada only (daytime running lights)', ja:'カナダ仕様のみ（デイライト）' }[L] || 'solo Canadá (luces diurnas)';
   return L === 'en' ? `only with ${need}` : (L === 'ja' ? `${need}装着車のみ` : `solo con ${need}`);
+}
+/* Descripción line for a pin, or for a card whose every pin shares one gate.
+   The hover tooltip stays optNeedLabel ("solo con VDC"). */
+function equipmentActiveLine(pin, conf){
+  const p = pin || {};
+  const pinHasGate = !!(p.vifOff || p.vif || p.transOff || p.trans);
+  const vif = p.vifOff || p.vif || (!pinHasGate && conf && conf.vif) || '';
+  const trans = p.transOff || p.trans || (!pinHasGate && conf && conf.trans) || '';
+  if(!vif && !trans) return '';
+  const phrase = optNeedLabel({ vifOff: vif, transOff: trans });
+  if(!phrase) return '';
+  const L = (typeof lang !== 'undefined' ? lang : 'es');
+  if(L === 'en'){
+    if(phrase.indexOf('only with ') === 0) return 'Only active with ' + phrase.slice(10) + '.';
+    if(phrase.indexOf('Canada only') === 0) return 'Only on the Canada car (daytime running lights).';
+    return phrase;
+  }
+  if(L === 'ja'){
+    if(/装着車のみ$/.test(phrase)) return phrase.replace(/装着車のみ$/, 'のときだけ有効。');
+    if(phrase.indexOf('カナダ仕様のみ') === 0) return 'カナダ仕様のときだけ有効（デイライト）。';
+    return phrase;
+  }
+  if(phrase.indexOf('solo con ') === 0) return 'Solo activo con ' + phrase.slice('solo con '.length) + '.';
+  if(phrase.indexOf('solo Canadá') === 0) return 'Solo activo en Canadá (luces diurnas).';
+  return phrase;
 }
 /** Gated pin drawn exactly like the live pin (FSM colour + top / bottom label lines), dimmed by the caller;
     null when the pin is live. Keeps vifOff / transOff so renderers know it is gated. */
@@ -5956,7 +5990,7 @@ function selectionCardBlurbs(){
     const conf = CONN[cid] || CONN_BASE[cid];
     if(!conf) return;
     const note = connField(cid, conf, 'note');
-    if(note) out.push(note);
+    if(note) out.push({ id: cid, name: connField(cid, conf, 'name') || cid, note });
   });
   return out;
 }
@@ -5996,16 +6030,41 @@ function compactSelectionInfo(){
     else el.remove();
   });
   const longHtml = tmp.innerHTML.trim();
-  const blurbHtml = selectionCardBlurbs().filter(text => {
-    const plain = String(text);
+  let activeLine = '';
+  if(key.startsWith('cav:')){
+    const restA = key.slice(4); const ia = restA.indexOf(':');
+    const cidA = restA.slice(0, ia);
+    const cavA = restA.slice(ia + 1);
+    const confA = CONN[cidA] || CONN_BASE[cidA];
+    const pinA = (confA && confA.pins || []).find(x => String(x.id) === String(cavA));
+    activeLine = equipmentActiveLine(pinA, confA);
+  } else if(key.startsWith('conn:')){
+    const cidA = key.slice(5);
+    const confA = CONN[cidA] || CONN_BASE[cidA];
+    activeLine = equipmentActiveLine(null, confA);
+  }
+  const blurbHtml = selectionCardBlurbs().filter(b => {
+    const plain = String(b.note);
     return plain && !longHtml.includes(plain) && !longHtml.includes(esc(plain));
-  }).map(text => `<div class="sel-pin-note">${esc(text)}</div>`).join('');
-  const body = (skipLong ? '' : longHtml) + blurbHtml;
+  }).map(b => {
+    const title = locOf(b.id)
+      ? `<button type="button" class="sel-ficha-name" data-loc-conn="${esc(b.id)}" title="${esc(t('locOpen'))}">${esc(b.name)}</button>`
+      : `<span class="sel-ficha-name">${esc(b.name)}</span>`;
+    return `<div class="sel-ficha-blurb">${title}<div class="sel-pin-note">${esc(b.note)}</div></div>`;
+  }).join('');
+  const activeHtml = activeLine ? `<div class="sel-pin-note">${esc(activeLine)}</div>` : '';
+  const body = activeHtml + (skipLong ? '' : longHtml) + blurbHtml;
   info.innerHTML = `<div class="info-short">${shortHtml}</div>`;
   if(!body.trim()) return;
   const d = document.createElement('div');
   d.className = 'sel-desc';
   d.innerHTML = `<div class="sel-desc-h">${esc(t('selDesc'))}</div>${body}`;
+  d.addEventListener('click', e => {
+    const btn = e.target.closest && e.target.closest('.sel-ficha-name');
+    if(!btn || !d.contains(btn) || !btn.dataset.locConn) return;
+    e.preventDefault();
+    openLocLightbox(btn.dataset.locConn);
+  });
   info.appendChild(d);
 }
 /** Short line + Descripción text of the current selection (tests, copy). */
@@ -6631,6 +6690,6 @@ document.getElementById('q').addEventListener('input', e=>{
 })();
 </script>
 <script data-goatcounter="https://350z-harness.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+        async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
