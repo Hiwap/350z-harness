@@ -475,7 +475,10 @@
   .ficha-face-btn svg { width: 14px; height: 14px; pointer-events: none; }
   .ficha-mirror-btn.on { border-color: var(--accent, #4fc3f7); color: #4fc3f7; background: #152433; }
   .conn-svg.mirrored { transform: scaleX(-1); }
-  .conn-svg.mirrored text { transform: scaleX(-1); transform-box: fill-box; transform-origin: center; }
+  #f102Blocks.mirrored { transform: scaleX(-1); }
+  #f102Blocks.mirrored .pin,
+  #f102Blocks.mirrored .corner-pin,
+  #f102Blocks.mirrored .tag { transform: scaleX(-1); }
   .ficha-loc-btn {
     flex: 0 0 auto; width: 22px; height: 22px; padding: 0;
     display: inline-flex; align-items: center; justify-content: center;
@@ -618,9 +621,8 @@
   }
   #f102Title { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
   #f102Title .f102-title-txt { flex: 1 1 auto; min-width: 0; }
-  #f102Title .ficha-face-btn { margin-left: auto; }
-  #f102Title .ficha-loc-btn { margin-left: auto; }
-  #f102Title .ficha-loc-btn + .ficha-face-btn { margin-left: 0; }
+  #f102Title .f102-title-txt + .ficha-loc-btn,
+  #f102Title .f102-title-txt + .ficha-face-btn { margin-left: auto; }
   #ecm details.f102-panel > summary::-webkit-details-marker { display: none; }
   #ecm details.f102-panel > summary::before {
     content: '▾'; font-size: 11px; color: #90a4ae; transition: transform .12s ease;
@@ -1158,6 +1160,10 @@
       <label class="chk" id="lblCollapseIdle">
         <input type="checkbox" id="collapseIdleSubs" checked />
         <span id="lblCollapseIdleTxt">Colapsar grupos sin selección</span>
+      </label>
+      <label class="chk" id="lblMirrorAll">
+        <input type="checkbox" id="mirrorAll" />
+        <span id="lblMirrorAllTxt">Espejo de todas</span>
       </label>
       <div class="opts-rail-rel" id="optsRailRel">
         <span class="opts-rail-rel-title" id="railRelTitle">Relacionados</span>
@@ -3807,6 +3813,9 @@ function applyLang(){
   setLabel('lblLang', 'lblLang');
   const cit = document.getElementById('lblCollapseIdleTxt');
   if(cit) cit.textContent = t('collapseIdle');
+  const mat = document.getElementById('lblMirrorAllTxt');
+  if(mat) mat.textContent = t('mirrorAll');
+  paintMirrorAllChk();
   const rrt = document.getElementById('railRelTitle');
   if(rrt) rrt.textContent = t('railRelTitle');
   const rrg = document.getElementById('lblRailRelGndTxt');
@@ -4089,8 +4098,13 @@ function locBtnHtml(cid){
   const lab = t('locOpen');
   return `<button type="button" class="ficha-loc-btn" data-loc-conn="${esc(cid)}" aria-label="${esc(lab)}" title="${esc(lab)}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.2 7-12.5A7 7 0 0 0 5 9.5C5 14.8 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>`;
 }
-/* User mirror. ECM (and the F101 excerpt) follow #ecmOrient: pressed = invertida.
-   Fuse grids have no mirror. Every other plug starts as drawn; pressed = this card is flipped. */
+/* User mirror. Nothing starts flipped: the drawing is the authored face, and the ECM
+   grid stays invertida (pin 121 on the left). Pressed flips that one card.
+   ECM pressed = fsm. F102 is the panel, stored with the other fichas.
+   Fuse grids, notes, rings, and the IPDM cover have no mirror.
+   ecm_f101_can follows #ecmOrient and does not also get a CSS mirror.
+   SVG text is unflipped around its own box; a CSS flip on <text> throws the glyphs
+   outside the view in Chrome. */
 const FICHA_MIRROR = new Set();
 function loadFichaMirror(){
   FICHA_MIRROR.clear();
@@ -4108,9 +4122,67 @@ function fichaMirrorMode(id, f){
 function mirrorIsOn(id, mode){
   if(mode === 'ecm'){
     const el = document.getElementById('ecmOrient');
-    return !el || el.value === 'invertida';
+    return !!(el && el.value === 'fsm');
   }
   return FICHA_MIRROR.has(id);
+}
+function setSvgMirrored(svg, on){
+  if(!svg) return;
+  svg.classList.toggle('mirrored', !!on);
+  svg.querySelectorAll('text').forEach(el => el.removeAttribute('transform'));
+  if(!on || !svg.isConnected) return;
+  svg.querySelectorAll('text').forEach(el => {
+    let b;
+    try { b = el.getBBox(); } catch(e) { return; }
+    if(!b || b.width <= 0) return;
+    const cx = b.x + b.width / 2;
+    const cy = b.y + b.height / 2;
+    el.setAttribute('transform', `translate(${cx} ${cy}) scale(-1 1) translate(${-cx} ${-cy})`);
+  });
+}
+function persistFichaMirror(){
+  try { localStorage.setItem('z33_fichaMirror', JSON.stringify([...FICHA_MIRROR])); } catch(e) {}
+}
+function paintF102Mirror(){
+  const blocks = document.getElementById('f102Blocks');
+  if(blocks) blocks.classList.toggle('mirrored', FICHA_MIRROR.has('ix_f102_m72'));
+  document.querySelectorAll('.ficha-mirror-btn[data-mirror-conn="ix_f102_m72"]').forEach(btn => paintMirrorBtn(btn, FICHA_MIRROR.has('ix_f102_m72')));
+}
+function mirrorableFichaIds(){
+  const src = (typeof CONN_BASE !== 'undefined' && CONN_BASE) ? CONN_BASE : CONN;
+  return Object.keys(src).filter(id => fichaMirrorMode(id, src[id]) === 'ficha');
+}
+function paintMirrorAllChk(){
+  const el = document.getElementById('mirrorAll');
+  if(!el) return;
+  const ids = mirrorableFichaIds();
+  el.checked = ids.length > 0 && ids.every(id => FICHA_MIRROR.has(id)) && mirrorIsOn('ecm', 'ecm');
+}
+function applyFichaMirrorToDom(){
+  document.querySelectorAll('.ficha[data-conn] .conn-svg').forEach(svg => {
+    const card = svg.closest('.ficha');
+    const id = card && card.dataset.conn;
+    if(!id || fichaMirrorMode(id, CONN[id] || CONN_BASE[id]) !== 'ficha') return;
+    setSvgMirrored(svg, FICHA_MIRROR.has(id));
+  });
+  document.querySelectorAll('.ficha-mirror-btn[data-mirror-mode="ficha"]').forEach(btn => {
+    paintMirrorBtn(btn, FICHA_MIRROR.has(btn.dataset.mirrorConn));
+  });
+  paintF102Mirror();
+}
+function setMirrorAll(on){
+  mirrorableFichaIds().forEach(id => { if(on) FICHA_MIRROR.add(id); else FICHA_MIRROR.delete(id); });
+  persistFichaMirror();
+  const el = document.getElementById('ecmOrient');
+  const next = on ? 'fsm' : 'invertida';
+  if(el && el.value !== next){
+    el.value = next;
+    el.dispatchEvent(new Event('change'));
+  } else {
+    applyFichaMirrorToDom();
+    document.querySelectorAll('.ficha-mirror-btn[data-mirror-mode="ecm"]').forEach(btn => paintMirrorBtn(btn, mirrorIsOn('ecm', 'ecm')));
+  }
+  paintMirrorAllChk();
 }
 function mirrorBtnHtml(id, mode){
   if(!mode) return '';
@@ -4131,14 +4203,17 @@ function toggleEcmOrient(){
   if(!el) return;
   el.value = el.value === 'fsm' ? 'invertida' : 'fsm';
   el.dispatchEvent(new Event('change'));
+  paintMirrorAllChk();
 }
 function toggleFichaMirror(id){
   if(FICHA_MIRROR.has(id)) FICHA_MIRROR.delete(id);
   else FICHA_MIRROR.add(id);
   const on = FICHA_MIRROR.has(id);
-  try { localStorage.setItem('z33_fichaMirror', JSON.stringify([...FICHA_MIRROR])); } catch(e) {}
-  document.querySelectorAll(`.ficha[data-conn="${CSS.escape(id)}"] .conn-svg`).forEach(svg => svg.classList.toggle('mirrored', on));
+  persistFichaMirror();
+  if(id === 'ix_f102_m72') paintF102Mirror();
+  document.querySelectorAll(`.ficha[data-conn="${CSS.escape(id)}"] .conn-svg`).forEach(svg => setSvgMirrored(svg, on));
   document.querySelectorAll(`.ficha-mirror-btn[data-mirror-mode="ficha"][data-mirror-conn="${CSS.escape(id)}"]`).forEach(btn => paintMirrorBtn(btn, on));
+  paintMirrorAllChk();
 }
 function openLocLightbox(cid){
   const loc = locOf(cid);
@@ -4173,7 +4248,7 @@ function renderF102(){
   const titleEl = document.getElementById('f102Title');
   const legendEl = document.getElementById('f102Legend');
   if(!panel || !blocksEl) return;
-  if(titleEl) titleEl.innerHTML = `<span class="f102-title-txt">${esc(t('f102Title'))}</span>${locBtnHtml('ix_f102_m72')}${faceBtnHtml('ix_f102_m72')}`;
+  if(titleEl) titleEl.innerHTML = `<span class="f102-title-txt">${esc(t('f102Title'))}</span>${locBtnHtml('ix_f102_m72')}${faceBtnHtml('ix_f102_m72')}${mirrorBtnHtml('ix_f102_m72', 'ficha')}`;
   if(!panel.dataset.faceBound){
     panel.dataset.faceBound = '1';
     panel.addEventListener('click', e => {
@@ -4182,6 +4257,13 @@ function renderF102(){
         e.preventDefault();
         e.stopPropagation();
         openLocLightbox(lb.dataset.locConn || 'ix_f102_m72');
+        return;
+      }
+      const mirBtn = e.target.closest && e.target.closest('.ficha-mirror-btn');
+      if(mirBtn && panel.contains(mirBtn)){
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFichaMirror(mirBtn.dataset.mirrorConn || 'ix_f102_m72');
         return;
       }
       const btn = e.target.closest && e.target.closest('.ficha-face-btn');
@@ -4258,6 +4340,7 @@ function renderF102(){
     panel.open = true; // idle / no selection
   }
   // else: active selection without F102 hl — leave collapsed (syncF102PanelForSelection owns this)
+  blocksEl.classList.toggle('mirrored', FICHA_MIRROR.has('ix_f102_m72'));
 }
 
 function f102PinEl(cavId){
@@ -4648,7 +4731,10 @@ function makeFichaEl(id, f, opts){
   el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}${mirrorBtnHtml(id, mirMode)}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   if(mirMode === 'ficha' && FICHA_MIRROR.has(id)){
     const svg = el.querySelector('.conn-svg');
-    if(svg) svg.classList.add('mirrored');
+    if(svg){
+      svg.classList.add('mirrored');
+      queueMicrotask(() => { if(FICHA_MIRROR.has(id)) setSvgMirrored(svg, true); });
+    }
   }
   /* Delegate clicks: cav-hit first (SVG <g> listeners are flaky), else whole ficha */
   wrap.addEventListener('click', e=>{
@@ -6236,6 +6322,11 @@ document.getElementById('q').addEventListener('input', e=>{
   if(collapseEl){
     const saved = localStorage.getItem(LS_COLLAPSE_IDLE);
     collapseEl.checked = saved === null ? true : saved === '1';
+  }
+  const mirrorAllEl = document.getElementById('mirrorAll');
+  if(mirrorAllEl && !mirrorAllEl.dataset.bound){
+    mirrorAllEl.dataset.bound = '1';
+    mirrorAllEl.addEventListener('change', () => setMirrorAll(mirrorAllEl.checked));
   }
   const railGndEl = document.getElementById('railRelGnd');
   if(railGndEl){
