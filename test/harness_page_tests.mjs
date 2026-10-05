@@ -92,7 +92,7 @@ ok('cavBottomLabel rail always GND/12V/5V',
 ok('cavBottomLabel SIG with ECM is the word SIG',
   /if\(pin && pin\.ecm != null\) return 'SIG';/.test(html));
 
-/* Ezequiel 2026-09 audit: every ficha is a fixed harness-plug face exactly as the 2005 FSM T.S. drawing.
+/* 2026-09 audit: every ficha is a fixed harness-plug face exactly as the 2005 FSM T.S. drawing.
    The ECM selector (#ecmOrient) only drives the ECM grid and the ECM excerpt ecm_f101_can. */
 ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   /const FACE_FOLLOWS_ECM_ORIENT = new Set\(\['ecm_f101_can'\]\);/.test(html));
@@ -236,7 +236,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('no combined IPDM module card', !/ipdm_module|svgIpdmModule|IPDM_MODULE_PLUGS/.test(html));
   ok('IPDM card view notes = wire side as on the IPDM (es/en/ja)',
     ['e3','e4','e5','e6','e7','e8','e9'].every(e => new RegExp(`  ipdm_${e}:\\{group:'motor'[^\\n]*view:\\{hs:\\{es:'lado CABLES, orientada como en el IPDM \\(PG-26\\), traba [^']+',en:'WIRE side, oriented as on the IPDM \\(PG-26\\), lock [^']+',ja:'配線側、IPDM上の向き（PG-26）、ロック[^']+'\\}\\}`).test(html)));
-  /* F102·14H/15H/16H = oil pressure sensor F21 ↔ triple meter M44 (DI-34 / DI-66), Ezequiel's car */
+  /* F102·14H/15H/16H = oil pressure sensor F21 ↔ triple meter M44 (DI-34 / DI-66), this car */
   ok('F102·14H G OIL-P / 15H R/L SNS-V (no rail) / 16H B SNS-GND (no rail), src F21, circ oilp_gauge (DI-34/DI-66)',
     /\{id:'14H',code:'G',ecm:null,lab:'OIL-P',src:'F21·2',srcSub:'sensors',circ:'oilp_gauge',note:'[^']*DI-34[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html)
     && /\{id:'15H',code:'R\/L',ecm:null,lab:'SNS-V',src:'F21·1',srcSub:'sensors',circ:'oilp_gauge',note:'[^']*M44·9[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html)
@@ -394,15 +394,15 @@ ok('rail-focus helpers present (stay in rail on re-click)',
     const baseKeys = new Set([...baseBlock[1].matchAll(/^\s*([A-Za-z0-9_]+)\s*:\{/gm)].map((m) => m[1]));
     const missing = keys.filter((k) => !baseKeys.has(k));
     ok('CONN_FACE keys ⊆ CONN_BASE', missing.length === 0, missing.length ? missing.join(',') : `${keys.length} keys`);
-    const srcs = [...faceBlock[1].matchAll(/src:\s*'([^']+)'/g)].map((m) => m[1]);
+    const srcs = [...faceBlock[1].matchAll(/(?:src|srcAt):\s*'([^']+)'/g)].map((m) => m[1]);
     const uniq = [...new Set(srcs)];
     const absent = uniq.filter((s) => !fs.existsSync(path.join(ROOT, s)));
     ok('CONN_FACE image files exist', absent.length === 0, absent.length ? absent.join(',') : `${uniq.length} unique`);
     ok('no empty CONN_FACE placeholders', keys.length > 0 && uniq.length > 0);
 
-    /* Shared face photos are intentional when the fichas use the same connector part (confirmed by
-       Ezequiel). Every share is listed here; a new share outside this list fails so it gets reviewed.
-       Do not change these mappings without Ezequiel confirming. */
+    /* Shared face photos are intentional when the fichas use the same connector part.
+       Every share is listed here; a new share outside this list fails so it gets reviewed.
+       Do not change these mappings without confirmation. */
     const FACE_SHARE_OK = {
       'faces/inj.webp': ['inj1', 'inj2', 'inj3', 'inj4', 'inj5', 'inj6'],
       'faces/coil.webp': ['coil1', 'coil2', 'coil3', 'coil4', 'coil5', 'coil6'],
@@ -411,6 +411,8 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       'faces/ho2s.webp': ['ho2s_b1', 'ho2s_b2', 'vtc_ex_b1', 'vtc_ex_b2'],
       'faces/oil.webp': ['f21_oilp', 'psp', 'ac_press', 'evap_press', 'f38_evtc_b1', 'f42_evtc_b2'],
       'faces/reverse.webp': ['backup_sw', 'evap_purge'],
+      /* B27 GY/5 is one shell: fuel pump draws 3/1, tank temp draws 5/4. Same EC-710 inset. */
+      'faces/fsm_b27.webp': ['fuel_pump', 'fuel_tank_temp'],
     };
     const bySrc = {};
     for (const m of faceBlock[1].matchAll(/^\s*([A-Za-z0-9_]+)\s*:\s*\{\s*src:\s*'([^']+)'/gm)) {
@@ -499,8 +501,8 @@ ok('rail-focus helpers present (stay in rail on re-click)',
         && (html.match(/    locOpen: '/g) || []).length === 3 && (html.match(/    locPg54: '/g) || []).length === 3 && (html.match(/    locHint: '/g) || []).length === 3);
       ok('Location on every intermedias card (B1/M12, B43/T1, T2/B44 → PG-57) and the ASCD/DLC cards (M8/M23/M48 → PG-48, B27 → PG-57, alternator E202/E211 → PG-53)',
         ['ix_e106_b2','ix_b43_t1','ix_t2_b44','ix_b1_m12','ix_e10_f1','ix_e12_f3','ix_e108_m15','ix_f102_m72'].every((c) => locIds.some((m) => m[1] === c))
-        && ['ix_b1_m12','ix_b43_t1','ix_t2_b44','fuel_pump','fuel_tank_temp'].every((c) => locIds.some((m) => m[1] === c && m[2] === '57'))
-        && ['dlc','clock_spring','comb_meter'].every((c) => locIds.some((m) => m[1] === c && m[2] === '48'))
+        && ['ix_b1_m12','ix_b43_t1','ix_t2_b44','fuel_pump','fuel_tank_temp','fuel_level_sub'].every((c) => locIds.some((m) => m[1] === c && m[2] === '57'))
+        && ['dlc','clock_spring','comb_meter','unified_m49'].every((c) => locIds.some((m) => m[1] === c && m[2] === '48'))
         && ['evap_vent','evap_press'].every((c) => locIds.some((m) => m[1] === c && m[2] === '63'))
         && ['alt_b','alt_e'].every((c) => locIds.some((m) => m[1] === c && m[2] === '53')) && (html.match(/    locPg53: '/g) || []).length === 3
         && (html.match(/    locPg57: '/g) || []).length === 3 && (html.match(/    locPg48: '/g) || []).length === 3 && (html.match(/    locPg63: '/g) || []).length === 3);
@@ -553,6 +555,14 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       f38_evtc_b1: 3, /* FSM EC-445 / PG-55: F38 B/3 */
       f42_evtc_b2: 3,
       f242_eot: 2, /* PG-55 sub-harness-3: F242 GY/2 (only asserted if a face is mapped) */
+      evap_vent: 2,
+      fuel_pump: 2, /* shell is B27 GY/5; the ficha wires 3 and 1 */
+      fuel_tank_temp: 2, /* same B27; the ficha wires 5 and 4 */
+      ascd_brake: 2,
+      ascd_clutch: 2,
+      stop_lamp: 2,
+      clock_spring: 2,
+      dlc: 16,
     };
     function expectedFacePins(id) {
       if (Object.prototype.hasOwnProperty.call(EXPECTED_FACE_PINS, id)) return EXPECTED_FACE_PINS[id];

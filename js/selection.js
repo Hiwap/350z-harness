@@ -372,10 +372,12 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
         if(g.seen.has(k)) return;
         g.seen.add(k);
         const pin = (conf && conf.pins || []).find(x => String(x.id)===String(cav));
-        chain.push(esc(pathStepLabel(cid, cav, pin)));
+        chain.push({cid, cav:String(cav), pin, html:esc(pathStepLabel(cid, cav, pin))});
       });
     });
-    if(chain.length) g.chains.push(chain);
+    /* Display order runs out from the ECM: the sensor or the far connector is last. */
+    if(typeof orientPathSteps === 'function') orientPathSteps(chain);
+    if(chain.length) g.chains.push(chain.map(s => s.html));
   };
   circIds.forEach(id=>{
     const cir=CIRCUITS.find(x=>x.id===id);
@@ -401,7 +403,7 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   });
   attachPowerPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
   attachGroundPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
-  attachAlimPathFichas(pathCavByConn, connSet);
+  attachAlimPathFichas(pathCavByConn, connSet, focusConn);
   if(focusConn && FUSE_BOX_CONNS.has(focusConn)) connSet.add(focusConn);
   attachDataRelatedEcm(circIds, ecmSet);
   /* Loom filter: drop body/rear fichas when viewing pulled engine harness */

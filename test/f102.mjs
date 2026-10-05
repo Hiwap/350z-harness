@@ -782,7 +782,7 @@ for (const o of ['invertida', 'fsm']) {
 }
 await page.select('#ecmOrient', 'invertida');
 
-console.log('\nEvery ficha = fixed FSM T.S. harness-plug face (no ECM-orient flip) · Ezequiel audit 2026-09');
+console.log('\nEvery ficha = fixed FSM T.S. harness-plug face (no ECM-orient flip) · audit 2026-09');
 /* Expected left→right / top→bottom cavity order per ficha, as the 2005 FSM T.S. drawing (see view notes).
    null = ficha not shown for that transmission. Only the ECM excerpt ecm_f101_can follows #ecmOrient. */
 const FSM_FACE = {
@@ -1125,7 +1125,9 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
     return { saved: localStorage.getItem('z33_sub_fuses'), exists: !!sec, open: !!(sec && sec.open), order: sec ? [...sec.querySelectorAll('.ficha[data-conn]')].map((f) => f.dataset.conn) : [],
       title: sec ? (sec.querySelector('summary') || {}).textContent || '' : '', outside,
       secOrder: [...document.querySelectorAll('#fichas details.ficha-sec[data-sub]')].map((d) => d.dataset.sub),
-      l10: lit('jb_fuse_block', '1'), l15: lit('jb_fuse_block', '15'), l36: lit('fuse_link_box', '36') };
+      l10: lit('jb_fuse_block', '1'), l15: lit('jb_fuse_block', '15'), l36: lit('fuse_link_box', '36'),
+      selJb: !!document.querySelector('#selTop .ficha[data-conn="jb_fuse_block"]'),
+      cardJb: !!document.querySelector('#fichas .ficha.hl[data-conn="jb_fuse_block"]') };
   }, FUSES);
   await page.evaluate(() => clearSelection());
   await resetClosed();
@@ -1145,17 +1147,17 @@ console.log('\nFusibles group: every fuse card in one top-level ficha group, col
   st = await state();
   ok(!st.open && st.saved === null, `clearing the selection re-collapses the auto-opened Fusibles group (open=${st.open}, saved=${st.saved})`);
   const setPwr = (on) => page.evaluate((on) => { const e = document.getElementById('railRelPower'); e.checked = on; e.dispatchEvent(new Event('change', { bubbles: true })); }, on);
-  for (const [n, key, label] of [[23, 'l10', 'J/B 10A (injector 1, ECM 23)'], [16, 'l15', 'J/B 15A (A/F heater, ECM 16)']]) {
+  for (const [n, key, label] of [[23, 'l10', 'J/B 10A (injector 1, ECM 23)'], [41, 'l10', 'J/B 10A (injector 4, ECM 41)'], [16, 'l15', 'J/B 15A (A/F heater, ECM 16)']]) {
     await resetClosed();
     await setPwr(true);
     await clickPin(n);
     st = await state();
     await setPwr(false);
-    ok(st.open && st[key], `ECM ${n} + Alim. lights ${label} and opens the collapsed Fusibles group (open=${st.open}, lit=${st[key]})`);
+    ok(!st.open && st[key] && st.selJb && st.cardJb, `ECM ${n} + Alim. lights ${label}, puts that fuse card in Seleccionados, and leaves Fusibles collapsed (open=${st.open}, lit=${st[key]}, sel=${st.selJb}, card=${st.cardJb})`);
     await page.evaluate(() => clearSelection());
     await clickPin(n);
     st = await state();
-    ok(!st.open && !st[key], `ECM ${n} without Alim. leaves the fuse unlit and the group collapsed, as before (open=${st.open}, lit=${st[key]})`);
+    ok(!st.open && !st[key] && !st.selJb && !st.cardJb, `ECM ${n} without Alim. leaves the fuse unlit, out of Seleccionados, and the group collapsed (open=${st.open}, lit=${st[key]}, sel=${st.selJb})`);
   }
   await resetClosed();
   await page.evaluate(() => selectConnPin('jb_fuse_block', '15'));

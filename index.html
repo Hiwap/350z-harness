@@ -59,7 +59,8 @@
     display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px;
     margin: 0 0 8px;
   }
-  #ecm .ecm-head h2 { margin: 0; }
+  #ecm .ecm-head h2 { margin: 0; min-width: 0; }
+  #ecm .ecm-mirror { flex: 0 0 auto; display: flex; align-items: center; }
   #ecm .ecm-head-tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
   #ecm .ecm-sel-pins {
     margin: 8px 0 10px;
@@ -312,7 +313,7 @@
   .legend-note { width: 100%; font-size: 11px; color: #c5cad3; margin-top: 2px; }
 
   details.banner-hr {
-    display: none; margin: 0 0 10px; border-radius: 8px;
+    display: none; margin: 10px 12px 0; border-radius: 8px;
     background: #1a2433; border: 1px solid #3d5a80; color: #bbdefb; overflow: hidden;
   }
   details.banner-hr.show { display: block; }
@@ -1210,16 +1211,17 @@
     </div>
   </div>
 </header>
+<details class="banner-hr" id="modelBannerBox">
+  <summary id="modelBannerSum"></summary>
+  <div class="banner-hr-body" id="hrBanner"></div>
+</details>
 <main>
   <section class="card" id="ecm">
     <div class="ecm-head">
+      <span class="ecm-mirror" id="ecmMirror"></span>
       <h2 id="ecmTitle">EC-123 · ECM pin grid</h2>
       <div class="ecm-head-tools" id="ecmTools"></div>
     </div>
-    <details class="banner-hr" id="modelBannerBox">
-      <summary id="modelBannerSum"></summary>
-      <div class="banner-hr-body" id="hrBanner"></div>
-    </details>
     <details class="warn-box" id="warnBox">
       <summary id="warnSummary">⚠ Orientación ECM</summary>
       <div class="orient inv" id="orientBanner"></div>
@@ -2199,7 +2201,7 @@ let connToCirc = {};
 
 /* Connector faces. A photo may be shared by fichas that use the same connector part; every shared
    src is listed in FACE_SHARE_OK (test/harness_page_tests.mjs) so an accidental new share gets flagged.
-   Do not swap a shared photo without Ezequiel confirming. CKP F10 has its own photo (faces/ckp.webp). */
+   Do not swap a shared photo without confirmation. CKP F10 has its own photo (faces/ckp.webp). */
 const CONN_FACE = {
   etc: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
   inj1: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
@@ -2252,6 +2254,14 @@ const CONN_FACE = {
   vtc_ex_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
   f38_evtc_b1: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
   f42_evtc_b2: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
+  evap_vent: { src: 'faces/fsm_t20.webp', source: 'FSM 2005 EC-367' },
+  fuel_pump: { src: 'faces/fsm_b27.webp', source: 'FSM 2005 EC-710' },
+  fuel_tank_temp: { src: 'faces/fsm_b27.webp', source: 'FSM 2005 EC-710' },
+  ascd_brake: { src: 'faces/fsm_e110.webp', source: 'FSM 2005 EC-628' },
+  ascd_clutch: { src: 'faces/fsm_e122.webp', source: 'FSM 2005 EC-628' },
+  stop_lamp: { src: 'faces/fsm_e112.webp', source: 'FSM 2005 EC-628', srcAt: 'faces/fsm_e111.webp', sourceAt: 'FSM 2005 EC-626' },
+  clock_spring: { src: 'faces/fsm_m23.webp', source: 'FSM 2005 EC-618' },
+  dlc: { src: 'faces/fsm_m8.webp', source: 'FSM 2005 EC-742' },
 };
 
 function rebuildIndexes(){
@@ -2825,7 +2835,7 @@ function flipRow(arr){
 }
 /* Fichas that still follow the ECM orientation selector. Only the ECM F101 CAN excerpt (it IS the ECM
    connector the selector exists for). Every other ficha is a fixed plug face as drawn in the 2005 FSM T.S.
-   (Ezequiel's rule) — see f.faceRows / f.view. Guarded by test/harness_page_tests.mjs. */
+   See f.faceRows / f.view. Guarded by test/harness_page_tests.mjs. */
 const FACE_FOLLOWS_ECM_ORIENT = new Set(['ecm_f101_can']);
 /** Fixed cavity rows (top→bottom, left→right) for a ficha: faceRowsByTrans[transView()] › faceRows › null. */
 function faceRowsOf(f){
@@ -2865,7 +2875,7 @@ function svgFaceRows(cid, f){
       cavities += p ? cavGroup(cid, p, x, y, cw, ch, 4) : cavEmpty(x, y, cw, ch, id);
     });
   });
-  const _c = cornersFromRows(rows[0], rows[rows.length-1]);
+  const _c = rows.length < 2 ? cornersFromRow(rows[0]) : cornersFromRows(rows[0], rows[rows.length-1]);
   return `<svg class="conn-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
     <path class="lock-tab" d="M${W/2-14} 2 h28 l5 10 H${W/2-19} Z" style="stroke:${f.accent}"/>
     <rect class="shell" x="4" y="12" width="${W-8}" height="${H-16}" rx="${round ? 22 : 6}" style="stroke:${f.accent}${f.shellFill ? `;fill:${f.shellFill}` : ''}"/>
@@ -3037,7 +3047,7 @@ function cavOrEmpty(cid, byId, id, x, y, w, h){
 
 /* IPDM E3–E9 harness plugs. The 2005 FSM draws them only from the WIRE side (H.S. badge, double outline, GI-14),
    lock up: E3 PG-14, E4 SC-13/PG-13, E5/E6 EC-510/PG-14, E7 PG-15/EC-167, E8 EC-710/PG-15, E9 EC-472/EC-167.
-   Each ficha shows that H.S. face TURNED the way it sits on the IPDM in PG-26 (Ezequiel: match the module):
+   Each ficha shows that H.S. face TURNED the way it sits on the IPDM in PG-26 (match the module):
    E4/E5/E7 −90 (counter-clockwise, lock left) · E8 +90 (clockwise, lock right) · E3/E6/E9 180 (lock down).
    Pure grid turn, never mirrored: CW (r,c)→(c,R−1−r) · CCW (r,c)→(C−1−c,r) · 180 (r,c)→(R−1−r,C−1−c).
    'L' = lock cell inside the grid (E7 between 20/19, E8 above 42/41). */
@@ -4106,6 +4116,8 @@ const CONN_LOC = {
   ix_t2_b44: {pg:57, m:[[89.05,27.21,4.47,3.23]]},
   fuel_pump: {pg:57, m:[[37.25,41.59,4.47,3.23]]},
   fuel_tank_temp: {pg:57, m:[[37.25,41.59,4.47,3.23]]},
+  fuel_level_sub: {pg:57, m:[[65.8,50.05,4.47,3.23]]},
+  unified_m49: {pg:48, m:[[57.7,65.45,4.51,3.23]]},
   evap_vent: {pg:63, m:[[77.55,88.76,4.51,3.23]]},
   evap_press: {pg:63, m:[[81.9,85.9,4.47,3.23]]},
   alt_b: {pg:53, m:[[70.22,49.93,4.29,3.09]]},
@@ -4124,7 +4136,7 @@ const CONN_LOC = {
   vdc_m51: {pg:48, m:[[71.9,71.62,4.51,3.23]]},
   body_at: {pg:54, m:[[73.81,32.93,4.51,3.23]]},
 };
-/* IPDM: location only on the IPDM group header (Ezequiel) — PG-50 with every E3–E9 callout marked. */
+/* IPDM: location only on the IPDM group header — PG-50 with every E3–E9 callout marked. */
 const IPDM_GROUP_LOC = {pg:50, m:[[42.6,42.44,4.51,3.23],[42.42,7.07,4.51,3.23],[45.35,46.09,4.47,3.23],[47.25,35.6,4.47,3.23],[46.08,16.72,4.47,3.28],[50.66,19.58,4.47,3.23],[55.53,18.13,4.47,3.28]]};
 function locOf(cid){ return cid === 'ipdm_group' ? IPDM_GROUP_LOC : CONN_LOC[cid]; }
 function locBtnHtml(cid){
@@ -4135,7 +4147,7 @@ function locBtnHtml(cid){
 /* User mirror. Nothing starts flipped: the drawing is the authored face, and the ECM
    grid stays invertida (pin 121 on the left). Pressed flips that one card.
    ECM pressed = fsm. F102 is the panel, stored with the other fichas.
-   Fuse grids, notes, rings, and the IPDM cover have no mirror.
+   Fuse grids, notes, rings, the IPDM cover, and 1- or 2-cavity cards have no mirror.
    ecm_f101_can follows #ecmOrient and does not also get a CSS mirror.
    SVG text is unflipped around its own box; a CSS flip on <text> throws the glyphs
    outside the view in Chrome. */
@@ -4146,12 +4158,46 @@ function loadFichaMirror(){
     const raw = JSON.parse(localStorage.getItem('z33_fichaMirror') || '[]');
     if(Array.isArray(raw)) raw.forEach(id => { if(id) FICHA_MIRROR.add(String(id)); });
   } catch(e) {}
+  pruneStoredFichaMirror();
 }
 loadFichaMirror();
+function cavityCountOfRows(rows){
+  let n = 0;
+  (rows || []).forEach(row => {
+    if(!Array.isArray(row)) return;
+    row.forEach(id => { if(id != null && id !== '') n++; });
+  });
+  return n;
+}
+/* Both transmission faces count. A card stays mirrorable only when every face has 3 or more cavities. */
+function fichaIsOneOrTwoPin(f){
+  if(!f) return false;
+  let counts;
+  if(f.faceRowsByTrans && Object.keys(f.faceRowsByTrans).length){
+    counts = Object.values(f.faceRowsByTrans).map(cavityCountOfRows);
+  } else if(f.faceRows) {
+    counts = [cavityCountOfRows(f.faceRows)];
+  } else {
+    counts = [(f.pins || []).length];
+  }
+  return counts.length > 0 && counts.every(n => n === 1 || n === 2);
+}
 function fichaMirrorMode(id, f){
-  if(typeof FACE_FOLLOWS_ECM_ORIENT !== 'undefined' && FACE_FOLLOWS_ECM_ORIENT.has(id)) return 'ecm';
   if(!f || f.shape === 'note' || f.shape === 'ixnote' || f.shape === 'ring' || f.shape === 'ipdm_cover' || f.shape === 'fusebox') return '';
+  if(fichaIsOneOrTwoPin(f)) return '';
+  if(typeof FACE_FOLLOWS_ECM_ORIENT !== 'undefined' && FACE_FOLLOWS_ECM_ORIENT.has(id)) return 'ecm';
   return 'ficha';
+}
+function pruneStoredFichaMirror(){
+  const src = (typeof CONN_BASE !== 'undefined' && CONN_BASE) ? CONN_BASE : CONN;
+  if(!src) return;
+  let dropped = false;
+  [...FICHA_MIRROR].forEach(id => {
+    const f = src[id];
+    if(!f) return;
+    if(fichaMirrorMode(id, f) !== 'ficha'){ FICHA_MIRROR.delete(id); dropped = true; }
+  });
+  if(dropped) persistFichaMirror();
 }
 function mirrorIsOn(id, mode){
   if(mode === 'ecm'){
@@ -4240,6 +4286,12 @@ function toggleEcmOrient(){
   paintMirrorAllChk();
 }
 function toggleFichaMirror(id){
+  const src = (typeof CONN_BASE !== 'undefined' && CONN_BASE) ? CONN_BASE : CONN;
+  const f = (CONN && CONN[id]) || (src && src[id]);
+  if(f && fichaMirrorMode(id, f) !== 'ficha'){
+    if(FICHA_MIRROR.has(id)){ FICHA_MIRROR.delete(id); persistFichaMirror(); }
+    return;
+  }
   if(FICHA_MIRROR.has(id)) FICHA_MIRROR.delete(id);
   else FICHA_MIRROR.add(id);
   const on = FICHA_MIRROR.has(id);
@@ -4282,7 +4334,7 @@ function renderF102(){
   const titleEl = document.getElementById('f102Title');
   const legendEl = document.getElementById('f102Legend');
   if(!panel || !blocksEl) return;
-  if(titleEl) titleEl.innerHTML = `<span class="f102-title-txt">${esc(t('f102Title'))}</span>${locBtnHtml('ix_f102_m72')}${faceBtnHtml('ix_f102_m72')}${mirrorBtnHtml('ix_f102_m72', 'ficha')}`;
+  if(titleEl) titleEl.innerHTML = `${mirrorBtnHtml('ix_f102_m72', 'ficha')}<span class="f102-title-txt">${esc(t('f102Title'))}</span>${locBtnHtml('ix_f102_m72')}${faceBtnHtml('ix_f102_m72')}`;
   if(!panel.dataset.faceBound){
     panel.dataset.faceBound = '1';
     panel.addEventListener('click', e => {
@@ -4430,11 +4482,14 @@ function renderECM(){
   const title = document.getElementById('ecmTitle');
   updateOrientBanner();
   const tools = document.getElementById('ecmTools');
-  if(tools){
-    tools.innerHTML = `${locBtnHtml('ecm_f101_can')}${faceBtnHtml('ecm_f101_can')}${mirrorBtnHtml('ecm', 'ecm')}`;
-    if(!tools.dataset.bound){
-      tools.dataset.bound = '1';
-      tools.addEventListener('click', e => {
+  const ecmMirror = document.getElementById('ecmMirror');
+  const ecmHead = document.querySelector('#ecm .ecm-head');
+  if(tools && ecmMirror && ecmHead){
+    ecmMirror.innerHTML = mirrorBtnHtml('ecm', 'ecm');
+    tools.innerHTML = `${locBtnHtml('ecm_f101_can')}${faceBtnHtml('ecm_f101_can')}`;
+    if(!ecmHead.dataset.bound){
+      ecmHead.dataset.bound = '1';
+      ecmHead.addEventListener('click', e => {
         const locBtn = e.target.closest && e.target.closest('.ficha-loc-btn');
         if(locBtn){ e.preventDefault(); openLocLightbox(locBtn.dataset.locConn || 'ecm_f101_can'); return; }
         const mirBtn = e.target.closest && e.target.closest('.ficha-mirror-btn');
@@ -4597,8 +4652,17 @@ function ensureFaceLightbox(){
   });
   return root;
 }
-function openFaceLightbox(cid){
+function faceRecord(cid){
   const face = CONN_FACE && CONN_FACE[cid];
+  if(!face || !face.src) return null;
+  /* stop_lamp is E112 on M/T and E111 on A/T; the camera follows the selector */
+  if(face.srcAt && transView() === 'at'){
+    return {src: face.srcAt, source: face.sourceAt || face.source, note: face.note};
+  }
+  return face;
+}
+function openFaceLightbox(cid){
+  const face = faceRecord(cid);
   if(!face || !face.src) return;
   const root = ensureFaceLightbox();
   const img = root.querySelector('.face-lb-img');
@@ -4714,7 +4778,7 @@ function addIpdmGroupBtn(sum){
   });
 }
 
-/** Localized fixed-view note from f.view / f.viewByTrans (FSM T.S. face) — Ezequiel's rule. */
+/** Localized fixed-view note from f.view / f.viewByTrans (FSM T.S. face). */
 function viewNoteText(id, f){
   const vw = (f && f.viewByTrans && f.viewByTrans[transView()]) || (f && f.view);
   if(!vw) return '';
@@ -4762,7 +4826,7 @@ function makeFichaEl(id, f, opts){
   const showIpdm = !!(opts && opts.ipdmIcon && IPDM_FSM_MARK[id]);
   const faceBtn = showIpdm ? ipdmFsmBtnHtml(id) : faceBtnHtml(id);
   const mirMode = fichaMirrorMode(id, f);
-  el.innerHTML = `<div class="ficha-title-row"><h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}${mirrorBtnHtml(id, mirMode)}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
+  el.innerHTML = `<div class="ficha-title-row">${mirrorBtnHtml(id, mirMode)}<h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   if(mirMode === 'ficha' && FICHA_MIRROR.has(id)){
     const svg = el.querySelector('.conn-svg');
     if(svg){
@@ -4927,6 +4991,8 @@ function renderFichas(){
 /** Selected fichas first in their grid; active subs first; active groups under #selTop. */
 
 const LS_COLLAPSE_IDLE = 'z33_collapseIdleSubs';
+/* Alim. path fuses (injector 10A, heater 15A): shown in Seleccionados, not a reason to open Fusibles. */
+let pathOnlySelFuses = new Set();
 
 function collapseIdleEnabled(){
   const el = document.getElementById('collapseIdleSubs');
@@ -4948,7 +5014,15 @@ function applyCollapseIdleSubs(connIds){
     return;
   }
   const connOf = (el) => el && el.dataset && el.dataset.conn;
-  const hasHit = (root) => [...root.querySelectorAll('.ficha[data-conn], .ficha-wrap[data-conn]')].some(f => set.has(connOf(f)));
+  const secOf = (root) => root && (root.matches && root.matches('details.ficha-sec') ? root : root.closest('details.ficha-sec'));
+  /* A fuse that exists only on the circuit path is in Seleccionados; it must not keep Fusibles open. */
+  const counts = (cid, root) => {
+    if(!set.has(cid)) return false;
+    const sec = secOf(root);
+    if(sec && SUB_DEFAULT_CLOSED.has(sec.dataset.sub) && pathOnlySelFuses.has(cid)) return false;
+    return true;
+  };
+  const hasHit = (root) => [...root.querySelectorAll('.ficha[data-conn], .ficha-wrap[data-conn]')].some(f => counts(connOf(f), root));
   document.querySelectorAll('#fichas details.ficha-sec:not(.sel-top)').forEach(sec=>{
     const hit = hasHit(sec);
     if(hit){
@@ -4977,7 +5051,18 @@ function applyCollapseIdleSubs(connIds){
    their cards opens the group temporarily (data-auto-open, not saved to localStorage) and closes it again
    when nothing inside is lit any more — the user's own open/closed choice is kept. */
 function subHasLit(sec){
-  return !!(sec && sec.querySelector('.ficha.hl, .ficha-wrap.hl, .cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-rail'));
+  if(!sec) return false;
+  const lit = sec.querySelector('.ficha.hl, .ficha-wrap.hl, .cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-rail');
+  if(!lit) return false;
+  /* Path-only fuse highlight lives in Seleccionados; do not pop Fusibles open for it. */
+  if(collapseIdleEnabled() && SUB_DEFAULT_CLOSED.has(sec.dataset.sub) && pathOnlySelFuses.size){
+    return [...sec.querySelectorAll('.ficha.hl[data-conn], .ficha-wrap.hl[data-conn], .cav-hit.hl, .cav-hit.hl-group, .cav-hit.hl-rail')].some(el => {
+      const host = el.dataset.conn ? el : el.closest('[data-conn]');
+      const cid = host && host.dataset.conn;
+      return cid && !pathOnlySelFuses.has(cid);
+    });
+  }
+  return true;
 }
 function autoOpenSub(sec){
   if(!sec || sec.open) return;
@@ -5252,6 +5337,7 @@ function retargetSelection(focusPin, focusConn, focusCav){
 }
 
 function clearHL(){
+  pathOnlySelFuses = new Set();
   lastSelConnIds = [];
   removeSelectedTop();
   restoreCollapsedSubs();
@@ -5489,12 +5575,19 @@ function attachDataRelatedEcm(coreIds, ecmSet){
     cir.ecm.forEach(p => { if(dataOn || PIN_RAIL[Number(p)] === 'gnd') ecmSet.add(Number(p)); });
   });
 }
-function attachAlimPathFichas(pathCavByConn, connSet){
+function attachAlimPathFichas(pathCavByConn, connSet, focusConn){
+  pathOnlySelFuses = new Set();
   if(!railRelPowerEnabled()) return;
   pathCavByConn.forEach((_, cid) => {
     const f = CONN[cid] || CONN_BASE[cid];
     if(!f) return;
     if(f.sub === 'intermedias' || f.sub === 'ipdm') connSet.add(cid);
+    /* The fuse card joins Seleccionados. Feeds stay out. A fuse already named in
+       cir.conn (fuse 36) still opens Fusibles; a path-only fuse (J/B 10A / 15A) does not. */
+    if(f.sub === 'fuses'){
+      if(!connSet.has(cid) && cid !== focusConn) pathOnlySelFuses.add(cid);
+      connSet.add(cid);
+    }
   });
 }
 function attachPowerPathFichas(coreIds, connSet, pathCavByConn, onPathCir=null){
@@ -5958,8 +6051,8 @@ function selDescCardForEcm(n){
     if(SKIP_SEL_CONN.has(cid)) return;
     if((conf.pins || []).some(q => q.ecm != null && q.ecm !== '' && Number(q.ecm) === n)) carriers.push(cid);
   });
-  const DEV = new Set(['sensors', 'actuators', 'bobinas', 'inyectores', 'pedals']);
-  return carriers.find(cid => DEV.has((CONN[cid] || {}).sub)) || carriers.find(cid => cid !== 'ix_f102_m72') || carriers[0] || null;
+  /* Far end of the wire. A joint that shares the device's group (E11 sits with the pedals) is not the end. */
+  return carriers.find(cid => isDescEndConn(cid)) || carriers.find(cid => !String(cid).startsWith('ix_')) || carriers.find(cid => cid !== 'ix_f102_m72') || carriers[0] || null;
 }
 function selShortDest(cid, pin){
   if(!pin) return '';
@@ -5970,6 +6063,211 @@ function selShortDest(cid, pin){
   if(pin.src) return String(pin.src);
   const cir = pin.circ ? CIRCUITS.find(c => c.id === pin.circ) : null;
   return cir ? circuitTitle(cir) : '';
+}
+/* A ficha the wire ends on: sensor, coil, injector, pedal, or other device. Joints (ix_*) stay in the middle. */
+function isDescEndConn(cid){
+  if(!cid || String(cid).startsWith('ix_')) return false;
+  const f = CONN[cid] || CONN_BASE[cid];
+  if(!f) return false;
+  const sub = f.sub;
+  return sub === 'sensors' || sub === 'actuators' || sub === 'pedals' || sub === 'ascd_dlc'
+    || sub === 'inyectores' || sub === 'bobinas' || sub === 'carroceria';
+}
+function isGroundEndStep(step){
+  if(!step) return false;
+  if(String(step.cav) === 'ring') return true;
+  const f = CONN[step.cid] || CONN_BASE[step.cid];
+  return !!(f && f.sub === 'power' && step.pin && step.pin.rail === 'gnd');
+}
+/* Path-tag order: keep a ground point at the end; otherwise put the device last (F21 after F102). */
+function orientPathSteps(steps){
+  if(!steps || steps.length < 2) return;
+  const groups = [];
+  steps.forEach(s => {
+    const g = groups[groups.length - 1];
+    if(g && g[0].cid === s.cid) g.push(s);
+    else groups.push([s]);
+  });
+  if(groups.length < 2) return;
+  const first = groups[0];
+  const last = groups[groups.length - 1];
+  const firstG = first.some(isGroundEndStep);
+  const lastG = last.some(isGroundEndStep);
+  const firstT = isDescEndConn(first[0].cid);
+  const lastT = isDescEndConn(last[0].cid);
+  /* One device at the front and nowhere else (oil pressure). A path with devices at both ends stays as written. */
+  const termGroups = groups.filter(g => isDescEndConn(g[0].cid));
+  if(!(firstG && !lastG) && !(termGroups.length === 1 && !lastG && firstT && !lastT)) return;
+  const flipped = [];
+  for(let i = groups.length - 1; i >= 0; i--) flipped.push(...groups[i]);
+  steps.splice(0, steps.length, ...flipped);
+}
+function pathFlat(cir){
+  const seq = [];
+  Object.entries((cir && cir.path) || {}).forEach(([cid, cavs]) => {
+    const conf = CONN[cid] || CONN_BASE[cid];
+    (cavs || []).forEach(cav => {
+      const pin = (conf && conf.pins || []).find(x => String(x.id) === String(cav));
+      seq.push({cid, cav:String(cav), pin});
+    });
+  });
+  return seq;
+}
+function selFocusEcm(){
+  if(selFocusPin != null && selFocusPin !== '') return Number(selFocusPin);
+  const key = String(selKey || '');
+  if(key.startsWith('pin:')) return Number(key.slice(4));
+  if(key.startsWith('cav:')){
+    const rest = key.slice(4);
+    const i = rest.indexOf(':');
+    if(i > 0){
+      const conf = CONN[rest.slice(0, i)] || CONN_BASE[rest.slice(0, i)];
+      const pin = conf && (conf.pins || []).find(x => String(x.id) === rest.slice(i + 1));
+      if(pin && pin.ecm != null && pin.ecm !== '') return Number(pin.ecm);
+    }
+  }
+  const pins = (lastCircIds || []).flatMap(id => {
+    const cir = CIRCUITS.find(c => c.id === id);
+    return (cir && cir.ecm) || [];
+  }).map(Number).filter(n => !isNaN(n));
+  const sig = pins.find(p => !(PIN_RAIL && PIN_RAIL[p]));
+  return sig != null ? sig : (pins.length ? pins[0] : null);
+}
+/** One chain per selected circuit, ECM outward: joints first, sensor or ground point last. */
+function ecmOutwardChains(n){
+  if(n == null || n === '' || isNaN(Number(n))) return [];
+  const pinN = Number(n);
+  const circs = (lastCircIds || []).map(id => CIRCUITS.find(c => c.id === id)).filter(cir => cir && (cir.ecm || []).some(p => Number(p) === pinN));
+  const chains = [];
+  const seen = new Set();
+  circs.forEach(cir => {
+    const hits = [];
+    const own = new Set([...(cir.conn || []), ...Object.keys(cir.path || {})]);
+    Object.entries(CONN).forEach(([cid, conf]) => {
+      if(!own.has(cid) || SKIP_SEL_CONN.has(cid)) return;
+      if(typeof connVisibleInLoom === 'function' && !connVisibleInLoom(cid)) return;
+      (conf.pins || []).forEach(p => {
+        if(p.ecm != null && p.ecm !== '' && Number(p.ecm) === pinN) hits.push({cid, cav:String(p.id), pin:p});
+      });
+    });
+    const hops = [];
+    const terms = [];
+    hits.forEach(h => (isDescEndConn(h.cid) ? terms : hops).push(h));
+    /* F103 on the knock shield is the ground branch, not a stop between F14 and the sensor. */
+    if(terms.length){
+      const mid = hops.filter(h => {
+        const f = CONN[h.cid] || CONN_BASE[h.cid];
+        return !(f && f.sub === 'power');
+      });
+      hops.length = 0;
+      hops.push(...mid);
+    }
+    const seq = pathFlat(cir);
+    const at = (h) => {
+      const i = seq.findIndex(s => s.cid === h.cid && s.cav === String(h.pin.id));
+      if(i >= 0) return i;
+      const c = (cir.conn || []).indexOf(h.cid);
+      return c >= 0 ? 1000 + c : 5000;
+    };
+    hops.sort((a, b) => at(a) - at(b));
+    terms.sort((a, b) => at(a) - at(b));
+    const steps = hops.concat(terms);
+    if(!terms.length && hops.length){
+      const have = new Set(steps.map(s => s.cid + '·' + s.cav));
+      const hit = hops[hops.length - 1];
+      const i = seq.findIndex(s => s.cid === hit.cid && s.cav === String(hit.pin.id));
+      if(i >= 0){
+        const after = seq.slice(i + 1);
+        const before = seq.slice(0, i);
+        const more = (after.some(isGroundEndStep) || (after.length && !before.some(isGroundEndStep))) ? after : (before.some(isGroundEndStep) ? before.slice().reverse() : []);
+        more.forEach(s => {
+          const k = s.cid + '·' + s.cav;
+          if(have.has(k)) return;
+          have.add(k);
+          steps.push(s);
+        });
+      }
+    }
+    if(steps.length < 2) return;
+    const key = steps.map(s => s.cid + '·' + s.cav).join('>');
+    if(seen.has(key)) return;
+    seen.add(key);
+    chains.push(steps);
+  });
+  return chains;
+}
+function descFichaRank(cid){
+  const n = selFocusEcm();
+  const chains = n != null ? ecmOutwardChains(n) : [];
+  let lo = 0, hi = 0;
+  const rank = new Map();
+  chains.forEach(ch => ch.forEach(s => {
+    if(rank.has(s.cid)) return;
+    const end = isDescEndConn(s.cid) || isGroundEndStep(s);
+    rank.set(s.cid, end ? 2000 + hi++ : lo++);
+  }));
+  if(rank.has(cid)) return rank.get(cid);
+  if(!chains.length){
+    const order = [];
+    (lastCircIds || []).forEach(id => {
+      const cir = CIRCUITS.find(c => c.id === id);
+      const steps = pathFlat(cir);
+      orientPathSteps(steps);
+      steps.forEach(s => { if(!order.includes(s.cid)) order.push(s.cid); });
+      (cir && cir.conn || []).forEach(c => { if(!order.includes(c)) order.push(c); });
+    });
+    const at = order.indexOf(cid);
+    return at >= 0 ? at : 5000;
+  }
+  let p = 900;
+  (lastCircIds || []).forEach(id => {
+    const cir = CIRCUITS.find(c => c.id === id);
+    let i = 0;
+    Object.entries((cir && cir.path) || {}).forEach(([c, cavs]) => {
+      if(c === cid) p = Math.min(p, i);
+      i += (cavs || []).length || 1;
+    });
+  });
+  return 1000 + p + (isDescEndConn(cid) ? 500 : 0);
+}
+function routeBodyText(el){
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll('.pill, .path-tag').forEach(p => p.remove());
+  return clone.textContent.replace(/\s+/g, ' ').trim();
+}
+/** Put "Pin ECM n → … → sensor" at the top of the description. Reuse a path line when it is that same chain. */
+function placeEcmChains(root, n){
+  if(!root || n == null || isNaN(Number(n))) return;
+  const nodes = [];
+  ecmOutwardChains(n).forEach(steps => {
+    const labels = steps.map(s => pathStepLabel(s.cid, s.cav, s.pin));
+    const want = labels.join(' → ');
+    const rail = (PIN_RAIL && PIN_RAIL[Number(n)]) || (steps.some(isGroundEndStep) ? 'gnd' : 'sig');
+    const hit = [...root.querySelectorAll('.path-route')].find(el => routeBodyText(el) === want);
+    if(hit){
+      const pill = hit.querySelector('.pill');
+      const head = t('pinEcm') + ' ' + n + ' →';
+      if(pill && !routeBodyText(hit).startsWith(head)) pill.insertAdjacentText('afterend', ' ' + head);
+      nodes.push(hit);
+      return;
+    }
+    const col = PATH_TAG_COLOR[rail] || '#90a4ae';
+    const div = document.createElement('div');
+    div.className = 'path-route';
+    div.dataset.rail = rail;
+    div.style.color = 'var(--muted)';
+    div.style.marginTop = '4px';
+    div.innerHTML = `<span class="pill path-tag" style="border-color:${col};color:${col}">${esc(pathTagLabel(rail))}</span> ${esc(t('pinEcm') + ' ' + n + ' → ' + want)}`;
+    nodes.push(div);
+  });
+  const covered = new Set();
+  ecmOutwardChains(n).forEach(steps => steps.forEach(s => covered.add(pathStepLabel(s.cid, s.cav, s.pin))));
+  [...root.querySelectorAll('.path-route')].forEach(el => {
+    if(nodes.includes(el)) return;
+    const parts = routeBodyText(el).split(/\s+→\s+|\s+·\s+/).map(s => s.trim()).filter(Boolean);
+    if(parts.length && parts.every(p => covered.has(p))) el.remove();
+  });
+  nodes.slice().reverse().forEach(el => root.insertBefore(el, root.firstChild));
 }
 function selectionCardBlurbs(){
   const ids = [];
@@ -5985,6 +6283,7 @@ function selectionCardBlurbs(){
     if(host) ids.push(host);
   }
   (lastSelConnIds || []).forEach(id => { if(id && !ids.includes(id)) ids.push(id); });
+  ids.sort((a, b) => descFichaRank(a) - descFichaRank(b) || String(a).localeCompare(String(b)));
   const out = [];
   ids.forEach(cid => {
     const conf = CONN[cid] || CONN_BASE[cid];
@@ -6029,6 +6328,7 @@ function compactSelectionInfo(){
     if(note && note !== '—'){ const d = document.createElement('div'); d.className = 'sel-pin-note'; d.textContent = note; el.replaceWith(d); }
     else el.remove();
   });
+  placeEcmChains(tmp, selFocusEcm());
   const longHtml = tmp.innerHTML.trim();
   let activeLine = '';
   if(key.startsWith('cav:')){

@@ -5,7 +5,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | file | source vendor | maps to | original product |
 |------|---------------|---------|------------------|
 | etc.webp | Wiring Specialties | etc | VQ35 Throttle 6-pin (F31) |
-| af.webp | Connector Experts | af_b1, af_b2 | "Air Fuel Ratio Sensor" i-26377349 (SKU CE6043F-1), main image F215307345.jpg, https://connectorexperts.com/i-26377349-air-fuel-ratio-sensor.html · black 6-way (FSM F22/F34 B/6). Similar, not identical: Ezequiel says the lock differs on his car. Caption adds the localized note `faceNoteSimilarLock`. Photo = 2×3 face, lock on top, same arrangement as the fixed A/F ficha (EC-529/531/533 T.S.: 5-3-1 / 6-4-2), so no mirror note. |
+| af.webp | Connector Experts | af_b1, af_b2 | "Air Fuel Ratio Sensor" i-26377349 (SKU CE6043F-1), main image F215307345.jpg, https://connectorexperts.com/i-26377349-air-fuel-ratio-sensor.html · black 6-way (FSM F22/F34 B/6). Similar, not identical: the lock differs on the car. Caption adds the localized note `faceNoteSimilarLock`. Photo = 2×3 face, lock on top, same arrangement as the fixed A/F ficha (EC-529/531/533 T.S.: 5-3-1 / 6-4-2), so no mirror note. |
 | inj.webp | Wiring Specialties | inj1–6 | VQ35 Injector Connector |
 | coil.webp | Wiring Specialties | coil1–6 | VQ35 Coil Connector |
 | maf.webp | Wiring Specialties | maf | VQ35 MAFS |
@@ -25,7 +25,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | f102.webp | Wiring Specialties | ix_f102_m72 | 350Z/G35 Dash Plug SMJ F102 |
 | f14.webp | Wiring Specialties | ix_f14_f229 | VQ35 Knock Sensor Sub Harness (sensor 2-pin + F14/F229) |
 | f18.webp | Ballenger Motorsports | ix_f18_f201 | Sumitomo 6-way 2×3 sealed (CONN-75847) — interim ID for F18. Female housing + receptacle terminals = same half as F18 (EC-691/455 T.S., white guide = female), so no mirror note; photo housing is grey vs FSM F18 B (black). Ficha fixed 1-2-3 / 4-5-6. |
-| f33.webp | EFI Hardware | ix_f221_f33 | "Nissan 8 Pin Injector Loom Male Pin Connector Grey" (SKU C08M-9001, "injector harness engine loom side"), https://www.efihardware.com/products/2207/Nissan-8-Pin-Injector-Loom-Male-Pin-Connector-Grey · 4th gallery thumbnail (images/3090, mating face with orange seal), chosen by Ezequiel. Replaced the earlier female-side photo. FSM gender (GI-15: black guide = male, white = female): F33 GY/8 has the **female** terminals (EC-278 T.S., white guide, 1-2-3-4 / 5-6-7-8); F221 has the **male** terminals (EC-279 T.S., black guide, 4-3-2-1 / 8-7-6-5). So this male photo is the F221 face; PG-55 lists F221 as G/8 (green) vs the grey product. The ficha shows Ezequiel's F33 female plug (EC-278 T.S., 1-2-3-4 / 5-6-7-8); the caption adds the localized `faceNoteMateMirror` note (mating male half, mirrored vs the ficha). |
+| f33.webp | EFI Hardware | ix_f221_f33 | "Nissan 8 Pin Injector Loom Male Pin Connector Grey" (SKU C08M-9001, "injector harness engine loom side"), https://www.efihardware.com/products/2207/Nissan-8-Pin-Injector-Loom-Male-Pin-Connector-Grey · 4th gallery thumbnail (images/3090, mating face with orange seal), chosen for this car. Replaced the earlier female-side photo. FSM gender (GI-15: black guide = male, white = female): F33 GY/8 has the **female** terminals (EC-278 T.S., white guide, 1-2-3-4 / 5-6-7-8); F221 has the **male** terminals (EC-279 T.S., black guide, 4-3-2-1 / 8-7-6-5). So this male photo is the F221 face; PG-55 lists F221 as G/8 (green) vs the grey product. The ficha shows the car's F33 female plug (EC-278 T.S., 1-2-3-4 / 5-6-7-8); the caption adds the localized `faceNoteMateMirror` note (mating male half, mirrored vs the ficha). |
 | reverse.webp | Wiring Specialties | backup_sw, evap_purge | VQ35 Reverse Switch 2-pin (F36 B/2 · F5 GY/2 purge same 2-way) |
 | alt.webp | Wiring Specialties | f20_alt | VQ35 Alternator Plug Connector (SKU WRS-VQ35ALT-CON, https://www.wiringspecialties.com/vq35-alternator-plug-connector/) — harness-side 2-cavity S/L plug = same half as F20 GY/2 (SC-22: 3 L / 4 S), so no mirror note. Re-checked 2026-09-26 for the alternator charge fichas: still the best product photo. The B (E202) and E (E211) ring terminals of the battery cable (PG-53) have no photo (generic ring lugs; skipped on purpose). |
 
@@ -40,6 +40,14 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_jb_pg88.webp | PG-88 | jb_fuse_block (cabin fuse block J/B: M4/M5/E101–E104, fuses 1–22). Terminal-arrangement drawing; no web photo used. |
 | fsm_e1_pg89_holder.webp | PG-89 | fuse_link_holder (fusible link holder E1/E2/E201 on the battery + terminal, links A–E). Top crop of the PG-89 page; no web photo used. |
 | fsm_e21_pg89_box.webp | PG-89 | fuse_link_box (box E18 with fuse and fusible link block E21: fuses 31–38, links F–M, back-up lamp and horn relays). Bottom crop of the PG-89 page; no web photo used. |
+| fsm_t20.webp | EC-367 | evap_vent (T20 B/2: 2-1, lock on top). No harness-face product photo. |
+| fsm_b27.webp | EC-710 | fuel_pump and fuel_tank_temp (one B27 GY/5 shell: 5-4-3-2-1, lock on cavity 3). Each ficha draws the whole row. The pump wires 3/1; the tank-temp ficha wires 5/4. The other cavities are empty. |
+| fsm_e110.webp | EC-628 | ascd_brake (E110 BR: 2 over 1). The same inset is on EC-626. |
+| fsm_e112.webp | EC-628 | stop_lamp on M/T (E112 B: 1-2). |
+| fsm_e111.webp | EC-626 | stop_lamp on A/T (E111 W/4: 4-3 over 2-1). The ficha draws that shell; 4 and 3 are empty. The camera uses this inset when the selector is A/T. |
+| fsm_e122.webp | EC-628 | ascd_clutch (E122 L: 1-2, lock above). M/T only. |
+| fsm_m23.webp | EC-618 | clock_spring (M23 GY: 27-26-25-24 over 34-33-32-31). The ficha draws that half; only 34 and 33 are wired. M203, the other half of that dashed box, is not this connector. |
+| fsm_m8.webp | EC-742 | dlc (M8 W/16: 16-9 over 8-1). |
 
 Not mapped in CONN_FACE:
 
@@ -48,4 +56,4 @@ Not mapped in CONN_FACE:
 
 Do not use the in-bay F1/F2/F3 location photo (IMG_4403) as F3/E12 faces.
 Do not replace a real product/loom photo with an FSM inset.
-Shared photos (af, inj, coil, ho2s, oil, reverse, vtc) are intentional: same connector part. Every share is allowlisted in FACE_SHARE_OK (test/harness_page_tests.mjs); do not swap one without Ezequiel confirming.
+Shared photos (af, inj, coil, ho2s, oil, reverse, vtc, and the B27 FSM inset) are intentional: same connector part. Every share is allowlisted in FACE_SHARE_OK (test/harness_page_tests.mjs); do not swap one without confirmation.
