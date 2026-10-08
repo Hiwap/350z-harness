@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hiwap.github.io/350z-harness/sitemap.xml
