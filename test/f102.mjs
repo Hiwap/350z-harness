@@ -899,7 +899,13 @@ const FSM_FACE = {
   fuel_lid_m59: { mt: "3 / 5 / 1 2", at: "3 / 5 / 1 2" },
   fuel_lid_m13: { mt: "1 2", at: "1 2" },
   fuel_lid_t19: { mt: "2 / 1", at: "2 / 1" },
-  body_vidrios: { mt: "DEF-RLY DEF+ DEF SOCKET", at: "DEF-RLY DEF+ DEF SOCKET" },
+  defog_b34: { mt: "1 2 / 5 7 / 3 6", at: "1 2 / 5 7 / 3 6" },
+  defog_d104: { mt: "1", at: "1" },
+  defog_d211: { mt: "2", at: "2" },
+  defog_b202: { mt: null, at: null }, /* Roadster only; hidden on the default coupe */
+  defog_b203: { mt: null, at: null },
+  socket_b36: { mt: "2 / 1", at: "2 / 1" },
+  socket_m38: { mt: "2 / 1", at: "2 / 1" },
   body_asientos: { mt: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND", at: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND" },
   body_audio: { mt: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT", at: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT" },
   meter_m19: { mt: "12 11 10 3 2 1 / 24 23 22 21 20 18 17 16 15 14 13", at: "12 11 10 3 2 1 / 24 23 22 21 20 18 17 16 15 14 13" }, /* M19 W/24 shell 12-1 / 24-13; 13 is Roadster only (dimmed) */

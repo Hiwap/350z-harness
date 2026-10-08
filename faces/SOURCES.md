@@ -75,6 +75,13 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_t13.webp | LT-220 | lug_t13 (T13 GY/2: 2-1). Coupe only. |
 | fsm_e14.webp | LT-117 | dtrl_e14 (E14 GY: 14-5-6 over 15-2-1). Canada only. Only 1 wired. |
 | fsm_e15.webp | LT-117 | dtrl_e15 (E15 GY: 11-10-13-16 over 9, a gap, 17, 12). Canada only. Only 17 wired. |
+| fsm_b34.webp | GW-63 | defog_b34 (B34 BR: 1-2 / 5-7 / 3-6). Same face on GW-67. |
+| fsm_d104.webp | GW-63 | defog_d104 (D104 B: single cavity 1). Coupe glass positive. |
+| fsm_d211.webp | GW-63 | defog_d211 (D211 B: single cavity 2). Coupe glass ground. |
+| fsm_b202.webp | GW-67 | defog_b202 (B202 B: single cavity 1). Roadster glass positive. Asterisk: not in the harness layout. |
+| fsm_b203.webp | GW-67 | defog_b203 (B203 B: single cavity 2). Roadster glass ground. Asterisk: not in the harness layout. |
+| fsm_b36.webp | WW-54 | socket_b36 (B36 B: 2 over 1). WW-54 prints one inset labeled M38, B36; this crop keeps both labels. |
+| fsm_m38.webp | WW-54 | socket_m38 (M38 B: 2 over 1). Same inset; the crop keeps the M38 label. |
 | fsm_t19.webp | BL-54 | fuel_lid_t19 (T19 W: 2 over 1, right column unnumbered). PG-63 lists W/4. |
 | fsm_m13.webp | BL-54 | fuel_lid_m13 (M13 GY: 1-2 and three unnumbered cavities). |
 | fsm_m59.webp | BL-54 | fuel_lid_m59 (M59 L: 3 over 5 over 1, X, 2). Coupe only. |

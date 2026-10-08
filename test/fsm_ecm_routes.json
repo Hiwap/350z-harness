@@ -2841,10 +2841,124 @@
         "WT-14"
       ],
       "note": "BCM M90 white. 25 wired. Empty 1, 7, 8, 10, 13, 14, 16, 17, 21, 24, 25, 26, 27, 28, 31."
+    },
+    "defog_b34": {
+      "fsm": "B34",
+      "half": "B34",
+      "cav": [
+        "1",
+        "2",
+        "5",
+        "7",
+        "3",
+        "6"
+      ],
+      "wired": [
+        "1",
+        "2",
+        "5",
+        "7",
+        "3",
+        "6"
+      ],
+      "cite": [
+        "GW-63",
+        "GW-67"
+      ],
+      "note": "rear defogger relay BR; face 1-2 / 5-7 / 3-6; all six wired; pin 6 is P coupe and R roadster"
+    },
+    "defog_d104": {
+      "fsm": "D104",
+      "half": "D104",
+      "cav": [
+        "1"
+      ],
+      "wired": [
+        "1"
+      ],
+      "cite": [
+        "GW-63",
+        "PG-70"
+      ],
+      "note": "coupe rear glass positive; single cavity 1, B/W"
+    },
+    "defog_d211": {
+      "fsm": "D211",
+      "half": "D211",
+      "cav": [
+        "2"
+      ],
+      "wired": [
+        "2"
+      ],
+      "cite": [
+        "GW-63",
+        "PG-70"
+      ],
+      "note": "coupe rear glass ground; the only cavity is numbered 2"
+    },
+    "defog_b202": {
+      "fsm": "B202",
+      "half": "B202",
+      "cav": [
+        "1"
+      ],
+      "wired": [
+        "1"
+      ],
+      "cite": [
+        "GW-67"
+      ],
+      "note": "roadster rear glass positive; asterisk, not in the harness layout"
+    },
+    "defog_b203": {
+      "fsm": "B203",
+      "half": "B203",
+      "cav": [
+        "2"
+      ],
+      "wired": [
+        "2"
+      ],
+      "cite": [
+        "GW-67"
+      ],
+      "note": "roadster rear glass ground; asterisk, not in the harness layout; cavity numbered 2"
+    },
+    "socket_b36": {
+      "fsm": "B36",
+      "half": "B36",
+      "cav": [
+        "2",
+        "1"
+      ],
+      "wired": [
+        "2",
+        "1"
+      ],
+      "cite": [
+        "WW-54"
+      ],
+      "note": "luggage 12 V socket B; 2 over 1; pin 1 is R/B"
+    },
+    "socket_m38": {
+      "fsm": "M38",
+      "half": "M38",
+      "cav": [
+        "2",
+        "1"
+      ],
+      "wired": [
+        "2",
+        "1"
+      ],
+      "cite": [
+        "WW-54"
+      ],
+      "note": "dash 12 V socket B; same face as B36; pin 1 is R/G"
     }
   },
   "pseudo_cards": {
-    "body_vidrios": "body-circuit list: defogger and 12 V socket (GW/WW), not a connector",
     "body_asientos": "body-circuit list: heated/power seat and seat belt circuits (SE/SRS), not a connector",
     "body_audio": "body-circuit list: audio circuits (AV), not a connector",
     "body_clima": "body-circuit list: climate circuits (ATC), not a connector",
