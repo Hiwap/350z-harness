@@ -71,7 +71,8 @@
    "map": "e17",
    "desc": "Body ground (with E43)",
    "cite": [
-    "EC-169"
+    "EC-169",
+    "DI-67"
    ],
    "feeds": [
     {
@@ -80,6 +81,14 @@
      "cav": "6",
      "col": {
       "F3": "B"
+     }
+    },
+    {
+     "conn": "E44",
+     "map": "brake_fluid_e44",
+     "cav": "2",
+     "col": {
+      "E44": "B"
      }
     }
    ],
@@ -1875,6 +1884,67 @@
     "WW-49"
    ],
    "note": "Coupe rear wiper motor W/4 in the back-door harness; cavity 3 not wired; pin 4 SB from BCM B83·70, pin 2 OR auto-stop from B83·59, pin 1 B to ground D105"
+  },
+  "meter_m19": {
+   "fsm": "M19",
+   "half": "M19",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24"
+   ],
+   "wired": [
+    "15",
+    "16"
+   ],
+   "cite": [
+    "DI-67"
+   ],
+   "note": "combination meter W/24 (12-1 over 24-13); only 15 W/L BRAKE (to E44·1 via E108·9G) and 16 P/B PKB (to B47·1 via M12·44J) drawn"
+  },
+  "brake_fluid_e44": {
+   "fsm": "E44",
+   "half": "E44",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "DI-67"
+   ],
+   "note": "brake fluid level switch GY/2; 1 W to M19·15 via E108·9G (W/L on the M15 side), 2 B to the E43/E17 body ground splice"
+  },
+  "pkb_b47": {
+   "fsm": "B47",
+   "half": "B47",
+   "cav": [
+    "1"
+   ],
+   "cite": [
+    "DI-67"
+   ],
+   "note": "parking brake switch B/1; 1 PU to M19·16 via B1/M12·44J (P/B on the M12 side); switch grounds itself (ground symbol on the switch, no cavity)"
   }
  },
  "pseudo_cards": {
@@ -1884,7 +1954,6 @@
   "body_vidrios": "body-circuit list: defogger and 12 V socket (GW/WW), not a connector",
   "body_asientos": "body-circuit list: heated/power seat and seat belt circuits (SE/SRS), not a connector",
   "body_audio": "body-circuit list: audio circuits (AV), not a connector",
-  "body_medidores": "body-circuit list: meter warning circuits (DI), not a connector",
   "body_clima": "body-circuit list: climate circuits (ATC), not a connector",
   "body_techo": "body-circuit list: Roadster soft top circuits (RF), not a connector",
   "body_at": "body-circuit list: A/T body-side circuits (AT), not a connector",

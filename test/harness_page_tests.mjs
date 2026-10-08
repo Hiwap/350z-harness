@@ -568,6 +568,9 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       washer_e29: 2,
       washer_e28: 2,
       wiper_d106: 3, /* shell D106 W/4; cavity 3 empty */
+      meter_m19: 2, /* shell M19 W/24; the ficha wires 15 and 16 */
+      brake_fluid_e44: 2,
+      pkb_b47: 1,
     };
     function expectedFacePins(id) {
       if (Object.prototype.hasOwnProperty.call(EXPECTED_FACE_PINS, id)) return EXPECTED_FACE_PINS[id];

@@ -45,7 +45,7 @@ const FIXED = [
   { kind: 'cav', conn: 'ix_f102_m72', cav: '6H' }, { kind: 'cav', conn: 'ix_f102_m72', cav: '4H' },
   { kind: 'cav', conn: 'ipdm_e8', cav: '40' }, { kind: 'cav', conn: 'ix_e12_f3', cav: '2' },
   { kind: 'cav', conn: 'ix_b1_m12', cav: '42J' }, { kind: 'cav', conn: 'ix_e108_m15', cav: '2G' },
-  { kind: 'cav', conn: 'dlc', cav: '7' }, { kind: 'cav', conn: 'body_medidores', cav: 'FUEL' },
+  { kind: 'cav', conn: 'dlc', cav: '7' }, { kind: 'cav', conn: 'meter_m19', cav: '15' },
   { kind: 'conn', conn: 'dlc' }, { kind: 'conn', conn: 'ix_f102_m72' },
 ];
 /* plus one clickable cavity (with a circuit or an ECM pin) per card sub-type and per intermediate connector */

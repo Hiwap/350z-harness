@@ -877,7 +877,9 @@ const FSM_FACE = {
   body_vidrios: { mt: "DEF-RLY DEF+ DEF SOCKET", at: "DEF-RLY DEF+ DEF SOCKET" },
   body_asientos: { mt: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND", at: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND" },
   body_audio: { mt: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT", at: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT" },
-  body_medidores: { mt: "BRK-LV PKB FUEL", at: "BRK-LV PKB FUEL" },
+  meter_m19: { mt: "16 15", at: "16 15" }, /* M19 W/24 shell 12-1 / 24-13 (DI-67); only 16 and 15 wired here */
+  brake_fluid_e44: { mt: "1 / 2", at: "1 / 2" },
+  pkb_b47: { mt: "1", at: "1" },
   body_clima: { mt: "AMB AMB-GND BLW-GND", at: "AMB AMB-GND BLW-GND" },
   wiper_e52: { mt: "1 2 3 / 4", at: "1 2 3 / 4" },
   washer_e29: { mt: "1 2", at: "1 2" },

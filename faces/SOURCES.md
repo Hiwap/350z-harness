@@ -52,6 +52,9 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_e29.webp | WW-12 | washer_e29 (E29 GY/2: 1-2, lock on top). |
 | fsm_e28.webp | WW-40 | washer_e28 (E28 GY/2: 1-2, lock on top). Coupe only. Separate crop from E29. |
 | fsm_d106.webp | WW-40 | wiper_d106 (D106 W/4: 1-2-3-4, lock over the middle). Cavity 3 is drawn empty. Coupe only. |
+| fsm_m19.webp | DI-67 | meter_m19 (M19 W/24: 12-1 over 24-13, lock over 8-5). The ficha draws the whole shell; only 15 and 16 are wired. |
+| fsm_e44.webp | DI-67 | brake_fluid_e44 (E44 GY/2: 1 over 2, lock on top). |
+| fsm_b47.webp | DI-67 | pkb_b47 (B47 B/1: one cavity, lock on top). |
 
 Not mapped in CONN_FACE:
 
