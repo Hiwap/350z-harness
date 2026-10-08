@@ -571,8 +571,8 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       meter_m19: 17, /* shell M19 W/24; 4-9 and 19 have no FSM wire */
       brake_fluid_e44: 2,
       pkb_b47: 1,
-      bcm_m91: 6, turn_e40: 2, turn_e41: 2, turn_t10: 2, turn_e24: 2, turn_e25: 2, turn_t18: 2,
-      stop_t9: 2, stop_t17: 2, stop_d103: 2, lug_t13: 2, dtrl_e14: 1, dtrl_e15: 1,
+      bcm_m91: 6, turn_e40: 8, turn_e41: 6, turn_t10: 2, turn_e24: 8, turn_e25: 6, turn_t18: 2,
+      stop_t9: 3, stop_t17: 3, stop_d103: 2, lug_t13: 2, dtrl_e14: 4, dtrl_e15: 5,
       abs_e51: 18, /* shell E51 GY/30; 12 cavities have no FSM wire */
       abs_t5: 4,
       vdc_e118: 43, /* shell E118 B/88; cavities with no FSM wire stay empty */

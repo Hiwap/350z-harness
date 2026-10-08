@@ -2296,12 +2296,18 @@
    ],
    "wired": [
     "1",
-    "2"
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
    ],
    "cite": [
     "LT-153"
    ],
-   "note": "LH xenon front combination lamp GY/8; turn signal 2 G/W from M91·45, ground 1 B to E43; other cavities not mapped"
+   "note": "xenon LH GY/8; all eight cavities wired: turn, high, low, parking, side marker"
   },
   "turn_e41": {
    "fsm": "E41",
@@ -2316,12 +2322,16 @@
    ],
    "wired": [
     "1",
-    "4"
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
    ],
    "cite": [
     "LT-153"
    ],
-   "note": "LH halogen front combination lamp GY/6, Coupe only, alternative to E40; turn 1 G/W, ground 4 B"
+   "note": "halogen LH GY/6 coupe; all six wired; pin 5 is parking and side marker"
   },
   "turn_t10": {
    "fsm": "T10",
@@ -2357,12 +2367,18 @@
    ],
    "wired": [
     "1",
-    "2"
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
    ],
    "cite": [
     "LT-154"
    ],
-   "note": "RH xenon front combination lamp GY/8; turn 2 PU/W from M91·46, ground 1 B"
+   "note": "xenon RH GY/8; all eight cavities wired"
   },
   "turn_e25": {
    "fsm": "E25",
@@ -2377,12 +2393,16 @@
    ],
    "wired": [
     "1",
-    "4"
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
    ],
    "cite": [
     "LT-154"
    ],
-   "note": "RH halogen front combination lamp GY/6, Coupe only, alternative to E24; turn 1 PU/W, ground 4 B"
+   "note": "halogen RH GY/6 coupe; all six wired"
   },
   "turn_t18": {
    "fsm": "T18",
@@ -2412,14 +2432,15 @@
     "3"
    ],
    "wired": [
-    "1",
-    "3"
+    "3",
+    "2",
+    "1"
    ],
    "cite": [
     "LT-179",
     "LT-180"
    ],
-   "note": "LH rear combination lamp body side GY/3, face 3-2-1; 1 P/L stop, 3 B ground to B5/B6/T14; 2 R/L tail not mapped; Roadster arrives via B60/T22"
+   "note": "rear lamp LH; 1 stop, 2 tail R/L, 3 ground"
   },
   "stop_t17": {
    "fsm": "T17",
@@ -2430,14 +2451,15 @@
     "3"
    ],
    "wired": [
-    "1",
-    "3"
+    "3",
+    "2",
+    "1"
    ],
    "cite": [
     "LT-179",
     "LT-180"
    ],
-   "note": "RH rear combination lamp body side GY/3, same face as T9; 1 P/L stop, 3 B ground; 2 tail not mapped"
+   "note": "rear lamp RH; 1 stop, 2 tail R/L, 3 ground"
   },
   "stop_d103": {
    "fsm": "D103",
@@ -2475,13 +2497,16 @@
     "1"
    ],
    "wired": [
+    "14",
+    "5",
+    "6",
     "1"
    ],
    "cite": [
     "LT-117",
     "LT-77"
    ],
-   "note": "daytime light unit connector E14 GY, face 14-5-6 over 15-2-1; only 1 W/R alternator L, Canada only"
+   "note": "Canada DTRL; 14, 5, 6 and 1 wired; 15 and 2 have no wire on LT-89 to LT-140"
   },
   "dtrl_e15": {
    "fsm": "E15",
@@ -2496,13 +2521,17 @@
     "12"
    ],
    "wired": [
-    "17"
+    "11",
+    "16",
+    "9",
+    "17",
+    "12"
    ],
    "cite": [
     "LT-117",
     "LT-77"
    ],
-   "note": "daytime light unit connector E15 GY, face 11-10-13-16 over 9, gap, 17, 12; only 17 G parking brake, Canada only"
+   "note": "Canada DTRL; 11, 16, 9, 17, 12 wired; 10 and 13 have no wire"
   },
   "door_sw_b17": {
    "fsm": "B17",
