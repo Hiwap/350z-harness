@@ -1,3 +1,53 @@
+/* Selected strip: control module (ECM side, BCM, IPDM, ABS/VDC, meter amp, TCM) first,
+   then along the wire toward the sensor. Ground points stay last. A path drawn sensor-first
+   is turned around. Joints that are skipped in the strip (F102) still decide the direction. */
+function isSelGround(cid){
+  const f = CONN[cid];
+  if(!f) return false;
+  const pins = f.pins || [];
+  return pins.length > 0 && pins.every(pin => pin && pin.rail === 'gnd');
+}
+function isSelControl(cid){
+  if(/^(bcm_|ipdm_)/.test(cid)) return true;
+  return ['abs_e51','vdc_e118','comb_meter','unified_m49','triple_m44','f6_at'].indexOf(cid) >= 0;
+}
+function isSelJoint(cid){
+  if(String(cid).startsWith('ix_')) return true;
+  const f = CONN[cid];
+  return !!(f && f.sub === 'intermedias');
+}
+function selectionPathSeq(){
+  const seq = [];
+  const add = cid => { if(cid && seq.indexOf(cid) < 0) seq.push(cid); };
+  (lastCircIds || []).forEach(id => {
+    const cir = (typeof CIRCUITS !== 'undefined' ? CIRCUITS : []).find(c => c.id === id);
+    if(!cir) return;
+    Object.keys(cir.path || {}).forEach(add);
+    (cir.conn || []).forEach(add);
+  });
+  return seq;
+}
+function selectionOrder(ids){
+  const want = new Set(ids);
+  const seq = selectionPathSeq();
+  const body = [];
+  const grounds = [];
+  const push = cid => {
+    if(!want.has(cid) || body.indexOf(cid) >= 0 || grounds.indexOf(cid) >= 0) return;
+    (isSelGround(cid) ? grounds : body).push(cid);
+  };
+  seq.forEach(push);
+  ids.forEach(push);
+  const full = seq.filter(cid => !isSelGround(cid));
+  const firstCtl = full.findIndex(isSelControl);
+  if(firstCtl > 0 && !isSelControl(full[0]) && !isSelJoint(full[0])){
+    const orderedFull = full.slice(firstCtl).concat(full.slice(0, firstCtl).reverse());
+    const rank = new Map(orderedFull.map((cid, i) => [cid, i]));
+    body.sort((a, b) => (rank.has(a) ? rank.get(a) : 999) - (rank.has(b) ? rank.get(b) : 999));
+  }
+  return body.concat(grounds);
+}
+
 function updateSelectedTop(connIds){
   removeSelectedTop();
   const root = document.getElementById('fichas');
@@ -44,7 +94,7 @@ function updateSelectedTop(connIds){
       nest.appendChild(nsum);
       const ngrid = document.createElement('div');
       ngrid.className = 'fichas-grid';
-      const ordered = lineIds.slice().sort((a,b)=> String(CONN[a].name).localeCompare(String(CONN[b].name)));
+      const ordered = selectionOrder(lineIds);
       ordered.forEach(id=>{
         const el = makeFichaEl(id, CONN[id], {ipdmIcon:true});
         el.classList.add('hl');
@@ -104,13 +154,7 @@ function updateSelectedTop(connIds){
 
   const grid = document.createElement('div');
   grid.className = 'fichas-grid';
-  const ordered = ids.slice().sort((a,b)=>{
-    const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
-    const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
-    const ia = sa<0?999:sa, ib = sb<0?999:sb;
-    if(ia!==ib) return ia-ib;
-    return String(CONN[a].name).localeCompare(String(CONN[b].name));
-  });
+  const ordered = selectionOrder(ids);
   ordered.forEach(id => appendFicha(grid, id));
   body.appendChild(grid);
   top.appendChild(body);
