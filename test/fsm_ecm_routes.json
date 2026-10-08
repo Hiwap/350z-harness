@@ -2273,10 +2273,16 @@
         "55"
       ],
       "wired": [
+        "41",
         "42",
+        "44",
         "45",
         "46",
+        "48",
+        "50",
+        "51",
         "52",
+        "53",
         "54",
         "55"
       ],
@@ -2287,7 +2293,7 @@
         "DI-86",
         "SE-12"
       ],
-      "note": "BCM M91; unwired 41,43,44,47-51,53 have no wire on the pages used"
+      "note": "BCM M91 black. Wired 12 of 15. Empty 43, 47, 49."
     },
     "turn_e40": {
       "fsm": "E40",
@@ -2753,6 +2759,88 @@
         "DI-45"
       ],
       "note": "Triple meter M44 W/12. DI-36 wires 1 ground, 2 battery, 3 ignition, 4 TX, 5 RX, 7-9 oil pressure, 12 illumination. Empty 6, 10, 11."
+    },
+    "bcm_m90": {
+      "fsm": "M90",
+      "half": "M90",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40"
+      ],
+      "wired": [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "9",
+        "11",
+        "12",
+        "15",
+        "18",
+        "19",
+        "20",
+        "22",
+        "23",
+        "29",
+        "30",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40"
+      ],
+      "cite": [
+        "PG-83",
+        "LT-174",
+        "BL-34",
+        "BL-46",
+        "GW-57",
+        "WT-14"
+      ],
+      "note": "BCM M90 white. 25 wired. Empty 1, 7, 8, 10, 13, 14, 16, 17, 21, 24, 25, 26, 27, 28, 31."
     }
   },
   "pseudo_cards": {
@@ -5099,11 +5187,11 @@
           "end": {
             "type": "device",
             "conn": "M90 BCM",
-            "map": null,
+            "map": "bcm_m90",
             "cav": "40",
             "col": "P",
             "applies": "all",
-            "note": "BCM not drawn on map"
+            "note": "BCM M90 is drawn"
           },
           "applies": "all"
         },
@@ -5377,11 +5465,11 @@
           "end": {
             "type": "device",
             "conn": "M90 BCM",
-            "map": null,
+            "map": "bcm_m90",
             "cav": "39",
             "col": "L",
             "applies": "all",
-            "note": "BCM not drawn on map"
+            "note": "BCM M90 is drawn"
           },
           "applies": "all"
         },
