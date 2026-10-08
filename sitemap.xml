@@ -1,4 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://hiwap.github.io/350z-harness/</loc><lastmod>2026-10-08</lastmod></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://hiwap.github.io/350z-harness/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://hiwap.github.io/350z-harness/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hiwap.github.io/350z-harness/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://hiwap.github.io/350z-harness/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://hiwap.github.io/350z-harness/"/>
+  </url>
+  <url>
+    <loc>https://hiwap.github.io/350z-harness/?lang=en</loc>
+    <lastmod>2026-10-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://hiwap.github.io/350z-harness/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hiwap.github.io/350z-harness/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://hiwap.github.io/350z-harness/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://hiwap.github.io/350z-harness/"/>
+  </url>
+  <url>
+    <loc>https://hiwap.github.io/350z-harness/?lang=ja</loc>
+    <lastmod>2026-10-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="https://hiwap.github.io/350z-harness/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://hiwap.github.io/350z-harness/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://hiwap.github.io/350z-harness/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://hiwap.github.io/350z-harness/"/>
+  </url>
 </urlset>

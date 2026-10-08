@@ -6,7 +6,24 @@
 <title>Nissan 350Z · Harness / Fichas OEM (FSM)</title>
 <meta name="google-site-verification" content="CsdYgZfM4JmeCad6duhlSg7GjtuJEfeMav-nGO42A5I" />
 <meta name="description" content="Mapa interactivo del arnés del Nissan 350Z (Z33, VQ35DE) según el FSM: pines del ECM, fichas, colores de cables, IPDM y fusibles. Interactive 350Z wiring harness map from the FSM (USA/Canada)."/>
-<link rel="canonical" href="https://hiwap.github.io/350z-harness/"/>
+<link rel="canonical" id="canonicalLink" href="https://hiwap.github.io/350z-harness/"/>
+<link rel="alternate" hreflang="es" href="https://hiwap.github.io/350z-harness/"/>
+<link rel="alternate" hreflang="en" href="https://hiwap.github.io/350z-harness/?lang=en"/>
+<link rel="alternate" hreflang="ja" href="https://hiwap.github.io/350z-harness/?lang=ja"/>
+<link rel="alternate" hreflang="x-default" href="https://hiwap.github.io/350z-harness/"/>
+<script id="seo-lang">
+/* SEO: ?lang=en|ja is the crawlable URL of each language; canonical points to itself. */
+(function(){
+  var q = new URLSearchParams(location.search).get('lang');
+  if(q === 'en' || q === 'ja'){
+    try { localStorage.setItem('z33_lang', q); } catch(e){}
+    document.getElementById('canonicalLink').href = 'https://hiwap.github.io/350z-harness/?lang=' + q;
+  }
+})();
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Nissan 350Z (Z33) VQ35DE interactive wiring harness map","alternativeHeadline":"Mapa interactivo del arnés del Nissan 350Z según el FSM","description":"Interactive Nissan 350Z (Z33, VQ35DE) wiring harness map built from the factory service manual (FSM): ECM pinout, connectors, wire colours, IPDM and fuses. USA/Canada market.","inLanguage":["es","en","ja"],"url":"https://hiwap.github.io/350z-harness/","about":{"@type":"Car","name":"Nissan 350Z","manufacturer":{"@type":"Organization","name":"Nissan"},"vehicleModelDate":"2003-2006"},"keywords":"Nissan 350Z, Z33, VQ35DE, wiring diagram, ECM pinout, harness, FSM, IPDM, fuse box, diagrama eléctrico, arnés, ピン配置"}
+</script>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="Nissan 350Z · Harness / Fichas OEM (FSM)"/>
 <meta property="og:description" content="Mapa interactivo del arnés del 350Z según el FSM: pines del ECM, fichas, colores, IPDM y fusibles."/>
@@ -3823,6 +3840,16 @@ function applyLang(){
   lang = document.getElementById('lang').value || 'es';
   localStorage.setItem('z33_lang', lang);
   document.documentElement.lang = lang;
+  /* SEO: title and description follow the language */
+  const SEO_META = {
+    es: ['Nissan 350Z · Harness / Fichas OEM (FSM)', 'Mapa interactivo del arnés del Nissan 350Z (Z33, VQ35DE) según el FSM: pines del ECM, fichas, colores de cables, IPDM y fusibles. USA/Canadá.'],
+    en: ['Nissan 350Z · Wiring harness / OEM connectors (FSM)', 'Interactive Nissan 350Z (Z33, VQ35DE) wiring harness map from the FSM: ECM pinout, connectors, wire colours, IPDM and fuses. USA/Canada.'],
+    ja: ['日産 フェアレディZ (Z33/350Z) · ハーネス / OEMコネクター (FSM)', 'FSMに基づく日産350Z（Z33、VQ35DE）のインタラクティブ配線図：ECMピン配置、コネクター、配線色、IPDM、ヒューズ。北米仕様。']
+  };
+  const seo = SEO_META[lang] || SEO_META.es;
+  document.title = seo[0];
+  const md = document.querySelector('meta[name="description"]');
+  if(md) md.setAttribute('content', seo[1]);
   const setLabel = (id, key) => {
     const el = document.getElementById(id);
     if(!el) return;
