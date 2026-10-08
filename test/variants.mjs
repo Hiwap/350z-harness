@@ -129,7 +129,7 @@ const st = () => page.evaluate(() => {
   return {
     vals: Object.fromEntries(Object.keys(VARIANT_DIMS).map((k) => [k, document.getElementById(VARIANT_DIMS[k].el).value])),
     circs: CIRCUITS.map((c) => c.id),
-    m51: shown('vdc_m51'), techo: shown('body_techo'), at: shown('body_at'), abs: shown('body_abs'), f6: shown('f6_at'),
+    m51: shown('vdc_m51'), techo: shown('body_techo'), at: shown('body_at'), abs: shown('abs_e51'), t5: shown('abs_t5'), e118: shown('vdc_e118'), m9: shown('vdc_off_m9'), f6: shown('f6_at'),
     g13: code('ix_e108_m15', '13G'), g35: code('ix_e108_m15', '35G'), j29: code('ix_b1_m12', '29J'), j23: code('ix_b1_m12', '23J'),
     j46: code('ix_b1_m12', '46J'), t2: code('ix_t2_b44', '2'), b12: code('ix_e106_b2', '12'), b6: code('ix_e106_b2', '6'),
     j2: code('ix_b1_m12', '2J'), g8: code('ix_e108_m15', '8G'), j1: code('ix_b1_m12', '1J'), j4: code('ix_b1_m12', '4J'),
@@ -139,7 +139,7 @@ const st = () => page.evaluate(() => {
 });
 let s = await st();
 ok('defaults: Coupe / ABS / base audio / no options', JSON.stringify(s.vals) === JSON.stringify(DEF), JSON.stringify(s.vals));
-ok('defaults: Carrocería ABS card shown; VDC sensor M51 and Roadster soft top hidden', s.abs && !s.m51 && !s.techo, JSON.stringify([s.abs, s.m51, s.techo]));
+ok('defaults: ABS unit E51 and rear sensors T5 shown; VDC unit E118, OFF switch M9, sensor M51 and Roadster soft top hidden', s.abs && s.t5 && !s.e118 && !s.m9 && !s.m51 && !s.techo, JSON.stringify([s.abs, s.t5, s.e118, s.m9, s.m51, s.techo]));
 ok('defaults: VDC-only E108·13G empty, with an explanation', s.g13 === '—' && /Not used with the selected equipment/.test(s.note13), s.g13 + ' ' + s.note13.slice(0, 60));
 ok('defaults: no VDC/TCS/Roadster/Canada/option circuits', !['vdc_yaw', 'vdc_off', 'soft_top', 'dtrl_pkb', 'heated_seat', 'blower_gnd', 'pseat_bat', 'audio_bose_ctl'].some((c) => s.circs.includes(c)));
 ok('defaults: circuits common to every coupe are present', ['abs_rl', 'abs_rr', 'abs_kline', 'turn_lh', 'turn_rh', 'stop_lamps', 'bcm_bat', 'rear_defog', 'belt_dr', 'audio_backup', 'brake_fluid', 'ambient', 'dlc_ign'].every((c) => s.circs.includes(c)));
@@ -148,9 +148,9 @@ ok('defaults: base audio "BS" colours (M12·29J LG/R, front 23J empty)', s.j29 =
 ok('defaults (M/T): A/T body card and E10/F1·4 / F102·24H empty', !s.at && s.f4 === '—' && s.h24 === '—' && !s.f6, JSON.stringify([s.at, s.f4, s.h24, s.f6]));
 
 await sel('brakeView', 'tcs'); s = await st();
-ok('brakes ABS+TCS: OFF switch (35G L/Y) shown, VDC sensor still hidden', s.g35 === 'L/Y' && s.circs.includes('vdc_off') && !s.m51 && s.g13 === '—');
+ok('brakes ABS+TCS: OFF switch (35G L/Y, card M9) shown with unit E51, VDC unit and sensor still hidden', s.g35 === 'L/Y' && s.circs.includes('vdc_off') && s.m9 && s.abs && !s.e118 && !s.m51 && s.g13 === '—');
 await sel('brakeView', 'vdc'); s = await st();
-ok('brakes VDC: M51 card + E108·13G W/R + vdc_yaw circuit', s.m51 && s.g13 === 'W/R' && s.circs.includes('vdc_yaw'), JSON.stringify([s.m51, s.g13]));
+ok('brakes VDC: M51 card + E108·13G W/R + vdc_yaw circuit; unit E118 replaces E51', s.m51 && s.g13 === 'W/R' && s.circs.includes('vdc_yaw') && s.e118 && s.m9 && !s.abs && s.t5, JSON.stringify([s.m51, s.g13, s.e118, s.abs]));
 ok('brakes VDC: rear speaker colours switch to the non-"BS" set (29J BR) and front loop appears (23J W)', s.j29 === 'BR' && s.j23 === 'W', JSON.stringify([s.j29, s.j23]));
 await sel('brakeView', 'abs');
 await sel('bodyView', 'roadster'); s = await st();
@@ -193,10 +193,10 @@ ok('Manual again: A/T body card hidden, transmission filter unaffected by the ne
 
 const click = await page.evaluate(() => { clearSelection(); selectConnPin('ix_e108_m15', '36G'); return [...lastCircIds]; });
 ok('click E108·36G → right turn circuit only (no fan-out over the SMJ)', click.length === 1 && click[0] === 'turn_rh', click.join(','));
-const click2 = await page.evaluate(() => { clearSelection(); selectConnPin('body_abs', 'RL-SIG'); return [...lastCircIds]; });
-ok('click Carrocería ABS row → abs_rl', click2.join(',') === 'abs_rl', click2.join(','));
+const click2 = await page.evaluate(() => { clearSelection(); selectConnPin('abs_t5', '4'); return [...lastCircIds]; });
+ok('click rear sensor T5·4 → abs_rl', click2.join(',') === 'abs_rl', click2.join(','));
 const flat = await page.evaluate(() => { const sec = document.querySelector('#fichas details.ficha-sec[data-sub="carroceria"]'); return { nests: sec ? sec.querySelectorAll('details.ficha-nest').length : -1, ids: sec ? [...sec.querySelectorAll(':scope > .fichas-grid > .ficha-wrap')].map((f) => f.dataset.conn) : [] }; });
-ok('Carrocería is one flat group: no nested subgroups, fichas listed directly, ABS first', flat.nests === 0 && flat.ids.length >= 9 && flat.ids[0] === 'body_abs', JSON.stringify(flat));
+ok('Carrocería is one flat group: no nested subgroups, fichas listed directly, ABS first', flat.nests === 0 && flat.ids.length >= 9 && flat.ids[0] === 'abs_e51', JSON.stringify(flat));
 
 const labels = {};
 for (const lg of ['en', 'ja', 'es']) {

@@ -571,6 +571,11 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       meter_m19: 2, /* shell M19 W/24; the ficha wires 15 and 16 */
       brake_fluid_e44: 2,
       pkb_b47: 1,
+      abs_e51: 6, /* shell E51 GY/30; the ficha wires 26, 11, 28, 13, 6 and 19 (TCS) */
+      abs_t5: 4,
+      vdc_e118: 13, /* shell E118 B/88; 13 mapped wires */
+      vdc_off_m9: 2, /* shell M9 GY: 1-2-3-4 plus two unnumbered cavities; the ficha wires 1 and 2 */
+      vdc_m51: 6,
     };
     function expectedFacePins(id) {
       if (Object.prototype.hasOwnProperty.call(EXPECTED_FACE_PINS, id)) return EXPECTED_FACE_PINS[id];

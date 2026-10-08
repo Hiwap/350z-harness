@@ -871,7 +871,10 @@ const FSM_FACE = {
   /* Carrocería body-circuit lists (shape note, one box per circuit; not plug faces).
      Wiper and washer cards are the real shells (empty cavities are not in this string).
      Equipment-only cards (vdc_m51 VDC, body_techo Roadster) are hidden with the default generic OEM coupe. */
-  body_abs: { mt: "RL-VB RL-SIG RR-VB RR-SIG / K-ABS VDC-OFF PKB", at: "RL-VB RL-SIG RR-VB RR-SIG / K-ABS VDC-OFF PKB" },
+  abs_e51: { mt: "13 11 6 / 28 26 19", at: "13 11 6 / 28 26 19" }, /* E51 GY/30 shell 15-1 / 30-16 (BRC-16); 19 is TCS-only (dimmed) */
+  abs_t5: { mt: "2 1 / 4 3", at: "2 1 / 4 3" },
+  vdc_e118: { mt: null, at: null },
+  vdc_off_m9: { mt: null, at: null },
   body_luces: { mt: "TURN-L TURN-R ILL STOP / LUG DT-PKB DT-ALT", at: "TURN-L TURN-R ILL STOP / LUG DT-PKB DT-ALT" },
   body_puertas: { mt: "BAT DOOR-AS BK-DOOR OPEN-SW / OPEN-M F/LID F/LID-R", at: "BAT DOOR-AS BK-DOOR OPEN-SW / OPEN-M F/LID F/LID-R" },
   body_vidrios: { mt: "DEF-RLY DEF+ DEF SOCKET", at: "DEF-RLY DEF+ DEF SOCKET" },
