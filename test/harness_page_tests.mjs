@@ -242,7 +242,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
     && /\{id:'15H',code:'R\/L',ecm:null,lab:'SNS-V',src:'F21·1',srcSub:'sensors',circ:'oilp_gauge',note:'[^']*M44·9[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html)
     && /\{id:'16H',code:'B',ecm:null,lab:'SNS-GND',src:'F21·3',srcSub:'sensors',circ:'oilp_gauge',note:'[^']*M44·7[^']*',note_en:'[^']+',note_ja:'[^']+'\}/.test(html));
   ok('circuit oilp_gauge F21 1/2/3 ↔ F102 14H/15H/16H, en/ja, F21 card cites DI-34/66 (es/en/ja)',
-    /\{id:'oilp_gauge',[^\n]*\n\s*ecm:\[\], conn:\['f21_oilp','ix_f102_m72'\], f102:\['14H','15H','16H'\],\n\s*path:\{f21_oilp:\['1','2','3'\],ix_f102_m72:\['14H','15H','16H'\]\}/.test(html)
+    /\{id:'oilp_gauge',[^\n]*\n\s*ecm:\[\], conn:\['f21_oilp','ix_f102_m72','triple_m44'\], f102:\['14H','15H','16H'\],\n\s*path:\{f21_oilp:\['1','2','3'\],ix_f102_m72:\['14H','15H','16H'\],triple_m44:\['9','8','7'\]\}/.test(html)
     && (html.match(/\n  oilp_gauge: \{en:'[^']+', ja:'[^']+'\},/g) || []).length === 2
     && /f21_oilp:\{group:'motor'[^\n]*meta:'B\/3 · DI-34\/66'/.test(html) && (html.match(/meta:'B\/3 · DI-34\/66'/g) || []).length === 3
     && /\{id:'3',code:'B',lab:'SNS-GND',src:'M44·7',circ:'oilp_gauge'\}/.test(html));
@@ -578,7 +578,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       vdc_e118: 43, /* shell E118 B/88; cavities with no FSM wire stay empty */
       vdc_off_m9: 2, /* shell M9 GY: 1-2-3-4 plus two unnumbered cavities; the ficha wires 1 and 2 */
       vdc_m51: 6,
-      comb_meter: 4, unified_m49: 7, fuel_level_sub: 2,
+      comb_meter: 6, triple_m44: 9, unified_m49: 9, fuel_level_sub: 2,
       door_sw_b17: 1, door_sw_b23: 1, door_lock_d11: 4,
       back_door_t12: 2, back_opener_t103: 2, trunk_cancel_b71: 2, back_opener_t11: 2,
       fuel_lid_m59: 4, fuel_lid_m13: 2, fuel_lid_t19: 2,
