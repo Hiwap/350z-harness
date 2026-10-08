@@ -2931,10 +2931,116 @@
         "WW-54"
       ],
       "note": "dash 12 V socket B; same face as B36; pin 1 is R/G"
+    },
+    "seat_b37": {
+      "fsm": "B37",
+      "half": "B37",
+      "cav": [
+        "3",
+        "5",
+        "1",
+        "X",
+        "2"
+      ],
+      "wired": [
+        "2",
+        "1",
+        "5",
+        "3"
+      ],
+      "cite": [
+        "SE-59",
+        "SE-62"
+      ],
+      "note": "heated seat relay L; 3 / 5 / 1 X 2; X has no terminal"
+    },
+    "seat_m154": {
+      "fsm": "M154",
+      "half": "M154",
+      "cav": [
+        "6",
+        "",
+        "5",
+        "3",
+        "1",
+        "2",
+        "4"
+      ],
+      "wired": [
+        "6",
+        "5",
+        "3",
+        "1",
+        "2",
+        "4"
+      ],
+      "cite": [
+        "SE-60"
+      ],
+      "note": "driver heated seat switch W; blank cell between 6 and 5"
+    },
+    "seat_m155": {
+      "fsm": "M155",
+      "half": "M155",
+      "cav": [
+        "6",
+        "",
+        "5",
+        "3",
+        "1",
+        "2",
+        "4"
+      ],
+      "wired": [
+        "6",
+        "5",
+        "3",
+        "1",
+        "2",
+        "4"
+      ],
+      "cite": [
+        "SE-61"
+      ],
+      "note": "passenger heated seat switch BR; same face as M154"
+    },
+    "belt_b8": {
+      "fsm": "B8",
+      "half": "B8",
+      "cav": [
+        "1",
+        "2",
+        "3"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "SRS-12",
+        "DI-69"
+      ],
+      "note": "driver buckle; cavity 3 empty; signal also reaches M19·1"
+    },
+    "belt_b11": {
+      "fsm": "B11",
+      "half": "B11",
+      "cav": [
+        "1",
+        "2",
+        "3"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "SRS-12"
+      ],
+      "note": "passenger buckle; cavity 3 empty; pin 1 goes to airbag unit M55"
     }
   },
   "pseudo_cards": {
-    "body_asientos": "body-circuit list: heated/power seat and seat belt circuits (SE/SRS), not a connector",
     "body_audio": "body-circuit list: audio circuits (AV), not a connector",
     "body_clima": "body-circuit list: climate circuits (ATC), not a connector",
     "body_techo": "body-circuit list: Roadster soft top circuits (RF), not a connector",

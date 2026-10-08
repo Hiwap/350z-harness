@@ -45,7 +45,6 @@ const UNCONNECTED = [
   'ix_b1_m12·17J', 'ix_b1_m12·18J', 'ix_b1_m12·21J', 'ix_b1_m12·22J', /* audio: radio M40/M41, speakers, amp not drawn */
   'ix_b1_m12·23J', 'ix_b1_m12·24J', 'ix_b1_m12·26J', 'ix_b1_m12·27J',
   'ix_b1_m12·29J', 'ix_b1_m12·30J', 'ix_b1_m12·31J', 'ix_b1_m12·32J', 'ix_e108_m15·1G',
-  'ix_b1_m12·34J', 'ix_b1_m12·35J', 'ix_b1_m12·43J',                 /* seat belt buckles B8 / B11, airbag unit not drawn */
   'ix_e108_m15·32G', 'ix_e108_m15·33G',                              /* ambient sensor E34 / A/C amp not drawn */
   'wiper_d106·1', 'wiper_d106·2', 'wiper_d106·4',                     /* rear wiper motor: BCM B83 and ground D105 are not drawn */
   'ix_e108_m15·63G', 'ix_e108_m15·64G',                              /* A/T shift lock: AT-240 names no end terminal */

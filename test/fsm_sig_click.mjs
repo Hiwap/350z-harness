@@ -163,28 +163,28 @@ await page.click('#blocks .pin[data-pin="94"]');
 // Dimmed optional-equipment cells: default car (no heated seats) shows HS-PWR G dimmed with a tooltip; selecting heated seats = full strength.
 {
   const cell = () => page.evaluate(() => {
-    const g = document.querySelector('.cav-hit[data-conn="body_asientos"][data-cav="HS-PWR"]');
+    const g = document.querySelector('.cav-hit[data-conn="seat_b37"][data-cav="3"]');
     if (!g) return null;
     return { off: g.classList.contains('cav-opt-off'), op: g.getAttribute('opacity'), tip: (g.querySelector('title') || {}).textContent || '', code: (g.querySelector('.cav-code') || {}).textContent || '' };
   });
   await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
   await page.reload({ waitUntil: 'networkidle0' });
   const off = await cell();
-  ok('dimmed: HS-PWR without heated seats shows FSM colour G, dimmed, tooltip "solo con asientos calefactables"',
+  ok('dimmed: B37·3 without heated seats shows FSM colour G, dimmed, tooltip "solo con asientos calefactables"',
     !!off && off.off && Number(off.op) < 1 && off.tip === 'solo con asientos calefactables' && off.code.replace(/\s/g, '') === 'G', JSON.stringify(off));
   const nOff = await page.evaluate(() => document.querySelectorAll('.cav-hit.cav-opt-off').length);
   ok('dimmed: optional-equipment cells across all fichas are dimmed on the default car', nOff >= 20, `${nOff}`);
   // Dimmed pin is clickable: lights its circuit (heated_seat: B1/M12·2J) like a live pin, stays dimmed, info names the option.
-  await page.evaluate(() => { const g = document.querySelector('.cav-hit[data-conn="body_asientos"][data-cav="HS-PWR"]'); g.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
+  await page.evaluate(() => { const g = document.querySelector('.cav-hit[data-conn="seat_b37"][data-cav="3"]'); g.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
   const clk = await page.evaluate(() => {
-    const g = document.querySelector('.cav-hit[data-conn="body_asientos"][data-cav="HS-PWR"]');
+    const g = document.querySelector('.cav-hit[data-conn="seat_b37"][data-cav="3"]');
     const m12 = document.querySelector('.cav-hit[data-conn="ix_b1_m12"][data-cav="2J"]');
     const top = (g.querySelector('.cav-ecm') || {}).textContent || '';
     return { hl: g.classList.contains('hl'), op: Number(getComputedStyle(g).opacity), m12: !!m12 && (m12.classList.contains('hl') || m12.classList.contains('hl-group')),
       info: selectionInfoText(), top };
   });
-  ok('dimmed: clicking HS-PWR (no heated seats) lights its path B1/M12·2J, stays dimmed, info "solo con asientos calefactables", top line B37·3',
-    clk.hl && clk.op < 1 && clk.m12 && /solo con asientos calefactables/.test(clk.info) && clk.top === 'B37·3', JSON.stringify(clk).slice(0, 300));
+  ok('dimmed: clicking B37·3 (no heated seats) lights its path B1/M12·2J, stays dimmed, info "solo con asientos calefactables", top line M12·2J',
+    clk.hl && clk.op < 1 && clk.m12 && /solo con asientos calefactables/.test(clk.info) && clk.top === 'M12·2J', JSON.stringify(clk).slice(0, 300));
   await page.evaluate(() => clearSelection());
   // F102·28H (A/T only) on M/T: dimmed, top line shows ECM 102, clickable.
   const f28 = await page.evaluate(() => { const el = f102PinEl('28H'); if (!el) return null; el.click(); return { opt: el.classList.contains('opt-off'), top: (el.querySelector('.pn') || {}).textContent, hl: el.classList.contains('hl'), op: Number(getComputedStyle(el).opacity) }; });
@@ -192,7 +192,7 @@ await page.click('#blocks .pin[data-pin="94"]');
   await page.evaluate(() => clearSelection());
   await page.select('#hseatView', 'yes');
   const on = await cell();
-  ok('dimmed: with heated seats selected HS-PWR is full strength (no dimming, no tooltip)', !!on && !on.off && on.op === null && on.code.replace(/\s/g, '') === 'G', JSON.stringify(on));
+  ok('dimmed: with heated seats selected B37·3 is full strength (no dimming, no tooltip)', !!on && !on.off && on.op === null && on.code.replace(/\s/g, '') === 'G', JSON.stringify(on));
   await page.select('#hseatView', 'no');
   await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
 }

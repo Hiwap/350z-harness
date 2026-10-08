@@ -80,6 +80,10 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_b202.webp | GW-67 | defog_b202. Roadster glass, both terminals in one dashed box: cavity 1 is B202, cavity 2 is B203. Asterisk: not in the harness layout. |
 | fsm_b36.webp | WW-54 | socket_b36 (B36 B: 2 over 1). WW-54 prints one inset labeled M38, B36; this crop keeps both labels. |
 | fsm_m38.webp | WW-54 | socket_m38 (M38 B: 2 over 1). Same inset; the crop keeps the M38 label. |
+| fsm_b37.webp | SE-59 | seat_b37 (B37 L: 3 / 5 / 1-X-2). |
+| fsm_m154.webp | SE-60 | seat_m154 (M154 W: 6, blank, 5 / 3-1-2-4). |
+| fsm_m155.webp | SE-61 | seat_m155 (M155 BR: same face as M154). |
+| fsm_b8.webp | SRS-12 | belt_b8 and belt_b11 (shared face: 1 / 2 / 3, index mark). |
 | fsm_t19.webp | BL-54 | fuel_lid_t19 (T19 W: 2 over 1, right column unnumbered). PG-63 lists W/4. |
 | fsm_m13.webp | BL-54 | fuel_lid_m13 (M13 GY: 1-2 and three unnumbered cavities). |
 | fsm_m59.webp | BL-54 | fuel_lid_m59 (M59 L: 3 over 5 over 1, X, 2). Coupe only. |

@@ -904,7 +904,11 @@ const FSM_FACE = {
   defog_b202: { mt: null, at: null }, /* Roadster only; hidden on the default coupe */
   socket_b36: { mt: "2 / 1", at: "2 / 1" },
   socket_m38: { mt: "2 / 1", at: "2 / 1" },
-  body_asientos: { mt: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND", at: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND" },
+  seat_b37: { mt: "3 / 5 / 1 2", at: "3 / 5 / 1 2" },
+  seat_m154: { mt: "6 5 / 3 1 2 4", at: "6 5 / 3 1 2 4" },
+  seat_m155: { mt: "6 5 / 3 1 2 4", at: "6 5 / 3 1 2 4" },
+  belt_b8: { mt: "1 / 2", at: "1 / 2" },
+  belt_b11: { mt: "1 / 2", at: "1 / 2" },
   body_audio: { mt: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT", at: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT" },
   meter_m19: { mt: "12 11 10 3 2 1 / 24 23 22 21 20 18 17 16 15 14 13", at: "12 11 10 3 2 1 / 24 23 22 21 20 18 17 16 15 14 13" }, /* M19 W/24 shell 12-1 / 24-13; 13 is Roadster only (dimmed) */
   brake_fluid_e44: { mt: "1 / 2", at: "1 / 2" },
