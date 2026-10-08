@@ -582,7 +582,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       door_sw_b17: 1, door_sw_b23: 1, door_lock_d11: 4,
       back_door_t12: 2, back_opener_t103: 2, trunk_cancel_b71: 2, back_opener_t11: 2,
       fuel_lid_m59: 4, fuel_lid_m13: 2, fuel_lid_t19: 2,
-      defog_b34: 6, defog_d104: 1, defog_d211: 1, defog_b202: 1, defog_b203: 1,
+      defog_b34: 6, defog_d104: 2, defog_b202: 2,
       socket_b36: 2, socket_m38: 2,
     };
     function expectedFacePins(id) {

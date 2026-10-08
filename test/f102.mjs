@@ -900,10 +900,8 @@ const FSM_FACE = {
   fuel_lid_m13: { mt: "1 2", at: "1 2" },
   fuel_lid_t19: { mt: "2 / 1", at: "2 / 1" },
   defog_b34: { mt: "1 2 / 5 7 / 3 6", at: "1 2 / 5 7 / 3 6" },
-  defog_d104: { mt: "1", at: "1" },
-  defog_d211: { mt: "2", at: "2" },
+  defog_d104: { mt: "1 2", at: "1 2" },
   defog_b202: { mt: null, at: null }, /* Roadster only; hidden on the default coupe */
-  defog_b203: { mt: null, at: null },
   socket_b36: { mt: "2 / 1", at: "2 / 1" },
   socket_m38: { mt: "2 / 1", at: "2 / 1" },
   body_asientos: { mt: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND", at: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND" },

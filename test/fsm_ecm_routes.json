@@ -2871,59 +2871,34 @@
       "fsm": "D104",
       "half": "D104",
       "cav": [
-        "1"
-      ],
-      "wired": [
-        "1"
-      ],
-      "cite": [
-        "GW-63",
-        "PG-70"
-      ],
-      "note": "coupe rear glass positive; single cavity 1, B/W"
-    },
-    "defog_d211": {
-      "fsm": "D211",
-      "half": "D211",
-      "cav": [
+        "1",
         "2"
       ],
       "wired": [
+        "1",
         "2"
       ],
       "cite": [
         "GW-63",
         "PG-70"
       ],
-      "note": "coupe rear glass ground; the only cavity is numbered 2"
+      "note": "coupe rear glass, one connector; cavity 1 is D104 (+) B/W, cavity 2 is D211 (−) B"
     },
     "defog_b202": {
       "fsm": "B202",
       "half": "B202",
       "cav": [
-        "1"
-      ],
-      "wired": [
-        "1"
-      ],
-      "cite": [
-        "GW-67"
-      ],
-      "note": "roadster rear glass positive; asterisk, not in the harness layout"
-    },
-    "defog_b203": {
-      "fsm": "B203",
-      "half": "B203",
-      "cav": [
+        "1",
         "2"
       ],
       "wired": [
+        "1",
         "2"
       ],
       "cite": [
         "GW-67"
       ],
-      "note": "roadster rear glass ground; asterisk, not in the harness layout; cavity numbered 2"
+      "note": "roadster rear glass, one connector; cavity 1 is B202 (+) B/W, cavity 2 is B203 (−) B; asterisk, not in the harness layout"
     },
     "socket_b36": {
       "fsm": "B36",

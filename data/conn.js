@@ -1057,26 +1057,18 @@ const CONN_BASE = {
       {id:'7',lab:'MIRROR',code:'B/W',ecm:null,src:'D2·4',srcSub:'carroceria',circ:'rear_defog',note:'Salida a los desempañadores de los espejos (B/W): D2·4 del conductor y D32·4 del acompañante. Esos conectores son de 8 cavidades y este mapa no los dibuja. GW-63.',note_en:'Output to the door-mirror heaters (B/W): driver D2·4 and passenger D32·4. Those are 8-cavity connectors and this map does not draw them. GW-63.',note_ja:'ドアミラーヒーターへの出力（B/W）。運転席D2·4と助手席D32·4。どちらも8キャビティで、この地図には描かない。GW-63。'}
     ],
     note:'Relé del desempañador trasero (PG-57). La cara BR es 1-2 / 5-7 / 3-6 y las seis cavidades tienen cable. El pin 7 alimenta los espejos; D2 y D32 quedan fuera. Coupé GW-63 y Roadster GW-67.'},
-  defog_d104:{group:'body', sub:'carroceria', nest:'desemp', name:'Luneta desempañador (+)', meta:'D104 · B · GW-63', accent:'#26a69a', shape:'grid', faceRows:[['1']], vif:'body=coupe', view:{c:'D104',g:'f',src:'GW-63',ord:'1'},
+  defog_d104:{group:'body', sub:'carroceria', nest:'desemp', name:'Luneta desempañador', meta:'D104 / D211 · B · GW-63', accent:'#26a69a', shape:'grid', faceRows:[['1','2']], vif:'body=coupe', view:{c:'D104',g:'f',src:'GW-63',ord:'1 2'},
     pins:[
-      {id:'1',lab:'DEF+',code:'B/W',ecm:null,src:'B34·5',srcSub:'carroceria',circ:'rear_defog',note:'Alimentación del filamento (B/W), desde el relé B34·5. PG-70 lo marca como positivo. Solo Coupé. GW-63.',note_en:'Filament feed (B/W), from relay B34·5. PG-70 marks it as the positive. Coupe only. GW-63.',note_ja:'フィラメント電源（B/W）。リレーB34·5から。PG-70はプラスと記載。クーペのみ。GW-63。'}
+      {id:'1',lab:'DEF+',code:'B/W',ecm:null,src:'B34·5',srcSub:'carroceria',circ:'rear_defog',note:'Alimentación del filamento (B/W), terminal D104, desde el relé B34·5. PG-70 lo marca como positivo. Solo Coupé. GW-63.',note_en:'Filament feed (B/W), terminal D104, from relay B34·5. PG-70 marks it as the positive. Coupe only. GW-63.',note_ja:'フィラメント電源（B/W）。端子D104、リレーB34·5から。PG-70はプラスと記載。クーペのみ。GW-63。'},
+      {id:'2',lab:'GND',code:'B',ecm:null,circ:'rear_defog',note:'Masa del filamento (B), terminal D211. PG-70 lo marca como negativo. Solo Coupé. GW-63.',note_en:'Filament ground (B), terminal D211. PG-70 marks it as the negative. Coupe only. GW-63.',note_ja:'フィラメントのアース（B）、端子D211。PG-70はマイナスと記載。クーペのみ。GW-63。'}
     ],
-    note:'Terminal positivo de la luneta, en el portón (PG-70). Solo Coupé. El esquema dibuja una sola cavidad, la 1. La masa es el otro terminal, D211.'},
-  defog_d211:{group:'body', sub:'carroceria', nest:'desemp', name:'Luneta desempañador (−)', meta:'D211 · B · GW-63', accent:'#26a69a', shape:'grid', faceRows:[['2']], vif:'body=coupe', view:{c:'D211',g:'f',src:'GW-63',ord:'2'},
+    note:'Luneta del Coupé, un solo conector en el portón (PG-70). GW-63 dibuja las dos cavidades juntas: 1 es D104 (+) y 2 es D211 (−).'},
+  defog_b202:{group:'body', sub:'carroceria', nest:'desemp', name:'Luneta desempañador', meta:'B202 / B203 · B · GW-67', accent:'#26a69a', shape:'grid', faceRows:[['1','2']], vif:'body=roadster', view:{c:'B202',g:'f',src:'GW-67',ord:'1 2'},
     pins:[
-      {id:'2',lab:'GND',code:'B',ecm:null,circ:'rear_defog',note:'Masa del filamento (B). PG-70 lo marca como negativo. Solo Coupé. GW-63.',note_en:'Filament ground (B). PG-70 marks it as the negative. Coupe only. GW-63.',note_ja:'フィラメントのアース（B）。PG-70はマイナスと記載。クーペのみ。GW-63。'}
+      {id:'1',lab:'DEF+',code:'B/W',ecm:null,src:'B34·5',srcSub:'carroceria',circ:'rear_defog',note:'Alimentación del filamento (B/W), terminal B202, desde el relé B34·5. Solo Roadster. GW-67.',note_en:'Filament feed (B/W), terminal B202, from relay B34·5. Roadster only. GW-67.',note_ja:'フィラメント電源（B/W）。端子B202、リレーB34·5から。ロードスターのみ。GW-67。'},
+      {id:'2',lab:'GND',code:'B',ecm:null,circ:'rear_defog',note:'Masa del filamento (B), terminal B203. Solo Roadster. GW-67.',note_en:'Filament ground (B), terminal B203. Roadster only. GW-67.',note_ja:'フィラメントのアース（B）、端子B203。ロードスターのみ。GW-67。'}
     ],
-    note:'Terminal de masa de la luneta (PG-70). Solo Coupé. El esquema numera esa única cavidad como 2, no como 1.'},
-  defog_b202:{group:'body', sub:'carroceria', nest:'desemp', name:'Luneta desempañador (+)', meta:'B202 · B · GW-67', accent:'#26a69a', shape:'grid', faceRows:[['1']], vif:'body=roadster', view:{c:'B202',g:'f',src:'GW-67',ord:'1'},
-    pins:[
-      {id:'1',lab:'DEF+',code:'B/W',ecm:null,src:'B34·5',srcSub:'carroceria',circ:'rear_defog',note:'Alimentación del filamento (B/W), desde el relé B34·5. Solo Roadster. GW-67.',note_en:'Filament feed (B/W), from relay B34·5. Roadster only. GW-67.',note_ja:'フィラメント電源（B/W）。リレーB34·5から。ロードスターのみ。GW-67。'}
-    ],
-    note:'Terminal positivo de la luneta. Solo Roadster. GW-67 lo marca con asterisco: no aparece en el esquema de arneses (PG). Una sola cavidad, la 1.'},
-  defog_b203:{group:'body', sub:'carroceria', nest:'desemp', name:'Luneta desempañador (−)', meta:'B203 · B · GW-67', accent:'#26a69a', shape:'grid', faceRows:[['2']], vif:'body=roadster', view:{c:'B203',g:'f',src:'GW-67',ord:'2'},
-    pins:[
-      {id:'2',lab:'GND',code:'B',ecm:null,circ:'rear_defog',note:'Masa del filamento (B). Solo Roadster. GW-67.',note_en:'Filament ground (B). Roadster only. GW-67.',note_ja:'フィラメントのアース（B）。ロードスターのみ。GW-67。'}
-    ],
-    note:'Terminal de masa de la luneta. Solo Roadster. GW-67 lo marca con asterisco: no aparece en el esquema de arneses (PG). La única cavidad está numerada 2.'},
+    note:'Luneta del Roadster, un solo conector. GW-67 dibuja las dos cavidades juntas: 1 es B202 (+) y 2 es B203 (−). El asterisco indica que no aparece en el esquema de arneses (PG).'},
   socket_b36:{group:'body', sub:'carroceria', nest:'desemp', name:'Toma de 12 V del maletero', meta:'B36 · B · WW-54', accent:'#26a69a', shape:'grid', faceRows:[['2'],['1']], view:{c:'B36',g:'f',src:'WW-54',ord:'2 / 1'},
     pins:[
       {id:'2',lab:'GND',code:'B',ecm:null,circ:'pwr_socket',note:'Masa de la toma (B). WW-54.',note_en:'Socket ground (B). WW-54.',note_ja:'ソケットのアース（B）。WW-54。'},
