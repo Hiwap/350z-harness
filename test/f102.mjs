@@ -871,11 +871,11 @@ const FSM_FACE = {
   /* Carrocería body-circuit lists (shape note, one box per circuit; not plug faces).
      Wiper and washer cards are the real shells (empty cavities are not in this string).
      Equipment-only cards (vdc_m51 VDC, body_techo Roadster) are hidden with the default generic OEM coupe. */
-  abs_e51: { mt: "13 11 6 / 28 26 19", at: "13 11 6 / 28 26 19" }, /* E51 GY/30 shell 15-1 / 30-16 (BRC-16); 19 is TCS-only (dimmed) */
+  abs_e51: { mt: "15 13 11 9 7 6 1 / 30 29 28 26 24 23 22 20 19 17 16", at: "15 13 11 9 7 6 1 / 30 29 28 26 24 23 22 20 19 17 16" }, /* E51 GY/30 shell 15-1 / 30-16; 19 is TCS-only (dimmed) */
   abs_t5: { mt: "2 1 / 4 3", at: "2 1 / 4 3" },
   vdc_e118: { mt: null, at: null },
   vdc_off_m9: { mt: null, at: null },
-  bcm_m91: { mt: "45 46", at: "45 46" }, /* M91 B: 41-49 / 50-55 (PG-83); only 45 and 46 wired */
+  bcm_m91: { mt: "42 45 46 / 52 54 55", at: "42 45 46 / 52 54 55" }, /* M91 B: 41-49 / 50-55 (PG-83); 54 is power-seat only (dimmed) */
   turn_e40: { mt: "1 2", at: "1 2" },
   turn_e41: { mt: "1 / 4", at: "1 / 4" },
   turn_t10: { mt: "2 / 4", at: "2 / 4" },
@@ -892,7 +892,7 @@ const FSM_FACE = {
   body_vidrios: { mt: "DEF-RLY DEF+ DEF SOCKET", at: "DEF-RLY DEF+ DEF SOCKET" },
   body_asientos: { mt: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND", at: "HS-IGN HS-BAT HS-PWR / HSD-LO HSD-HI HSP / PS-BAT BELT BLT-GND" },
   body_audio: { mt: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT", at: "BACKUP FR-L FR-R RR-L / RR-R AMP-ON APILOT" },
-  meter_m19: { mt: "16 15", at: "16 15" }, /* M19 W/24 shell 12-1 / 24-13 (DI-67); only 16 and 15 wired here */
+  meter_m19: { mt: "12 11 10 3 2 1 / 24 23 22 21 20 18 17 16 15 14 13", at: "12 11 10 3 2 1 / 24 23 22 21 20 18 17 16 15 14 13" }, /* M19 W/24 shell 12-1 / 24-13; 13 is Roadster only (dimmed) */
   brake_fluid_e44: { mt: "1 / 2", at: "1 / 2" },
   pkb_b47: { mt: "1", at: "1" },
   body_clima: { mt: "AMB AMB-GND BLW-GND", at: "AMB AMB-GND BLW-GND" },
@@ -904,9 +904,9 @@ const FSM_FACE = {
   vdc_m51: { mt: null, at: null },
   body_techo: { mt: null, at: null },
   fuel_tank_temp: { mt: "5 4", at: "5 4" },
-  comb_meter: { mt: "11 1", at: "11 1" },
-  unified_m49: { mt: "28 36", at: "28 36" },
-  fuel_level_sub: { mt: "1 2", at: "1 2" },
+  comb_meter: { mt: "1 9 / 11 19", at: "1 9 / 11 19" },
+  unified_m49: { mt: "21 22 26 28 / 29 30 36", at: "21 22 26 28 / 29 30 36" },
+  fuel_level_sub: { mt: "2 1", at: "2 1" },
   f6_at: { mt: null, at: "1 2 3 4 5 / 6 7 8 9 10" },
   f38_evtc_b1: { mt: "3 2 1", at: "3 2 1" },
   f42_evtc_b2: { mt: "3 2 1", at: "3 2 1" },

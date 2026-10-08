@@ -133,7 +133,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('charge circuits alt_charge / alt_s / alt_l defined; alt_l path has no rail cavity',
     /\{id:'alt_charge'[\s\S]*?path:\{alt_b:\['1'\],alt_e:\['2'\],fuse_link_box:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['3','4'\],ix_f102_m72:\['13H'\]\}/.test(html)
     && /\{id:'alt_s'[\s\S]*?path:\{fuse_link_box:\['36'\],ix_e11_f2:\['1'\],f20_alt:\['4'\]\}/.test(html)
-    && /\{id:'alt_l'[\s\S]*?path:\{f20_alt:\['3'\],ix_f102_m72:\['13H'\]\}/.test(html));
+    && /\{id:'alt_l'[\s\S]*?path:\{f20_alt:\['3'\],ix_f102_m72:\['13H'\],meter_m19:\['17'\]\}/.test(html));
   ok('Arnés motor hides alternator B/E (battery cable PG-53) and the E18/E21 fuse box (fuse 36)',
     LOOM_BODY_EXTRA.has('fuse_link_box') && LOOM_BODY_EXTRA.has('alt_b') && LOOM_BODY_EXTRA.has('alt_e'));
 }
@@ -568,16 +568,17 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       washer_e29: 2,
       washer_e28: 2,
       wiper_d106: 3, /* shell D106 W/4; cavity 3 empty */
-      meter_m19: 2, /* shell M19 W/24; the ficha wires 15 and 16 */
+      meter_m19: 17, /* shell M19 W/24; 4-9 and 19 have no FSM wire */
       brake_fluid_e44: 2,
       pkb_b47: 1,
-      bcm_m91: 2, turn_e40: 2, turn_e41: 2, turn_t10: 2, turn_e24: 2, turn_e25: 2, turn_t18: 2,
+      bcm_m91: 6, turn_e40: 2, turn_e41: 2, turn_t10: 2, turn_e24: 2, turn_e25: 2, turn_t18: 2,
       stop_t9: 2, stop_t17: 2, stop_d103: 2, lug_t13: 2, dtrl_e14: 1, dtrl_e15: 1,
-      abs_e51: 6, /* shell E51 GY/30; the ficha wires 26, 11, 28, 13, 6 and 19 (TCS) */
+      abs_e51: 18, /* shell E51 GY/30; 12 cavities have no FSM wire */
       abs_t5: 4,
-      vdc_e118: 13, /* shell E118 B/88; 13 mapped wires */
+      vdc_e118: 43, /* shell E118 B/88; cavities with no FSM wire stay empty */
       vdc_off_m9: 2, /* shell M9 GY: 1-2-3-4 plus two unnumbered cavities; the ficha wires 1 and 2 */
       vdc_m51: 6,
+      comb_meter: 4, unified_m49: 7, fuel_level_sub: 2,
     };
     function expectedFacePins(id) {
       if (Object.prototype.hasOwnProperty.call(EXPECTED_FACE_PINS, id)) return EXPECTED_FACE_PINS[id];

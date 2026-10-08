@@ -52,14 +52,17 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_e29.webp | WW-12 | washer_e29 (E29 GY/2: 1-2, lock on top). |
 | fsm_e28.webp | WW-40 | washer_e28 (E28 GY/2: 1-2, lock on top). Coupe only. Separate crop from E29. |
 | fsm_d106.webp | WW-40 | wiper_d106 (D106 W/4: 1-2-3-4, lock over the middle). Cavity 3 is drawn empty. Coupe only. |
-| fsm_m19.webp | DI-67 | meter_m19 (M19 W/24: 12-1 over 24-13, lock over 8-5). The ficha draws the whole shell; only 15 and 16 are wired. |
+| fsm_m48.webp | DI-9 | comb_meter (M48 GY/20: 1-10 over 11-20). Wired 1, 9, 11 and 19. |
+| fsm_m49.webp | DI-9 | unified_m49 (M49 GY: 21-28 over 29-36). Wired 21, 22, 26, 28, 29, 30 and 36. |
+| fsm_b28.webp | DI-9 | fuel_level_sub (B28 GY/2: 2-1). |
+| fsm_m19.webp | DI-67 | meter_m19 (M19 W/24: 12-1 over 24-13, lock over 8-5). The ficha draws the whole shell. Wired from DI-10/67/69/70. Cavities 4-9 and 19 have no wire there. |
 | fsm_e44.webp | DI-67 | brake_fluid_e44 (E44 GY/2: 1 over 2, lock on top). |
 | fsm_b47.webp | DI-67 | pkb_b47 (B47 B/1: one cavity, lock on top). |
-| fsm_e51.webp | BRC-53 | abs_e51 (E51 GY/30: 15-1 over 30-16, lock over the top row). Same face on BRC-16 and BRC-52. The ficha wires 26, 11, 28, 13, 6 and 19 (TCS only). No web photo of the harness plug found. |
+| fsm_e51.webp | BRC-53 | abs_e51 (E51 GY/30: 15-1 over 30-16, lock over the top row). Same face on BRC-16 and BRC-52. Wired from BRC-14/15/16/52. Cavities 2, 3, 4, 5, 8, 10, 12, 14, 18, 21, 25 and 27 have no wire. No web photo of the harness plug found. |
 | fsm_t5.webp | BRC-53 | abs_t5 (T5 GY/4: 2-1 over 4-3, lock on top). Same face on BRC-16 and BRC-102. No web photo of the harness plug found. |
-| fsm_e118.webp | BRC-100 | vdc_e118 (E118 B/88: 61-88 over 29-55 over 1-28; the top row sits only above 35-55). VDC only. The ficha wires 13 of them. |
+| fsm_e118.webp | BRC-100 | vdc_e118 (E118 B/88: 61-88 over 29-55 over 1-28; the top row sits only above 35-55). VDC only. Wired from BRC-99 through BRC-105. Cavities the diagrams do not wire stay empty. 56-60 are not on the face. |
 | fsm_m9.webp | BRC-52 | vdc_off_m9 (M9 GY: 1-2-3-4 plus two unnumbered cavities, lock over 3-4). Same face on BRC-100. TCS or VDC only. |
-| fsm_m91.webp | PG-83 | bcm_m91 (M91 black: 41-49 over 50-55, the lower row stops under 46). Only 45 and 46 wired. |
+| fsm_m91.webp | PG-83 | bcm_m91 (M91 black: 41-49 over 50-55, the lower row stops under 46). Wired 42, 45, 46, 52, 54 and 55. Cavities 41, 43, 44, 47, 48, 49, 50, 51 and 53 have no wire on the pages used. |
 | fsm_e40.webp | LT-153 | turn_e40 (E40 GY/8 xenon LH: 1-2-3-4 over 5-6-7-8). Only 1 and 2 wired. |
 | fsm_e41.webp | LT-153 | turn_e41 (E41 GY/6 halogen LH: 1-2-3 over 4-5-6). Coupe only. Only 1 and 4 wired. |
 | fsm_t10.webp | LT-153 | turn_t10 (T10 SB/4: 1-2 over 3-4). Only 2 and 4 wired. |
