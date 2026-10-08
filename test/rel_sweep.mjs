@@ -122,6 +122,17 @@ async function runScenario(model, trans) {
           const want = !(isSig && ro && !pw && !cir.shieldPath);
           if (want) check(L.has(k), `${tag}: ${cir.id} path cavity ${k} not lit`);
         }
+        /* Shared sensor ground (ECM 66/67/78…): a signal click lights the ground cavity of its own component only,
+           never the same net on another sensor (ECM 74 lights F11·4, not F12·4) */
+        if (isSig) {
+          const okCards = new Set([...devs, ...circs.flatMap((c) => c.conn || [])]);
+          const fan = [...L].filter((k) => {
+            const i = k.indexOf('·'); const cid = k.slice(0, i); const q = pinOf(cid, k.slice(i + 1));
+            return q && q.ecm != null && q.ecm !== '' && Number(q.ecm) !== Number(p) && (TABLE.pins[String(q.ecm)] || {}).sensor_return && !okCards.has(cid);
+          });
+          check(!fan.length, `${tag}: shared sensor ground fans out to other components: ${fan.join(' ')}`);
+          if (mode === 'sensor') { const other = (SENSOR_GND_OTHER[p] || []).filter((k) => L.has(k)); check(!other.length, `${tag}: another element's sensor ground lit in Sensor grouping: ${other.join(' ')}`); }
+        }
         for (const D of (isSig ? devs : [])) { /* sensor-ground / supply pins (67, 78, 119…) fan out to many devices: partners not required */
           for (const q of ((CONN[D] || {}).pins || [])) {
             const k = D + '·' + q.id; if (own.has(k) || !cavEl(k) || !cavHasWire(q) || q.vifOff || q.transOff) continue;

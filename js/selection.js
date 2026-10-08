@@ -559,12 +559,15 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   connSet.forEach(cid => markFichaHL(cid, true));
   /* path (Alim. 12V): cavity HL only via paintFichaCavHL — never markFichaHL / open groups
      (that left IPDM+feeds “selected” in capa grupo and undid collapseIdle). */
-  paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn);
+  const gndCavByConn = new Map();
+  circIds.forEach(id => { const cir = CIRCUITS.find(x => x.id === id); Object.entries((cir && cir.gndCav) || {}).forEach(([cid, cavs]) => {
+    if(!gndCavByConn.has(cid)) gndCavByConn.set(cid, new Set()); cavs.forEach(c => gndCavByConn.get(cid).add(String(c))); }); });
+  paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn, connSet, gndCavByConn.size ? gndCavByConn : null);
   applyCollapseIdleSubs([...connSet]);
 }
 
 /** Yellow hl = focused ECM/cavity; purple hl-group = other path pins only (not the focused ECM). */
-function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=null){
+function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=null, selConns=null, gndCavByConn=null){
   /* selTop clones are fresh DOM without .dim — opacar todas las cavidades primero. */
   document.querySelectorAll('.cav-hit').forEach(cav=>{
     cav.classList.remove('hl','hl-end','hl-group','hl-rail','hl-rail-rel-gnd','hl-rail-rel-data','hl-rail-rel-power');
@@ -583,6 +586,8 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
     /* Exact ECM match = yellow hl first (path list must not force purple hl-group). */
     if(p.ecm!=null && p.ecm!=='' && focusPin!=null && Number(p.ecm)===Number(focusPin)){
       /* ECM pin click: every cavity carrying that same wire (device end, F102, intermediates) stays yellow */
+      /* Shared sensor ground cavity click (ect·2 on ECM 67): no fan-out to the other sensors on the net */
+      if(focusConn && selConns && PIN_RAIL[Number(p.ecm)] === 'gnd' && !selConns.has(cid)) return false;
       if(relOn && focusConn) return {cls:'hl-group', path:true};
       return {cls:'hl'};
     }
@@ -593,6 +598,11 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
     const e = Number(p.ecm);
     const onPath = ecmSet && (ecmSet.has(e) || ecmSet.has(String(e)) || ecmSet.has(Number(e)));
     if(!onPath) return false;
+    /* Shared sensor ground (ECM 66/67/78/82/83…): a sibling ground lights only on the clicked component's fichas
+       (ECM 74 → F11·4, not F12·4). The whole net lights only when the ground pin itself is clicked. */
+    if(selConns && PIN_RAIL[e] === 'gnd' && !selConns.has(cid)) return false;
+    /* Two sensors in one housing (MAF·3 / IAT·6 on ECM 67), Sensor grouping: circuit.gndCav names the clicked sensor's own ground cavity */
+    if(gndCavByConn && relGroupMode() === 'sensor' && PIN_RAIL[e] === 'gnd' && gndCavByConn.has(cid) && !gndCavByConn.get(cid).has(String(pid))) return false;
     return {cls:'hl-group'};
   };
   document.querySelectorAll('.cav-hit').forEach(cav=>{
