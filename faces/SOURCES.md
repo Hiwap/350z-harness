@@ -75,6 +75,16 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_t13.webp | LT-220 | lug_t13 (T13 GY/2: 2-1). Coupe only. |
 | fsm_e14.webp | LT-117 | dtrl_e14 (E14 GY: 14-5-6 over 15-2-1). Canada only. Only 1 wired. |
 | fsm_e15.webp | LT-117 | dtrl_e15 (E15 GY: 11-10-13-16 over 9, a gap, 17, 12). Canada only. Only 17 wired. |
+| fsm_t19.webp | BL-54 | fuel_lid_t19 (T19 W: 2 over 1, right column unnumbered). PG-63 lists W/4. |
+| fsm_m13.webp | BL-54 | fuel_lid_m13 (M13 GY: 1-2 and three unnumbered cavities). |
+| fsm_m59.webp | BL-54 | fuel_lid_m59 (M59 L: 3 over 5 over 1, X, 2). Coupe only. |
+| fsm_t11.webp | BL-30 | back_opener_t11 (T11 W: 2 over 1). PG-63 says W/4; the diagram face draws two. Coupe only. |
+| fsm_t103.webp | BL-30 | back_opener_t103 (T103 GY/2: 2-1). |
+| fsm_d11.webp | BL-29 | door_lock_d11 (D11 SB/4: 3-4 over 1-2). The legend also names D40; this crop keeps the D11 label. |
+| fsm_b71.webp | BL-125 | trunk_cancel_b71 (B71 W/2: 1 over 2). Roadster only. |
+| fsm_b17.webp | BL-27 | door_sw_b17 (B17 W/3: 1-2-3). BL-27 prints one inset for B17, B23 and T12; this crop keeps the B17 label. |
+| fsm_b23.webp | BL-27 | door_sw_b23 (B23 W/3). Same inset; the B17 label sits between the symbol and B23. |
+| fsm_t12.webp | BL-27 | back_door_t12 (T12 W/3). Same inset, with the B17 and B23 labels still in the crop. |
 
 Not mapped in CONN_FACE:
 

@@ -2503,10 +2503,186 @@
     "LT-77"
    ],
    "note": "daytime light unit connector E15 GY, face 11-10-13-16 over 9, gap, 17, 12; only 17 G parking brake, Canada only"
+  },
+  "door_sw_b17": {
+   "fsm": "B17",
+   "half": "B17",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "wired": [
+    "1"
+   ],
+   "cite": [
+    "BL-27",
+    "BL-31"
+   ],
+   "note": "driver door switch W/3; only 1 W to BCM 62; 2 and 3 unwired, ground is the switch body"
+  },
+  "door_sw_b23": {
+   "fsm": "B23",
+   "half": "B23",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "wired": [
+    "1"
+   ],
+   "cite": [
+    "BL-27",
+    "BL-31"
+   ],
+   "note": "passenger door switch W/3; only 1 P to BCM 12 via M12 14J"
+  },
+  "door_lock_d11": {
+   "fsm": "D11",
+   "half": "D11",
+   "cav": [
+    "3",
+    "4",
+    "1",
+    "2"
+   ],
+   "wired": [
+    "3",
+    "1",
+    "2",
+    "4"
+   ],
+   "cite": [
+    "BL-29",
+    "BL-30",
+    "BL-34",
+    "BL-125"
+   ],
+   "note": "driver door lock SB/4; 3 Y and 1 PU motor, 2 OR unlock sensor, 4 B ground"
+  },
+  "back_door_t12": {
+   "fsm": "T12",
+   "half": "T12",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "wired": [
+    "1",
+    "3"
+   ],
+   "cite": [
+    "BL-27"
+   ],
+   "note": "coupe back door switch W/3; 1 R to BCM 58, 3 B ground, 2 unwired"
+  },
+  "back_opener_t103": {
+   "fsm": "T103",
+   "half": "T103",
+   "cav": [
+    "2",
+    "1"
+   ],
+   "wired": [
+    "2",
+    "1"
+   ],
+   "cite": [
+    "BL-30",
+    "BL-125"
+   ],
+   "note": "opener switch GY/2; 1 P at the switch (R/Y between B1 and T2), 2 G ground"
+  },
+  "trunk_cancel_b71": {
+   "fsm": "B71",
+   "half": "B71",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "wired": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "BL-125"
+   ],
+   "note": "roadster trunk cancel W/2; 1 P from BCM 30, 2 L/W toward the opener switch"
+  },
+  "back_opener_t11": {
+   "fsm": "T11",
+   "half": "T11",
+   "cav": [
+    "2",
+    "1"
+   ],
+   "wired": [
+    "2",
+    "1"
+   ],
+   "cite": [
+    "BL-30"
+   ],
+   "note": "coupe opener actuator; face draws 2 over 1 though PG-63 says W/4; 1 PU from BCM 68, 2 B"
+  },
+  "fuel_lid_m59": {
+   "fsm": "M59",
+   "half": "M59",
+   "cav": [
+    "3",
+    "5",
+    "1",
+    "2"
+   ],
+   "wired": [
+    "3",
+    "5",
+    "1",
+    "2"
+   ],
+   "cite": [
+    "BL-54"
+   ],
+   "note": "coupe fuel lid relay; face 3 / 5 / 1 X 2; X has no terminal"
+  },
+  "fuel_lid_m13": {
+   "fsm": "M13",
+   "half": "M13",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "wired": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "BL-54",
+    "BL-55"
+   ],
+   "note": "fuel lid switch; face draws five cavities and numbers only 1 and 2"
+  },
+  "fuel_lid_t19": {
+   "fsm": "T19",
+   "half": "T19",
+   "cav": [
+    "2",
+    "1"
+   ],
+   "wired": [
+    "2",
+    "1"
+   ],
+   "cite": [
+    "BL-54",
+    "BL-55"
+   ],
+   "note": "fuel lid actuator; face numbers 2 and 1 of a four-pocket shell PG-63 calls W/4; pin 1 is W/L coupe and PU roadster"
   }
  },
  "pseudo_cards": {
-  "body_puertas": "body-circuit list: BCM door/lock circuits (BL), not a connector",
   "body_vidrios": "body-circuit list: defogger and 12 V socket (GW/WW), not a connector",
   "body_asientos": "body-circuit list: heated/power seat and seat belt circuits (SE/SRS), not a connector",
   "body_audio": "body-circuit list: audio circuits (AV), not a connector",

@@ -41,7 +41,8 @@ const ok = (name, cond, detail = '') => { if (cond) pass++; else { fails.push(na
 const puppeteer = loadPuppeteer();
 const browser = await puppeteer.launch({ executablePath: findChrome(), headless: true, args: ['--no-sandbox', '--disable-gpu'] });
 const UNCONNECTED = [
-  'ix_b1_m12·14J', 'ix_t2_b44·2', 'ix_t2_b44·4',  /* door / back door: switch and motor not drawn; BCM battery is M91·55 */
+  'door_sw_b17·1',                                          /* driver door switch: BCM M90·62 is not a ficha */
+  'door_lock_d11·1', 'door_lock_d11·3',                     /* lock motor: BCM M90·50 and M90·44 are not fichas */
   'ix_b1_m12·17J', 'ix_b1_m12·18J', 'ix_b1_m12·21J', 'ix_b1_m12·22J', /* audio: radio M40/M41, speakers, amp not drawn */
   'ix_b1_m12·23J', 'ix_b1_m12·24J', 'ix_b1_m12·26J', 'ix_b1_m12·27J',
   'ix_b1_m12·29J', 'ix_b1_m12·30J', 'ix_b1_m12·31J', 'ix_b1_m12·32J', 'ix_e108_m15·1G',

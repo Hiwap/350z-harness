@@ -490,8 +490,8 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       const locBlock = (html.match(/const CONN_LOC = \{\n([\s\S]*?)\n\};/) || [,''])[1];
       const locIds = [...locBlock.matchAll(/^  ([a-z0-9_]+): \{pg:(\d+), m:(\[[^\n]*\])\},$/gm)];
       const pages = new Set(locIds.map((m) => m[2]));
-      ok('Location (FSM PG harness layout) map: ≥65 fichas, pages 48/50/52/53/54/56/57/63 exist, marks inside the image, every id is a ficha, no IPDM plug',
-        locIds.length >= 65 && [...pages].every((pg) => ['48','50','52','53','54','56','57','63'].includes(pg) && fs.existsSync(path.join(ROOT, `faces/loc/pg${pg}.webp`)))
+      ok('Location (FSM PG harness layout) map: ≥65 fichas, pages 48/50/52/53/54/56/57/59/63/69 exist, marks inside the image, every id is a ficha, no IPDM plug',
+        locIds.length >= 65 && [...pages].every((pg) => ['48','50','52','53','54','56','57','59','63','69'].includes(pg) && fs.existsSync(path.join(ROOT, `faces/loc/pg${pg}.webp`)))
         && locIds.every((m) => JSON.parse(m[3]).every((b) => b.length === 4 && b[0] >= 0 && b[1] >= 0 && b[0] + b[2] <= 100 && b[1] + b[3] <= 100))
         && locIds.every((m) => new RegExp(`\\n  ${m[1]}:\\{group:`).test(html))
         && !locIds.some((m) => /^ipdm_/.test(m[1])));
@@ -579,6 +579,9 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       vdc_off_m9: 2, /* shell M9 GY: 1-2-3-4 plus two unnumbered cavities; the ficha wires 1 and 2 */
       vdc_m51: 6,
       comb_meter: 4, unified_m49: 7, fuel_level_sub: 2,
+      door_sw_b17: 1, door_sw_b23: 1, door_lock_d11: 4,
+      back_door_t12: 2, back_opener_t103: 2, trunk_cancel_b71: 2, back_opener_t11: 2,
+      fuel_lid_m59: 4, fuel_lid_m13: 2, fuel_lid_t19: 2,
     };
     function expectedFacePins(id) {
       if (Object.prototype.hasOwnProperty.call(EXPECTED_FACE_PINS, id)) return EXPECTED_FACE_PINS[id];
