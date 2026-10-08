@@ -3038,10 +3038,18 @@
         "SRS-12"
       ],
       "note": "passenger buckle; cavity 3 empty; pin 1 goes to airbag unit M55"
-    }
+    },
+    "audio_m40": {"fsm":"M40","half":"M40","cav":["1","2","3","4","5","6","7","8","9","10"],"wired":["1","2","3","4","5","6","7","8","9","10"],"cite":["AV-11","AV-16"],"note":"audio unit; wide gap between 8 and 4 is not a cavity"},
+    "audio_m41": {"fsm":"M41","half":"M41","cav":["11","12","13","14","15","16"],"wired":["11","12","13","14","15","16"],"cite":["AV-12","AV-18"],"note":"audio unit; wide gap between 16 and 12 is not a cavity"},
+    "audio_m39": {"fsm":"M39","half":"M39","cav":["17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32"],"wired":["17","24","30","31","32"],"cite":["AV-12","AV-16","AV-18"],"note":"diamond index is not cavities; 18-23 and 25-29 unwired"},
+    "spk_d4": {"fsm":"D4","half":"D4","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"driver door speaker; empty index cell above"},
+    "spk_d3": {"fsm":"D3","half":"D3","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"driver tweeter; index bar above"},
+    "spk_d34": {"fsm":"D34","half":"D34","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"passenger door speaker"},
+    "spk_d33": {"fsm":"D33","half":"D33","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"passenger tweeter"},
+    "spk_b40": {"fsm":"B40","half":"B40","cav":["1","2"],"wired":["1","2"],"cite":["AV-12"],"note":"rear LH speaker; round index above"},
+    "spk_b42": {"fsm":"B42","half":"B42","cav":["1","2"],"wired":["1","2"],"cite":["AV-12"],"note":"rear RH speaker"}
   },
   "pseudo_cards": {
-    "body_audio": "body-circuit list: audio circuits (AV), not a connector",
     "body_clima": "body-circuit list: climate circuits (ATC), not a connector",
     "body_techo": "body-circuit list: Roadster soft top circuits (RF), not a connector",
     "body_at": "body-circuit list: A/T body-side circuits (AT), not a connector",

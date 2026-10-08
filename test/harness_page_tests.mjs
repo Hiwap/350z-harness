@@ -196,7 +196,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   }
   ok('svgNote hands fuseLayout cards to svgFuseBox', /function svgNote\(cid, f\)\{\n  if\(f\.fuseLayout\) return svgFuseBox\(cid, f\);/.test(html) && /function svgFuseBox\(cid, f\)\{/.test(html));
   /* Audio unit connectors per AV-12/16/18 legends: M40 = 1-10, M41 = 11-16, M39 = 17-32 */
-  ok('audio unit terminals 9 / 12-16 are not on M39 (AV-16 M40·9 earth; AV-12 / AV-18 M41·12-16)', !/M39·(?:9|1[2-6])\b/.test(html) && /src:'M41·14'/.test(html) && /src:'M41·12'/.test(html));
+  ok('audio unit terminals 9 / 12-16 are not on M39 (AV-16 M40·9 earth; AV-12 / AV-18 M41·12-16)', !/M39·(?:9|1[2-6])\b/.test(html) && /audio_m40:\{[\s\S]*?\{id:'9'/.test(html) && /audio_m41:\{[\s\S]*?\{id:'12'[\s\S]*?\{id:'14'/.test(html));
   ok('B1/M12 speaker shields: 20J/25J to M40·9 (AV-16), 28J/33J to M41·11 (AV-18), no colour in the FSM',
     ['20J', '25J'].every((id) => new RegExp(`\\{id:'${id}',code:'—'[^{}]*wireUnk:true[^{}]*M40·9 \\(AV-16\\)`).test(html))
     && ['28J', '33J'].every((id) => new RegExp(`\\{id:'${id}',code:'—'[^{}]*wireUnk:true[^{}]*M41·11 \\(AV-18\\)`).test(html)));
@@ -415,6 +415,11 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       'faces/fsm_b27.webp': ['fuel_pump', 'fuel_tank_temp'],
       /* SRS-12 draws the same white 3-cavity face for both buckle switches. */
       'faces/fsm_b8.webp': ['belt_b8', 'belt_b11'],
+      /* AV-11 draws one brown tweeter face for D3 and D33, and one white door-speaker face for D4 and D34. */
+      'faces/fsm_d3.webp': ['spk_d3', 'spk_d33'],
+      'faces/fsm_d4.webp': ['spk_d4', 'spk_d34'],
+      /* AV-12 draws one brown rear-speaker face for B40 and B42. */
+      'faces/fsm_b40.webp': ['spk_b40', 'spk_b42'],
     };
     const bySrc = {};
     for (const m of faceBlock[1].matchAll(/^\s*([A-Za-z0-9_]+)\s*:\s*\{\s*src:\s*'([^']+)'/gm)) {
@@ -586,6 +591,8 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       fuel_lid_m59: 4, fuel_lid_m13: 2, fuel_lid_t19: 2,
       seat_b37: 4, seat_m154: 6, seat_m155: 6, belt_b8: 2, belt_b11: 2,
       defog_b34: 6, defog_d104: 2, defog_b202: 2,
+      audio_m40: 10, audio_m41: 6, audio_m39: 5,
+      spk_d4: 2, spk_d3: 2, spk_d34: 2, spk_d33: 2, spk_b40: 2, spk_b42: 2,
       socket_b36: 2, socket_m38: 2,
     };
     function expectedFacePins(id) {
