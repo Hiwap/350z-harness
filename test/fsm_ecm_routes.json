@@ -2158,10 +2158,263 @@
     "BRC-101"
    ],
    "note": "yaw rate / side G sensor B/6 (1-2-3 over 4-5-6); all six wires to E118 via E108 13G-18G"
+  },
+  "bcm_m91": {
+   "fsm": "M91",
+   "half": "M91",
+   "cav": [
+    "41",
+    "42",
+    "43",
+    "44",
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50",
+    "51",
+    "52",
+    "53",
+    "54",
+    "55"
+   ],
+   "wired": [
+    "45",
+    "46"
+   ],
+   "cite": [
+    "PG-83",
+    "LT-153",
+    "LT-154"
+   ],
+   "note": "BCM connector M91 black; PG-83 draws 41-49 over 50-55 (no cavities under 47-49); only 45 G/W left turn and 46 PU/W right turn drawn; 52 B module ground and 54 power seat feed not drawn"
+  },
+  "turn_e40": {
+   "fsm": "E40",
+   "half": "E40",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "wired": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "LT-153"
+   ],
+   "note": "LH xenon front combination lamp GY/8; turn signal 2 G/W from M91·45, ground 1 B to E43; other cavities not mapped"
+  },
+  "turn_e41": {
+   "fsm": "E41",
+   "half": "E41",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "wired": [
+    "1",
+    "4"
+   ],
+   "cite": [
+    "LT-153"
+   ],
+   "note": "LH halogen front combination lamp GY/6, Coupe only, alternative to E40; turn 1 G/W, ground 4 B"
+  },
+  "turn_t10": {
+   "fsm": "T10",
+   "half": "T10",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "wired": [
+    "2",
+    "4"
+   ],
+   "cite": [
+    "LT-153",
+    "LT-157"
+   ],
+   "note": "LH rear turn lamp SB/4, bumper side; 2 G/Y signal (G/W before B43/T1, G/B via B61/T23 on the Roadster), 4 B ground"
+  },
+  "turn_e24": {
+   "fsm": "E24",
+   "half": "E24",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "wired": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "LT-154"
+   ],
+   "note": "RH xenon front combination lamp GY/8; turn 2 PU/W from M91·46, ground 1 B"
+  },
+  "turn_e25": {
+   "fsm": "E25",
+   "half": "E25",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "wired": [
+    "1",
+    "4"
+   ],
+   "cite": [
+    "LT-154"
+   ],
+   "note": "RH halogen front combination lamp GY/6, Coupe only, alternative to E24; turn 1 PU/W, ground 4 B"
+  },
+  "turn_t18": {
+   "fsm": "T18",
+   "half": "T18",
+   "cav": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "wired": [
+    "2",
+    "4"
+   ],
+   "cite": [
+    "LT-154",
+    "LT-158"
+   ],
+   "note": "RH rear turn lamp SB/4; 2 R/W signal, 4 B ground; Roadster routes through B61/T23"
+  },
+  "stop_t9": {
+   "fsm": "T9",
+   "half": "T9",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "wired": [
+    "1",
+    "3"
+   ],
+   "cite": [
+    "LT-179",
+    "LT-180"
+   ],
+   "note": "LH rear combination lamp body side GY/3, face 3-2-1; 1 P/L stop, 3 B ground to B5/B6/T14; 2 R/L tail not mapped; Roadster arrives via B60/T22"
+  },
+  "stop_t17": {
+   "fsm": "T17",
+   "half": "T17",
+   "cav": [
+    "1",
+    "2",
+    "3"
+   ],
+   "wired": [
+    "1",
+    "3"
+   ],
+   "cite": [
+    "LT-179",
+    "LT-180"
+   ],
+   "note": "RH rear combination lamp body side GY/3, same face as T9; 1 P/L stop, 3 B ground; 2 tail not mapped"
+  },
+  "stop_d103": {
+   "fsm": "D103",
+   "half": "D103",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "LT-179"
+   ],
+   "note": "Coupe high-mounted stop lamp BR/2; 1 P stop (P/L up to the hatch), 2 B to D105; Roadster uses T203 (LT-180), not drawn"
+  },
+  "lug_t13": {
+   "fsm": "T13",
+   "half": "T13",
+   "cav": [
+    "1",
+    "2"
+   ],
+   "cite": [
+    "LT-220"
+   ],
+   "note": "Coupe luggage lamp GY/2, face 2-1; 1 Y feed from the room lamp circuit via M12·15J, 2 R/W return to M30/M66; Roadster trunk lamp T20 (LT-224) clashes with EVAP T20 and is not drawn"
+  },
+  "dtrl_e14": {
+   "fsm": "E14",
+   "half": "E14",
+   "cav": [
+    "14",
+    "5",
+    "6",
+    "15",
+    "2",
+    "1"
+   ],
+   "wired": [
+    "1"
+   ],
+   "cite": [
+    "LT-117",
+    "LT-77"
+   ],
+   "note": "daytime light unit connector E14 GY, face 14-5-6 over 15-2-1; only 1 W/R alternator L, Canada only"
+  },
+  "dtrl_e15": {
+   "fsm": "E15",
+   "half": "E15",
+   "cav": [
+    "11",
+    "10",
+    "13",
+    "16",
+    "9",
+    "17",
+    "12"
+   ],
+   "wired": [
+    "17"
+   ],
+   "cite": [
+    "LT-117",
+    "LT-77"
+   ],
+   "note": "daytime light unit connector E15 GY, face 11-10-13-16 over 9, gap, 17, 12; only 17 G parking brake, Canada only"
   }
  },
  "pseudo_cards": {
-  "body_luces": "body-circuit list: lamp circuits (LT), not a connector",
   "body_puertas": "body-circuit list: BCM door/lock circuits (BL), not a connector",
   "body_vidrios": "body-circuit list: defogger and 12 V socket (GW/WW), not a connector",
   "body_asientos": "body-circuit list: heated/power seat and seat belt circuits (SE/SRS), not a connector",

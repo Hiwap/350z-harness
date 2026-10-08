@@ -158,10 +158,10 @@ ok('Roadster: soft top card + 46J W shown; Coupe back door switch T2·2 empty; d
 await sel('bodyView', 'coupe');
 const canada = await page.evaluate(() => {
   const cell = (c, v) => { const g = document.querySelector(`.cav-hit[data-conn="${c}"][data-cav="${v}"]`); return g ? { off: g.classList.contains('cav-opt-off'), op: Number(g.getAttribute('opacity')), tip: (g.querySelector('title') || {}).textContent || '', code: ((g.querySelector('.cav-code') || {}).textContent || '').replace(/\s/g, ''), click: cavClickable(c, variantGatePin(CONN[c].pins.find((p) => p.id === v), variantView())) } : null; };
-  return { b6: cell('ix_e106_b2', '6'), g62: cell('ix_e108_m15', '62G'), pkb: cell('body_luces', 'DT-PKB'), alt: cell('body_luces', 'DT-ALT'), h13: f102PinEl('13H') && f102PinEl('13H').classList.contains('opt-off') };
+  return { b6: cell('ix_e106_b2', '6'), g62: cell('ix_e108_m15', '62G'), pkb: cell('dtrl_e15', '17'), alt: cell('dtrl_e14', '1'), h13: f102PinEl('13H') && f102PinEl('13H').classList.contains('opt-off') };
 });
 const dimOk = (c, code) => !!c && c.off && c.op === 0.35 && c.tip === 'solo Canadá (luces diurnas)' && c.code === code && c.click;
-ok('Canada DTRL (no selector): E106·6 G, E108·62G W/R, Luces DT-PKB / DT-ALT drawn dimmed at 0.35, clickable, tooltip "solo Canadá (luces diurnas)"',
+ok('Canada DTRL (no selector): E106·6 G, E108·62G W/R, E15·17 G / E14·1 W/R drawn dimmed at 0.35, clickable, tooltip "solo Canadá (luces diurnas)"',
   dimOk(canada.b6, 'G') && dimOk(canada.g62, 'W/R') && dimOk(canada.pkb, 'G') && dimOk(canada.alt, 'W/R'), JSON.stringify(canada));
 ok('F102·13H (alternator L, shared with the USA charge lamp) is not dimmed', canada.h13 === false, String(canada.h13));
 await page.evaluate(() => { clearSelection(); document.querySelector('.cav-hit[data-conn="ix_e108_m15"][data-cav="62G"]').dispatchEvent(new MouseEvent('click', { bubbles: true })); });

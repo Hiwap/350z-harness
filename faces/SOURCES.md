@@ -59,6 +59,19 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_t5.webp | BRC-53 | abs_t5 (T5 GY/4: 2-1 over 4-3, lock on top). Same face on BRC-16 and BRC-102. No web photo of the harness plug found. |
 | fsm_e118.webp | BRC-100 | vdc_e118 (E118 B/88: 61-88 over 29-55 over 1-28; the top row sits only above 35-55). VDC only. The ficha wires 13 of them. |
 | fsm_m9.webp | BRC-52 | vdc_off_m9 (M9 GY: 1-2-3-4 plus two unnumbered cavities, lock over 3-4). Same face on BRC-100. TCS or VDC only. |
+| fsm_m91.webp | PG-83 | bcm_m91 (M91 black: 41-49 over 50-55, the lower row stops under 46). Only 45 and 46 wired. |
+| fsm_e40.webp | LT-153 | turn_e40 (E40 GY/8 xenon LH: 1-2-3-4 over 5-6-7-8). Only 1 and 2 wired. |
+| fsm_e41.webp | LT-153 | turn_e41 (E41 GY/6 halogen LH: 1-2-3 over 4-5-6). Coupe only. Only 1 and 4 wired. |
+| fsm_t10.webp | LT-153 | turn_t10 (T10 SB/4: 1-2 over 3-4). Only 2 and 4 wired. |
+| fsm_e24.webp | LT-154 | turn_e24 (E24 GY/8 xenon RH). Only 1 and 2 wired. |
+| fsm_e25.webp | LT-154 | turn_e25 (E25 GY/6 halogen RH). Coupe only. Only 1 and 4 wired. |
+| fsm_t18.webp | LT-154 | turn_t18 (T18 SB/4). Only 2 and 4 wired. |
+| fsm_t9.webp | LT-179 | stop_t9 (T9 GY/3: 3-2-1). The FSM prints this one inset for T9 and T17; T17 has its own crop of the same inset, without the T9 label. |
+| fsm_t17.webp | LT-179 | stop_t17 (T17 GY/3: 3-2-1). Same inset as T9. |
+| fsm_d103.webp | LT-179 | stop_d103 (D103 BR/2: 1-2). Coupe only. |
+| fsm_t13.webp | LT-220 | lug_t13 (T13 GY/2: 2-1). Coupe only. |
+| fsm_e14.webp | LT-117 | dtrl_e14 (E14 GY: 14-5-6 over 15-2-1). Canada only. Only 1 wired. |
+| fsm_e15.webp | LT-117 | dtrl_e15 (E15 GY: 11-10-13-16 over 9, a gap, 17, 12). Canada only. Only 17 wired. |
 
 Not mapped in CONN_FACE:
 

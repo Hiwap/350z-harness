@@ -571,6 +571,8 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       meter_m19: 2, /* shell M19 W/24; the ficha wires 15 and 16 */
       brake_fluid_e44: 2,
       pkb_b47: 1,
+      bcm_m91: 2, turn_e40: 2, turn_e41: 2, turn_t10: 2, turn_e24: 2, turn_e25: 2, turn_t18: 2,
+      stop_t9: 2, stop_t17: 2, stop_d103: 2, lug_t13: 2, dtrl_e14: 1, dtrl_e15: 1,
       abs_e51: 6, /* shell E51 GY/30; the ficha wires 26, 11, 28, 13, 6 and 19 (TCS) */
       abs_t5: 4,
       vdc_e118: 13, /* shell E118 B/88; 13 mapped wires */
