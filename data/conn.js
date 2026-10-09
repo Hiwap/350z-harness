@@ -858,7 +858,7 @@ const CONN_BASE = {
       {id:'4',lab:'CAN-H',code:'L',ecm:null,src:'E108·2G',srcSub:'intermedias',note:'CAN-H (L), por E108·2G hasta la red CAN. BRC-103.',note_en:'CAN-H (L), through E108·2G to the CAN bus. BRC-103.',note_ja:'CAN-H（L）。E108·2G経由でCANバスへ。BRC-103。'},
       {id:'5',lab:'CAN-L',code:'P',ecm:null,src:'E108·7G',srcSub:'intermedias',note:'CAN-L (P), por E108·7G hasta la red CAN. BRC-103.',note_en:'CAN-L (P), through E108·7G to the CAN bus. BRC-103.',note_ja:'CAN-L（P）。E108·7G経由でCANバスへ。BRC-103。'}
     ],
-    note:'Solo con VDC. Sensor de ángulo de volante, en la columna (PG-48). La unidad VDC lo alimenta por E118·2 y habla por CAN. Sin cable: 1, 6, 7 y 8. BRC-103 / BRC-125.'},
+    note:'Solo con VDC. Sensor de ángulo de volante, en la columna (PG-48). La unidad VDC lo alimenta por E118·2 y habla por CAN. Sin cable: 1, 6, 7 y 8. Conector W según el diagrama BRC-103; la lista del arnés PG-49 dice GY. BRC-103 / BRC-125.'},
   vdc_m51:{group:'body', sub:'carroceria', nest:'abs', name:'Sensor de giro y aceleración lateral', meta:'M51 · B/6 · BRC-101', accent:'#ef5350', shape:'grid', faceRows:[['1','2','3'],['4','5','6']], vif:'brake=vdc', view:{c:'M51',g:'f',src:'BRC-101',ord:'1-2-3 / 4-5-6'},
     pins:[
       {id:'1',lab:'REF',code:'L/B',ecm:null,src:'E118·78',srcSub:'carroceria',circ:'vdc_yaw',note:'Referencia (L/B). El cable cambia a L/R en E108/M15. BRC-101.',note_en:'Reference (L/B). The wire changes to L/R at E108/M15. BRC-101.',note_ja:'基準（L/B）。E108/M15で線色がL/Rに変わる。BRC-101。'},
@@ -898,12 +898,12 @@ const CONN_BASE = {
       {id:'1',lab:'TPMS',code:'W',ecm:null,src:'M90·15',srcSub:'carroceria',circ:'tpms_chk',note:'Disparo del modo de registro de presión de neumáticos (W), hacia el BCM M90·15. WT-14.',note_en:'Tire pressure mode trigger (W), to BCM M90·15. WT-14.',note_ja:'タイヤ空気圧モードのトリガー（W）。BCM M90·15へ。WT-14。'}
     ],
     note:'Conector de comprobación del sistema de presión de neumáticos (PG-48). Solo la cavidad 1 tiene cable. WT-14.'},
-  sec_m34:{group:'body', sub:'carroceria', nest:'bcm', name:'Testigo de seguridad', meta:'M34 · BR/2 · BL-139', accent:'#ffb300', shape:'grid', faceRows:[['2','1']], view:{c:'M34',g:'f',src:'BL-139',ord:'2-1'},
+  sec_m34:{group:'body', sub:'carroceria', nest:'bcm', name:'Testigo de seguridad', meta:'M34 · W/2 · BL-139', accent:'#ffb300', shape:'grid', faceRows:[['2','1']], view:{c:'M34',g:'f',src:'BL-139',ord:'2-1'},
     pins:[
       {id:'1',lab:'BAT',code:'R/W',ecm:null,src:'JB·10A',srcSub:'fuses',circ:'sec_ind',note:'Alimentación de batería (R/W), fusible 19 de 10 A. BL-139.',note_en:'Battery feed (R/W), 10 A fuse 19. BL-139.',note_ja:'バッテリー電源（R/W）。10Aヒューズ19。BL-139。'},
       {id:'2',lab:'LAMP',code:'G/OR',ecm:null,src:'M90·23',srcSub:'carroceria',circ:'sec_ind',note:'Mando del testigo (G/OR), desde el BCM M90·23. BL-139.',note_en:'Lamp drive (G/OR), from BCM M90·23. BL-139.',note_ja:'表示灯の駆動（G/OR）。BCM M90·23から。BL-139。'}
     ],
-    note:'Testigo del sistema de seguridad, en el tablero (PG-48). El color del conector no coincide en el manual: PG-49 lo lista como BR y BL-139 rotula la cara como W; se deja BR. BL-139.'},
+    note:'Testigo del sistema de seguridad, en el tablero (PG-48). Conector W según los diagramas BL-139 (VEHSEC) y BL-167 (NATS); la lista del arnés PG-49 dice BR. BL-139 / BL-167.'},
   key_m25:{group:'body', sub:'carroceria', nest:'bcm', name:'Interruptor de llave', meta:'M25 · BR/2 · BL-69', accent:'#ffb300', shape:'grid', faceRows:[['1','2']], view:{c:'M25',g:'f',src:'BL-69',ord:'1-2'},
     pins:[
       {id:'1',lab:'KEY',code:'B/R',ecm:null,src:'M90·37',srcSub:'carroceria',circ:'key_sw',note:'Llave metida (B/R), hacia el BCM M90·37. BL-69 / BL-75.',note_en:'Key inserted (B/R), to BCM M90·37. BL-69 / BL-75.',note_ja:'キー挿入（B/R）。BCM M90·37へ。BL-69 / BL-75。'},
