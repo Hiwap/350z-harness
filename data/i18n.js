@@ -879,6 +879,7 @@ const TITLES_I18N = {
   start_at: {en:'A/T · starter relay', ja:'A/T · スタータリレー'},
   tcm_kline: {en:'A/T · TCM diagnosis K-line', ja:'A/T · TCM診断Kライン'},
   at_shiftlock: {en:'A/T · shift lock', ja:'A/T · シフトロック'},
+  at_mmsw: {en:'A/T · selector manual mode', ja:'A/T · セレクターのマニュアルモード'},
 };
 
 const NOTES_I18N = {
@@ -1071,6 +1072,7 @@ const NOTES_I18N = {
   start_at: {en:'A/T only. The starter-relay circuit passes through the module so the engine cranks only in P or N. On M/T that wire goes to the clutch interlock switch. SC-14.', ja:'A/Tのみ。スタータリレーはモジュールを通り、PまたはNだけでクランキングする。M/Tではその線はクラッチインターロックスイッチへ。SC-14。'},
   tcm_kline: {en:'A/T only. Diagnosis line of the transmission module, joined to the K-line of the diagnosis connector. AT-194.', ja:'A/Tのみ。トランスミッションモジュールの診断ライン。診断コネクターのKラインに合流する。AT-194。'},
   at_shiftlock: {en:'A/T only. The shift lock keeps the lever in P until the brake is pressed. AT-240.', ja:'A/Tのみ。シフトロックは、ブレーキを踏むまでPから動かさない。AT-240。'},
+  at_mmsw: {en:'A/T only. The manual mode, up and down switches of the selector go to amp M48, which passes the request to the TCM over CAN. AT-174.', ja:'A/Tのみ。セレクターのマニュアルモード、アップ、ダウンの各スイッチはアンプM48へ行き、アンプがCANでTCMに伝える。AT-174。'},
 };
 
 /** Connector card name / meta / note — ES lives in CONN_BASE; EN/JA here. */
@@ -1363,5 +1365,5 @@ const CONN_I18N = {
   top_b67: { en:{name:'Soft top control unit B67', meta:'B67 · W · RF-25', note:'Roadster only. Middle shell of the soft top control unit, white. A two-cavity lock with no number sits between 21 and 20. Cavity 28 has no wire (RF-33). RF-25.'}, ja:{name:'ソフトトップ制御ユニット B67', meta:'B67 · W · RF-25', note:'ロードスターのみ。ソフトトップ制御ユニットの中央シェル。白。21と20の間に番号なしのロックが2キャビティ分。キャビティ28は配線なし（RF-33）。RF-25。'} },
   top_b68: { en:{name:'Soft top control unit B68', meta:'B68 · W · RF-25', note:'Roadster only. Right shell of the soft top control unit, white. A two-cavity lock with no number sits between 39 and 38. Cavities 39, 40, 43, 46 and 47 have no wire (RF-33). RF-25.'}, ja:{name:'ソフトトップ制御ユニット B68', meta:'B68 · W · RF-25', note:'ロードスターのみ。ソフトトップ制御ユニットの右シェル。白。39と38の間に番号なしのロックが2キャビティ分。キャビティ39、40、43、46、47は配線なし（RF-33）。RF-25。'} },
   top_m14: { en:{name:'Soft top switch', meta:'M14 · W · RF-26', note:'Roadster only. Soft top switch, white. An unnumbered cavity sits between 4 and 5. RF-26.'}, ja:{name:'ソフトトップスイッチ', meta:'M14 · W · RF-26', note:'ロードスターのみ。ソフトトップスイッチ。白。4と5の間に番号なしのキャビティ。RF-26。'} },
-  body_at: { en:{name:'Automatic transmission · body side', meta:'A/T only · TCM F6 · AT-186/194/240', note:'A/T only: TCM ignition, relay-driven back-up lamps, starter relay, TCM K-line and shift lock.'}, ja:{name:'A/T · ボディ側', meta:'A/Tのみ · TCM F6 · AT', note:'A/Tのみ：TCMイグニッション、リレー式バックランプ、スタータリレー、TCMのKライン、シフトロック。'} },
+  atdev_m47: { en:{name:'A/T selector device', meta:'M47 · W · AT-240 / AT-174', note:'A/T only. Selector device connector, white: shift lock, park position switch, manual mode and illumination. A lock sits above 6 and 5. Cavity 4 has no wire. AT-240 / AT-174.'}, ja:{name:'A/Tデバイス', meta:'M47 · W · AT-240 / AT-174', note:'A/Tのみ。セレクターデバイスのコネクター。白。シフトロック、パークポジションスイッチ、マニュアルモード、照明。6と5の上にロック。キャビティ4は配線なし。AT-240 / AT-174。'} },
 };

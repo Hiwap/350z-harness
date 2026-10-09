@@ -568,7 +568,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       fuel_tank_temp: 2, /* same B27; the ficha wires 5 and 4 */
       ascd_brake: 2,
       ascd_clutch: 2,
-      stop_lamp: 2,
+      stop_lamp: 4,
       clock_spring: 2,
       dlc: 16,
       wiper_e52: 4, /* shell E52 GY/5; cavity 5 empty */
@@ -585,7 +585,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       vdc_e118: 43, /* shell E118 B/88; cavities with no FSM wire stay empty */
       vdc_off_m9: 2, /* shell M9 GY: 1-2-3-4 plus two unnumbered cavities; the ficha wires 1 and 2 */
       vdc_m51: 6,
-      comb_meter: 6, triple_m44: 9, unified_m49: 9, fuel_level_sub: 2,
+      comb_meter: 10, triple_m44: 9, unified_m49: 9, fuel_level_sub: 2,
       door_sw_b17: 1, door_sw_b23: 1, door_lock_d11: 4,
       back_door_t12: 2, back_opener_t103: 2, trunk_cancel_b71: 2, back_opener_t11: 2,
       fuel_lid_m59: 4, fuel_lid_m13: 2, fuel_lid_t19: 2,
@@ -593,7 +593,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       defog_b34: 6, defog_d104: 2, defog_b202: 2,
       audio_m40: 10, audio_m41: 6, audio_m39: 5,
       amb_e34: 2, blower_m62: 3,
-      top_b66: 13, top_b67: 19, top_b68: 7, top_m14: 5,
+      top_b66: 13, top_b67: 19, top_b68: 7, top_m14: 5, atdev_m47: 9,
       spk_d4: 2, spk_d3: 2, spk_d34: 2, spk_d33: 2, spk_b40: 2, spk_b42: 2,
       socket_b36: 2, socket_m38: 2,
     };
