@@ -27,6 +27,12 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | f18.webp | Ballenger Motorsports | ix_f18_f201 | Sumitomo 6-way 2×3 sealed (CONN-75847) — interim ID for F18. Female housing + receptacle terminals = same half as F18 (EC-691/455 T.S., white guide = female), so no mirror note; photo housing is grey vs FSM F18 B (black). Ficha fixed 1-2-3 / 4-5-6. |
 | d40.webp | eBay listing photo (sent by Ezequiel 2026-10-08) | door_lock_d40 | Passenger door lock actuator plug, sky blue 4-cavity with orange retainer (FSM D40 SB/4, BL-29). Background and hand removed. Kept as photographed: the lock tab is on the right, the FSM face draws it on top. Not shared with D11. |
 | d33.webp | eBay listing photo (sent by Ezequiel 2026-10-08) | spk_d33 | Passenger tweeter plug, brown 2-cavity (FSM D33 BR, AV-11). Background and fingers removed. D3 keeps the FSM crop fsm_d3.webp. |
+| d7.webp | eBay listing photo (sent by Ezequiel 2026-10-08) | pw_d7 | Power window main switch plug, white 16-cavity (FSM D7 W/16, GW-24). Background removed; rotated 180° so it reads like the FSM face (7-6-5 · lock · 4-3-2-1 over 16…8). |
+| d11.webp | On Point Parts | door_lock_d11 | Listing photo 186552208660-5.jpg, https://onpointparts.com/products/2005-nissan-z33-350z-front-driver-door-wiring-harness-oem-11bfyfa (driver door harness 24125CD001, 2005 car) · sky blue 4-cavity (FSM D11 SB/4, BL-29). Background and hand removed, lock on top as in the FSM. Same housing as d40.webp; not shared. |
+| t10.webp | On Point Parts | turn_t10 | Listing photo 186552208760-4.jpg, https://onpointparts.com/products/2005-nissan-z33-350z-driver-reverse-tail-light-pig-tail-conector-oem-11bfyfa (LH tail pigtail, 2005 car) · blue 2×2, lock on top (FSM T10 SB/4, LT-153). Background removed. |
+| t18.webp | On Point Parts | turn_t18 | Listing photo 186552208691-4.jpg, https://onpointparts.com/products/2005-nissan-z33-350z-rear-passenger-turn-signal-pig-tail-connector-oem-11bfyfa (RH tail pigtail, 2005 car) · blue 2×2 (FSM T18 SB/4, LT-154). Background removed, rotated 90° CCW so the lock is on top. |
+| t9.webp | On Point Parts | stop_t9 | Listing photo 186552208760-2.jpg, https://onpointparts.com/products/2005-nissan-z33-350z-driver-reverse-tail-light-pig-tail-conector-oem-11bfyfa (LH tail pigtail) · grey 3-cavity in one row, green retainer (FSM T9 GY/3, LT-179). Background removed, rotated 90° CW so the lock is on top. T17 keeps fsm_t17.webp (no share). |
+| e34.webp | Connector Experts | amb_e34 | "Ambient Temp Sensor" (SKU CE2071F-1), image F184409565.jpg, https://connectorexperts.com/i-24724810-ambient-temp-sensor.html · black 2-cavity, index on top (FSM E34 B, ATC-44). Page fitment lists the 2007 350Z, not 2005. Background removed; faint "CONNECTOR EXPERTS" watermark. |
 | f33.webp | EFI Hardware | ix_f221_f33 | "Nissan 8 Pin Injector Loom Male Pin Connector Grey" (SKU C08M-9001, "injector harness engine loom side"), https://www.efihardware.com/products/2207/Nissan-8-Pin-Injector-Loom-Male-Pin-Connector-Grey · 4th gallery thumbnail (images/3090, mating face with orange seal), chosen for this car. Replaced the earlier female-side photo. FSM gender (GI-15: black guide = male, white = female): F33 GY/8 has the **female** terminals (EC-278 T.S., white guide, 1-2-3-4 / 5-6-7-8); F221 has the **male** terminals (EC-279 T.S., black guide, 4-3-2-1 / 8-7-6-5). So this male photo is the F221 face; PG-55 lists F221 as G/8 (green) vs the grey product. The ficha shows the car's F33 female plug (EC-278 T.S., 1-2-3-4 / 5-6-7-8); the caption adds the localized `faceNoteMateMirror` note (mating male half, mirrored vs the ficha). |
 | reverse.webp | Wiring Specialties | backup_sw, evap_purge, f35_pnp | VQ35 Reverse Switch 2-pin (F36 B/2 · F5 GY/2 purge same 2-way · F35 B/2 park/neutral same 2-way) |
 | alt.webp | Wiring Specialties | f20_alt | VQ35 Alternator Plug Connector (SKU WRS-VQ35ALT-CON, https://www.wiringspecialties.com/vq35-alternator-plug-connector/) — harness-side 2-cavity S/L plug = same half as F20 GY/2 (SC-22: 3 L / 4 S), so no mirror note. Re-checked 2026-09-26 for the alternator charge fichas: still the best product photo. The B (E202) and E (E211) ring terminals of the battery cable (PG-53) have no photo (generic ring lugs; skipped on purpose). |
@@ -67,11 +73,11 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_m91.webp | PG-83 | bcm_m91 (M91 black: 41-49 over 50-55, the lower row stops under 46). Wired 42, 45, 46, 52, 54 and 55. Cavities 41, 43, 44, 47, 48, 49, 50, 51 and 53 have no wire on the pages used. |
 | fsm_e40.webp | LT-153 | turn_e40 (E40 GY/8 xenon LH: 1-2-3-4 over 5-6-7-8). Only 1 and 2 wired. |
 | fsm_e41.webp | LT-153 | turn_e41 (E41 GY/6 halogen LH: 1-2-3 over 4-5-6). Coupe only. Only 1 and 4 wired. |
-| fsm_t10.webp | LT-153 | turn_t10 (T10 SB/4: 1-2 over 3-4). Only 2 and 4 wired. |
+| fsm_t10.webp | LT-153 | turn_t10 (T10 SB/4: 1-2 over 3-4). Only 2 and 4 wired. Not linked any more: the ficha uses the photo t10.webp. |
 | fsm_e24.webp | LT-154 | turn_e24 (E24 GY/8 xenon RH). Only 1 and 2 wired. |
 | fsm_e25.webp | LT-154 | turn_e25 (E25 GY/6 halogen RH). Coupe only. Only 1 and 4 wired. |
-| fsm_t18.webp | LT-154 | turn_t18 (T18 SB/4). Only 2 and 4 wired. |
-| fsm_t9.webp | LT-179 | stop_t9 (T9 GY/3: 3-2-1). The FSM prints this one inset for T9 and T17; T17 has its own crop of the same inset, without the T9 label. |
+| fsm_t18.webp | LT-154 | turn_t18 (T18 SB/4). Only 2 and 4 wired. Not linked any more: the ficha uses the photo t18.webp. |
+| fsm_t9.webp | LT-179 | stop_t9 (T9 GY/3: 3-2-1). The FSM prints this one inset for T9 and T17; T17 has its own crop of the same inset, without the T9 label. Not linked any more: the ficha uses the photo t9.webp. |
 | fsm_t17.webp | LT-179 | stop_t17 (T17 GY/3: 3-2-1). Same inset as T9. |
 | fsm_d103.webp | LT-179 | stop_d103 (D103 BR/2: 1-2). Coupe only. |
 | fsm_t13.webp | LT-220 | lug_t13 (T13 GY/2: 2-1). Coupe only. |
@@ -91,7 +97,7 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_m59.webp | BL-54 | fuel_lid_m59 (M59 L: 3 over 5 over 1, X, 2). Coupe only. |
 | fsm_t11.webp | BL-30 | back_opener_t11 (T11 W: 2 over 1). PG-63 says W/4; the diagram face draws two. Coupe only. |
 | fsm_t103.webp | BL-30 | back_opener_t103 (T103 GY/2: 2-1). |
-| fsm_d11.webp | BL-29 | door_lock_d11 (D11 SB/4: 3-4 over 1-2). The legend also names D40; this crop keeps the D11 label. |
+| fsm_d11.webp | BL-29 | door_lock_d11 (D11 SB/4: 3-4 over 1-2). The legend also names D40; this crop keeps the D11 label. Not linked any more: the ficha uses the photo d11.webp. |
 | fsm_b71.webp | BL-125 | trunk_cancel_b71 (B71 W/2: 1 over 2). Roadster only. |
 | fsm_b17.webp | BL-27 | door_sw_b17 (B17 W/3: 1-2-3). BL-27 prints one inset for B17, B23 and T12; this crop keeps the B17 label. |
 | fsm_b23.webp | BL-27 | door_sw_b23 (B23 W/3). Same inset; the B17 label sits between the symbol and B23. |
