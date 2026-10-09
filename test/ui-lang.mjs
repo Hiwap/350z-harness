@@ -224,7 +224,7 @@ console.log('\nF102 face camera');
 await page.select('#lang', 'en');
 await page.evaluate(() => { if (typeof applyLang === 'function') applyLang(); });
 const f102Face = await page.evaluate(() => {
-  const btn = document.querySelector('#f102Title .ficha-face-btn');
+  const btn = document.querySelector('#f102Title .ficha-face-btn[data-face-conn]');
   if (btn) btn.click();
   const img = document.querySelector('#faceLightbox img');
   const srcEl = document.querySelector('#faceLightbox .face-lb-src');
