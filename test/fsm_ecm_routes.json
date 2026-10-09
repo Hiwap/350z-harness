@@ -3021,6 +3021,56 @@
       ],
       "note": "power window main switch; 2, 3, 16 unwired; 4 Roadster only"
     },
+    "mirror_sw_d6": {
+      "fsm": "D6",
+      "half": "D6",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7"
+      ],
+      "cite": [
+        "GW-84",
+        "PG-69"
+      ],
+      "note": "door mirror remote control switch; W/10 shell, 7 numbered cavities, all wired"
+    },
+    "pw_motor_d9": {
+      "fsm": "D9",
+      "half": "D9",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "cite": [
+        "GW-24",
+        "PG-69"
+      ],
+      "note": "driver power window motor; all wired"
+    },
+    "key_cyl_d12": {
+      "fsm": "D12",
+      "half": "D12",
+      "cav": [
+        "1",
+        "2",
+        "3"
+      ],
+      "cite": [
+        "GW-24",
+        "BL-28",
+        "PG-69"
+      ],
+      "note": "door key cylinder switch; all wired"
+    },
     "door_lock_d11": {
       "fsm": "D11",
       "half": "D11",

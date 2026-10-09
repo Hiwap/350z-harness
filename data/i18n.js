@@ -896,6 +896,9 @@ const TITLES_I18N = {
   tcm_kline: {en:'A/T · TCM diagnosis K-line', ja:'A/T · TCM診断Kライン'},
   at_shiftlock: {en:'A/T · shift lock', ja:'A/T · シフトロック'},
   at_mmsw: {en:'A/T · selector manual mode', ja:'A/T · セレクターのマニュアルモード'},
+  mirror_ctrl: {en:'Door mirrors · remote control', ja:'ドアミラー · リモコン'},
+  pw_motor_dr: {en:'Driver power window · motor', ja:'運転席パワーウインドウ · モーター'},
+  key_cyl: {en:'Door key cylinder', ja:'ドアキーシリンダー'},
 };
 
 const NOTES_I18N = {
@@ -1105,6 +1108,9 @@ const NOTES_I18N = {
   tcm_kline: {en:'A/T only. Diagnosis line of the transmission module, joined to the K-line of the diagnosis connector. AT-194.', ja:'A/Tのみ。トランスミッションモジュールの診断ライン。診断コネクターのKラインに合流する。AT-194。'},
   at_shiftlock: {en:'A/T only. The shift lock keeps the lever in P until the brake is pressed. AT-240.', ja:'A/Tのみ。シフトロックは、ブレーキを踏むまでPから動かさない。AT-240。'},
   at_mmsw: {en:'A/T only. The manual mode, up and down switches of the selector go to amp M48, which passes the request to the TCM over CAN. AT-174.', ja:'A/Tのみ。セレクターのマニュアルモード、アップ、ダウンの各スイッチはアンプM48へ行き、アンプがCANでTCMに伝える。AT-174。'},
+  mirror_ctrl: {en:'Switch D6 gets ignition from fuse 6 (10 A) and moves both mirrors: the driver one directly and the passenger one through M11/D1 and M74/D31. GW-84.', ja:'スイッチD6はヒューズ6（10A）からイグニッション電源を受け、両ミラーを動かす。運転席は直接、助手席はM11/D1とM74/D31経由。GW-84。'},
+  pw_motor_dr: {en:'Driver power window motor with encoder and limit switch. Main switch D7 drives it and reads the encoder pulses. GW-24.', ja:'エンコーダーとリミットスイッチ付き運転席パワーウインドウモーター。メインスイッチD7が駆動し、エンコーダーパルスを読む。GW-24。'},
+  key_cyl: {en:'The driver door key cylinder tells main switch D7 lock or unlock. GW-24, BL-28.', ja:'運転席ドアのキーシリンダーが施錠・解錠をメインスイッチD7に伝える。GW-24、BL-28。'},
 };
 
 /** Connector card name / meta / note — ES lives in CONN_BASE; EN/JA here. */
@@ -1373,6 +1379,9 @@ const CONN_I18N = {
   mirror_d2: { en:{name:'Door mirror (driver)', meta:'D2 · W/8 · GW-63', note:'Driver door mirror (PG-69). The motors (6, 7 and 8) and the defogger (1 and 2) share the connector; the defogger only heats while the rear defogger relay is on. No wire: 3, 4 and 5. GW-63 / GW-67 / GW-84.'}, ja:{name:'ドアミラー（運転席）', meta:'D2 · W/8 · GW-63', note:'運転席ドアミラー（PG-69）。モーター（6、7、8）とデフォッガー（1、2）が同じコネクターを使う。デフォッガーはリヤデフォッガーリレーがONのときだけ働く。配線なし：3、4、5。GW-63 / GW-67 / GW-84。'} },
   mirror_d32: { en:{name:'Door mirror (passenger)', meta:'D32 · W/8 · GW-63', note:'Passenger door mirror (PG-69). Same face as D2. The motors run through M74/D31 and M11/D1 to switch D6 in the driver door. No wire: 3, 4 and 5. GW-63 / GW-67 / GW-84.'}, ja:{name:'ドアミラー（助手席）', meta:'D32 · W/8 · GW-63', note:'助手席ドアミラー（PG-69）。D2と同じ面。モーター線はM74/D31とM11/D1を通って運転席ドアのスイッチD6へ。配線なし：3、4、5。GW-63 / GW-67 / GW-84。'} },
   pw_d7: { en:{name:'Power window main switch', meta:'D7 · W/16 · GW-24', note:'Power window main switch, in the driver door (PG-69). It carries the driver window, the key cylinder lock and the illumination. Pin 4 is Roadster only. No wire: 2, 3 and 16. GW-24 / GW-27.'}, ja:{name:'パワーウインドウメインスイッチ', meta:'D7 · W/16 · GW-24', note:'パワーウインドウメインスイッチ。運転席ドア内（PG-69）。運転席ウインドウ、キーシリンダー施錠、照明。4はロードスターのみ。配線なし：2、3、16。GW-24 / GW-27。'} },
+  mirror_sw_d6: { en:{name:'Door mirror remote control switch', meta:'D6 · W/10 · GW-84', note:'Outside mirror switch, in the driver armrest (PG-69). The selector picks which mirror moves; both mirrors share common 2. The three unnumbered bottom positions have no terminal. GW-84.'}, ja:{name:'ドアミラーリモコンスイッチ', meta:'D6 · W/10 · GW-84', note:'ドアミラースイッチ。運転席アームレスト（PG-69）。セレクターで動かすミラーを選ぶ。両ミラーは共通2を共有。下段の番号なし3箇所は端子なし。GW-84。'} },
+  pw_motor_d9: { en:{name:'Power window motor (driver)', meta:'D9 · W/6 · GW-24', note:'Driver power window motor, in the middle of the door (PG-69). It carries the motor (1 and 2), the encoder (3 and 4) and the limit switch (5); 6 is the ground for those sensors. Every cavity is wired. GW-24.'}, ja:{name:'パワーウインドウモーター（運転席）', meta:'D9 · W/6 · GW-24', note:'運転席パワーウインドウモーター。ドア中央（PG-69）。モーター（1と2）、エンコーダー（3と4）、リミットスイッチ（5）。6はそのセンサーのアース。全キャビティ配線あり。GW-24。'} },
+  key_cyl_d12: { en:{name:'Door key cylinder switch', meta:'D12 · BR/3 · GW-24', note:'Key cylinder switch, at the rear of the driver door next to lock D11 (PG-69). It tells main switch D7 lock (3) or unlock (1). GW-24 / BL-28.'}, ja:{name:'ドアキーシリンダースイッチ', meta:'D12 · BR/3 · GW-24', note:'キーシリンダースイッチ。運転席ドア後部、ドアロックD11の隣（PG-69）。施錠（3）または解錠（1）をメインスイッチD7に伝える。GW-24 / BL-28。'} },
   back_door_t12: { en:{name:'Back door switch', meta:'T12 · W/3 · BL-27', note:'Back door switch on the tail harness (PG-63, W/3). Coupe only. Pin 2 is on the face and the diagram gives it no wire. The Roadster does not use this switch; the trunk uses T103.'}, ja:{name:'バックドアスイッチ', meta:'T12 · W/3 · BL-27', note:'テールハーネスのバックドアスイッチ（PG-63、W/3）。クーペのみ。ピン2は面上にあるが電線はない。ロードスターは使わず、トランクはT103。'} },
   back_opener_t103: { en:{name:'Back door opener switch', meta:'T103 · GY/2 · BL-30 / BL-125', note:'Outside opener for the back door (PG-63) or the trunk. On the Roadster it is in series with interior cancel switch B71. The mark above pin 2 is the index, not a cavity.'}, ja:{name:'バックドアオープナースイッチ', meta:'T103 · GY/2 · BL-30 / BL-125', note:'バックドア（PG-63）またはトランクの外側オープナー。ロードスターでは室内キャンセルスイッチB71と直列。ピン2の上の印はインデックスで、キャビティではない。'} },
   trunk_cancel_b71: { en:{name:'Trunk opener cancel switch', meta:'B71 · W/2 · BL-125', note:'Interior switch that cancels trunk opening. Roadster only (PG-59, BL-125). The small square above pin 1 is the index, not a cavity.'}, ja:{name:'トランクオープナーキャンセルスイッチ', meta:'B71 · W/2 · BL-125', note:'トランク開をキャンセルする室内スイッチ。ロードスターのみ（PG-59、BL-125）。ピン1の上の小四角はインデックスで、キャビティではない。'} },
