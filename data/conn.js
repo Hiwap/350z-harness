@@ -1047,12 +1047,18 @@ const CONN_BASE = {
       {id:'3',lab:'GND',code:'B',ecm:null,circ:'stop_lamps',note:'Masa (B), hacia B5, B6 y T14. LT-179.',note_en:'Ground (B), to B5, B6 and T14. LT-179.',note_ja:'アース（B）。B5、B6、T14へ。LT-179。'}
     ],
     note:'Piloto trasero derecho (PG-63). Misma cara que el izquierdo: pin 1 freno, pin 2 cola, pin 3 masa. LT-179 / LT-201.'},
+  stop_t202:{group:'body', sub:'carroceria', nest:'luces', name:'Tercera luz de freno (Roadster)', meta:'T202 · BR/2 · LT-180', accent:'#ffb300', shape:'grid', faceRows:[['1','2']], vif:'body=roadster', view:{c:'T202',g:'f',src:'LT-180',ord:'1-2'},
+    pins:[
+      {id:'1',lab:'STOP',code:'P',ecm:null,src:'E112·2',srcSub:'pedals',circ:'stop_lamps',note:'Luz de freno (P), por T201/T152·4, T151/T26·4 (P/L) y B60/T22·4 desde el interruptor de freno. Solo Roadster. LT-180.',note_en:'Stop lamp (P), through T201/T152·4, T151/T26·4 (P/L) and B60/T22·4 from the stop lamp switch. Roadster only. LT-180.',note_ja:'ストップランプ（P）。T201/T152·4、T151/T26·4（P/L）、B60/T22·4経由でストップランプスイッチから。ロードスターのみ。LT-180。'},
+      {id:'2',lab:'GND',code:'B',ecm:null,src:'T14',srcSub:'power',circ:'stop_lamps',note:'Masa (B), por T201/T152·3 y T151/T26·3 hasta T14. Solo Roadster. LT-180.',note_en:'Ground (B), through T201/T152·3 and T151/T26·3 to T14. Roadster only. LT-180.',note_ja:'アース（B）。T201/T152·3とT151/T26·3経由でT14へ。ロードスターのみ。LT-180。'}
+    ],
+    note:'Solo Roadster. Tercera luz de freno. El pin 1 es la señal y el pin 2 la masa. LT-180.'},
   stop_d103:{group:'body', sub:'carroceria', nest:'luces', name:'Tercera luz de freno', meta:'D103 · BR/2 · LT-179', accent:'#ffb300', shape:'grid', faceRows:[['1','2']], vif:'body=coupe', view:{c:'D103',g:'f',src:'LT-179',ord:'1-2'},
     pins:[
       {id:'1',lab:'STOP',code:'P',ecm:null,src:'E112·2',srcSub:'pedals',circ:'stop_lamps',note:'Luz de freno (P). El cable es P/L hasta el portón. Solo Coupé. LT-179.',note_en:'Stop lamp (P). The wire is P/L up to the hatch. Coupe only. LT-179.',note_ja:'ストップランプ（P）。ハッチまでP/L。クーペのみ。LT-179。'},
       {id:'2',lab:'GND',code:'B',ecm:null,circ:'stop_lamps',note:'Masa (B), hacia D105. Solo Coupé. LT-179.',note_en:'Ground (B), to D105. Coupe only. LT-179.',note_ja:'アース（B）、D105へ。クーペのみ。LT-179。'}
     ],
-    note:'Solo Coupé. Tercera luz de freno, en el portón. El pin 1 es la señal y el pin 2 la masa. En el Roadster esa luz es T202 (BR/2, LT-180) y no está en el mapa. LT-179.'},
+    note:'Solo Coupé. Tercera luz de freno, en el portón. El pin 1 es la señal y el pin 2 la masa. En el Roadster esa luz es T202 (BR/2, LT-180), que tiene su propia ficha. LT-179.'},
   map_r52:{group:'body', sub:'carroceria', nest:'luces', name:'Luz de mapa (Coupé)', meta:'R52 · W/3 · LT-220', accent:'#ffb300', shape:'grid', faceRows:[['1','2','3']], vif:'body=coupe', view:{c:'R52',g:'f',src:'LT-220',ord:'1-2-3'},
     pins:[
       {id:'1',lab:'GND',code:'B',ecm:null,src:'M30',srcSub:'power',note:'Masa (B), por R51/M70·3 hasta la masa M30. LT-220.',note_en:'Ground (B), through R51/M70·3 to ground M30. LT-220.',note_ja:'アース（B）。R51/M70·3経由でアースM30へ。LT-220。'},
@@ -1410,17 +1416,23 @@ const CONN_BASE = {
       {id:'4',lab:'MTR',code:'SB',ecm:null,src:'B83·70',srcSub:'carroceria',circ:'rear_wiper',note:'Salida del motor, desde el BCM B83·70 (SB), por B38/D101·2. Solo Coupé. WW-40 / WW-48.',note_en:'Motor output, from BCM B83·70 (SB), through B38/D101·2. Coupe only. WW-40 / WW-48.',note_ja:'モーター出力。BCM B83·70（SB）から、B38/D101·2経由。クーペのみ。WW-40 / WW-48。'}
     ],
     note:'Solo Coupé. Motor del limpialuneta, en el arnés del portón. El BCM lo mueve por B83·70 al pin 4 y lee la parada automática en el pin 2 (B83·59). El pin 1 va a la masa D105. La cavidad 3 no tiene cable. No pasa por E108. WW-40.'},
+  cb_b55:{group:'body', sub:'carroceria', nest:'techo', name:'Disyuntor del techo', meta:'B55 · W/2 · RF-25', accent:'#5c6bc0', shape:'grid', faceRows:[['1'],['2']], vif:'body=roadster', view:{c:'B55',g:'f',src:'RF-25',ord:'1 / 2'},
+    pins:[
+      {id:'1',lab:'IN',code:'W/B',ecm:null,src:'F/L G',srcSub:'carroceria',note:'Entrada (W/B), desde el fusible G de 40 A por E107/B3·6. RF-25.',note_en:'Input (W/B), from 40 A fusible link G through E107/B3·6. RF-25.',note_ja:'入力（W/B）。40AヒュージブルリンクGからE107/B3·6経由。RF-25。'},
+      {id:'2',lab:'OUT',code:'W/R',ecm:null,src:'B66·1',srcSub:'carroceria',circ:'soft_top_pwr',note:'Salida (W/R), hacia la unidad del techo B66·1 y B66·8. RF-25.',note_en:'Output (W/R), to soft top control unit B66·1 and B66·8. RF-25.',note_ja:'出力（W/R）。ソフトトップ制御ユニットB66·1とB66·8へ。RF-25。'}
+    ],
+    note:'Solo Roadster. Disyuntor que alimenta la unidad de control del techo. RF-25.'},
   top_b66:{group:'body', sub:'carroceria', nest:'techo', name:'Unidad del techo blando B66', meta:'B66 · W · RF-25', accent:'#5c6bc0', shape:'grid', vif:'body=roadster',
     faceRows:[['7','6','5','','','4','3','2','1'],['16','15','14','13','12','11','10','9','8']],
     view:{c:'B66',g:'f',src:'RF-25',ord:'7 6 5 4 3 2 1 / 16…8',ex:{es:'entre el 5 y el 4 hay un bloqueo de dos cavidades sin número; 2, 9 y 11 sin cable',en:'a two-cavity lock with no number sits between 5 and 4; 2, 9 and 11 not wired',ja:'5と4の間に番号なしのロックが2キャビティ分。2、9、11は未配線'}},
     pins:[
-      {id:'1',lab:'BAT',code:'W/R',ecm:null,note:'Batería (W/R), desde el disyuntor B55. El disyuntor no está dibujado. RF-25.',note_en:'Battery (W/R), from circuit breaker B55. That breaker is not drawn. RF-25.',note_ja:'バッテリー（W/R）。サーキットブレーカーB55から。そのブレーカーは描いていない。RF-25。'},
+      {id:'1',lab:'BAT',code:'W/R',ecm:null,src:'B55·2',srcSub:'carroceria',circ:'soft_top_pwr',note:'Batería (W/R), desde el disyuntor B55·2. RF-25.',note_en:'Battery (W/R), from circuit breaker B55·2. RF-25.',note_ja:'バッテリー（W/R）。サーキットブレーカーB55·2から。RF-25。'},
       {id:'3',lab:'RF-OP',code:'R',ecm:null,note:'Actuador del techo derecho (abrir) (R). Ese extremo no es un conector de este mapa. RF-33.',note_en:'Roof actuator RH (open) (R). That end is not a connector on this map. RF-33.',note_ja:'ルーフアクチュエーター右（開）（R）。その先はこのマップのコネクターではない。RF-33。'},
       {id:'4',lab:'5B-CL',code:'G/W',ecm:null,note:'Motor de cierre del 5.º arco (cerrar) (G/W). Ese extremo no es un conector de este mapa. RF-33.',note_en:'5th bow closure motor (close) (G/W). That end is not a connector on this map. RF-33.',note_ja:'第5ボウクロージャーモーター（閉）（G/W）。その先はこのマップのコネクターではない。RF-33。'},
       {id:'5',lab:'SL-OP',code:'R/B',ecm:null,note:'Actuador de la tapa del maletero de capota derecho (abrir) (R/B). Ese extremo no es un conector de este mapa. RF-33.',note_en:'Storage lid actuator RH (open) (R/B). That end is not a connector on this map. RF-33.',note_ja:'ストレージリッドアクチュエーター右（開）（R/B）。その先はこのマップのコネクターではない。RF-33。'},
       {id:'6',lab:'5B-UL',code:'R',ecm:null,note:'Actuador de desbloqueo del 5.º arco (R). Ese extremo no es un conector de este mapa. RF-33.',note_en:'5th bow unlock actuator (R). That end is not a connector on this map. RF-33.',note_ja:'第5ボウアンロックアクチュエーター（R）。その先はこのマップのコネクターではない。RF-33。'},
       {id:'7',lab:'GND',code:'B',ecm:null,note:'Masa (B), hacia RF-F/ROOF-05. Ese punto no es un conector. RF-25.',note_en:'Ground (B), to RF-F/ROOF-05. That point is not a connector. RF-25.',note_ja:'アース（B）。RF-F/ROOF-05へ。その点はコネクターではない。RF-25。'},
-      {id:'8',lab:'BAT',code:'W/R',ecm:null,note:'Batería (W/R), el mismo disyuntor B55 que el pin 1. RF-25.',note_en:'Battery (W/R), the same circuit breaker B55 as pin 1. RF-25.',note_ja:'バッテリー（W/R）。ピン1と同じサーキットブレーカーB55。RF-25。'},
+      {id:'8',lab:'BAT',code:'W/R',ecm:null,src:'B55·2',srcSub:'carroceria',circ:'soft_top_pwr',note:'Batería (W/R), el mismo disyuntor B55 que el pin 1. RF-25.',note_en:'Battery (W/R), the same circuit breaker B55 as pin 1. RF-25.',note_ja:'バッテリー（W/R）。ピン1と同じサーキットブレーカーB55。RF-25。'},
       {id:'10',lab:'RF-CL',code:'Y',ecm:null,note:'Actuador del techo derecho (cerrar) (Y). Ese extremo no es un conector de este mapa. RF-33.',note_en:'Roof actuator RH (close) (Y). That end is not a connector on this map. RF-33.',note_ja:'ルーフアクチュエーター右（閉）（Y）。その先はこのマップのコネクターではない。RF-33。'},
       {id:'12',lab:'5B-OP',code:'G/Y',ecm:null,note:'Motor de cierre del 5.º arco (abrir) (G/Y). Ese extremo no es un conector de este mapa. RF-33.',note_en:'5th bow closure motor (open) (G/Y). That end is not a connector on this map. RF-33.',note_ja:'第5ボウクロージャーモーター（開）（G/Y）。その先はこのマップのコネクターではない。RF-33。'},
       {id:'13',lab:'SL-CL',code:'L/R',ecm:null,note:'Actuador de la tapa del maletero de capota derecho (cerrar) (L/R). Ese extremo no es un conector de este mapa. RF-33.',note_en:'Storage lid actuator RH (close) (L/R). That end is not a connector on this map. RF-33.',note_ja:'ストレージリッドアクチュエーター右（閉）（L/R）。その先はこのマップのコネクターではない。RF-33。'},
