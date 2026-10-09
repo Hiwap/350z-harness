@@ -42,7 +42,6 @@ const puppeteer = loadPuppeteer();
 const browser = await puppeteer.launch({ executablePath: findChrome(), headless: true, args: ['--no-sandbox', '--disable-gpu'] });
 const UNCONNECTED = [
   'door_sw_b17·1',                                          /* driver door switch: BCM M90·62 is not a ficha */
-  'ix_e108_m15·32G', 'ix_e108_m15·33G',                              /* ambient sensor E34 / A/C amp not drawn */
   'wiper_d106·1', 'wiper_d106·2', 'wiper_d106·4',                     /* rear wiper motor: BCM B83 and ground D105 are not drawn */
   'ix_e108_m15·63G', 'ix_e108_m15·64G',                              /* A/T shift lock: AT-240 names no end terminal */
 ];

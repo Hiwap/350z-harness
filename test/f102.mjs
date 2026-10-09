@@ -921,7 +921,8 @@ const FSM_FACE = {
   meter_m19: { mt: "12 11 10 3 2 1 / 24 23 22 21 20 18 17 16 15 14 13", at: "12 11 10 3 2 1 / 24 23 22 21 20 18 17 16 15 14 13" }, /* M19 W/24 shell 12-1 / 24-13; 13 is Roadster only (dimmed) */
   brake_fluid_e44: { mt: "1 / 2", at: "1 / 2" },
   pkb_b47: { mt: "1", at: "1" },
-  body_clima: { mt: "AMB AMB-GND BLW-GND", at: "AMB AMB-GND BLW-GND" },
+  amb_e34: { mt: "1 2", at: "1 2" },
+  blower_m62: { mt: "3 2 1", at: "3 2 1" },
   wiper_e52: { mt: "1 2 3 / 4", at: "1 2 3 / 4" },
   washer_e29: { mt: "1 2", at: "1 2" },
   washer_e28: { mt: "1 2", at: "1 2" },

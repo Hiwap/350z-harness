@@ -3047,10 +3047,11 @@
     "spk_d34": {"fsm":"D34","half":"D34","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"passenger door speaker"},
     "spk_d33": {"fsm":"D33","half":"D33","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"passenger tweeter"},
     "spk_b40": {"fsm":"B40","half":"B40","cav":["1","2"],"wired":["1","2"],"cite":["AV-12"],"note":"rear LH speaker; round index above"},
-    "spk_b42": {"fsm":"B42","half":"B42","cav":["1","2"],"wired":["1","2"],"cite":["AV-12"],"note":"rear RH speaker"}
+    "spk_b42": {"fsm":"B42","half":"B42","cav":["1","2"],"wired":["1","2"],"cite":["AV-12"],"note":"rear RH speaker"},
+    "amb_e34": {"fsm":"E34","half":"E34","cav":["1","2"],"wired":["1","2"],"cite":["ATC-44"],"note":"ambient sensor; triangular index above"},
+    "blower_m62": {"fsm":"M62","half":"M62","cav":["1","2","3"],"wired":["1","2","3"],"cite":["ATC-42"],"note":"blower motor; two unnumbered cavities to the right of 1"}
   },
   "pseudo_cards": {
-    "body_clima": "body-circuit list: climate circuits (ATC), not a connector",
     "body_techo": "body-circuit list: Roadster soft top circuits (RF), not a connector",
     "body_at": "body-circuit list: A/T body-side circuits (AT), not a connector",
     "f152": "ground point F152 (ring) - see ground_points",

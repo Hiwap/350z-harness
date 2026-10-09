@@ -592,6 +592,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       seat_b37: 4, seat_m154: 6, seat_m155: 6, belt_b8: 2, belt_b11: 2,
       defog_b34: 6, defog_d104: 2, defog_b202: 2,
       audio_m40: 10, audio_m41: 6, audio_m39: 5,
+      amb_e34: 2, blower_m62: 3,
       spk_d4: 2, spk_d3: 2, spk_d34: 2, spk_d33: 2, spk_b40: 2, spk_b42: 2,
       socket_b36: 2, socket_m38: 2,
     };
