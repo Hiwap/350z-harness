@@ -1,7 +1,8 @@
 /* Selected strip: control module (ECM side, BCM, IPDM, ABS/VDC, meter amp, TCM) first,
    then along the wire toward the sensor. Ground points stay last. A path drawn sensor-first
    is turned around. Joints that are skipped in the strip (F102) still decide the direction. */
-/* Sidebar group of a card: body cards (sub 'carroceria') group by system as 'body_<nest>'; others by sub. */
+/* Group key of a card: body cards (sub 'carroceria') are keyed by system as 'body_<nest>' (Body subgroup, accent,
+   Seleccionados bucket); other cards by sub. */
 function fichaGroupKey(f){
   if(!f) return 'other';
   if(f.sub === 'carroceria' && f.nest) return 'body_' + f.nest;

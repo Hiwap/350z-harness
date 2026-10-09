@@ -431,6 +431,9 @@
   }
   .ficha-nest:not([open]) > summary::before { opacity: 0.5; }
   .ficha-nest[open] > summary { border-bottom: 1px solid #2a3140; }
+  /* Body: system subgroups sit inside the Body group */
+  .ficha-sec[data-sub="carroceria"] > .ficha-nest { margin: 6px 8px 0; }
+  .ficha-sec[data-sub="carroceria"] > .ficha-nest:last-of-type { margin-bottom: 8px; }
   .fichas-grid {
     display: flex; flex-wrap: wrap; gap: 10px; padding: 10px;
     align-items: flex-start;
@@ -2256,9 +2259,9 @@ const GROUP_I18N = {
     ja: {title:'エンジンハーネス', sub:'センサ · アクチュエータ · 中間E/F · 電源/アース'},
   },
   body: {
-    es: {title:'Habitáculo / Body', sub:'APP · freno · ASCD · clock spring · DLC · CAN / meter · ABS · BCM · luces · puertas · asientos · audio · clima · limpia · techo · A/T'},
-    en: {title:'Cabin / body', sub:'APP · brake · ASCD · clock spring · DLC · CAN / meter · ABS · BCM · lamps · doors · seats · audio · climate · wipers · soft top · A/T'},
-    ja: {title:'車室内 / ボディ', sub:'APP · ブレーキ · ASCD · クロックスプリング · DLC · CAN · ABS · BCM · ランプ · ドア · シート · オーディオ · エアコン · ワイパー · ソフトトップ · A/T'},
+    es: {title:'Habitáculo / Body', sub:'APP · freno · ASCD · clock spring · DLC · CAN / meter · Body (ABS · BCM · luces · puertas · asientos · audio · clima · limpia · techo · A/T)'},
+    en: {title:'Cabin / body', sub:'APP · brake · ASCD · clock spring · DLC · CAN / meter · Body (ABS · BCM · lamps · doors · seats · audio · climate · wipers · soft top · A/T)'},
+    ja: {title:'車室内 / ボディ', sub:'APP · ブレーキ · ASCD · クロックスプリング · DLC · CAN · ボディ（ABS · BCM · ランプ · ドア · シート · オーディオ · エアコン · ワイパー · ソフトトップ · A/T）'},
   },
 };
 
@@ -2274,7 +2277,8 @@ const SUB_I18N = {
   intermedias: {es:'Paths multi E/F', en:'Multi E/F paths', ja:'複数経路 E/F'},
   pedals:      {es:'Pedales / frenos', en:'Pedals / brakes', ja:'ペダル / ブレーキ'},
   ascd_dlc:    {es:'ASCD / DLC', en:'ASCD / DLC', ja:'ASCD / DLC'},
-  /* Body systems: each one is its own top-level group (cards keep sub 'carroceria' + nest; see fichaGroupKey). */
+  carroceria:  {es:'Body', en:'Body', ja:'ボディ'},
+  /* Body systems: subgroups inside Body (cards keep sub 'carroceria' + nest; see fichaGroupKey). */
   body_abs:       {es:'ABS / VDC', en:'ABS / VDC', ja:'ABS / VDC'},
   body_bcm:       {es:'BCM / seguridad', en:'BCM / security', ja:'BCM / セキュリティ'},
   body_luces:     {es:'Luces', en:'Lamps', ja:'ランプ'},
@@ -2291,9 +2295,10 @@ const SUB_I18N = {
   other:       {es:'Otros', en:'Other', ja:'その他'},
 };
 
-/* Body systems (card nest), in sidebar order; each renders as top-level group 'body_<nest>'. ABS first. */
+/* Body systems (card nest), in order inside the Body group; each is a subgroup 'body_<nest>'. ABS first.
+   SUB_ORDER: top-level groups end with 'carroceria' (Body); the body_<nest> keys after it only order Seleccionados buckets. */
 const BODY_NEST_ORDER = ['abs','bcm','luces','puertas','desemp','tomas','asientos','audio','medidores','clima','limpia','techo','at'];
-const SUB_ORDER = ['power','ipdm','feeds','fuses','sensors','bobinas','inyectores','actuators','intermedias','pedals','ascd_dlc', ...BODY_NEST_ORDER.map(n => 'body_' + n)];
+const SUB_ORDER = ['power','ipdm','feeds','fuses','sensors','bobinas','inyectores','actuators','intermedias','pedals','ascd_dlc','carroceria', ...BODY_NEST_ORDER.map(n => 'body_' + n)];
 
 /** One border color per subcategory (ficha groups). */
 const SUB_ACCENT = {
@@ -2308,10 +2313,22 @@ const SUB_ACCENT = {
   intermedias: '#78909c',  /* slate — intermedias E/F */
   pedals:      '#ff7043',  /* deep orange — pedales / freno */
   ascd_dlc:    '#26c6da',  /* cyan — ASCD / DLC / CAN */
-  carroceria:  '#8d6e63',  /* brown — body cards (ABS, lamps, doors, seats, audio…); data sub, used for card/HL accents */
+  carroceria:  '#8d6e63',  /* brown — Body group border; also the src-label colour of body-fed cavities */
+  /* One accent per body system: Body subgroup header + its fichas' border + HL outline. */
+  body_abs:       '#ec407a',  /* pink */
+  body_bcm:       '#7e57c2',  /* deep purple */
+  body_luces:     '#ffee58',  /* yellow */
+  body_puertas:   '#26a69a',  /* teal */
+  body_desemp:    '#ff8a65',  /* salmon */
+  body_tomas:     '#bdbdbd',  /* light grey */
+  body_asientos:  '#a1887f',  /* light brown */
+  body_audio:     '#5c6bc0',  /* indigo */
+  body_medidores: '#29b6f6',  /* light blue */
+  body_clima:     '#80deea',  /* pale cyan */
+  body_limpia:    '#9ccc65',  /* light green */
+  body_techo:     '#bcaaa4',  /* taupe */
+  body_at:        '#ce93d8',  /* lilac */
 };
-/* Each body-system group keeps the body brown border. */
-BODY_NEST_ORDER.forEach(n => { SUB_ACCENT['body_' + n] = SUB_ACCENT.carroceria; });
 /* Groups collapsed by default (until the user opens them or a selection / rail filter reveals a member). */
 const SUB_DEFAULT_CLOSED = new Set(['fuses']);
 /* Bobinas / Inyectores — filet + sibling HL follow group accent */
@@ -4896,6 +4913,8 @@ function accentForConn(f, cid){
   const id = cid || (f && f.id) || null;
   if(id && ACT_BOBINAS.has(id)) return NEST_ACCENT.bobinas;
   if(id && ACT_INYECTORES.has(id)) return NEST_ACCENT.inyectores;
+  const g = f ? fichaGroupKey(f) : null; /* body cards: their system's accent */
+  if(g && SUB_ACCENT[g]) return SUB_ACCENT[g];
   if(f && f.sub && SUB_ACCENT[f.sub]) return SUB_ACCENT[f.sub];
   return (f && f.accent) || '#546e7a';
 }
@@ -5196,10 +5215,10 @@ function renderFichas(){
   /* F102 lives in #f102Panel (hidden from side fichas) but must stay in CONN for click/HL */
   if(CONN_BASE['ix_f102_m72']) CONN['ix_f102_m72'] = f102Conf();
 
-  /* Flat list by subcategory only (no outer motor/body split). Body cards group by system (fichaGroupKey). */
+  /* Flat list by subcategory (no outer motor/body split). Body (carroceria) holds one subgroup per system. */
   const bySub = {};
   ids.forEach(id=>{
-    const sk = fichaGroupKey(CONN[id]);
+    const sk = (CONN[id] && CONN[id].sub) || 'other';
     (bySub[sk]=bySub[sk]||[]).push(id);
   });
   if(bySub.ipdm) bySub.ipdm = sortIpdmIds(bySub.ipdm);
@@ -5208,16 +5227,16 @@ function renderFichas(){
   const keys = SUB_ORDER.filter(k => bySub[k]);
   Object.keys(bySub).forEach(k => { if(!keys.includes(k)) keys.push(k); });
 
-  function makeNestDetails(nestKey, labelKey, ids, accent){
+  function makeNestDetails(nestKey, ids, accent){
     const nest = document.createElement('details');
     nest.className = 'ficha-nest';
     nest.dataset.nest = nestKey;
     const lsNest = 'z33_nest_' + nestKey;
     const savedNest = localStorage.getItem(lsNest);
-    nest.open = savedNest === null ? nestKey !== 'ipdm_fuses' : savedNest === '1';
+    nest.open = savedNest === null ? true : savedNest === '1';
     const nsum = document.createElement('summary');
-    nsum.innerHTML = `<span class="sub-label">${esc(t(labelKey))}</span>`;
-    if(accent) nsum.style.borderLeft = '3px solid ' + accent;
+    nsum.innerHTML = `<span class="sub-label">${esc(selectedBucketLabel(nestKey))}</span>`;
+    if(accent){ nsum.style.borderLeft = '3px solid ' + accent; nest.style.borderColor = accent; }
     nest.appendChild(nsum);
     const ngrid = document.createElement('div');
     ngrid.className = 'fichas-grid';
@@ -5250,8 +5269,19 @@ function renderFichas(){
       const grid=document.createElement('div');
       grid.className='fichas-grid';
       if(sk === 'ipdm') appendIpdmFichas(grid, bySub[sk]);
+      else if(sk === 'carroceria'){
+        /* Body: one subgroup per system (BODY_NEST_ORDER), each with its own accent. Systems with no visible
+           card (Techo on Coupé, A/T on M/T) are not drawn. Cards without a nest stay in a loose grid. */
+        const byNest = {};
+        const loose = [];
+        bySub[sk].forEach(id => { const g = fichaGroupKey(CONN[id]); if(g === sk) loose.push(id); else (byNest[g] = byNest[g] || []).push(id); });
+        const nestKeys = BODY_NEST_ORDER.map(n => 'body_' + n).filter(k => byNest[k]);
+        Object.keys(byNest).forEach(k => { if(!nestKeys.includes(k)) nestKeys.push(k); });
+        nestKeys.forEach(k => sec.appendChild(makeNestDetails(k, byNest[k], SUB_ACCENT[k])));
+        loose.forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
+      }
       else bySub[sk].forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
-      sec.appendChild(grid);
+      if(grid.children.length || sk !== 'carroceria') sec.appendChild(grid);
     }
     sec.addEventListener('toggle', ()=>{
       /* Auto-open of a default-closed group (Fusibles) is temporary: never persisted. */
@@ -6192,8 +6222,9 @@ function primarySubForCircuits(circIds, focusPin=null){
     (cir.conn||[]).forEach(cid=>{
       const f = CONN[cid] || CONN_BASE[cid];
       if(!f || !f.sub) return;
-      if(seen.includes(f.sub)) return;
-      seen.push(f.sub);
+      const g = fichaGroupKey(f); /* body cards count as their system (own accent) */
+      if(seen.includes(g)) return;
+      seen.push(g);
     });
   });
   for(const s of HL_GROUP_SUB_PRIORITY){
@@ -6228,7 +6259,6 @@ function accentForConnId(cid){
   if(ACT_BOBINAS.has(cid)) return NEST_ACCENT.bobinas;
   if(ACT_INYECTORES.has(cid)) return NEST_ACCENT.inyectores;
   const f = CONN[cid] || CONN_BASE[cid];
-  if(f && f.sub && SUB_ACCENT[f.sub]) return SUB_ACCENT[f.sub];
   return accentForConn(f, cid);
 }
 function accentForEcmPin(ecm){

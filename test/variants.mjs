@@ -195,18 +195,36 @@ const click = await page.evaluate(() => { clearSelection(); selectConnPin('ix_e1
 ok('click E108·36G → right turn circuit only (no fan-out over the SMJ)', click.length === 1 && click[0] === 'turn_rh', click.join(','));
 const click2 = await page.evaluate(() => { clearSelection(); selectConnPin('abs_t5', '4'); return [...lastCircIds]; });
 ok('click rear sensor T5·4 → abs_rl', click2.join(',') === 'abs_rl', click2.join(','));
-const bodyGroups = await page.evaluate(() => {
+const BODY_SYS = ['abs', 'bcm', 'luces', 'puertas', 'desemp', 'tomas', 'asientos', 'audio', 'medidores', 'clima', 'limpia', 'techo', 'at'];
+const bodyGroupsNow = () => page.evaluate(() => {
   clearSelection();
   const secs = [...document.querySelectorAll('#fichas > details.ficha-sec:not(.sel-top)')];
   const subs = secs.map((s) => s.dataset.sub);
-  const body = secs.filter((s) => /^body_/.test(s.dataset.sub));
-  const bad = body.filter((s) => [...s.querySelectorAll(':scope > .fichas-grid > .ficha-wrap')].some((f) => { const c = CONN[f.dataset.conn]; return !c || c.sub !== 'carroceria' || 'body_' + c.nest !== s.dataset.sub; })).map((s) => s.dataset.sub);
-  return { carroceria: subs.includes('carroceria'), nests: document.querySelectorAll('#fichas details.ficha-nest').length, body: body.map((s) => s.dataset.sub), first: body[0] ? [...body[0].querySelectorAll('.ficha-wrap')].map((f) => f.dataset.conn)[0] : null, afterAscd: subs.indexOf('body_abs') > subs.indexOf('ascd_dlc'), bad, labels: body.map((s) => s.querySelector('summary').textContent.trim()) };
+  const sec = secs.find((s) => s.dataset.sub === 'carroceria');
+  const nests = sec ? [...sec.querySelectorAll(':scope > details.ficha-nest')] : [];
+  const rgb = (c) => { const d = document.createElement('div'); d.style.color = c; document.body.appendChild(d); const v = getComputedStyle(d).color; d.remove(); return v; };
+  const bad = nests.filter((n) => [...n.querySelectorAll('.ficha-wrap[data-conn]')].some((f) => { const c = CONN[f.dataset.conn]; return !c || c.sub !== 'carroceria' || 'body_' + c.nest !== n.dataset.nest; })).map((n) => n.dataset.nest);
+  const badAccent = nests.filter((n) => { const want = rgb(SUB_ACCENT[n.dataset.nest]); return getComputedStyle(n.querySelector('summary')).borderLeftColor !== want || [...n.querySelectorAll('.ficha[data-conn]')].some((f) => getComputedStyle(f).borderTopColor !== want); }).map((n) => n.dataset.nest);
+  return {
+    subs, last: subs[subs.length - 1], topBodyKeys: subs.filter((k) => /^body_/.test(k)),
+    label: sec ? sec.querySelector(':scope > summary').textContent.trim() : null,
+    nests: nests.map((n) => n.dataset.nest), loose: sec ? sec.querySelectorAll(':scope > .fichas-grid').length : -1,
+    first: nests[0] ? (nests[0].querySelector('.ficha-wrap[data-conn]') || {}).dataset?.conn : null,
+    bad, badAccent, accents: new Set(nests.map((n) => SUB_ACCENT[n.dataset.nest])).size,
+    nestLabels: nests.map((n) => n.querySelector('summary').textContent.trim()),
+  };
 });
-ok('Body systems are top-level groups (no Carrocería wrapper, no nested subgroups): ABS first, in BODY_NEST_ORDER (default Coupe M/T: no soft top, no A/T), each group holds only its own system',
-  !bodyGroups.carroceria && bodyGroups.nests === 0 && bodyGroups.body[0] === 'body_abs' && bodyGroups.first === 'abs_e51' && bodyGroups.afterAscd && bodyGroups.bad.length === 0
-  && bodyGroups.body.join(',') === ['abs', 'bcm', 'luces', 'puertas', 'desemp', 'tomas', 'asientos', 'audio', 'medidores', 'clima', 'limpia'].map((n) => 'body_' + n).join(',')
-  && !bodyGroups.labels.some((l) => /Carrocer|Body circuits/.test(l)), JSON.stringify(bodyGroups));
+await sel('bodyView', 'coupe'); await sel('transView', 'mt');
+const bodyGroups = await bodyGroupsNow();
+ok('one top-level Body group (last, after ASCD/DLC) holding one subgroup per system: ABS first, in BODY_NEST_ORDER (Coupe M/T: no soft top, no A/T), each subgroup holds only its own system',
+  bodyGroups.last === 'carroceria' && bodyGroups.label === 'Body' && bodyGroups.topBodyKeys.length === 0 && bodyGroups.loose === 0 && bodyGroups.first === 'abs_e51' && bodyGroups.bad.length === 0
+  && bodyGroups.nests.join(',') === BODY_SYS.slice(0, 11).map((n) => 'body_' + n).join(',')
+  && !bodyGroups.nestLabels.some((l) => /Carrocer|Body circuits/.test(l)), JSON.stringify(bodyGroups));
+ok('each body system has its own accent on its subgroup header and on its fichas', bodyGroups.badAccent.length === 0 && bodyGroups.accents === bodyGroups.nests.length, JSON.stringify(bodyGroups.badAccent));
+await sel('bodyView', 'roadster'); await sel('transView', 'at');
+const bodyRs = await bodyGroupsNow();
+ok('Roadster + A/T: Soft top and A/T subgroups appear (13 systems, own accents)', bodyRs.nests.join(',') === BODY_SYS.map((n) => 'body_' + n).join(',') && bodyRs.badAccent.length === 0 && bodyRs.accents === 13, JSON.stringify(bodyRs.nests));
+await sel('bodyView', 'coupe'); await sel('transView', 'mt');
 
 const labels = {};
 for (const lg of ['en', 'ja', 'es']) {
