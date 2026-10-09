@@ -41,8 +41,6 @@ const ok = (name, cond, detail = '') => { if (cond) pass++; else { fails.push(na
 const puppeteer = loadPuppeteer();
 const browser = await puppeteer.launch({ executablePath: findChrome(), headless: true, args: ['--no-sandbox', '--disable-gpu'] });
 const UNCONNECTED = [
-  'door_sw_b17·1',                                          /* driver door switch: BCM M90·62 is not a ficha */
-  'wiper_d106·1', 'wiper_d106·2', 'wiper_d106·4',                     /* rear wiper motor: BCM B83 and ground D105 are not drawn */
 ];
 /* ECM signal pin → sensor-ground cavities on its card that belong to ANOTHER element (not required to light) */
 const SENSOR_GND_OTHER = {
