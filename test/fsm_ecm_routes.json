@@ -3071,6 +3071,63 @@
       ],
       "note": "door key cylinder switch; all wired"
     },
+    "pw_sub_d37": {
+      "fsm": "D37",
+      "half": "D37",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ],
+      "wired": [
+        "3",
+        "4",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "15",
+        "16"
+      ],
+      "cite": [
+        "GW-25",
+        "BL-28",
+        "PG-69"
+      ],
+      "note": "power window sub-switch; 1, 2, 5, 6, 7, 14 unwired; 13 Roadster only"
+    },
+    "pw_motor_d38": {
+      "fsm": "D38",
+      "half": "D38",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "cite": [
+        "GW-25",
+        "PG-69"
+      ],
+      "note": "passenger power window motor; all wired"
+    },
     "door_lock_d11": {
       "fsm": "D11",
       "half": "D11",
