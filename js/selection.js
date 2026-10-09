@@ -1,6 +1,12 @@
 /* Selected strip: control module (ECM side, BCM, IPDM, ABS/VDC, meter amp, TCM) first,
    then along the wire toward the sensor. Ground points stay last. A path drawn sensor-first
    is turned around. Joints that are skipped in the strip (F102) still decide the direction. */
+/* Sidebar group of a card: body cards (sub 'carroceria') group by system as 'body_<nest>'; others by sub. */
+function fichaGroupKey(f){
+  if(!f) return 'other';
+  if(f.sub === 'carroceria' && f.nest) return 'body_' + f.nest;
+  return f.sub || 'other';
+}
 function isSelGround(cid){
   const f = CONN[cid];
   if(!f) return false;
@@ -115,12 +121,12 @@ function updateSelectedTop(connIds){
   const bucketKeys = [];
   const seen = new Set();
   const orderedIds = ids.slice().sort((a,b)=>{
-    const sa = SUB_ORDER.indexOf(CONN[a].sub||'other');
-    const sb = SUB_ORDER.indexOf(CONN[b].sub||'other');
+    const sa = SUB_ORDER.indexOf(fichaGroupKey(CONN[a]));
+    const sb = SUB_ORDER.indexOf(fichaGroupKey(CONN[b]));
     return (sa<0?999:sa) - (sb<0?999:sb);
   });
   orderedIds.forEach(id=>{
-    const s = CONN[id].sub || 'other';
+    const s = fichaGroupKey(CONN[id]);
     if(seen.has(s)) return;
     seen.add(s);
     bucketKeys.push(s);

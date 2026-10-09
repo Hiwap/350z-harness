@@ -2256,9 +2256,9 @@ const GROUP_I18N = {
     ja: {title:'エンジンハーネス', sub:'センサ · アクチュエータ · 中間E/F · 電源/アース'},
   },
   body: {
-    es: {title:'Habitáculo / Body', sub:'APP · freno · ASCD · clock spring · DLC · CAN / meter · carrocería'},
-    en: {title:'Cabin / body', sub:'APP · brake · ASCD · clock spring · DLC · CAN / meter · body circuits'},
-    ja: {title:'車室内 / ボディ', sub:'APP · ブレーキ · ASCD · クロックスプリング · DLC · CAN · ボディ回路'},
+    es: {title:'Habitáculo / Body', sub:'APP · freno · ASCD · clock spring · DLC · CAN / meter · ABS · BCM · luces · puertas · asientos · audio · clima · limpia · techo · A/T'},
+    en: {title:'Cabin / body', sub:'APP · brake · ASCD · clock spring · DLC · CAN / meter · ABS · BCM · lamps · doors · seats · audio · climate · wipers · soft top · A/T'},
+    ja: {title:'車室内 / ボディ', sub:'APP · ブレーキ · ASCD · クロックスプリング · DLC · CAN · ABS · BCM · ランプ · ドア · シート · オーディオ · エアコン · ワイパー · ソフトトップ · A/T'},
   },
 };
 
@@ -2274,13 +2274,26 @@ const SUB_I18N = {
   intermedias: {es:'Paths multi E/F', en:'Multi E/F paths', ja:'複数経路 E/F'},
   pedals:      {es:'Pedales / frenos', en:'Pedals / brakes', ja:'ペダル / ブレーキ'},
   ascd_dlc:    {es:'ASCD / DLC', en:'ASCD / DLC', ja:'ASCD / DLC'},
-  carroceria:  {es:'Carrocería', en:'Body circuits', ja:'ボディ回路'},
+  /* Body systems: each one is its own top-level group (cards keep sub 'carroceria' + nest; see fichaGroupKey). */
+  body_abs:       {es:'ABS / VDC', en:'ABS / VDC', ja:'ABS / VDC'},
+  body_bcm:       {es:'BCM / seguridad', en:'BCM / security', ja:'BCM / セキュリティ'},
+  body_luces:     {es:'Luces', en:'Lamps', ja:'ランプ'},
+  body_puertas:   {es:'Puertas', en:'Doors', ja:'ドア'},
+  body_desemp:    {es:'Desempañador', en:'Rear defogger', ja:'リヤデフォッガー'},
+  body_tomas:     {es:'Tomas de 12 V', en:'12 V sockets', ja:'12Vソケット'},
+  body_asientos:  {es:'Asientos / cinturones', en:'Seats / belts', ja:'シート / シートベルト'},
+  body_audio:     {es:'Audio', en:'Audio', ja:'オーディオ'},
+  body_medidores: {es:'Medidores', en:'Gauges', ja:'メーター'},
+  body_clima:     {es:'Clima', en:'Climate', ja:'エアコン'},
+  body_limpia:    {es:'Limpia / lavaparabrisas', en:'Wipers / washers', ja:'ワイパー / ウォッシャー'},
+  body_techo:     {es:'Techo blando', en:'Soft top', ja:'ソフトトップ'},
+  body_at:        {es:'Caja automática', en:'Automatic transmission', ja:'オートマチックトランスミッション'},
   other:       {es:'Otros', en:'Other', ja:'その他'},
 };
 
-const SUB_ORDER = ['power','ipdm','feeds','fuses','sensors','bobinas','inyectores','actuators','intermedias','pedals','ascd_dlc','carroceria'];
-/* Carrocería nested groups (one per body system) */
+/* Body systems (card nest), in sidebar order; each renders as top-level group 'body_<nest>'. ABS first. */
 const BODY_NEST_ORDER = ['abs','bcm','luces','puertas','desemp','tomas','asientos','audio','medidores','clima','limpia','techo','at'];
+const SUB_ORDER = ['power','ipdm','feeds','fuses','sensors','bobinas','inyectores','actuators','intermedias','pedals','ascd_dlc', ...BODY_NEST_ORDER.map(n => 'body_' + n)];
 
 /** One border color per subcategory (ficha groups). */
 const SUB_ACCENT = {
@@ -2295,8 +2308,10 @@ const SUB_ACCENT = {
   intermedias: '#78909c',  /* slate — intermedias E/F */
   pedals:      '#ff7043',  /* deep orange — pedales / freno */
   ascd_dlc:    '#26c6da',  /* cyan — ASCD / DLC / CAN */
-  carroceria:  '#8d6e63',  /* brown — body circuits (ABS, lamps, doors, seats, audio…) */
+  carroceria:  '#8d6e63',  /* brown — body cards (ABS, lamps, doors, seats, audio…); data sub, used for card/HL accents */
 };
+/* Each body-system group keeps the body brown border. */
+BODY_NEST_ORDER.forEach(n => { SUB_ACCENT['body_' + n] = SUB_ACCENT.carroceria; });
 /* Groups collapsed by default (until the user opens them or a selection / rail filter reveals a member). */
 const SUB_DEFAULT_CLOSED = new Set(['fuses']);
 /* Bobinas / Inyectores — filet + sibling HL follow group accent */
@@ -5181,10 +5196,10 @@ function renderFichas(){
   /* F102 lives in #f102Panel (hidden from side fichas) but must stay in CONN for click/HL */
   if(CONN_BASE['ix_f102_m72']) CONN['ix_f102_m72'] = f102Conf();
 
-  /* Flat list by subcategory only (no outer motor/body split). */
+  /* Flat list by subcategory only (no outer motor/body split). Body cards group by system (fichaGroupKey). */
   const bySub = {};
   ids.forEach(id=>{
-    const sk = (CONN[id] && CONN[id].sub) || 'other';
+    const sk = fichaGroupKey(CONN[id]);
     (bySub[sk]=bySub[sk]||[]).push(id);
   });
   if(bySub.ipdm) bySub.ipdm = sortIpdmIds(bySub.ipdm);
@@ -5235,11 +5250,6 @@ function renderFichas(){
       const grid=document.createElement('div');
       grid.className='fichas-grid';
       if(sk === 'ipdm') appendIpdmFichas(grid, bySub[sk]);
-      else if(sk === 'carroceria'){
-        /* Body circuits: one flat list (no one-ficha subgroups), ordered by system via BODY_NEST_ORDER. */
-        const rank = id => { const i = BODY_NEST_ORDER.indexOf((CONN[id] && CONN[id].nest) || ''); return i < 0 ? 99 : i; };
-        bySub[sk].slice().sort((a, b) => rank(a) - rank(b)).forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
-      }
       else bySub[sk].forEach(id => grid.appendChild(makeFichaEl(id, CONN[id])));
       sec.appendChild(grid);
     }

@@ -195,8 +195,18 @@ const click = await page.evaluate(() => { clearSelection(); selectConnPin('ix_e1
 ok('click E108·36G → right turn circuit only (no fan-out over the SMJ)', click.length === 1 && click[0] === 'turn_rh', click.join(','));
 const click2 = await page.evaluate(() => { clearSelection(); selectConnPin('abs_t5', '4'); return [...lastCircIds]; });
 ok('click rear sensor T5·4 → abs_rl', click2.join(',') === 'abs_rl', click2.join(','));
-const flat = await page.evaluate(() => { const sec = document.querySelector('#fichas details.ficha-sec[data-sub="carroceria"]'); return { nests: sec ? sec.querySelectorAll('details.ficha-nest').length : -1, ids: sec ? [...sec.querySelectorAll(':scope > .fichas-grid > .ficha-wrap')].map((f) => f.dataset.conn) : [] }; });
-ok('Carrocería is one flat group: no nested subgroups, fichas listed directly, ABS first', flat.nests === 0 && flat.ids.length >= 9 && flat.ids[0] === 'abs_e51', JSON.stringify(flat));
+const bodyGroups = await page.evaluate(() => {
+  clearSelection();
+  const secs = [...document.querySelectorAll('#fichas > details.ficha-sec:not(.sel-top)')];
+  const subs = secs.map((s) => s.dataset.sub);
+  const body = secs.filter((s) => /^body_/.test(s.dataset.sub));
+  const bad = body.filter((s) => [...s.querySelectorAll(':scope > .fichas-grid > .ficha-wrap')].some((f) => { const c = CONN[f.dataset.conn]; return !c || c.sub !== 'carroceria' || 'body_' + c.nest !== s.dataset.sub; })).map((s) => s.dataset.sub);
+  return { carroceria: subs.includes('carroceria'), nests: document.querySelectorAll('#fichas details.ficha-nest').length, body: body.map((s) => s.dataset.sub), first: body[0] ? [...body[0].querySelectorAll('.ficha-wrap')].map((f) => f.dataset.conn)[0] : null, afterAscd: subs.indexOf('body_abs') > subs.indexOf('ascd_dlc'), bad, labels: body.map((s) => s.querySelector('summary').textContent.trim()) };
+});
+ok('Body systems are top-level groups (no Carrocería wrapper, no nested subgroups): ABS first, in BODY_NEST_ORDER (default Coupe M/T: no soft top, no A/T), each group holds only its own system',
+  !bodyGroups.carroceria && bodyGroups.nests === 0 && bodyGroups.body[0] === 'body_abs' && bodyGroups.first === 'abs_e51' && bodyGroups.afterAscd && bodyGroups.bad.length === 0
+  && bodyGroups.body.join(',') === ['abs', 'bcm', 'luces', 'puertas', 'desemp', 'tomas', 'asientos', 'audio', 'medidores', 'clima', 'limpia'].map((n) => 'body_' + n).join(',')
+  && !bodyGroups.labels.some((l) => /Carrocer|Body circuits/.test(l)), JSON.stringify(bodyGroups));
 
 const labels = {};
 for (const lg of ['en', 'ja', 'es']) {
