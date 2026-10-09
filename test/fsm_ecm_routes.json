@@ -2591,6 +2591,8 @@
       ],
       "note": "passenger door switch W/3; only 1 P to BCM 12 via M12 14J"
     },
+    "door_lock_d40": {"fsm":"D40","half":"D40","cav":["1","2","3","4"],"wired":["1","3"],"cite":["BL-29","BL-33","BL-47"],"note":"passenger lock actuator; no unlock sensor wires"},
+    "pw_d7": {"fsm":"D7","half":"D7","cav":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"],"wired":["1","4","5","6","7","8","9","10","11","12","13","14","15"],"cite":["GW-24","GW-27","BL-28"],"note":"power window main switch; 2, 3, 16 unwired; 4 Roadster only"},
     "door_lock_d11": {
       "fsm": "D11",
       "half": "D11",

@@ -892,6 +892,8 @@ const FSM_FACE = {
   door_sw_b17: { mt: "1", at: "1" },
   door_sw_b23: { mt: "1", at: "1" },
   door_lock_d11: { mt: "3 4 / 1 2", at: "3 4 / 1 2" },
+  door_lock_d40: { mt: "3 / 1", at: "3 / 1" },
+  pw_d7: { mt: "7 6 5 4 1 / 15 14 13 12 11 10 9 8", at: "7 6 5 4 1 / 15 14 13 12 11 10 9 8" }, /* 4 is Roadster only (dimmed) */
   back_door_t12: { mt: "1 / 3", at: "1 / 3" },
   back_opener_t103: { mt: "2 1", at: "2 1" },
   trunk_cancel_b71: { mt: null, at: null }, /* Roadster only; hidden on the default coupe */
