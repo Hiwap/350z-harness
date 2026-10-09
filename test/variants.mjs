@@ -129,7 +129,7 @@ const st = () => page.evaluate(() => {
   return {
     vals: Object.fromEntries(Object.keys(VARIANT_DIMS).map((k) => [k, document.getElementById(VARIANT_DIMS[k].el).value])),
     circs: CIRCUITS.map((c) => c.id),
-    m51: shown('vdc_m51'), techo: shown('body_techo'), at: shown('body_at'), abs: shown('abs_e51'), t5: shown('abs_t5'), e118: shown('vdc_e118'), m9: shown('vdc_off_m9'), f6: shown('f6_at'),
+    m51: shown('vdc_m51'), techo: shown('top_b67'), at: shown('body_at'), abs: shown('abs_e51'), t5: shown('abs_t5'), e118: shown('vdc_e118'), m9: shown('vdc_off_m9'), f6: shown('f6_at'),
     g13: code('ix_e108_m15', '13G'), g35: code('ix_e108_m15', '35G'), j29: code('ix_b1_m12', '29J'), j23: code('ix_b1_m12', '23J'),
     j46: code('ix_b1_m12', '46J'), t2: code('ix_t2_b44', '2'), b12: code('ix_e106_b2', '12'), b6: code('ix_e106_b2', '6'),
     j2: code('ix_b1_m12', '2J'), g8: code('ix_e108_m15', '8G'), j1: code('ix_b1_m12', '1J'), j4: code('ix_b1_m12', '4J'),

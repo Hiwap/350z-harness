@@ -870,7 +870,7 @@ const FSM_FACE = {
   dlc: { mt: "16 14 / 8 7 6 5 4", at: "16 14 / 8 7 6 5 4" },
   /* Carrocería body-circuit lists (shape note, one box per circuit; not plug faces).
      Wiper and washer cards are the real shells (empty cavities are not in this string).
-     Equipment-only cards (vdc_m51 VDC, body_techo Roadster) are hidden with the default generic OEM coupe. */
+     Equipment-only cards (vdc_m51 VDC, soft top B66/B67/B68/M14 Roadster) are hidden with the default generic OEM coupe. */
   abs_e51: { mt: "15 13 11 9 7 6 1 / 30 29 28 26 24 23 22 20 19 17 16", at: "15 13 11 9 7 6 1 / 30 29 28 26 24 23 22 20 19 17 16" }, /* E51 GY/30 shell 15-1 / 30-16; 19 is TCS-only (dimmed) */
   abs_t5: { mt: "2 1 / 4 3", at: "2 1 / 4 3" },
   vdc_e118: { mt: null, at: null },
@@ -929,7 +929,10 @@ const FSM_FACE = {
   wiper_d106: { mt: "1 2 4", at: "1 2 4" },
   body_at: { mt: null, at: "IGN-TCM BACK-AT STR-AT / K-TCM SHIFT" },
   vdc_m51: { mt: null, at: null },
-  body_techo: { mt: null, at: null },
+  top_b66: { mt: null, at: null },
+  top_b67: { mt: null, at: null },
+  top_b68: { mt: null, at: null },
+  top_m14: { mt: null, at: null },
   fuel_tank_temp: { mt: "5 4", at: "5 4" },
   comb_meter: { mt: "1 9 10 / 11 19 20", at: "1 9 10 / 11 19 20" },
   unified_m49: { mt: "21 22 25 26 28 / 29 30 32 36", at: "21 22 25 26 28 / 29 30 32 36" }, /* 25 and 32 are A/T only, dimmed on M/T */
