@@ -913,6 +913,8 @@ const FSM_FACE = {
   key_cyl_d12: { mt: "3 2 1", at: "3 2 1" },
   pw_sub_d37: { mt: "4 3 / 16 15 13 12 11 10 9 8", at: "4 3 / 16 15 13 12 11 10 9 8" }, /* 13 is Roadster only (dimmed) */
   pw_motor_d38: { mt: "1 2 / 3 4 5 6", at: "1 2 / 3 4 5 6" },
+  ix_d1_m11: { mt: "2K 3K 4K 5K 6K 8K 9K 10K 28K 29K 30K 31K / 32K 33K 34K", at: "2K 3K 4K 5K 6K 8K 9K 10K 28K 29K 30K 31K / 32K 33K 34K" }, /* 9K Roadster only (dimmed) */
+  ix_d31_m74: { mt: "4L 5L 6L 7L 8L 9L 28L 29L 31L / 32L 33L 34L", at: "4L 5L 6L 7L 8L 9L 28L 29L 31L / 32L 33L 34L" }, /* 9L Roadster only (dimmed) */
   back_door_t12: { mt: "1 / 3", at: "1 / 3" },
   back_opener_t103: { mt: "2 1", at: "2 1" },
   trunk_cancel_b71: { mt: null, at: null }, /* Roadster only; hidden on the default coupe */
