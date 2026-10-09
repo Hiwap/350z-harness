@@ -899,6 +899,8 @@ const FSM_FACE = {
   tpms_m79: { mt: "1", at: "1" },
   sec_m34: { mt: "2 1", at: "2 1" },
   key_m25: { mt: "1 2", at: "1 2" },
+  hazard_m153: { mt: "4 2 1 3", at: "4 2 1 3" },
+  vdc_m22: { mt: null, at: null }, /* VDC only */
   bcm_b83: { mt: "57 58 59 62 64 / 68 70", at: "57 58 59 62 64 / 68 70" }, /* 57 Roadster only, 59 Coupe only (dimmed) */
   door_lock_d40: { mt: "3 / 1", at: "3 / 1" },
   mirror_d2: { mt: "2 1 / 8 7 6", at: "2 1 / 8 7 6" },
