@@ -35,7 +35,6 @@ function findChrome() {
 const BLANK = {
   'ix_e106_b2·15':   { when: '', why: 'Bose: AV-15 / AV-22 do not name the end terminals' },
   'ix_e106_b2·16':   { when: '', why: 'Bose: AV-15 / AV-22 do not name the end terminals' },
-  'ix_e106_b2·7':    { when: '', why: 'Roadster power seat: SE-29 does not detail the ends in this view' },
   'ix_b1_m12·15J':   { when: 'body=roadster', why: 'luggage lamp: only the Coupe end (T13·1, LT-220) is known; the Roadster LT-224 end is not in the data' },
   'ix_b43_t1·5':     { when: 'body=roadster', why: 'fuel lid actuator T19·1 is the Coupe circuit (BL-54); no Roadster end in the data' },
   'ix_e12_f3·1':     { when: 'trans=mt', why: 'battery feed for the TCM F6 (AT-186); the FSM names no M/T end' },
