@@ -99,8 +99,8 @@ for (const c of c3.R) for (const [cid, cavs] of Object.entries(c.path || {})) {
 }
 ok('every circuit path cavity exists on its card', badPath.length === 0, badPath.join(', '));
 const bodyIds = Object.keys(C).filter((id) => C[id].sub === 'carroceria');
-ok('Carrocería groups: ABS, lamps, doors, defogger, seats, audio, gauges, climate, wipers, soft top, A/T',
-  ['abs', 'luces', 'puertas', 'desemp', 'asientos', 'audio', 'medidores', 'clima', 'limpia', 'techo', 'at'].every((n) => bodyIds.some((id) => C[id].nest === n)), bodyIds.join(','));
+ok('Carrocería groups: ABS, BCM, lamps, doors, defogger, 12 V sockets, seats, audio, gauges, climate, wipers, soft top, A/T',
+  ['abs', 'bcm', 'luces', 'puertas', 'desemp', 'tomas', 'asientos', 'audio', 'medidores', 'clima', 'limpia', 'techo', 'at'].every((n) => bodyIds.some((id) => C[id].nest === n)), bodyIds.join(','));
 const railBody = [];
 for (const id of ['ix_e106_b2', 'ix_t2_b44', 'ix_e108_m15', 'ix_b1_m12', ...bodyIds]) for (const p of C[id].pins || []) if (p.srcSub === 'carroceria' && p.rail) railBody.push(id + '·' + p.id);
 ok('new body pins carry no rail (switched outputs / sensor supplies are not 12V rails)', railBody.length === 0, railBody.join(','));
