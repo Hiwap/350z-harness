@@ -2495,7 +2495,7 @@
       "cite": [
         "LT-179"
       ],
-      "note": "Coupe high-mounted stop lamp BR/2; 1 P stop (P/L up to the hatch), 2 B to D105; Roadster uses T203 (LT-180), not drawn"
+      "note": "Coupe high-mounted stop lamp BR/2; 1 P stop (P/L up to the hatch), 2 B to D105; Roadster uses T202 (LT-180), not drawn"
     },
     "map_r52": {"fsm":"R52","half":"R52","cav":["1","2","3"],"cite":["LT-220"],"note":"Coupe map lamp W/3; 1 B ground M30 via M70·3, 2 PU/W to BCM M91·48 via M70·2, 3 R/B from M91·41 via M70·1"},
     "map_r53": {"fsm":"R53","half":"R53","cav":["1","2","3","4"],"cite":["LT-224"],"note":"Roadster map lamp W/4, face 4-3-2-1 as printed; 2 R saver from M91·41, 3 L map to M91·48, 4 Y illumination via M70·4 (not verified beyond)"},
@@ -2835,6 +2835,8 @@
         "20",
         "22",
         "23",
+        "27",
+        "28",
         "29",
         "30",
         "32",
@@ -2853,9 +2855,10 @@
         "BL-34",
         "BL-46",
         "GW-57",
-        "WT-14"
+        "WT-14",
+        "ATC-44"
       ],
-      "note": "BCM M90 white. 25 wired. Empty 1, 7, 8, 10, 13, 14, 16, 17, 21, 24, 25, 26, 27, 28, 31."
+      "note": "BCM M90 white. 27 wired. Empty 1, 7, 8, 10, 13, 14, 16, 17, 21, 24, 25, 26, 31. 27/28 to M50·42/57 (ATC-44/82/83)."
     },
     "defog_b34": {
       "fsm": "B34",
