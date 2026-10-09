@@ -887,6 +887,8 @@ const FSM_FACE = {
   stop_t17: { mt: "3 2 1", at: "3 2 1" },
   stop_d103: { mt: "1 2", at: "1 2" },
   lug_t13: { mt: "2 1", at: "2 1" },
+  map_r52: { mt: "1 2 3", at: "1 2 3" },
+  map_r53: { mt: null, at: null }, /* Roadster only */
   dtrl_e14: { mt: "14 5 6 / 1", at: "14 5 6 / 1" },
   dtrl_e15: { mt: "11 16 / 9 17 12", at: "11 16 / 9 17 12" },
   door_sw_b17: { mt: "1", at: "1" },

@@ -2497,6 +2497,8 @@
       ],
       "note": "Coupe high-mounted stop lamp BR/2; 1 P stop (P/L up to the hatch), 2 B to D105; Roadster uses T203 (LT-180), not drawn"
     },
+    "map_r52": {"fsm":"R52","half":"R52","cav":["1","2","3"],"cite":["LT-220"],"note":"Coupe map lamp W/3; 1 B ground M30 via M70·3, 2 PU/W to BCM M91·48 via M70·2, 3 R/B from M91·41 via M70·1"},
+    "map_r53": {"fsm":"R53","half":"R53","cav":["1","2","3","4"],"cite":["LT-224"],"note":"Roadster map lamp W/4, face 4-3-2-1 as printed; 2 R saver from M91·41, 3 L map to M91·48, 4 Y illumination via M70·4 (not verified beyond)"},
     "lug_t13": {
       "fsm": "T13",
       "half": "T13",
@@ -2507,7 +2509,7 @@
       "cite": [
         "LT-220"
       ],
-      "note": "Coupe luggage lamp GY/2, face 2-1; 1 Y feed from the room lamp circuit via M12·15J, 2 R/W return to M30/M66; Roadster trunk lamp T20 (LT-224) clashes with EVAP T20 and is not drawn"
+      "note": "Coupe luggage lamp GY/2, face 2-1; 1 Y feed from the room lamp circuit via M12·15J, 2 R/W to BCM B83·64 via B43/T1·1; Roadster trunk lamp is T29 (LT-224), not on the map"
     },
     "dtrl_e14": {
       "fsm": "E14",

@@ -886,11 +886,11 @@ const CONN_BASE = {
     note:'Tercer conector del módulo de carrocería, blanco (PG-57 en el Coupé, PG-59 en el Roadster). Varias cavidades cambian de uso con la carrocería: 58, 68 y 70 llevan el portón y el limpialuneta en el Coupé, y la tapa de combustible y el maletero en el Roadster. 57 es solo Roadster y 59 solo Coupé. Sin cable: 56, 60, 61, 63, 65, 66, 67 y 69. PG-83 / BL-27 / WW-40.'},
   bcm_m91:{group:'body', sub:'carroceria', nest:'luces', name:'Módulo de carrocería (BCM)', meta:'M91 · B · PG-83', accent:'#ffb300', shape:'grid', faceRows:[['41','42','43','44','45','46','47','48','49'],['50','51','52','53','54','55',null,null,null]], view:{c:'M91',g:'f',src:'PG-83',ord:'41…49 / 50…55',ex:{es:'sin cable: 43, 47 y 49',en:'no wire: 43, 47 and 49',ja:'配線なし：43、47、49'}},
     pins:[
-      {id:'41',lab:'SAVER',code:'R/B',ecm:null,note:'Salida del ahorro de batería (R/B), hacia la luz de mapa. LT-214.',note_en:'Battery saver output (R/B), to the map lamp. LT-214.',note_ja:'バッテリーセーバー出力（R/B）。マップランプへ。LT-214。'},
+      {id:'41',lab:'SAVER',code:'R/B',ecm:null,src:'R52·3',srcSub:'carroceria',altSrcIf:'body=roadster',altSrc:'R53·2',circ:'map_lamp',note:'Salida del ahorro de batería (R/B), hacia la luz de mapa: R52·3 en el Coupé, R53·2 en el Roadster. LT-214 / LT-220 / LT-224.',note_en:'Battery saver output (R/B), to the map lamp: R52·3 on the Coupe, R53·2 on the Roadster. LT-214 / LT-220 / LT-224.',note_ja:'バッテリーセーバー出力（R/B）。マップランプへ：クーペはR52·3、ロードスターはR53·2。LT-214 / LT-220 / LT-224。'},
       {id:'44',lab:'UNLK-DR',code:'Y',ecm:null,src:'D11·3',srcSub:'carroceria',circ:'door_lock_dr',note:'Apertura de la cerradura del conductor (Y), hacia D11·3. BL-46.',note_en:'Driver door unlock (Y), to D11·3. BL-46.',note_ja:'運転席ドアのアンロック（Y）。D11·3へ。BL-46。'},
       {id:'45',lab:'TURN-L',code:'G/W',ecm:null,src:'E40·2',srcSub:'carroceria',circ:'turn_lh',note:'Salida de intermitente izquierdo (G/W). LT-153.',note_en:'Left turn output (G/W). LT-153.',note_ja:'左ターン出力（G/W）。LT-153。'},
       {id:'46',lab:'TURN-R',code:'PU/W',ecm:null,src:'E24·2',srcSub:'carroceria',circ:'turn_rh',note:'Salida de intermitente derecho (PU/W). LT-154.',note_en:'Right turn output (PU/W). LT-154.',note_ja:'右ターン出力（PU/W）。LT-154。'},
-      {id:'48',lab:'MAP',code:'P',ecm:null,note:'Salida de la luz de mapa (P). LT-214.',note_en:'Map lamp output (P). LT-214.',note_ja:'マップランプ出力（P）。LT-214。'}
+      {id:'48',lab:'MAP',code:'P',ecm:null,src:'R52·2',srcSub:'carroceria',altSrcIf:'body=roadster',altSrc:'R53·3',circ:'map_lamp',note:'Salida de la luz de mapa (P): R52·2 en el Coupé, R53·3 en el Roadster. LT-214 / LT-220 / LT-224.',note_en:'Map lamp output (P): R52·2 on the Coupe, R53·3 on the Roadster. LT-214 / LT-220 / LT-224.',note_ja:'マップランプ出力（P）：クーペはR52·2、ロードスターはR53·3。LT-214 / LT-220 / LT-224。'}
     ,
       {id:'42',lab:'BAT-F',code:'GY',ecm:null,note:'Alimentación de batería por fusible (GY). DI-86.',note_en:'Battery feed through the fuse (GY). DI-86.',note_ja:'ヒューズ経由のバッテリー電源（GY）。DI-86。'},
       {id:'50',lab:'LOCK',code:'PU',ecm:null,src:'D11·1',srcSub:'carroceria',circ:'door_lock_dr',note:'Cierre de todas las puertas (PU), hacia D11·1. BL-46.',note_en:'All-door lock (PU), to D11·1. BL-46.',note_ja:'全ドアロック（PU）。D11·1へ。BL-46。'},
@@ -977,6 +977,21 @@ const CONN_BASE = {
       {id:'2',lab:'GND',code:'B',ecm:null,circ:'stop_lamps',note:'Masa (B), hacia D105. Solo Coupé. LT-179.',note_en:'Ground (B), to D105. Coupe only. LT-179.',note_ja:'アース（B）、D105へ。クーペのみ。LT-179。'}
     ],
     note:'Solo Coupé. Tercera luz de freno, en el portón. El pin 1 es la señal y el pin 2 la masa. En el Roadster esa luz es T203 (LT-180) y no está en el mapa. LT-179.'},
+  map_r52:{group:'body', sub:'carroceria', nest:'luces', name:'Luz de mapa (Coupé)', meta:'R52 · W/3 · LT-220', accent:'#ffb300', shape:'grid', faceRows:[['1','2','3']], vif:'body=coupe', view:{c:'R52',g:'f',src:'LT-220',ord:'1-2-3'},
+    pins:[
+      {id:'1',lab:'GND',code:'B',ecm:null,src:'M30',srcSub:'power',note:'Masa (B), por R51/M70·3 hasta la masa M30. LT-220.',note_en:'Ground (B), through R51/M70·3 to ground M30. LT-220.',note_ja:'アース（B）。R51/M70·3経由でアースM30へ。LT-220。'},
+      {id:'2',lab:'MAP',code:'PU/W',ecm:null,src:'M91·48',srcSub:'carroceria',circ:'map_lamp',note:'Luz de mapa (PU/W), por R51/M70·2 (P del lado del módulo) hasta el BCM M91·48. LT-220.',note_en:'Map lamp (PU/W), through R51/M70·2 (P on the module side) to BCM M91·48. LT-220.',note_ja:'マップランプ（PU/W）。R51/M70·2経由（モジュール側はP）でBCM M91·48へ。LT-220。'},
+      {id:'3',lab:'SAVER',code:'R/B',ecm:null,src:'M91·41',srcSub:'carroceria',circ:'map_lamp',note:'Alimentación con ahorro de batería (R/B), por R51/M70·1 desde el BCM M91·41. LT-220.',note_en:'Battery-saver feed (R/B), through R51/M70·1 from BCM M91·41. LT-220.',note_ja:'バッテリーセーバー電源（R/B）。R51/M70·1経由でBCM M91·41から。LT-220。'}
+    ],
+    note:'Solo Coupé. Luz de mapa del techo. La ubicación está en PG-67, que este mapa no muestra. LT-220.'},
+  map_r53:{group:'body', sub:'carroceria', nest:'luces', name:'Luz de mapa (Roadster)', meta:'R53 · W/4 · LT-224', accent:'#ffb300', shape:'grid', faceRows:[['4','3','2','1']], vif:'body=roadster', view:{c:'R53',g:'f',src:'LT-224',ord:'4-3-2-1'},
+    pins:[
+      {id:'1',lab:'GND',code:'B',ecm:null,note:'Masa (B). LT-224.',note_en:'Ground (B). LT-224.',note_ja:'アース（B）。LT-224。'},
+      {id:'2',lab:'SAVER',code:'R',ecm:null,src:'M91·41',srcSub:'carroceria',circ:'map_lamp',note:'Alimentación con ahorro de batería: R en la luz y R/B en el BCM M91·41. LT-224.',note_en:'Battery-saver feed: R at the lamp and R/B at BCM M91·41. LT-224.',note_ja:'バッテリーセーバー電源：ランプ側R、BCM M91·41側R/B。LT-224。'},
+      {id:'3',lab:'MAP',code:'L',ecm:null,src:'M91·48',srcSub:'carroceria',circ:'map_lamp',note:'Luz de mapa: L en la luz y P en el BCM M91·48. LT-224.',note_en:'Map lamp: L at the lamp and P at BCM M91·48. LT-224.',note_ja:'マップランプ：ランプ側L、BCM M91·48側P。LT-224。'},
+      {id:'4',lab:'ILL',code:'Y',ecm:null,note:'Iluminación (Y), por R51/M70·4 hasta el cable R/L de iluminación. El recorrido más allá de M70 no está verificado. LT-224.',note_en:'Illumination (Y), through R51/M70·4 to the R/L illumination wire. The route beyond M70 is not verified. LT-224.',note_ja:'照明（Y）。R51/M70·4経由でR/Lの照明線へ。M70より先の経路は未確認。LT-224。'}
+    ],
+    note:'Solo Roadster. Luz de mapa. El orden de los números va al revés que en R52 (4-3-2-1); está copiado tal como lo imprime el manual. La ubicación está en PG-68, que este mapa no muestra. LT-224.'},
   lug_t13:{group:'body', sub:'carroceria', nest:'luces', name:'Luz del maletero', meta:'T13 · GY/2 · LT-220', accent:'#ffb300', shape:'grid', faceRows:[['2','1']], vif:'body=coupe', view:{c:'T13',g:'f',src:'LT-220',ord:'2-1'},
     pins:[
       {id:'1',lab:'LUG',code:'Y',ecm:null,src:'M12·15J',srcSub:'carroceria',circ:'luggage_lamp',note:'Alimentación (Y), desde el circuito de la luz de techo. Solo Coupé. LT-220.',note_en:'Feed (Y), from the room lamp circuit. Coupe only. LT-220.',note_ja:'電源（Y）。ルームランプ回路から。クーペのみ。LT-220。'},
