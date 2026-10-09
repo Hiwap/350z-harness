@@ -575,7 +575,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       washer_e29: 2,
       washer_e28: 2,
       wiper_d106: 3, /* shell D106 W/4; cavity 3 empty */
-      meter_m19: 17, /* shell M19 W/24; 4-9 and 19 have no FSM wire */
+      meter_m19: 19, /* shell M19 W/24; 4-8 have no FSM wire; 9/19 to the triple meter (LT-248) */
       brake_fluid_e44: 2,
       pkb_b47: 1,
       bcm_m90: 27, bcm_m91: 12, turn_e40: 8, turn_e41: 6, turn_t10: 2, turn_e24: 8, turn_e25: 6, turn_t18: 2,
@@ -585,7 +585,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       vdc_e118: 43, /* shell E118 B/88; cavities with no FSM wire stay empty */
       vdc_off_m9: 2, /* shell M9 GY: 1-2-3-4 plus two unnumbered cavities; the ficha wires 1 and 2 */
       vdc_m51: 6,
-      comb_meter: 10, triple_m44: 9, unified_m49: 9, unified_m50: 13, fuel_level_sub: 2,
+      comb_meter: 10, triple_m44: 10, unified_m49: 9, unified_m50: 13, fuel_level_sub: 2,
       door_sw_b17: 1, door_sw_b23: 1, door_lock_d11: 4, door_lock_d40: 2, mirror_d2: 5, mirror_d32: 5, bcm_b83: 7, cb_b55: 2, stop_t202: 2, hazard_m153: 4, vdc_m22: 4, rke_m78: 3, tpms_m79: 1, sec_m34: 2, key_m25: 2, comb_sw_m29: 13, pw_d7: 13,
       back_door_t12: 2, back_opener_t103: 2, trunk_cancel_b71: 2, back_opener_t11: 2,
       fuel_lid_m59: 4, fuel_lid_m13: 2, fuel_lid_t19: 2,

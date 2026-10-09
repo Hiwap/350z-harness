@@ -1801,7 +1801,60 @@
       "status": "pending",
       "reason": "F242 GY/2 per PG-55 (sub-harness-3, *1 35th Anniversary M/T); EC-123 wires one cavity to ECM 54 and one to the ECM 67 splice, but the FSM (2005/2006) publishes no face or cavity numbering, so the map uses neutral labels S/G"
     },
-    "unified_m50": {"fsm":"M50","half":"M50","cav":["37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60"],"wired":["38","39","40","41","42","43","46","49","50","53","54","56","57"],"cite":["ATC-42","ATC-44","ATC-45","ATC-47","ATC-48","GW-61"],"note":"Unified meter and A/C amp third plug W/24; latch over 53-54; 13 wired"},
+    "unified_m50": {
+      "fsm": "M50",
+      "half": "M50",
+      "cav": [
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+        "54",
+        "55",
+        "56",
+        "57",
+        "58",
+        "59",
+        "60"
+      ],
+      "wired": [
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "46",
+        "49",
+        "50",
+        "53",
+        "54",
+        "56",
+        "57"
+      ],
+      "cite": [
+        "ATC-42",
+        "ATC-44",
+        "ATC-45",
+        "ATC-47",
+        "ATC-48",
+        "GW-61"
+      ],
+      "note": "Unified meter and A/C amp third plug W/24; latch over 53-54; 13 wired"
+    },
     "unified_m49": {
       "fsm": "M49",
       "half": "M49",
@@ -1958,6 +2011,7 @@
         "1",
         "2",
         "3",
+        "9",
         "10",
         "11",
         "12",
@@ -1967,6 +2021,7 @@
         "16",
         "17",
         "18",
+        "19",
         "20",
         "21",
         "22",
@@ -1978,9 +2033,10 @@
         "DI-67",
         "DI-69",
         "DI-70",
-        "DI-11"
+        "DI-11",
+        "LT-248"
       ],
-      "note": "combination meter W/24; wires from DI-10/67/69/70; cavities 4-9 and 19 have no wire on those pages"
+      "note": "combination meter W/24; wires from DI-10/67/69/70; 9 and 19 to the triple meter (LT-248); cavities 4-8 have no wire on those pages"
     },
     "brake_fluid_e44": {
       "fsm": "E44",
@@ -2498,8 +2554,33 @@
       ],
       "note": "Coupe high-mounted stop lamp BR/2; 1 P stop (P/L up to the hatch), 2 B to D105; Roadster uses T202 (LT-180), own card stop_t202"
     },
-    "map_r52": {"fsm":"R52","half":"R52","cav":["1","2","3"],"cite":["LT-220"],"note":"Coupe map lamp W/3; 1 B ground M30 via M70·3, 2 PU/W to BCM M91·48 via M70·2, 3 R/B from M91·41 via M70·1"},
-    "map_r53": {"fsm":"R53","half":"R53","cav":["1","2","3","4"],"cite":["LT-224"],"note":"Roadster map lamp W/4, face 4-3-2-1 as printed; 2 R saver from M91·41, 3 L map to M91·48, 4 Y illumination via M70·4 (not verified beyond)"},
+    "map_r52": {
+      "fsm": "R52",
+      "half": "R52",
+      "cav": [
+        "1",
+        "2",
+        "3"
+      ],
+      "cite": [
+        "LT-220"
+      ],
+      "note": "Coupe map lamp W/3; 1 B ground M30 via M70·3, 2 PU/W to BCM M91·48 via M70·2, 3 R/B from M91·41 via M70·1"
+    },
+    "map_r53": {
+      "fsm": "R53",
+      "half": "R53",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "cite": [
+        "LT-224"
+      ],
+      "note": "Roadster map lamp W/4, face 4-3-2-1 as printed; 2 R saver from M91·41, 3 L map to M91·48, 4 Y illumination via M70·4 (not verified beyond)"
+    },
     "lug_t13": {
       "fsm": "T13",
       "half": "T13",
@@ -2594,20 +2675,352 @@
       ],
       "note": "passenger door switch W/3; only 1 P to BCM 12 via M12 14J"
     },
-    "comb_sw_m29": {"fsm":"M29","half":"M29","cav":["1","2","3","4","5","6","7","8","9","10","11","12","13"],"wired":["1","2","3","4","5","6","7","8","9","10","11","12","13"],"cite":["LT-152","LT-171","WW-13","WW-41"],"note":"Combination switch W/16 (13 numbered terminals); 1-5 BCM outputs M90·36..32, 6-10 inputs M90·6/5/2/3/4 (8=IN5 M90·2, 9=IN4 M90·3, 10=IN3 M90·4); 11 FR washer, 12 GND, 13 RR washer Coupe"},
-    "rke_m78": {"fsm":"M78","half":"M78","cav":["1","2","3","4"],"wired":["1","2","4"],"cite":["BL-139","WT-14"],"note":"Remote keyless entry receiver W/4; 1 B GND M90·18, 2 L signal M90·20, 4 Y power M90·19, 3 empty"},
-    "tpms_m79": {"fsm":"M79","half":"M79","cav":["1","2"],"wired":["1"],"cite":["WT-14"],"note":"Tire pressure warning check connector W/2; 1 W to M90·15"},
-    "sec_m34": {"fsm":"M34","half":"M34","cav":["1","2"],"wired":["1","2"],"cite":["BL-139","PG-49"],"note":"Security indicator lamp; PG-49 lists BR/2, BL-139 labels the face W (kept BR); 1 R/W fuse 19, 2 G/OR M90·23"},
-    "key_m25": {"fsm":"M25","half":"M25","cav":["1","2"],"wired":["1","2"],"cite":["BL-69","BL-75"],"note":"Key switch BR/2; 1 B/R to M90·37, 2 PU fuse 21"},
-    "hazard_m153": {"fsm":"M153","half":"M153","cav":["1","2","3","4"],"wired":["1","2","3","4"],"cite":["LT-152","LT-251"],"note":"Hazard switch W/4 face 4-2-1-3; 1 B GND via M52·9, 2 PU to M90·29 via M52·3, 3 LG from E7·22 via M52·8, 4 W to M19·18 via M52·2"},
-    "vdc_m22": {"fsm":"M22","half":"M22","cav":["1","2","3","4","5","6","7","8"],"wired":["2","3","4","5"],"cite":["BRC-103","BRC-125"],"note":"Steering angle sensor W/8, VDC only; 2 B/P GND via E108·19G, 3 Y/R to E118·2 via E108·11G, 4/5 CAN"},
-    "cb_b55": {"fsm":"B55","half":"B55","cav":["1","2"],"wired":["1","2"],"cite":["RF-25"],"note":"Roadster soft top circuit breaker; 1 W/B from F/L G via E107/B3·6, 2 W/R to B66·1/8"},
-    "stop_t202": {"fsm":"T202","half":"T202","cav":["1","2"],"wired":["1","2"],"cite":["LT-180"],"note":"Roadster high-mounted stop lamp BR/2; 1 P stop via T152/T26/T22·4, 2 B GND T14"},
-    "bcm_b83": {"fsm":"B83","half":"B83","cav":["56","57","58","59","60","61","62","63","64","65","66","67","68","69","70"],"wired":["57","58","59","62","64","68","70"],"cite":["PG-83","BL-27","BL-55","WW-40","LT-220","LT-224"],"note":"BCM third plug; 57 Roadster only, 59 Coupe only; 58/68/70 change use by body"},
-    "mirror_d2": {"fsm":"D2","half":"D2","cav":["1","2","3","4","5","6","7","8"],"wired":["1","2","6","7","8"],"cite":["GW-63","GW-67","GW-80","GW-84"],"note":"Driver door mirror W/8; 1 B ground M30 via D1/M11·31K, 2 SB heater from J/B fuse 8 via M11/D1·10K, 6/7/8 motors to D6·2/6/7"},
-    "mirror_d32": {"fsm":"D32","half":"D32","cav":["1","2","3","4","5","6","7","8"],"wired":["1","2","6","7","8"],"cite":["GW-63","GW-67","GW-81","GW-84"],"note":"Passenger door mirror W/8; 1 B ground M66 via D31/M74·31L, 2 L heater from J/B fuse 8 via M74/D31·7L, 6/7/8 motors to D6·2/4/5 via M74/D31 and M11/D1"},
-    "door_lock_d40": {"fsm":"D40","half":"D40","cav":["1","2","3","4"],"wired":["1","3"],"cite":["BL-29","BL-33","BL-47"],"note":"passenger lock actuator; no unlock sensor wires"},
-    "pw_d7": {"fsm":"D7","half":"D7","cav":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"],"wired":["1","4","5","6","7","8","9","10","11","12","13","14","15"],"cite":["GW-24","GW-27","BL-28"],"note":"power window main switch; 2, 3, 16 unwired; 4 Roadster only"},
+    "comb_sw_m29": {
+      "fsm": "M29",
+      "half": "M29",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13"
+      ],
+      "wired": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13"
+      ],
+      "cite": [
+        "LT-152",
+        "LT-171",
+        "WW-13",
+        "WW-41"
+      ],
+      "note": "Combination switch W/16 (13 numbered terminals); 1-5 BCM outputs M90·36..32, 6-10 inputs M90·6/5/2/3/4 (8=IN5 M90·2, 9=IN4 M90·3, 10=IN3 M90·4); 11 FR washer, 12 GND, 13 RR washer Coupe"
+    },
+    "rke_m78": {
+      "fsm": "M78",
+      "half": "M78",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "wired": [
+        "1",
+        "2",
+        "4"
+      ],
+      "cite": [
+        "BL-139",
+        "WT-14"
+      ],
+      "note": "Remote keyless entry receiver W/4; 1 B GND M90·18, 2 L signal M90·20, 4 Y power M90·19, 3 empty"
+    },
+    "tpms_m79": {
+      "fsm": "M79",
+      "half": "M79",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1"
+      ],
+      "cite": [
+        "WT-14"
+      ],
+      "note": "Tire pressure warning check connector W/2; 1 W to M90·15"
+    },
+    "sec_m34": {
+      "fsm": "M34",
+      "half": "M34",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "BL-139",
+        "PG-49"
+      ],
+      "note": "Security indicator lamp; PG-49 lists BR/2, BL-139 labels the face W (kept BR); 1 R/W fuse 19, 2 G/OR M90·23"
+    },
+    "key_m25": {
+      "fsm": "M25",
+      "half": "M25",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "BL-69",
+        "BL-75"
+      ],
+      "note": "Key switch BR/2; 1 B/R to M90·37, 2 PU fuse 21"
+    },
+    "hazard_m153": {
+      "fsm": "M153",
+      "half": "M153",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "wired": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "cite": [
+        "LT-152",
+        "LT-251"
+      ],
+      "note": "Hazard switch W/4 face 4-2-1-3; 1 B GND via M52·9, 2 PU to M90·29 via M52·3, 3 LG from E7·22 via M52·8, 4 W to M19·18 via M52·2"
+    },
+    "vdc_m22": {
+      "fsm": "M22",
+      "half": "M22",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "wired": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "cite": [
+        "BRC-103",
+        "BRC-125"
+      ],
+      "note": "Steering angle sensor W/8, VDC only; 2 B/P GND via E108·19G, 3 Y/R to E118·2 via E108·11G, 4/5 CAN"
+    },
+    "cb_b55": {
+      "fsm": "B55",
+      "half": "B55",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "RF-25"
+      ],
+      "note": "Roadster soft top circuit breaker; 1 W/B from F/L G via E107/B3·6, 2 W/R to B66·1/8"
+    },
+    "stop_t202": {
+      "fsm": "T202",
+      "half": "T202",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "LT-180"
+      ],
+      "note": "Roadster high-mounted stop lamp BR/2; 1 P stop via T152/T26/T22·4, 2 B GND T14"
+    },
+    "bcm_b83": {
+      "fsm": "B83",
+      "half": "B83",
+      "cav": [
+        "56",
+        "57",
+        "58",
+        "59",
+        "60",
+        "61",
+        "62",
+        "63",
+        "64",
+        "65",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70"
+      ],
+      "wired": [
+        "57",
+        "58",
+        "59",
+        "62",
+        "64",
+        "68",
+        "70"
+      ],
+      "cite": [
+        "PG-83",
+        "BL-27",
+        "BL-55",
+        "WW-40",
+        "LT-220",
+        "LT-224"
+      ],
+      "note": "BCM third plug; 57 Roadster only, 59 Coupe only; 58/68/70 change use by body"
+    },
+    "mirror_d2": {
+      "fsm": "D2",
+      "half": "D2",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "wired": [
+        "1",
+        "2",
+        "6",
+        "7",
+        "8"
+      ],
+      "cite": [
+        "GW-63",
+        "GW-67",
+        "GW-80",
+        "GW-84"
+      ],
+      "note": "Driver door mirror W/8; 1 B ground M30 via D1/M11·31K, 2 SB heater from J/B fuse 8 via M11/D1·10K, 6/7/8 motors to D6·2/6/7"
+    },
+    "mirror_d32": {
+      "fsm": "D32",
+      "half": "D32",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "wired": [
+        "1",
+        "2",
+        "6",
+        "7",
+        "8"
+      ],
+      "cite": [
+        "GW-63",
+        "GW-67",
+        "GW-81",
+        "GW-84"
+      ],
+      "note": "Passenger door mirror W/8; 1 B ground M66 via D31/M74·31L, 2 L heater from J/B fuse 8 via M74/D31·7L, 6/7/8 motors to D6·2/4/5 via M74/D31 and M11/D1"
+    },
+    "door_lock_d40": {
+      "fsm": "D40",
+      "half": "D40",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "wired": [
+        "1",
+        "3"
+      ],
+      "cite": [
+        "BL-29",
+        "BL-33",
+        "BL-47"
+      ],
+      "note": "passenger lock actuator; no unlock sensor wires"
+    },
+    "pw_d7": {
+      "fsm": "D7",
+      "half": "D7",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ],
+      "wired": [
+        "1",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15"
+      ],
+      "cite": [
+        "GW-24",
+        "GW-27",
+        "BL-28"
+      ],
+      "note": "power window main switch; 2, 3, 16 unwired; 4 Roadster only"
+    },
     "door_lock_d11": {
       "fsm": "D11",
       "half": "D11",
@@ -2777,15 +3190,17 @@
         "9",
         "8",
         "7",
-        "12"
+        "12",
+        "11"
       ],
       "cite": [
         "DI-34",
         "DI-36",
         "DI-38",
-        "DI-45"
+        "DI-45",
+        "LT-248"
       ],
-      "note": "Triple meter M44 W/12. DI-36 wires 1 ground, 2 battery, 3 ignition, 4 TX, 5 RX, 7-9 oil pressure, 12 illumination. Empty 6, 10, 11."
+      "note": "Triple meter M44 W/12. DI-36 wires 1 ground, 2 battery, 3 ignition, 4 TX, 5 RX, 7-9 oil pressure, 12 illumination; LT-248 adds 11 (OR) and runs 11/12 to M19·9/19. Empty 6, 10."
     },
     "bcm_m90": {
       "fsm": "M90",
@@ -3069,22 +3484,412 @@
       ],
       "note": "passenger buckle; cavity 3 empty; pin 1 goes to airbag unit M55"
     },
-    "audio_m40": {"fsm":"M40","half":"M40","cav":["1","2","3","4","5","6","7","8","9","10"],"wired":["1","2","3","4","5","6","7","8","9","10"],"cite":["AV-11","AV-16"],"note":"audio unit; wide gap between 8 and 4 is not a cavity"},
-    "audio_m41": {"fsm":"M41","half":"M41","cav":["11","12","13","14","15","16"],"wired":["11","12","13","14","15","16"],"cite":["AV-12","AV-18"],"note":"audio unit; wide gap between 16 and 12 is not a cavity"},
-    "audio_m39": {"fsm":"M39","half":"M39","cav":["17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32"],"wired":["17","24","30","31","32"],"cite":["AV-12","AV-16","AV-18"],"note":"diamond index is not cavities; 18-23 and 25-29 unwired"},
-    "spk_d4": {"fsm":"D4","half":"D4","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"driver door speaker; empty index cell above"},
-    "spk_d3": {"fsm":"D3","half":"D3","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"driver tweeter; index bar above"},
-    "spk_d34": {"fsm":"D34","half":"D34","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"passenger door speaker"},
-    "spk_d33": {"fsm":"D33","half":"D33","cav":["1","2"],"wired":["1","2"],"cite":["AV-11"],"note":"passenger tweeter"},
-    "spk_b40": {"fsm":"B40","half":"B40","cav":["1","2"],"wired":["1","2"],"cite":["AV-12"],"note":"rear LH speaker; round index above"},
-    "spk_b42": {"fsm":"B42","half":"B42","cav":["1","2"],"wired":["1","2"],"cite":["AV-12"],"note":"rear RH speaker"},
-    "amb_e34": {"fsm":"E34","half":"E34","cav":["1","2"],"wired":["1","2"],"cite":["ATC-44"],"note":"ambient sensor; triangular index above"},
-    "blower_m62": {"fsm":"M62","half":"M62","cav":["1","2","3"],"wired":["1","2","3"],"cite":["ATC-42"],"note":"blower motor; two unnumbered cavities to the right of 1"},
-    "top_b66": {"fsm":"B66","half":"B66","cav":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"],"wired":["1","3","4","5","6","7","8","10","12","13","14","15","16"],"cite":["RF-25","RF-27","RF-33"],"note":"soft top control unit; two-cavity lock between 5 and 4"},
-    "top_b67": {"fsm":"B67","half":"B67","cav":["17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"],"wired":["17","18","19","20","21","22","23","24","25","26","27","29","30","31","32","33","34","35","36"],"cite":["RF-25","RF-26","RF-27","RF-33"],"note":"soft top control unit; two-cavity lock between 21 and 20"},
-    "top_b68": {"fsm":"B68","half":"B68","cav":["37","38","39","40","41","42","43","44","45","46","47","48"],"wired":["37","38","41","42","44","45","48"],"cite":["RF-25","RF-33"],"note":"soft top control unit; two-cavity lock between 39 and 38"},
-    "atdev_m47": {"fsm":"M47","half":"M47","cav":["1","2","3","4","5","6","7","8","9","10"],"wired":["1","2","3","5","6","7","8","9","10"],"cite":["AT-240","AT-174"],"note":"A/T device; lock above 6-5; 4 unwired"},
-    "top_m14": {"fsm":"M14","half":"M14","cav":["1","3","4","5","6"],"wired":["1","3","4","5","6"],"cite":["RF-26"],"note":"soft top switch; unnumbered cavity between 4 and 5"}
+    "audio_m40": {
+      "fsm": "M40",
+      "half": "M40",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "wired": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "cite": [
+        "AV-11",
+        "AV-16"
+      ],
+      "note": "audio unit; wide gap between 8 and 4 is not a cavity"
+    },
+    "audio_m41": {
+      "fsm": "M41",
+      "half": "M41",
+      "cav": [
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ],
+      "wired": [
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ],
+      "cite": [
+        "AV-12",
+        "AV-18"
+      ],
+      "note": "audio unit; wide gap between 16 and 12 is not a cavity"
+    },
+    "audio_m39": {
+      "fsm": "M39",
+      "half": "M39",
+      "cav": [
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32"
+      ],
+      "wired": [
+        "17",
+        "24",
+        "30",
+        "31",
+        "32"
+      ],
+      "cite": [
+        "AV-12",
+        "AV-16",
+        "AV-18"
+      ],
+      "note": "diamond index is not cavities; 18-23 and 25-29 unwired"
+    },
+    "spk_d4": {
+      "fsm": "D4",
+      "half": "D4",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "AV-11"
+      ],
+      "note": "driver door speaker; empty index cell above"
+    },
+    "spk_d3": {
+      "fsm": "D3",
+      "half": "D3",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "AV-11"
+      ],
+      "note": "driver tweeter; index bar above"
+    },
+    "spk_d34": {
+      "fsm": "D34",
+      "half": "D34",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "AV-11"
+      ],
+      "note": "passenger door speaker"
+    },
+    "spk_d33": {
+      "fsm": "D33",
+      "half": "D33",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "AV-11"
+      ],
+      "note": "passenger tweeter"
+    },
+    "spk_b40": {
+      "fsm": "B40",
+      "half": "B40",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "AV-12"
+      ],
+      "note": "rear LH speaker; round index above"
+    },
+    "spk_b42": {
+      "fsm": "B42",
+      "half": "B42",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "AV-12"
+      ],
+      "note": "rear RH speaker"
+    },
+    "amb_e34": {
+      "fsm": "E34",
+      "half": "E34",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "wired": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "ATC-44"
+      ],
+      "note": "ambient sensor; triangular index above"
+    },
+    "blower_m62": {
+      "fsm": "M62",
+      "half": "M62",
+      "cav": [
+        "1",
+        "2",
+        "3"
+      ],
+      "wired": [
+        "1",
+        "2",
+        "3"
+      ],
+      "cite": [
+        "ATC-42"
+      ],
+      "note": "blower motor; two unnumbered cavities to the right of 1"
+    },
+    "top_b66": {
+      "fsm": "B66",
+      "half": "B66",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ],
+      "wired": [
+        "1",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "10",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ],
+      "cite": [
+        "RF-25",
+        "RF-27",
+        "RF-33"
+      ],
+      "note": "soft top control unit; two-cavity lock between 5 and 4"
+    },
+    "top_b67": {
+      "fsm": "B67",
+      "half": "B67",
+      "cav": [
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36"
+      ],
+      "wired": [
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36"
+      ],
+      "cite": [
+        "RF-25",
+        "RF-26",
+        "RF-27",
+        "RF-33"
+      ],
+      "note": "soft top control unit; two-cavity lock between 21 and 20"
+    },
+    "top_b68": {
+      "fsm": "B68",
+      "half": "B68",
+      "cav": [
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48"
+      ],
+      "wired": [
+        "37",
+        "38",
+        "41",
+        "42",
+        "44",
+        "45",
+        "48"
+      ],
+      "cite": [
+        "RF-25",
+        "RF-33"
+      ],
+      "note": "soft top control unit; two-cavity lock between 39 and 38"
+    },
+    "atdev_m47": {
+      "fsm": "M47",
+      "half": "M47",
+      "cav": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "wired": [
+        "1",
+        "2",
+        "3",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "cite": [
+        "AT-240",
+        "AT-174"
+      ],
+      "note": "A/T device; lock above 6-5; 4 unwired"
+    },
+    "top_m14": {
+      "fsm": "M14",
+      "half": "M14",
+      "cav": [
+        "1",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "wired": [
+        "1",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "cite": [
+        "RF-26"
+      ],
+      "note": "soft top switch; unnumbered cavity between 4 and 5"
+    }
   },
   "pseudo_cards": {
     "f152": "ground point F152 (ring) - see ground_points",
