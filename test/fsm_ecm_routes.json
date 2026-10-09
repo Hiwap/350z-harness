@@ -3700,6 +3700,20 @@
       ],
       "note": "driver door speaker; empty index cell above"
     },
+    "spk_d5": {
+      "fsm": "D5",
+      "half": "D5",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "AV-17",
+        "AV-24",
+        "PG-69"
+      ],
+      "note": "door speaker with Bose (BR/2); Bose only"
+    },
     "spk_d3": {
       "fsm": "D3",
       "half": "D3",
@@ -3731,6 +3745,20 @@
         "AV-11"
       ],
       "note": "passenger door speaker"
+    },
+    "spk_d35": {
+      "fsm": "D35",
+      "half": "D35",
+      "cav": [
+        "1",
+        "2"
+      ],
+      "cite": [
+        "AV-17",
+        "AV-24",
+        "PG-69"
+      ],
+      "note": "door speaker with Bose (BR/2); Bose only"
     },
     "spk_d33": {
       "fsm": "D33",
