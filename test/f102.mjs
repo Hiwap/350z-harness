@@ -940,6 +940,7 @@ const FSM_FACE = {
   top_m14: { mt: null, at: null },
   fuel_tank_temp: { mt: "5 4", at: "5 4" },
   comb_meter: { mt: "1 3 4 9 10 / 11 13 14 19 20", at: "1 3 4 9 10 / 11 13 14 19 20" },
+  unified_m50: { mt: "38 39 40 41 42 43 46 / 49 50 53 54 56 57", at: "38 39 40 41 42 43 46 / 49 50 53 54 56 57" },
   unified_m49: { mt: "21 22 25 26 28 / 29 30 32 36", at: "21 22 25 26 28 / 29 30 32 36" }, /* 25 and 32 are A/T only, dimmed on M/T */
   triple_m44: { mt: "5 4 3 2 1 / 12 9 8 7", at: "5 4 3 2 1 / 12 9 8 7" },
   fuel_level_sub: { mt: "2 1", at: "2 1" },

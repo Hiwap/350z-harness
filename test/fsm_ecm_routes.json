@@ -1801,6 +1801,7 @@
       "status": "pending",
       "reason": "F242 GY/2 per PG-55 (sub-harness-3, *1 35th Anniversary M/T); EC-123 wires one cavity to ECM 54 and one to the ECM 67 splice, but the FSM (2005/2006) publishes no face or cavity numbering, so the map uses neutral labels S/G"
     },
+    "unified_m50": {"fsm":"M50","half":"M50","cav":["37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60"],"wired":["38","39","40","41","42","43","46","49","50","53","54","56","57"],"cite":["ATC-42","ATC-44","ATC-45","ATC-47","ATC-48","GW-61"],"note":"Unified meter and A/C amp third plug W/24; latch over 53-54; 13 wired"},
     "unified_m49": {
       "fsm": "M49",
       "half": "M49",
