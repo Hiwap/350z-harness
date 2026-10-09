@@ -1933,7 +1933,7 @@ function buildCircuits(model){
       ecm:[], conn:['vdc_e118','ix_e108_m15','ix_b1_m12','pkb_b47'], path:{vdc_e118:['76'],ix_e108_m15:['12G'],ix_b1_m12:['44J'],pkb_b47:['1']},
       notes:'La unidad VDC lee si el freno de mano está puesto. Solo con VDC. BRC-100.'},
     {id:'vdc_str', vif:'brake=vdc', title:'VDC · alimentación del sensor de ángulo de volante', color:'#ef5350',
-      ecm:[], conn:['vdc_m22','vdc_e118'], path:{vdc_m22:['3'],vdc_e118:['2']},
+      ecm:[], conn:['vdc_m22','vdc_e118','ix_e108_m15'], path:{vdc_m22:['3'],vdc_e118:['2'],ix_e108_m15:['11G']},
       notes:'Solo con VDC. La unidad VDC alimenta el sensor de ángulo M22·3 desde E118·2 (Y/R) por E108·11G. BRC-103 / BRC-125.'},
     {id:'vdc_yaw', vif:'brake=vdc', title:'VDC · sensor de giro / acel. lateral M51', color:'#ef5350',
       ecm:[], conn:['vdc_m51','ix_e108_m15','vdc_e118'], path:{vdc_m51:['1','2','3','4','5','6'],ix_e108_m15:['13G','14G','15G','16G','17G','18G'],vdc_e118:['78','77','34','79','18','80']},
