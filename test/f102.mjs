@@ -894,6 +894,7 @@ const FSM_FACE = {
   door_sw_b17: { mt: "1", at: "1" },
   door_sw_b23: { mt: "1", at: "1" },
   door_lock_d11: { mt: "3 4 / 1 2", at: "3 4 / 1 2" },
+  comb_sw_m29: { mt: "7 8 9 10 13 12 / 6 5 4 3 2 1 11", at: "7 8 9 10 13 12 / 6 5 4 3 2 1 11" }, /* 13 Coupe only (dimmed) */
   bcm_b83: { mt: "57 58 59 62 64 / 68 70", at: "57 58 59 62 64 / 68 70" }, /* 57 Roadster only, 59 Coupe only (dimmed) */
   door_lock_d40: { mt: "3 / 1", at: "3 / 1" },
   mirror_d2: { mt: "2 1 / 8 7 6", at: "2 1 / 8 7 6" },

@@ -2594,6 +2594,7 @@
       ],
       "note": "passenger door switch W/3; only 1 P to BCM 12 via M12 14J"
     },
+    "comb_sw_m29": {"fsm":"M29","half":"M29","cav":["1","2","3","4","5","6","7","8","9","10","11","12","13"],"wired":["1","2","3","4","5","6","7","8","9","10","11","12","13"],"cite":["LT-152","LT-171","WW-13","WW-41"],"note":"Combination switch W/16 (13 numbered terminals); 1-5 BCM outputs M90·36..32, 6-10 inputs M90·6/5/2/3/4 (8=IN5 M90·2, 9=IN4 M90·3, 10=IN3 M90·4); 11 FR washer, 12 GND, 13 RR washer Coupe"},
     "bcm_b83": {"fsm":"B83","half":"B83","cav":["56","57","58","59","60","61","62","63","64","65","66","67","68","69","70"],"wired":["57","58","59","62","64","68","70"],"cite":["PG-83","BL-27","BL-55","WW-40","LT-220","LT-224"],"note":"BCM third plug; 57 Roadster only, 59 Coupe only; 58/68/70 change use by body"},
     "mirror_d2": {"fsm":"D2","half":"D2","cav":["1","2","3","4","5","6","7","8"],"wired":["1","2","6","7","8"],"cite":["GW-63","GW-67","GW-80","GW-84"],"note":"Driver door mirror W/8; 1 B ground M30 via D1/M11·31K, 2 SB heater from J/B fuse 8 via M11/D1·10K, 6/7/8 motors to D6·2/6/7"},
     "mirror_d32": {"fsm":"D32","half":"D32","cav":["1","2","3","4","5","6","7","8"],"wired":["1","2","6","7","8"],"cite":["GW-63","GW-67","GW-81","GW-84"],"note":"Passenger door mirror W/8; 1 B ground M66 via D31/M74·31L, 2 L heater from J/B fuse 8 via M74/D31·7L, 6/7/8 motors to D6·2/4/5 via M74/D31 and M11/D1"},

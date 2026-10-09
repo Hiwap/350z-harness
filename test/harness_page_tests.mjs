@@ -586,7 +586,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       vdc_off_m9: 2, /* shell M9 GY: 1-2-3-4 plus two unnumbered cavities; the ficha wires 1 and 2 */
       vdc_m51: 6,
       comb_meter: 10, triple_m44: 9, unified_m49: 9, unified_m50: 13, fuel_level_sub: 2,
-      door_sw_b17: 1, door_sw_b23: 1, door_lock_d11: 4, door_lock_d40: 2, mirror_d2: 5, mirror_d32: 5, bcm_b83: 7, pw_d7: 13,
+      door_sw_b17: 1, door_sw_b23: 1, door_lock_d11: 4, door_lock_d40: 2, mirror_d2: 5, mirror_d32: 5, bcm_b83: 7, comb_sw_m29: 13, pw_d7: 13,
       back_door_t12: 2, back_opener_t103: 2, trunk_cancel_b71: 2, back_opener_t11: 2,
       fuel_lid_m59: 4, fuel_lid_m13: 2, fuel_lid_t19: 2,
       seat_b37: 4, seat_m154: 6, seat_m155: 6, belt_b8: 2, belt_b11: 2,
