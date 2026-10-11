@@ -85,6 +85,11 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_e15.webp | LT-117 | dtrl_e15 (E15 GY: 11-10-13-16 over 9, a gap, 17, 12). Canada only. Only 17 wired. |
 | fsm_b34.webp | GW-63 | defog_b34 (B34 BR: 1-2 / 5-7 / 3-6). Same face on GW-67. |
 | fsm_d104.webp | GW-63 | defog_d104. Coupe glass, both terminals in one dashed box: cavity 1 is D104, cavity 2 is D211. |
+| fsm_d1.webp | PG-85 | ix_d1_m11. Door side of the driver SMJ (D1 W/39): small block 1K–27K on the left, large block 28K–39K on the right. The body side (M11) is the mirror of this drawing and is not in the crop. |
+| fsm_d31.webp | PG-85 | ix_d31_m74. Door side of the passenger SMJ (D31 W/39), suffix L. Same shell layout as D1. Separate file. |
+| fsm_d37.webp | GW-25 | pw_sub_d37 (D37 W/16: 7-6-5, lock, 4-3-2-1 over 16–8). |
+| fsm_d2.webp | GW-67 | mirror_d2. GW-67 prints one inset for D2 and D32 (W/8: 3, latch, 2, 1 over 8-7-6-5-4). This file is the driver card. |
+| fsm_d32.webp | GW-67 | mirror_d32. The same GW-67 inset, saved again for the passenger card. The two cards do not share one src. |
 | fsm_b202.webp | GW-67 | defog_b202. Roadster glass, both terminals in one dashed box: cavity 1 is B202, cavity 2 is B203. Asterisk: not in the harness layout. |
 | fsm_b36.webp | WW-54 | socket_b36 (B36 B: 2 over 1). WW-54 prints one inset labeled M38, B36; this crop keeps both labels. |
 | fsm_m38.webp | WW-54 | socket_m38 (M38 B: 2 over 1). Same inset; the crop keeps the M38 label. |
