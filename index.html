@@ -39,7 +39,8 @@
   body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     background: var(--bg); color: var(--text); }
   header { padding: 12px 16px; border-bottom: 1px solid var(--border);
-    display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    position: relative; z-index: 5; }
   header h1 { font-size: 15px; margin: 0; font-weight: 650; }
   header .sub { color: #c5cad3; font-size: 12px; }
   .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -53,8 +54,24 @@
   select { min-width: 160px; cursor: pointer; }
   button { cursor: pointer; background: #232a36; }
   button:hover, select:hover { border-color: var(--accent); }
-  .search { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .search { margin-left: auto; display: flex; gap: 8px; align-items: center; position: relative; }
   input[type=search] { min-width: 180px; }
+  .q-list {
+    position: absolute; z-index: 6; top: calc(100% + 4px); left: 0; right: 0;
+    max-height: 320px; overflow: auto;
+    background: #12161d; border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.45);
+  }
+  .q-list[hidden] { display: none; }
+  .q-sec { padding: 6px 10px 2px; font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: #9aa3b2; }
+  .q-list button.q-row {
+    display: flex; gap: 8px; align-items: baseline; width: 100%; text-align: left;
+    background: transparent; border: 0; border-radius: 0; padding: 7px 10px;
+  }
+  .q-list button.q-row.on, .q-list button.q-row:hover { background: #1c2430; }
+  .q-kind { flex: 0 0 auto; min-width: 4.6rem; font-size: 10px; color: #ffd54f; }
+  .q-label { flex: 1; min-width: 0; }
+  .q-empty { padding: 8px 10px; color: #9aa3b2; font-size: 12px; }
   main {
     display: grid;
     grid-template-columns: var(--main-left) 6px var(--main-right);
@@ -1227,8 +1244,9 @@
   </details>
   <div class="hdr-tools">
     <div class="search">
-      <input id="q" type="search" placeholder="Buscar: 101, ASCD, APP, stop, CAN…"/>
+      <input id="q" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="qList" aria-expanded="false" placeholder="Buscar: 101, ASCD, APP, stop, CAN…"/>
       <button type="button" id="clear">Limpiar</button>
+      <div id="qList" class="q-list" hidden role="listbox"></div>
     </div>
     <div class="rail-toggles" id="railToggles" title="Resaltar rails de poder / tierra">
       <span class="rail-label" id="railLabel">Rails</span>
@@ -2378,17 +2396,17 @@ const CONN_FACE = {
   coil5: { src: 'faces/coil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f203.webp', fsmSource: 'FSM 2005 EC-691' },
   coil6: { src: 'faces/coil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f27.webp', fsmSource: 'FSM 2005 EC-693' },
   maf: { src: 'faces/maf.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f25.webp', fsmSource: 'FSM 2005 EC-207' },
-  ckp: { src: 'faces/ckp.webp', source: 'Wiring Specialties (VQ35 Crank Sensor Connector WRS-VQCRNK-BK · RK03FB shell, cf. Ballenger CONN-86050)', fsm: 'faces/fsm_f10.webp', fsmSource: 'FSM 2005 EC-323' },
+  ckp: { src: 'faces/ckp.webp', source: 'Wiring Specialties (VQ35 Crank Sensor Connector WRS-VQCRNK-BK · RK03FB shell, cf. Ballenger CONN-86050)', fsm: 'faces/fsm_f4.webp', fsmSource: 'FSM 2005 EC-323' },
   cmp_b1: { src: 'faces/cmp.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f4.webp', fsmSource: 'FSM 2005 EC-331' },
-  cmp_b2: { src: 'faces/cmp_g.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f32.webp', fsmSource: 'FSM 2005 EC-333' },
-  knock: { src: 'faces/knock.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f228.webp', fsmSource: 'FSM 2005 EC-317' },
+  cmp_b2: { src: 'faces/cmp_g.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f4.webp', fsmSource: 'FSM 2005 EC-333' },
+  knock: { src: 'faces/knock.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f13.webp', fsmSource: 'FSM 2005 EC-317' },
   ect: { src: 'faces/ect.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f13.webp', fsmSource: 'FSM 2005 EC-229' },
   app: { src: 'faces/e113.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_e113.webp', fsmSource: 'FSM 2005 EC-523' },
   af_b1: { src: 'faces/af.webp', source: 'Connector Experts (Air Fuel Ratio Sensor, i-26377349)', note: 'faceNoteSimilarLock', fsm: 'faces/fsm_f22.webp', fsmSource: 'FSM 2005 EC-529' },
   af_b2: { src: 'faces/af.webp', source: 'Connector Experts (Air Fuel Ratio Sensor, i-26377349)', note: 'faceNoteSimilarLock', fsm: 'faces/fsm_f34.webp', fsmSource: 'FSM 2005 EC-531' },
   f21_oilp: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f21.webp', fsmSource: 'FSM 2005 DI-34' },
   vtc_b1: { src: 'faces/vtc.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f204.webp', fsmSource: 'FSM 2005 EC-455' },
-  vtc_b2: { src: 'faces/vtc.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f26.webp', fsmSource: 'FSM 2005 EC-457' },
+  vtc_b2: { src: 'faces/vtc.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f5.webp', fsmSource: 'FSM 2005 EC-457' },
   ix_e10_f1: { src: 'faces/f1.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f1.webp', fsmSource: 'FSM 2005 EC-717' },
   ix_e11_f2: { src: 'faces/f2.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f2.webp', fsmSource: 'FSM 2005 EC-523' },
   ix_e12_f3: { src: 'faces/f3.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f3.webp', fsmSource: 'FSM 2005 EC-169' },
@@ -2415,14 +2433,14 @@ const CONN_FACE = {
   vdc_off_m9: { src: 'faces/m9.webp', source: 'Nissan 25145-WL000 VDC OFF switch, eBay item 255454366972', fsm: 'faces/fsm_m9.webp', fsmSource: 'FSM 2005 BRC-52' },
   bcm_m90: { src: 'faces/m90.webp', source: 'eBay listing, Nissan BCM 284B1-EV00A', fsm: 'faces/fsm_m90.webp', fsmSource: 'FSM 2005 PG-83' },
   bcm_m91: { src: 'faces/fsm_m91.webp', source: 'FSM 2005 PG-83' },
-  turn_e40: { src: 'faces/e40.webp', source: 'Amazon listing photo', fsm: 'faces/fsm_e40.webp', fsmSource: 'FSM 2005 LT-153' },
-  turn_e41: { src: 'faces/e41.webp', source: 'eBay listing photo', fsm: 'faces/fsm_e41.webp', fsmSource: 'FSM 2005 LT-153' },
+  turn_e40: { src: 'faces/e40.webp', source: 'Amazon listing photo', fsm: 'faces/fsm_e24.webp', fsmSource: 'FSM 2005 LT-153' },
+  turn_e41: { src: 'faces/e41.webp', source: 'eBay listing photo', fsm: 'faces/fsm_e25.webp', fsmSource: 'FSM 2005 LT-153' },
   turn_t10: { src: 'faces/t10.webp', source: 'On Point Parts listing photo', fsm: 'faces/fsm_t10.webp', fsmSource: 'FSM 2005 LT-153' },
   turn_e24: { src: 'faces/e24.webp', source: 'Amazon listing photo', fsm: 'faces/fsm_e24.webp', fsmSource: 'FSM 2005 LT-154' },
   turn_e25: { src: 'faces/e25.webp', source: 'eBay listing photo', fsm: 'faces/fsm_e25.webp', fsmSource: 'FSM 2005 LT-154' },
   turn_t18: { src: 'faces/t18.webp', source: 'On Point Parts listing photo', fsm: 'faces/fsm_t18.webp', fsmSource: 'FSM 2005 LT-154' },
   stop_t9: { src: 'faces/t9.webp', source: 'On Point Parts listing photo', fsm: 'faces/fsm_t9.webp', fsmSource: 'FSM 2005 LT-179' },
-  stop_t17: { src: 'faces/t17.webp', source: 'same grey shell as the left rear lamp', fsm: 'faces/fsm_t17.webp', fsmSource: 'FSM 2005 LT-179' },
+  stop_t17: { src: 'faces/t17.webp', source: 'same grey shell as the left rear lamp', fsm: 'faces/fsm_t9.webp', fsmSource: 'FSM 2005 LT-179' },
   stop_d103: { src: 'faces/d103.webp', source: 'Nissan 26590-CD00A high-mount stop lamp, eBay item 318025447929', fsm: 'faces/fsm_d103.webp', fsmSource: 'FSM 2005 LT-179' },
   lug_t13: { src: 'faces/t13.webp', source: 'Nissan 26490-CD000 luggage room lamp, Nissan Parts Deal', fsm: 'faces/fsm_t13.webp', fsmSource: 'FSM 2005 LT-220' },
   dtrl_e14: { src: 'faces/fsm_e14.webp', source: 'FSM 2005 LT-117' },
@@ -2433,8 +2451,8 @@ const CONN_FACE = {
   fuse_link_box: { src: 'faces/fsm_e21_pg89_box.webp', source: 'FSM 2005 PG-89' },
   vtc_ex_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f40.webp', fsmSource: 'FSM 2005 EC-198' },
   vtc_ex_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f41.webp', fsmSource: 'FSM 2005 EC-200' },
-  f38_evtc_b1: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f38.webp', fsmSource: 'FSM 2005 EC-445' },
-  f42_evtc_b2: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f42.webp', fsmSource: 'FSM 2005 EC-447' },
+  f38_evtc_b1: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f4.webp', fsmSource: 'FSM 2005 EC-445' },
+  f42_evtc_b2: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f4.webp', fsmSource: 'FSM 2005 EC-447' },
   evap_vent: { src: 'faces/t20.webp', source: 'Standard S2888 canister vent pigtail, Summit Racing', fsm: 'faces/fsm_t20.webp', fsmSource: 'FSM 2005 EC-367' },
   fuel_pump: { src: 'faces/b27.webp', source: 'eBay listing photo', fsm: 'faces/fsm_b27.webp', fsmSource: 'FSM 2005 EC-710' },
   fuel_tank_temp: { src: 'faces/b27.webp', source: 'eBay listing photo', fsm: 'faces/fsm_b27.webp', fsmSource: 'FSM 2005 EC-710' },
@@ -2456,10 +2474,10 @@ const CONN_FACE = {
   defog_d104: { src: 'faces/fsm_d104.webp', source: 'FSM 2005 GW-63' },
   defog_b202: { src: 'faces/fsm_b202.webp', source: 'FSM 2005 GW-67' },
   socket_b36: { src: 'faces/fsm_b36.webp', source: 'FSM 2005 WW-54' },
-  socket_m38: { src: 'faces/fsm_m38.webp', source: 'FSM 2005 WW-54' },
+  socket_m38: { src: 'faces/fsm_b36.webp', source: 'FSM 2005 WW-54' },
   seat_b37: { src: 'faces/fsm_b37.webp', source: 'FSM 2005 SE-59' },
   seat_m154: { src: 'faces/m154.webp', source: 'Nissan 25500-AX600, Nissan Parts Deal', fsm: 'faces/fsm_m154.webp', fsmSource: 'FSM 2005 SE-60' },
-  seat_m155: { src: 'faces/m155.webp', source: 'Nissan 25500-AX600, Nissan Parts Deal', fsm: 'faces/fsm_m155.webp', fsmSource: 'FSM 2005 SE-61' },
+  seat_m155: { src: 'faces/m155.webp', source: 'Nissan 25500-AX600, Nissan Parts Deal', fsm: 'faces/fsm_m154.webp', fsmSource: 'FSM 2005 SE-61' },
   belt_b8: { src: 'faces/b8.webp', source: 'Nissan 86842-CD000 seat belt buckle, eBay item 187505566214', fsm: 'faces/fsm_b8.webp', fsmSource: 'FSM 2005 SRS-12' },
   belt_b11: { src: 'faces/b11.webp', source: 'Nissan 86842-CD000 seat belt buckle, eBay item 187505566214', fsm: 'faces/fsm_b8.webp', fsmSource: 'FSM 2005 SRS-12' },
   audio_m40: { src: 'faces/fsm_m40.webp', source: 'FSM 2005 AV-12' },
@@ -2479,7 +2497,7 @@ const CONN_FACE = {
   top_b68: { src: 'faces/fsm_b68.webp', source: 'FSM 2005 RF-25' },
   top_m14: { src: 'faces/fsm_m14.webp', source: 'FSM 2005 RF-26' },
   door_sw_b17: { src: 'faces/b17.webp', source: 'Nissan 25360-AD000, Jack-bros', fsm: 'faces/fsm_b17.webp', fsmSource: 'FSM 2005 BL-27' },
-  door_sw_b23: { src: 'faces/b23.webp', source: 'Nissan 25360-AD000, Jack-bros', fsm: 'faces/fsm_b23.webp', fsmSource: 'FSM 2005 BL-27' },
+  door_sw_b23: { src: 'faces/b23.webp', source: 'Nissan 25360-AD000, Jack-bros', fsm: 'faces/fsm_b17.webp', fsmSource: 'FSM 2005 BL-27' },
   door_lock_d11: { src: 'faces/d11.webp', source: 'On Point Parts listing photo', fsm: 'faces/fsm_d11.webp', fsmSource: 'FSM 2005 BL-29' },
   door_lock_d40: { src: 'faces/d40.webp', source: 'eBay listing photo', fsm: 'faces/fsm_d40.webp', fsmSource: 'FSM 2005 BL-29' },
   comb_sw_m29: { src: 'faces/fsm_m29.webp', source: 'FSM 2005 LT-171' },
@@ -2495,12 +2513,12 @@ const CONN_FACE = {
   map_r53: { src: 'faces/fsm_r53.webp', source: 'FSM 2005 LT-224' },
   bcm_b83: { src: 'faces/fsm_b83.webp', source: 'FSM 2005 PG-83' },
   mirror_d2: { src: 'faces/d2.webp', source: 'Nissan K6302-CD060 driver mirror, On Point Parts', fsm: 'faces/fsm_d2.webp', fsmSource: 'FSM 2005 GW-67' },
-  mirror_d32: { src: 'faces/d32.webp', source: 'Nissan K6301-CF000 passenger mirror, On Point Parts', fsm: 'faces/fsm_d32.webp', fsmSource: 'FSM 2005 GW-67' },
+  mirror_d32: { src: 'faces/d32.webp', source: 'Nissan K6301-CF000 passenger mirror, On Point Parts', fsm: 'faces/fsm_d2.webp', fsmSource: 'FSM 2005 GW-67' },
   pw_sub_d37: { src: 'faces/d37.webp', source: 'same white housing as the driver window switch', fsm: 'faces/fsm_d37.webp', fsmSource: 'FSM 2005 GW-25' },
   ix_d1_m11: { src: 'faces/d1.webp', source: 'eBay listing, 2003 350Z driver door main harness', fsm: 'faces/fsm_d1.webp', fsmSource: 'FSM 2005 PG-85' },
   ix_d31_m74: { src: 'faces/d31.webp', source: 'same shell as the driver door junction', fsm: 'faces/fsm_d31.webp', fsmSource: 'FSM 2005 PG-85' },
   pw_d7: { src: 'faces/d7.webp', source: 'eBay listing photo', fsm: 'faces/fsm_d7.webp', fsmSource: 'FSM 2005 GW-24' },
-  back_door_t12: { src: 'faces/fsm_t12.webp', source: 'FSM 2005 BL-27' },
+  back_door_t12: { src: 'faces/b17.webp', source: 'same door-switch photo as B17 (Nissan 25360-AD000, Jack-bros)', fsm: 'faces/fsm_b17.webp', fsmSource: 'FSM 2005 BL-27' },
   back_opener_t103: { src: 'faces/t103.webp', source: 'Nissan 25380-CD000, Nissan Parts Deal', fsm: 'faces/fsm_t103.webp', fsmSource: 'FSM 2005 BL-30' },
   trunk_cancel_b71: { src: 'faces/fsm_b71.webp', source: 'FSM 2005 BL-125' },
   back_opener_t11: { src: 'faces/t11.webp', source: 'eBay listing, trunk latch actuator pigtail', fsm: 'faces/fsm_t11.webp', fsmSource: 'FSM 2005 BL-30' },
@@ -4138,6 +4156,7 @@ function applyLang(){
   const oi = document.getElementById('optInv'); if(oi) oi.textContent = t('optInv');
   const of = document.getElementById('optFsm'); if(of) of.textContent = t('optFsm');
   const q = document.getElementById('q'); if(q) q.placeholder = t('searchPh');
+  renderSearchList();
   const cl = document.getElementById('clear'); if(cl) cl.textContent = t('clear');
   const ft = document.getElementById('fichasTitle'); if(ft) ft.textContent = t('fichasTitle');
   const pf = document.getElementById('pageFooter'); if(pf) pf.textContent = t('footer');
@@ -6918,48 +6937,214 @@ document.getElementById('railRelData').addEventListener('change', onRailRelKindT
 
 document.getElementById('clear').onclick=()=>{
   clearSelection();
-  document.getElementById('q').value='';
+  const q = document.getElementById('q');
+  if(q) q.value='';
+  qActive = 0;
+  renderSearchList();
 };
 
 document.querySelectorAll('.rail-btn').forEach(btn=>{
   btn.addEventListener('click', () => toggleRail(btn.dataset.rail));
 });
 
-function connSearchBlob(id, f){
-  const bits = [id, f.name||'', f.meta||'', f.note||''];
-  (f.pins||[]).forEach(pin=>{
-    bits.push(String(pin.id||''), pin.code||'', pin.lab||'', pin.note||'', pin.note_en||'', pin.note_ja||'');
+function foldQ(s){
+  return String(s||'').normalize('NFKC').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u3041-\u3096]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60));
+}
+function searchHit(blob, q){
+  if(!q) return false;
+  const b = foldQ(blob);
+  if(b.includes(q)) return true;
+  const c = q.replace(/[^a-z0-9]/g, '');
+  if(c.length < 2 || c === q) return false;
+  if(!/[a-z]/.test(c) || !/\d/.test(c)) return false;
+  return b.replace(/[^a-z0-9]/g, '').includes(c);
+}
+function idNumHit(blob, q){
+  if(!/^\d{1,3}$/.test(q)) return false;
+  return foldQ(blob).split(/[^a-z0-9]+/).some(t => {
+    const m = t.match(/^[a-z]{1,4}(\d{1,3})$/);
+    return m && m[1] === q;
   });
+}
+function fichaNameBlob(id, f){
+  const bits = [id, f.name||'', f.meta||'', (f.view && f.view.c) || ''];
   const i18 = CONN_I18N[id];
-  if(i18){
-    ['en','ja'].forEach(L=>{
-      const tr = i18[L]; if(!tr) return;
-      bits.push(tr.name||'', tr.meta||'', tr.note||'');
-    });
-  }
-  return bits.join(' ').toLowerCase();
+  if(i18) ['en','ja'].forEach(L => { const tr = i18[L]; if(tr) bits.push(tr.name||'', tr.meta||''); });
+  return bits.join(' ');
+}
+function fichaDescBlob(id, f){
+  const bits = [f.note||''];
+  (f.pins||[]).forEach(pin => bits.push(pin.note, pin.note_en, pin.note_ja, pin.lab, pin.code));
+  const i18 = CONN_I18N[id];
+  if(i18) ['en','ja'].forEach(L => { const tr = i18[L]; if(tr) bits.push(tr.note||''); });
+  return bits.join(' ');
+}
+function circNameBlob(c){
+  const tr = (typeof TITLES_I18N!=='undefined' && TITLES_I18N[c.id]) || {};
+  return [c.id, c.title, tr.en||'', tr.ja||''].join(' ');
+}
+function circDescBlob(c){
+  const tr = (typeof NOTES_I18N!=='undefined' && NOTES_I18N[c.id]) || {};
+  return [c.notes, tr.en||'', tr.ja||''].join(' ');
+}
+function pinSearchLabel(pn){
+  const pack = lang==='en' ? PIN_NAME_EN : lang==='ja' ? PIN_NAME_JA : PIN_NAME;
+  const name = pack && pack[pn];
+  return name ? (pn + ' · ' + name) : String(pn);
 }
 
-function revealConnHits(connIds){
+let qRows = [];
+let qActive = 0;
+
+function rankHit(blob, q){
+  const words = foldQ(blob).split(/[^a-z0-9\u3040-\u30ff\u3400-\u9fff]+/);
+  if(words.some(w => w === q)) return 0;
+  if(words.some(w => w.startsWith(q))) return 1;
+  return 2;
+}
+function collectSearch(raw){
+  const q = foldQ(String(raw||'').trim());
+  const cjk = /[\u3040-\u30ff\u3400-\u9fff]/.test(q);
+  const digits = /^\d{1,3}$/.test(q);
+  if(!q || (!cjk && !digits && q.length < 2)) return [];
+  const nameRows = [];
+  const mentionRows = [];
+  const nameP = new Set();
+
+  if(digits){
+    const pn = +q;
+    if(pn >= 1 && pn <= 121){
+      nameRows.push({tier:'name', kind:'pin', id:pn, label: pinSearchLabel(pn), rank:0});
+      nameP.add(pn);
+    }
+  }
+  Object.entries(CONN).forEach(([id, f]) => {
+    if(SKIP_SEL_CONN.has(id)) return;
+    const nb = fichaNameBlob(id, f);
+    const named = digits ? idNumHit(nb, q) : searchHit(nb, q);
+    if(named) nameRows.push({tier:'name', kind:'ficha', id, label: connField(id, f, 'name'), rank: digits ? 0 : rankHit(nb, q)});
+    else if(!digits && searchHit(fichaDescBlob(id, f), q)){
+      const db = fichaDescBlob(id, f);
+      mentionRows.push({tier:'mention', kind:'ficha', id, label: connField(id, f, 'name'), rank: rankHit(db, q)});
+    }
+  });
+  CIRCUITS.forEach(c => {
+    const nb = circNameBlob(c);
+    const named = digits ? idNumHit(nb, q) : searchHit(nb, q);
+    if(named) nameRows.push({tier:'name', kind:'circ', id:c.id, label: circuitTitle(c), rank: digits ? 0 : rankHit(nb, q)});
+    else if(!digits && searchHit(circDescBlob(c), q)){
+      const db = circDescBlob(c);
+      mentionRows.push({tier:'mention', kind:'circ', id:c.id, label: circuitTitle(c), rank: rankHit(db, q)});
+    }
+  });
+  if(!digits){
+    Object.entries(PIN_NAME).forEach(([pn, name]) => {
+      const n = +pn;
+      if(nameP.has(n)) return;
+      const blob = [name, PIN_NAME_EN[n]||'', PIN_NAME_JA[n]||''].join(' ');
+      if(searchHit(blob, q)){
+        nameP.add(n);
+        nameRows.push({tier:'name', kind:'pin', id:n, label: pinSearchLabel(n), rank: rankHit(blob, q)});
+      }
+    });
+    Object.entries(PIN_COL).forEach(([pn, code]) => {
+      const n = +pn;
+      if(nameP.has(n)) return;
+      const c = foldQ(code);
+      const bare = c.replace(/\//g, '');
+      if(q === c || (q.length >= 2 && q === bare)){
+        mentionRows.push({tier:'mention', kind:'pin', id:n, label: pinSearchLabel(n), rank:0});
+      }
+    });
+  }
+  const byRank = (a, b) => a.rank - b.rank;
+  return nameRows.sort(byRank).slice(0, 8).concat(mentionRows.sort(byRank).slice(0, 6));
+}
+
+function renderSearchList(){
+  const box = document.getElementById('qList');
+  const input = document.getElementById('q');
+  if(!box || !input) return;
+  qRows = collectSearch(input.value);
+  const q = foldQ(input.value.trim());
+  const cjk = /[\u3040-\u30ff\u3400-\u9fff]/.test(q);
+  const show = q && (cjk || /^\d{1,3}$/.test(q) || q.length >= 2);
+  if(!show){
+    box.hidden = true;
+    box.innerHTML = '';
+    input.setAttribute('aria-expanded', 'false');
+    qActive = 0;
+    return;
+  }
+  if(!qRows.length){
+    box.hidden = false;
+    box.innerHTML = `<div class="q-empty">${esc(t('searchNone'))}</div>`;
+    input.setAttribute('aria-expanded', 'true');
+    qActive = 0;
+    return;
+  }
+  if(qActive >= qRows.length) qActive = 0;
+  const names = qRows.filter(r => r.tier === 'name');
+  const mens = qRows.filter(r => r.tier === 'mention');
+  const html = [];
+  let i = 0;
+  const add = (title, list) => {
+    if(!list.length) return;
+    html.push(`<div class="q-sec">${esc(title)}</div>`);
+    list.forEach(r => {
+      const kind = r.kind === 'ficha' ? t('searchFicha') : r.kind === 'circ' ? t('searchCirc') : t('pinEcm');
+      const on = i === qActive;
+      html.push(`<button type="button" class="q-row${on ? ' on' : ''}" role="option" id="qOpt${i}" data-i="${i}" aria-selected="${on ? 'true' : 'false'}"><span class="q-kind">${esc(kind)}</span><span class="q-label">${esc(r.label)}</span></button>`);
+      i++;
+    });
+  };
+  add(t('searchNames'), names);
+  add(t('searchMentions'), mens);
+  box.innerHTML = html.join('');
+  box.hidden = false;
+  input.setAttribute('aria-expanded', 'true');
+  input.setAttribute('aria-activedescendant', 'qOpt' + qActive);
+  const on = box.querySelector('.q-row.on');
+  if(on) on.scrollIntoView({block:'nearest'});
+}
+
+function pickSearchRow(i){
+  const row = qRows[i];
+  if(!row) return;
+  const box = document.getElementById('qList');
+  const input = document.getElementById('q');
+  if(box) box.hidden = true;
+  if(input) input.setAttribute('aria-expanded', 'false');
+  if(row.kind === 'ficha') revealConnHits([row.id], {namePick: row.tier === 'name'});
+  else if(row.kind === 'circ') selectCircuits([row.id]);
+  else if(row.kind === 'pin'){
+    selectPin(row.id);
+    const el = document.querySelector(`#blocks .pin[data-pin="${row.id}"]`);
+    if(el) el.scrollIntoView({block:'nearest', inline:'nearest'});
+  }
+}
+
+function revealConnHits(connIds, opts){
+  const namePick = !!(opts && opts.namePick);
   const ids = [...new Set((connIds||[]).filter(id => id && CONN[id] && !SKIP_SEL_CONN.has(id)))];
   if(!ids.length) return;
   activeRails.clear(); updateRailButtons();
   clearHL(); dimAll();
-  const q = (document.getElementById('q') && document.getElementById('q').value || '').trim().toLowerCase();
-  ids.forEach(cid=>{
-    markFichaHL(cid, true);
+  const q = foldQ((document.getElementById('q') && document.getElementById('q').value || '').trim());
+  const paintPins = cid => {
     const conf = CONN[cid];
-    (conf.pins||[]).forEach(pin=>{
-      const blob = [pin.id, pin.code, pin.lab, pin.note, pin.note_en, pin.note_ja].join(' ').toLowerCase();
-      const fichaHit = (conf.name||'').toLowerCase().includes(q) || (conf.meta||'').toLowerCase().includes(q) || String(cid).toLowerCase().includes(q);
-      const pinHit = !q || blob.includes(q);
-      if(!(fichaHit || pinHit)) return;
+    (conf.pins||[]).forEach(pin => {
+      const pinBlob = [pin.id, pin.code, pin.lab, pin.note, pin.note_en, pin.note_ja].join(' ');
+      if(!(namePick || searchHit(pinBlob, q))) return;
       if(pin.ecm==null && (!pin.code || pin.code==='—' || pin.code==='-' || pin.code==='nc')) return;
-      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
+      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav => {
         applyHlGroupEl(cav, accentForCav(cid, pin));
       });
     });
-  });
+  };
+  ids.forEach(cid => { markFichaHL(cid, true); paintPins(cid); });
   const infoEl=document.getElementById('info'); infoEl.dataset.locked='1';
   delete infoEl.dataset.railMode;
   infoEl.innerHTML = ids.map(cid=>{
@@ -6969,73 +7154,43 @@ function revealConnHits(connIds){
   revealConns(ids);
   ids.forEach(cid => markFichaHL(cid, true));
   /* Re-paint cavity highlights after selTop clones */
-  ids.forEach(cid=>{
-    const conf = CONN[cid];
-    (conf.pins||[]).forEach(pin=>{
-      const blob = [pin.id, pin.code, pin.lab, pin.note, pin.note_en, pin.note_ja].join(' ').toLowerCase();
-      const fichaHit = (conf.name||'').toLowerCase().includes(q) || (conf.meta||'').toLowerCase().includes(q) || String(cid).toLowerCase().includes(q);
-      const pinHit = !q || blob.includes(q);
-      if(!(fichaHit || pinHit)) return;
-      if(pin.ecm==null && (!pin.code || pin.code==='—' || pin.code==='-' || pin.code==='nc')) return;
-      document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav=>{
-        applyHlGroupEl(cav, accentForCav(cid, pin));
-      });
-    });
-  });
+  ids.forEach(paintPins);
   updateEcmSelCount();
   updateF102SelPins();
 }
 
-document.getElementById('q').addEventListener('input', e=>{
-  const q=e.target.value.trim().toLowerCase();
-  if(!q){ clearSelection(); return; }
-  if(/^\d{1,3}$/.test(q)){ const pn=+q; if(pn>=1&&pn<=121){ selectPin(pn); return; } }
-
-  /* Circuits that themselves match — do not fan out from shared fichas */
-  const circHits=[];
-  CIRCUITS.forEach(c=>{
-    const trT = (typeof TITLES_I18N!=='undefined' && TITLES_I18N[c.id]) || {};
-    const trN = (typeof NOTES_I18N!=='undefined' && NOTES_I18N[c.id]) || {};
-    const blob = [c.title, c.id, c.notes, trT.en||'', trT.ja||'', trN.en||'', trN.ja||''].join(' ').toLowerCase();
-    if(blob.includes(q)) circHits.push(c.id);
-  });
-
-  const pinHits=[];
-  Object.entries(PIN_NAME).forEach(([pn,name])=>{
-    const names = [name, PIN_NAME_EN[+pn]||'', PIN_NAME_JA[+pn]||''].join(' ').toLowerCase();
-    if(names.includes(q)) pinHits.push(+pn);
-  });
-  /* Wire color: exact match only */
-  Object.entries(PIN_COL).forEach(([pn,code])=>{
-    if(String(code).toLowerCase()===q) pinHits.push(+pn);
-  });
-
-  const connHits=[];
-  Object.entries(CONN).forEach(([id,f])=>{
-    if(SKIP_SEL_CONN.has(id)) return;
-    if(connSearchBlob(id, f).includes(q)) connHits.push(id);
-  });
-
-  if(circHits.length){
-    selectCircuits([...new Set(circHits)]);
+document.getElementById('q').addEventListener('input', () => { qActive = 0; renderSearchList(); });
+document.getElementById('q').addEventListener('keydown', e => {
+  const box = document.getElementById('qList');
+  if(e.key === 'Escape'){
+    if(box) box.hidden = true;
+    e.target.setAttribute('aria-expanded', 'false');
     return;
   }
-  if(pinHits.length){
-    const fromPins=[];
-    [...new Set(pinHits)].forEach(pn=>{
-      (pinToCirc[pn]||pinToCirc[String(pn)]||[]).forEach(x=>fromPins.push(x));
-    });
-    const uniq=[...new Set(fromPins)];
-    if(uniq.length){ selectCircuits(uniq); return; }
-    if(pinHits.length===1){ selectPin(pinHits[0]); return; }
-  }
-  if(connHits.length){
-    revealConnHits(connHits);
+  if(box && box.hidden && (e.key === 'ArrowDown' || e.key === 'Enter')){
+    e.preventDefault();
+    renderSearchList();
+    if(e.key === 'Enter' && qRows.length) pickSearchRow(qActive);
     return;
   }
-  clearSelection();
-  const info=document.getElementById('info');
-  if(info){ info.dataset.locked='1'; info.textContent = t('noCirc'); }
+  if(!qRows.length || !box || box.hidden) return;
+  if(e.key === 'ArrowDown'){ e.preventDefault(); qActive = Math.min(qRows.length - 1, qActive + 1); renderSearchList(); }
+  else if(e.key === 'ArrowUp'){ e.preventDefault(); qActive = Math.max(0, qActive - 1); renderSearchList(); }
+  else if(e.key === 'Enter'){ e.preventDefault(); pickSearchRow(qActive); }
+});
+document.getElementById('qList').addEventListener('mousedown', e => {
+  const btn = e.target.closest && e.target.closest('.q-row');
+  if(!btn) return;
+  e.preventDefault();
+  pickSearchRow(+btn.dataset.i);
+});
+document.addEventListener('mousedown', e => {
+  const box = document.getElementById('qList');
+  if(!box || box.hidden) return;
+  if(e.target.closest && e.target.closest('.search')) return;
+  box.hidden = true;
+  const input = document.getElementById('q');
+  if(input) input.setAttribute('aria-expanded', 'false');
 });
 
 /* Init from localStorage */

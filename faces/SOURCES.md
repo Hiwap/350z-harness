@@ -50,7 +50,7 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | e110.webp | Nissan Parts Deal | ascd_brake | Nissan 25300-AT300, ASCD cancel switch. Brown shell, two cavities stacked (FSM E110 BR, 2 over 1, EC-628). |
 | e122.webp | Nissan Parts Deal | ascd_clutch | Nissan 25300-62J00, ASCD switch on the clutch pedal. Replaced in the catalog by 25300-62J0E. |
 | e112.webp | Nissan Parts Deal | stop_lamp | Nissan 25320-4M400, stop lamp switch, M/T. Black shell. The A/T camera stays on fsm_e111.webp. |
-| b17.webp | Jack-bros listing | door_sw_b17 | Nissan 25360-AD000, door switch. Listing watermark left on the photo. |
+| b17.webp | Jack-bros listing | door_sw_b17, back_door_t12 | Nissan 25360-AD000, door switch. Listing watermark left on the photo. T12 is the same shell and uses this file. |
 | b23.webp | Jack-bros listing | door_sw_b23 | Same photo as b17.webp, saved again for the passenger door switch. The two cards do not share one src. |
 | e44.webp | Nissan Parts Deal | brake_fluid_e44 | Nissan 46048-64J21, brake fluid level switch. The catalog photo carries a Standard watermark, left in place. |
 | m154.webp | Nissan Parts Deal | seat_m154 | Nissan 25500-AX600, heated-seat switch assembly, back of the panel. |
@@ -94,18 +94,14 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_f203.webp | EC-691 | coil1, coil3, coil5 (one face for F203, F202 and F15 GY/3: 3-2-1). The FSM icon opens this crop. The camera uses coil.webp. |
 | fsm_f27.webp | EC-693 | coil2, coil4, coil6 (one face for F27, F28 and F29 GY/3: 3-2-1). The FSM icon opens this crop. The camera uses coil.webp. |
 | fsm_f25.webp | EC-207 | maf (F25 B/6: 1-2-3-4-5-6, lock over 3-4). The FSM icon opens this crop. The camera uses maf.webp. |
-| fsm_f10.webp | EC-323 | ckp (F10 B/3: 3-2-1, mark over 2). The FSM icon opens this crop. The camera uses ckp.webp. |
-| fsm_f4.webp | EC-331 | cmp_b1 (F4 GY/3: 3-2-1, mark over 2). The FSM icon opens this crop. The camera uses cmp.webp. |
-| fsm_f32.webp | EC-333 | cmp_b2 (F32 B/3: 3-2-1, mark over 2). The FSM icon opens this crop. The camera uses cmp_g.webp. |
-| fsm_f228.webp | EC-317 | knock (F228 L/2: 2-1). The FSM icon opens this crop. The camera uses knock.webp. |
+| fsm_f4.webp | EC-331 | One 3-2-1 triangle for cmp_b1 (F4), ckp (F10, EC-323), cmp_b2 (F32, EC-333), f38_evtc_b1 (F38, EC-445) and f42_evtc_b2 (F42, EC-447). The FSM icon opens this crop. Cameras stay cmp.webp, ckp.webp, cmp_g.webp and oil.webp. |
 | fsm_f14.webp | EC-317 | ix_f14_f229 (F14 B/2: 1-2). The FSM icon opens this crop. The camera uses f14.webp. |
-| fsm_f13.webp | EC-229 | ect (F13 GY/2: 2-1). The FSM icon opens this crop. The camera uses ect.webp. |
+| fsm_f13.webp | EC-229 | ect (F13 GY/2: 2-1) and knock (F228, EC-317). The FSM icon opens this crop. Cameras stay ect.webp and knock.webp. |
 | fsm_e113.webp | EC-523 | app (E113 GY/6: 3-2-1 over 6-5-4). The FSM icon opens this crop. The camera uses e113.webp. |
 | fsm_f22.webp | EC-529 | af_b1 (F22 B/6: 5-3-1 over 6-4-2). The FSM icon opens this crop. The camera uses af.webp. |
 | fsm_f34.webp | EC-531 | af_b2 (F34 B/6: 5-3-1 over 6-4-2). The FSM icon opens this crop. The camera uses af.webp. |
 | fsm_f21.webp | DI-34 | f21_oilp (F21: terminals 1 VDD, 2 VOUT, 3 GND on the sensor). The FSM draws the sensor, not a separate shell. The FSM icon opens this crop. The camera uses oil.webp. |
 | fsm_f204.webp | EC-455 | vtc_b1 (F204 G/2: 2-1). The FSM icon opens this crop. The camera uses vtc.webp. |
-| fsm_f26.webp | EC-457 | vtc_b2 (F26 GY/2: 2-1). The FSM icon opens this crop. The camera uses vtc.webp. |
 | fsm_f1.webp | EC-717 | ix_e10_f1 (F1 GY/9: 1 beside 2-3-4-5 over 6-7-8-9). The FSM icon opens this crop. The camera uses f1.webp. |
 | fsm_f2.webp | EC-523 | ix_e11_f2 (F2 GY/10: 1-5 over 6-10). The FSM icon opens this crop. The camera uses f2.webp. |
 | fsm_f3.webp | EC-169 | ix_e12_f3 (F3 GY/8: 1-4 over 5-8). The FSM icon opens this crop. The camera uses f3.webp. |
@@ -114,7 +110,7 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_f33.webp | EC-702 | ix_f221_f33 (F33 GY/8: 1-4 over 5-8). The FSM icon opens this crop. The camera uses f33.webp. |
 | fsm_f36.webp | LT-183 | backup_sw (F36 B/2: 1-2). The FSM icon opens this crop. The camera uses reverse.webp. |
 | fsm_f35.webp | EC-646 | f35_pnp (F35 B/2: 1-2). The FSM icon opens this crop. The camera uses reverse.webp. |
-| fsm_f5.webp | EC-360 | evap_purge (F5 GY/2: 2-1). The FSM icon opens this crop. The camera uses reverse.webp. |
+| fsm_f5.webp | EC-360 | evap_purge (F5 GY/2: 2-1) and vtc_b2 (F26, EC-457). The FSM icon opens this crop. Cameras stay reverse.webp and vtc.webp. |
 | fsm_f20.webp | SC-22 | f20_alt (F20 GY/2: 3-4). The FSM icon opens this crop. The camera uses alt.webp. |
 | fsm_f11.webp | EC-191 | ho2s_b1 (F11 B/4: 3-1 over 4-2). The FSM icon opens this crop. The camera uses ho2s.webp. |
 | fsm_f12.webp | EC-193 | ho2s_b2 (F12 GY/4: 3-1 over 4-2). The FSM icon opens this crop. The camera uses ho2s.webp. |
@@ -123,8 +119,6 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_f19.webp | EC-426 | psp (F19 B/3: 1-2-3). The FSM icon opens this crop. The camera uses oil.webp. |
 | fsm_e252.webp | EC-717 | ac_press (E252 B/3: 1-2-3, same inset as E31). The FSM icon opens this crop. The camera uses oil.webp. |
 | fsm_t21.webp | EC-379 | evap_press (T21 GY/3: 3-2-1). The FSM icon opens this crop. The camera uses oil.webp. |
-| fsm_f38.webp | EC-445 | f38_evtc_b1 (F38 B/3: 3-2-1). The FSM icon opens this crop. The camera uses oil.webp. |
-| fsm_f42.webp | EC-447 | f42_evtc_b2 (F42 GY/3: 3-2-1). The FSM icon opens this crop. The camera uses oil.webp. |
 | fsm_m51.webp | BRC-101 | vdc_m51 (M51 yaw rate / side G sensor, B/6: 1-2-3 over 4-5-6). The FSM icon opens this crop. The camera uses m51.webp. |
 | fsm_jb_pg88.webp | PG-88 | jb_fuse_block (cabin fuse block J/B: M4/M5/E101–E104, fuses 1–22). Terminal-arrangement drawing; no web photo used. |
 | fsm_e1_pg89_holder.webp | PG-89 | fuse_link_holder (fusible link holder E1/E2/E201 on the battery + terminal, links A–E). Top crop of the PG-89 page; no web photo used. |
@@ -153,14 +147,11 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_m9.webp | BRC-52 | vdc_off_m9 (M9 GY: 1-2-3-4 plus two unnumbered cavities, lock over 3-4). Same face on BRC-100. TCS or VDC only. The FSM icon opens this crop. The camera uses m9.webp. |
 | fsm_m90.webp | PG-83 | bcm_m90 (M90 white: 1-20 over 21-40, hook is the latch). The camera uses m90.webp. The FSM icon opens this crop. |
 | fsm_m91.webp | PG-83 | bcm_m91 (M91 black: 41-49 over 50-55, the lower row stops under 46). Wired 42, 45, 46, 52, 54 and 55. Cavities 41, 43, 44, 47, 48, 49, 50, 51 and 53 have no wire on the pages used. |
-| fsm_e40.webp | LT-153 | turn_e40 (E40 GY/8 xenon LH: 1-2-3-4 over 5-6-7-8). Only 1 and 2 wired. The FSM icon opens this crop. The ficha uses e40.webp. |
-| fsm_e41.webp | LT-153 | turn_e41 (E41 GY/6 halogen LH: 1-2-3 over 4-5-6). Coupe only. Only 1 and 4 wired. The FSM icon opens this crop. The ficha uses e41.webp. |
 | fsm_t10.webp | LT-153 | turn_t10 (T10 SB/4: 1-2 over 3-4). Only 2 and 4 wired. The FSM icon opens this crop. The ficha uses the photo t10.webp. |
-| fsm_e24.webp | LT-154 | turn_e24 (E24 GY/8 xenon RH). Only 1 and 2 wired. The FSM icon opens this crop. The ficha uses e24.webp. |
-| fsm_e25.webp | LT-154 | turn_e25 (E25 GY/6 halogen RH). Coupe only. Only 1 and 4 wired. The FSM icon opens this crop. The ficha uses e25.webp. |
+| fsm_e24.webp | LT-154 | turn_e24 and turn_e40 (GY/8 xenon: 1-2-3-4 over 5-6-7-8). The FSM icon opens this crop. Each lamp keeps its own photo, e24.webp and e40.webp. |
+| fsm_e25.webp | LT-154 | turn_e25 and turn_e41 (GY/6 halogen: 1-2-3 over 4-5-6). Coupe only. The FSM icon opens this crop. Each lamp keeps its own photo, e25.webp and e41.webp. |
 | fsm_t18.webp | LT-154 | turn_t18 (T18 SB/4). Only 2 and 4 wired. The FSM icon opens this crop. The ficha uses the photo t18.webp. |
-| fsm_t9.webp | LT-179 | stop_t9 (T9 GY/3: 3-2-1). The FSM prints this one inset for T9 and T17; T17 has its own crop of the same inset, without the T9 label. The FSM icon opens this crop. The ficha uses the photo t9.webp. |
-| fsm_t17.webp | LT-179 | stop_t17 (T17 GY/3: 3-2-1). Same inset as T9. The FSM icon opens this crop. The camera uses t17.webp. |
+| fsm_t9.webp | LT-179 | stop_t9 and stop_t17 (GY/3: 3-2-1). LT-179 prints one inset for both. The FSM icon opens this crop. Each lamp keeps its own photo, t9.webp and t17.webp. |
 | fsm_d103.webp | LT-179 | stop_d103 (D103 BR/2: 1-2). Coupe only. The FSM icon opens this crop. The camera uses d103.webp. |
 | fsm_m153.webp | LT-152 | hazard_m153 (M153 W/4: 4-2-1-3). The FSM icon opens this crop. The camera uses m153.webp. |
 | fsm_t202.webp | LT-180 | stop_t202 (T202 BR/2: 1-2). Roadster only. The FSM icon opens this crop. The camera uses t202.webp. |
@@ -178,14 +169,11 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_m62.webp | ATC-42 | blower_m62 (M62 W: 3-2-1 and two unnumbered cavities). The FSM icon opens this crop. The camera uses m62.webp. |
 | fsm_m78.webp | BL-139 | rke_m78 (M78 W/4: 4-3-2-1). Cavity 3 has no wire. The FSM icon opens this crop. The camera uses m78.webp. |
 | fsm_d3.webp | AV-11 | spk_d3 and spk_d33. One brown tweeter face, labeled D3 and D33. Both cameras use their own copy of the photo. The FSM icon opens this crop. |
-| fsm_d2.webp | GW-67 | mirror_d2. GW-67 prints one inset for D2 and D32 (W/8: 3, latch, 2, 1 over 8-7-6-5-4). This file is the driver card. The FSM icon opens this crop. The camera uses d2.webp. |
-| fsm_d32.webp | GW-67 | mirror_d32. The same GW-67 inset, saved again for the passenger card. The two cards do not share one src. The FSM icon opens this crop. The camera uses d32.webp. |
+| fsm_d2.webp | GW-67 | mirror_d2 and mirror_d32. GW-67 prints one inset (W/8: 3, latch, 2, 1 over 8-7-6-5-4). The FSM icon opens this crop. Each mirror keeps its own photo, d2.webp and d32.webp. |
 | fsm_b202.webp | GW-67 | defog_b202. Roadster glass, both terminals in one dashed box: cavity 1 is B202, cavity 2 is B203. Asterisk: not in the harness layout. |
-| fsm_b36.webp | WW-54 | socket_b36 (B36 B: 2 over 1). WW-54 prints one inset labeled M38, B36; this crop keeps both labels. |
-| fsm_m38.webp | WW-54 | socket_m38 (M38 B: 2 over 1). Same inset; the crop keeps the M38 label. |
+| fsm_b36.webp | WW-54 | socket_b36 and socket_m38 (B: 2 over 1). WW-54 prints one inset. Both fichas open this crop. No listing photo. |
 | fsm_b37.webp | SE-59 | seat_b37 (B37 L: 3 / 5 / 1-X-2). |
-| fsm_m154.webp | SE-60 | seat_m154 (M154 W: 6, blank, 5 / 3-1-2-4). The FSM icon opens this crop. The camera uses m154.webp. |
-| fsm_m155.webp | SE-61 | seat_m155 (M155 BR: same face as M154). The FSM icon opens this crop. The camera uses m155.webp. |
+| fsm_m154.webp | SE-60 | seat_m154 and seat_m155 (6, blank, 5 / 3-1-2-4). The FSM icon opens this crop. Each switch keeps its own photo, m154.webp and m155.webp. |
 | fsm_b8.webp | SRS-12 | belt_b8 and belt_b11 (shared face: 1 / 2 / 3, index mark). The FSM icon opens this crop. The camera uses b8.webp and b11.webp. |
 | fsm_b40.webp | AV-12 | spk_b40 and spk_b42 (B40 and B42 BR: 1-2, round index above). The FSM icon opens this crop. The camera uses b40.webp and b42.webp. |
 | fsm_t19.webp | BL-54 | fuel_lid_t19 (T19 W: 2 over 1, right column unnumbered). PG-63 lists W/4. The FSM icon opens this crop. The camera uses t19.webp. |
@@ -195,9 +183,7 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_t103.webp | BL-30 | back_opener_t103 (T103 GY/2: 2-1). The FSM icon opens this crop. The camera uses t103.webp. |
 | fsm_d11.webp | BL-29 | door_lock_d11 (D11 SB/4: 3-4 over 1-2). The legend also names D40; this crop keeps the D11 label. The FSM icon opens this crop. The ficha uses the photo d11.webp. |
 | fsm_b71.webp | BL-125 | trunk_cancel_b71 (B71 W/2: 1 over 2). Roadster only. |
-| fsm_b17.webp | BL-27 | door_sw_b17 (B17 W/3: 1-2-3). BL-27 prints one inset for B17, B23 and T12; this crop keeps the B17 label. The FSM icon opens this crop. The camera uses b17.webp. |
-| fsm_b23.webp | BL-27 | door_sw_b23 (B23 W/3). Same inset; the B17 label sits between the symbol and B23. The FSM icon opens this crop. The camera uses b23.webp. |
-| fsm_t12.webp | BL-27 | back_door_t12 (T12 W/3). Same inset, with the B17 and B23 labels still in the crop. |
+| fsm_b17.webp | BL-27 | door_sw_b17, door_sw_b23 and back_door_t12 (W/3: 1-2-3). BL-27 prints one inset. The FSM icon opens this crop. B17 and B23 keep their own copies of the door-switch photo. T12 uses b17.webp. |
 
 Not mapped in CONN_FACE:
 
@@ -206,4 +192,4 @@ Not mapped in CONN_FACE:
 
 Do not use the in-bay F1/F2/F3 location photo (IMG_4403) as F3/E12 faces.
 Do not replace a real product/loom photo with an FSM inset.
-Shared photos (af, inj, coil, ho2s, oil, reverse, vtc, and b27.webp) are intentional: same connector part. Every share is allowlisted in FACE_SHARE_OK (test/harness_page_tests.mjs); do not swap one without confirmation.
+Shared photos (af, inj, coil, ho2s, oil, reverse, vtc, b27.webp, b17.webp, and fsm_b36.webp) are intentional: same connector part. Every share is allowlisted in FACE_SHARE_OK (test/harness_page_tests.mjs); do not swap one without confirmation.

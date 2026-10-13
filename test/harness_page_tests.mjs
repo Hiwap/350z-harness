@@ -417,6 +417,10 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       'faces/b27.webp': ['fuel_pump', 'fuel_tank_temp'],
       /* SRS-12 draws the same white 3-cavity face for both buckle switches. */
       'faces/fsm_b8.webp': ['belt_b8', 'belt_b11'],
+      /* BL-27 door switch photo also covers the coupe hatch switch, same shell. */
+      'faces/b17.webp': ['door_sw_b17', 'back_door_t12'],
+      /* WW-54 draws one 2-over-1 face for the trunk socket and the dash socket. */
+      'faces/fsm_b36.webp': ['socket_b36', 'socket_m38'],
       /* AV-11 draws one brown tweeter face for D3 and D33, and one white door-speaker face for D4 and D34. */
       'faces/fsm_d3.webp': ['spk_d3', 'spk_d33'],
       'faces/fsm_d4.webp': ['spk_d4', 'spk_d34'],
