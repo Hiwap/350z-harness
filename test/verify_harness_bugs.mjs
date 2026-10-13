@@ -24,12 +24,14 @@ if (!HTML) {
   console.error('HTML not found. Tried:', HTML_CANDIDATES.join(', '));
   process.exit(1);
 }
-const html = fs.readFileSync(HTML, 'utf8').replace(
+/* A Windows checkout is CRLF. The assertions match LF, so drop the CR here. */
+const readSrc = (p) => fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
+const html = readSrc(HTML).replace(
   'let CONN = {};',
-  fs.readFileSync(path.join(ROOT, 'data', 'conn.js'), 'utf8')
-    + fs.readFileSync(path.join(ROOT, 'data', 'i18n.js'), 'utf8')
+  readSrc(path.join(ROOT, 'data', 'conn.js'))
+    + readSrc(path.join(ROOT, 'data', 'i18n.js'))
     + 'let CONN = {};\n'
-    + fs.readFileSync(path.join(ROOT, 'js', 'selection.js'), 'utf8'),
+    + readSrc(path.join(ROOT, 'js', 'selection.js')),
 );
 const LOOM_BODY_EXTRA = loadLoomBodyExtra(html);
 const failures = [];

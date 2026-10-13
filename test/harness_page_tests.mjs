@@ -27,12 +27,14 @@ if (!HTML) {
   console.error('HTML not found. Tried:', HTML_CANDIDATES.join(', '));
   process.exit(1);
 }
-const html = fs.readFileSync(HTML, 'utf8').replace(
+/* A Windows checkout is CRLF. The assertions match LF, so drop the CR here. */
+const readSrc = (p) => fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
+const html = readSrc(HTML).replace(
   'let CONN = {};',
-  fs.readFileSync(path.join(ROOT, 'data', 'conn.js'), 'utf8')
-    + fs.readFileSync(path.join(ROOT, 'data', 'i18n.js'), 'utf8')
+  readSrc(path.join(ROOT, 'data', 'conn.js'))
+    + readSrc(path.join(ROOT, 'data', 'i18n.js'))
     + 'let CONN = {};\n'
-    + fs.readFileSync(path.join(ROOT, 'js', 'selection.js'), 'utf8'),
+    + readSrc(path.join(ROOT, 'js', 'selection.js')),
 );
 const LOOM_BODY_EXTRA = loadLoomBodyExtra(html);
 const failures = [];
@@ -394,7 +396,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
     const baseKeys = new Set([...baseBlock[1].matchAll(/^\s*([A-Za-z0-9_]+)\s*:\{/gm)].map((m) => m[1]));
     const missing = keys.filter((k) => !baseKeys.has(k));
     ok('CONN_FACE keys ⊆ CONN_BASE', missing.length === 0, missing.length ? missing.join(',') : `${keys.length} keys`);
-    const srcs = [...faceBlock[1].matchAll(/(?:src|srcAt):\s*'([^']+)'/g)].map((m) => m[1]);
+    const srcs = [...faceBlock[1].matchAll(/(?:src|srcAt|fsm|fsmAt):\s*'([^']+)'/g)].map((m) => m[1]);
     const uniq = [...new Set(srcs)];
     const absent = uniq.filter((s) => !fs.existsSync(path.join(ROOT, s)));
     ok('CONN_FACE image files exist', absent.length === 0, absent.length ? absent.join(',') : `${uniq.length} unique`);
@@ -437,7 +439,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       faceOf('af_b1') === 'faces/af.webp' && faceOf('af_b2') === 'faces/af.webp', `${faceOf('af_b1')} / ${faceOf('af_b2')}`);
     ok('F33/F221 injector splice uses faces/f33.webp = EFI Hardware male 8-pin grey (gallery img 4, F33 GY/8 PG-55/EC-702)',
       faceOf('ix_f221_f33') === 'faces/f33.webp'
-      && /ix_f221_f33: \{ src: 'faces\/f33\.webp', source: 'EFI Hardware \(Nissan 8 Pin Injector Loom Male Pin Connector, Grey\)', note: 'faceNoteMateMirror' \}/.test(faceBlock[1])
+      && /ix_f221_f33: \{ src: 'faces\/f33\.webp', source: 'EFI Hardware \(Nissan 8 Pin Injector Loom Male Pin Connector, Grey\)', note: 'faceNoteMateMirror', fsm: 'faces\/fsm_f33\.webp', fsmSource: 'FSM 2005 EC-702' \}/.test(faceBlock[1])
       && (html.match(/faceNoteMateMirror: '/g) || []).length === 3,
       faceOf('ix_f221_f33'));
     {
@@ -504,7 +506,12 @@ ok('rail-focus helpers present (stay in rail on re-click)',
         && !locIds.some((m) => /^ipdm_/.test(m[1])));
       ok('Location button sits next to the photo button (fichas + F102 panel), es/en/ja captions',
         /<h3>\$\{esc\(connField\(id, f, 'name'\)\)\}<\/h3>\$\{locBtnHtml\(id\)\}\$\{faceBtn\}/.test(html)
-        && /\$\{locBtnHtml\('ix_f102_m72'\)\}\$\{faceBtnHtml\('ix_f102_m72'\)\}/.test(html)
+        && /\$\{locBtnHtml\('ix_f102_m72'\)\}\$\{fsmBtnHtml\('ix_f102_m72'\)\}\$\{faceBtnHtml\('ix_f102_m72'\)\}/.test(html)
+        && /function fsmBtnHtml\(/.test(html)
+        && /class="ficha-face-btn ficha-fsm-btn"/.test(html)
+        && /data-fsm-conn=/.test(html)
+        && (html.match(/    faceFsmOpen: '/g) || []).length === 3
+        && (html.match(/    faceFsmLabel: '/g) || []).length === 3
         && (html.match(/    locOpen: '/g) || []).length === 3 && (html.match(/    locPg54: '/g) || []).length === 3 && (html.match(/    locHint: '/g) || []).length === 3);
       ok('Location on every intermedias card (B1/M12, B43/T1, T2/B44 → PG-57) and the ASCD/DLC cards (M8/M23/M48 → PG-48, B27 → PG-57, alternator E202/E211 → PG-53)',
         ['ix_e106_b2','ix_b43_t1','ix_t2_b44','ix_b1_m12','ix_e10_f1','ix_e12_f3','ix_e108_m15','ix_f102_m72'].every((c) => locIds.some((m) => m[1] === c))

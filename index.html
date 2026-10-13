@@ -2364,150 +2364,150 @@ let connToCirc = {};
    src is listed in FACE_SHARE_OK (test/harness_page_tests.mjs) so an accidental new share gets flagged.
    Do not swap a shared photo without confirmation. CKP F10 has its own photo (faces/ckp.webp). */
 const CONN_FACE = {
-  etc: { src: 'faces/etc.webp', source: 'Wiring Specialties' },
-  inj1: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj2: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj3: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj4: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj5: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  inj6: { src: 'faces/inj.webp', source: 'Wiring Specialties' },
-  coil1: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil2: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil3: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil4: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil5: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  coil6: { src: 'faces/coil.webp', source: 'Wiring Specialties' },
-  maf: { src: 'faces/maf.webp', source: 'Wiring Specialties' },
-  ckp: { src: 'faces/ckp.webp', source: 'Wiring Specialties (VQ35 Crank Sensor Connector WRS-VQCRNK-BK · RK03FB shell, cf. Ballenger CONN-86050)' },
-  cmp_b1: { src: 'faces/cmp.webp', source: 'Wiring Specialties' },
-  cmp_b2: { src: 'faces/cmp_g.webp', source: 'Wiring Specialties' },
-  knock: { src: 'faces/knock.webp', source: 'Wiring Specialties' },
-  ect: { src: 'faces/ect.webp', source: 'Wiring Specialties' },
-  app: { src: 'faces/e113.webp', source: 'Wiring Specialties' },
-  af_b1: { src: 'faces/af.webp', source: 'Connector Experts (Air Fuel Ratio Sensor, i-26377349)', note: 'faceNoteSimilarLock' },
-  af_b2: { src: 'faces/af.webp', source: 'Connector Experts (Air Fuel Ratio Sensor, i-26377349)', note: 'faceNoteSimilarLock' },
-  f21_oilp: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
-  vtc_b1: { src: 'faces/vtc.webp', source: 'Wiring Specialties' },
-  vtc_b2: { src: 'faces/vtc.webp', source: 'Wiring Specialties' },
-  ix_e10_f1: { src: 'faces/f1.webp', source: 'Wiring Specialties' },
-  ix_e11_f2: { src: 'faces/f2.webp', source: 'Wiring Specialties' },
-  ix_e12_f3: { src: 'faces/f3.webp', source: 'Wiring Specialties' },
-  ix_f102_m72: { src: 'faces/f102.webp', source: 'Wiring Specialties' },
-  ix_f14_f229: { src: 'faces/f14.webp', source: 'Wiring Specialties' },
-  ix_f18_f201: { src: 'faces/f18.webp', source: 'Ballenger Motorsports' },
-  ix_f221_f33: { src: 'faces/f33.webp', source: 'EFI Hardware (Nissan 8 Pin Injector Loom Male Pin Connector, Grey)', note: 'faceNoteMateMirror' },
-  backup_sw: { src: 'faces/reverse.webp', source: 'Wiring Specialties' },
-  f35_pnp: { src: 'faces/reverse.webp', source: 'Wiring Specialties' },
-  f20_alt: { src: 'faces/alt.webp', source: 'Wiring Specialties' },
+  etc: { src: 'faces/etc.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f31.webp', fsmSource: 'FSM 2005 EC-235' },
+  inj1: { src: 'faces/inj.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f222.webp', fsmSource: 'FSM 2005 EC-702' },
+  inj2: { src: 'faces/inj.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f222.webp', fsmSource: 'FSM 2005 EC-702' },
+  inj3: { src: 'faces/inj.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f222.webp', fsmSource: 'FSM 2005 EC-702' },
+  inj4: { src: 'faces/inj.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f222.webp', fsmSource: 'FSM 2005 EC-702' },
+  inj5: { src: 'faces/inj.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f222.webp', fsmSource: 'FSM 2005 EC-702' },
+  inj6: { src: 'faces/inj.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f222.webp', fsmSource: 'FSM 2005 EC-702' },
+  coil1: { src: 'faces/coil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f203.webp', fsmSource: 'FSM 2005 EC-691' },
+  coil2: { src: 'faces/coil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f27.webp', fsmSource: 'FSM 2005 EC-693' },
+  coil3: { src: 'faces/coil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f203.webp', fsmSource: 'FSM 2005 EC-691' },
+  coil4: { src: 'faces/coil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f27.webp', fsmSource: 'FSM 2005 EC-693' },
+  coil5: { src: 'faces/coil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f203.webp', fsmSource: 'FSM 2005 EC-691' },
+  coil6: { src: 'faces/coil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f27.webp', fsmSource: 'FSM 2005 EC-693' },
+  maf: { src: 'faces/maf.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f25.webp', fsmSource: 'FSM 2005 EC-207' },
+  ckp: { src: 'faces/ckp.webp', source: 'Wiring Specialties (VQ35 Crank Sensor Connector WRS-VQCRNK-BK · RK03FB shell, cf. Ballenger CONN-86050)', fsm: 'faces/fsm_f10.webp', fsmSource: 'FSM 2005 EC-323' },
+  cmp_b1: { src: 'faces/cmp.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f4.webp', fsmSource: 'FSM 2005 EC-331' },
+  cmp_b2: { src: 'faces/cmp_g.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f32.webp', fsmSource: 'FSM 2005 EC-333' },
+  knock: { src: 'faces/knock.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f228.webp', fsmSource: 'FSM 2005 EC-317' },
+  ect: { src: 'faces/ect.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f13.webp', fsmSource: 'FSM 2005 EC-229' },
+  app: { src: 'faces/e113.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_e113.webp', fsmSource: 'FSM 2005 EC-523' },
+  af_b1: { src: 'faces/af.webp', source: 'Connector Experts (Air Fuel Ratio Sensor, i-26377349)', note: 'faceNoteSimilarLock', fsm: 'faces/fsm_f22.webp', fsmSource: 'FSM 2005 EC-529' },
+  af_b2: { src: 'faces/af.webp', source: 'Connector Experts (Air Fuel Ratio Sensor, i-26377349)', note: 'faceNoteSimilarLock', fsm: 'faces/fsm_f34.webp', fsmSource: 'FSM 2005 EC-531' },
+  f21_oilp: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f21.webp', fsmSource: 'FSM 2005 DI-34' },
+  vtc_b1: { src: 'faces/vtc.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f204.webp', fsmSource: 'FSM 2005 EC-455' },
+  vtc_b2: { src: 'faces/vtc.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f26.webp', fsmSource: 'FSM 2005 EC-457' },
+  ix_e10_f1: { src: 'faces/f1.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f1.webp', fsmSource: 'FSM 2005 EC-717' },
+  ix_e11_f2: { src: 'faces/f2.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f2.webp', fsmSource: 'FSM 2005 EC-523' },
+  ix_e12_f3: { src: 'faces/f3.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f3.webp', fsmSource: 'FSM 2005 EC-169' },
+  ix_f102_m72: { src: 'faces/f102.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f102.webp', fsmSource: 'FSM 2005 PG-85' },
+  ix_f14_f229: { src: 'faces/f14.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f14.webp', fsmSource: 'FSM 2005 EC-317' },
+  ix_f18_f201: { src: 'faces/f18.webp', source: 'Ballenger Motorsports', fsm: 'faces/fsm_f18.webp', fsmSource: 'FSM 2005 EC-691' },
+  ix_f221_f33: { src: 'faces/f33.webp', source: 'EFI Hardware (Nissan 8 Pin Injector Loom Male Pin Connector, Grey)', note: 'faceNoteMateMirror', fsm: 'faces/fsm_f33.webp', fsmSource: 'FSM 2005 EC-702' },
+  backup_sw: { src: 'faces/reverse.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f36.webp', fsmSource: 'FSM 2005 LT-183' },
+  f35_pnp: { src: 'faces/reverse.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f35.webp', fsmSource: 'FSM 2005 EC-646' },
+  f20_alt: { src: 'faces/alt.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f20.webp', fsmSource: 'FSM 2005 SC-22' },
   gnd4: { src: 'faces/fsm_f103.webp', source: 'FSM 2005 EC-169' },
-  ho2s_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
-  ho2s_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
-  evap_purge: { src: 'faces/reverse.webp', source: 'Wiring Specialties' },
-  psp: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
-  ac_press: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
-  evap_press: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
-  f9_starter: { src: 'faces/f9.webp', source: 'photo of the starter plug' },
-  f16_cond: { src: 'faces/f16.webp', source: 'Nissan 28351-89901' },
-  vdc_m51: { src: 'faces/fsm_m51.webp', source: 'FSM 2005 BRC-101' },
+  ho2s_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f11.webp', fsmSource: 'FSM 2005 EC-191' },
+  ho2s_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f12.webp', fsmSource: 'FSM 2005 EC-193' },
+  evap_purge: { src: 'faces/reverse.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f5.webp', fsmSource: 'FSM 2005 EC-360' },
+  psp: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f19.webp', fsmSource: 'FSM 2005 EC-426' },
+  ac_press: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_e252.webp', fsmSource: 'FSM 2005 EC-717' },
+  evap_press: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_t21.webp', fsmSource: 'FSM 2005 EC-379' },
+  f9_starter: { src: 'faces/f9.webp', source: 'photo of the starter plug', fsm: 'faces/fsm_f9.webp', fsmSource: 'FSM 2005 SC-13' },
+  f16_cond: { src: 'faces/f16.webp', source: 'Nissan 28351-89901', fsm: 'faces/fsm_f16.webp', fsmSource: 'FSM 2005 EC-689' },
+  vdc_m51: { src: 'faces/m51.webp', source: 'Bosch 0265005254 yaw rate sensor, eBay item 177544606597', fsm: 'faces/fsm_m51.webp', fsmSource: 'FSM 2005 BRC-101' },
   abs_e51: { src: 'faces/fsm_e51.webp', source: 'FSM 2005 BRC-53' },
   abs_t5: { src: 'faces/fsm_t5.webp', source: 'FSM 2005 BRC-53' },
   vdc_e118: { src: 'faces/fsm_e118.webp', source: 'FSM 2005 BRC-100' },
-  vdc_off_m9: { src: 'faces/fsm_m9.webp', source: 'FSM 2005 BRC-52' },
-  bcm_m90: { src: 'faces/fsm_m90.webp', source: 'FSM 2005 PG-83' },
+  vdc_off_m9: { src: 'faces/m9.webp', source: 'Nissan 25145-WL000 VDC OFF switch, eBay item 255454366972', fsm: 'faces/fsm_m9.webp', fsmSource: 'FSM 2005 BRC-52' },
+  bcm_m90: { src: 'faces/m90.webp', source: 'eBay listing, Nissan BCM 284B1-EV00A', fsm: 'faces/fsm_m90.webp', fsmSource: 'FSM 2005 PG-83' },
   bcm_m91: { src: 'faces/fsm_m91.webp', source: 'FSM 2005 PG-83' },
-  turn_e40: { src: 'faces/e40.webp', source: 'Amazon listing photo' },
-  turn_e41: { src: 'faces/e41.webp', source: 'eBay listing photo' },
-  turn_t10: { src: 'faces/t10.webp', source: 'On Point Parts listing photo' },
-  turn_e24: { src: 'faces/e24.webp', source: 'Amazon listing photo' },
-  turn_e25: { src: 'faces/e25.webp', source: 'eBay listing photo' },
-  turn_t18: { src: 'faces/t18.webp', source: 'On Point Parts listing photo' },
-  stop_t9: { src: 'faces/t9.webp', source: 'On Point Parts listing photo' },
-  stop_t17: { src: 'faces/fsm_t17.webp', source: 'FSM 2005 LT-179' },
-  stop_d103: { src: 'faces/fsm_d103.webp', source: 'FSM 2005 LT-179' },
-  lug_t13: { src: 'faces/fsm_t13.webp', source: 'FSM 2005 LT-220' },
+  turn_e40: { src: 'faces/e40.webp', source: 'Amazon listing photo', fsm: 'faces/fsm_e40.webp', fsmSource: 'FSM 2005 LT-153' },
+  turn_e41: { src: 'faces/e41.webp', source: 'eBay listing photo', fsm: 'faces/fsm_e41.webp', fsmSource: 'FSM 2005 LT-153' },
+  turn_t10: { src: 'faces/t10.webp', source: 'On Point Parts listing photo', fsm: 'faces/fsm_t10.webp', fsmSource: 'FSM 2005 LT-153' },
+  turn_e24: { src: 'faces/e24.webp', source: 'Amazon listing photo', fsm: 'faces/fsm_e24.webp', fsmSource: 'FSM 2005 LT-154' },
+  turn_e25: { src: 'faces/e25.webp', source: 'eBay listing photo', fsm: 'faces/fsm_e25.webp', fsmSource: 'FSM 2005 LT-154' },
+  turn_t18: { src: 'faces/t18.webp', source: 'On Point Parts listing photo', fsm: 'faces/fsm_t18.webp', fsmSource: 'FSM 2005 LT-154' },
+  stop_t9: { src: 'faces/t9.webp', source: 'On Point Parts listing photo', fsm: 'faces/fsm_t9.webp', fsmSource: 'FSM 2005 LT-179' },
+  stop_t17: { src: 'faces/t17.webp', source: 'same grey shell as the left rear lamp', fsm: 'faces/fsm_t17.webp', fsmSource: 'FSM 2005 LT-179' },
+  stop_d103: { src: 'faces/d103.webp', source: 'Nissan 26590-CD00A high-mount stop lamp, eBay item 318025447929', fsm: 'faces/fsm_d103.webp', fsmSource: 'FSM 2005 LT-179' },
+  lug_t13: { src: 'faces/t13.webp', source: 'Nissan 26490-CD000 luggage room lamp, Nissan Parts Deal', fsm: 'faces/fsm_t13.webp', fsmSource: 'FSM 2005 LT-220' },
   dtrl_e14: { src: 'faces/fsm_e14.webp', source: 'FSM 2005 LT-117' },
   dtrl_e15: { src: 'faces/fsm_e15.webp', source: 'FSM 2005 LT-117' },
 
   jb_fuse_block: { src: 'faces/fsm_jb_pg88.webp', source: 'FSM 2005 PG-88' },
   fuse_link_holder: { src: 'faces/fsm_e1_pg89_holder.webp', source: 'FSM 2005 PG-89' },
   fuse_link_box: { src: 'faces/fsm_e21_pg89_box.webp', source: 'FSM 2005 PG-89' },
-  vtc_ex_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
-  vtc_ex_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties' },
-  f38_evtc_b1: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
-  f42_evtc_b2: { src: 'faces/oil.webp', source: 'Wiring Specialties' },
-  evap_vent: { src: 'faces/fsm_t20.webp', source: 'FSM 2005 EC-367' },
-  fuel_pump: { src: 'faces/b27.webp', source: 'eBay listing photo' },
-  fuel_tank_temp: { src: 'faces/b27.webp', source: 'eBay listing photo' },
-  ascd_brake: { src: 'faces/e110.webp', source: 'Nissan 25300-AT300, Nissan Parts Deal' },
-  ascd_clutch: { src: 'faces/e122.webp', source: 'Nissan 25300-62J00, Nissan Parts Deal' },
-  stop_lamp: { src: 'faces/e112.webp', source: 'Nissan 25320-4M400, Nissan Parts Deal', srcAt: 'faces/fsm_e111.webp', sourceAt: 'FSM 2005 EC-626' },
+  vtc_ex_b1: { src: 'faces/ho2s.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f40.webp', fsmSource: 'FSM 2005 EC-198' },
+  vtc_ex_b2: { src: 'faces/ho2s.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f41.webp', fsmSource: 'FSM 2005 EC-200' },
+  f38_evtc_b1: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f38.webp', fsmSource: 'FSM 2005 EC-445' },
+  f42_evtc_b2: { src: 'faces/oil.webp', source: 'Wiring Specialties', fsm: 'faces/fsm_f42.webp', fsmSource: 'FSM 2005 EC-447' },
+  evap_vent: { src: 'faces/t20.webp', source: 'Standard S2888 canister vent pigtail, Summit Racing', fsm: 'faces/fsm_t20.webp', fsmSource: 'FSM 2005 EC-367' },
+  fuel_pump: { src: 'faces/b27.webp', source: 'eBay listing photo', fsm: 'faces/fsm_b27.webp', fsmSource: 'FSM 2005 EC-710' },
+  fuel_tank_temp: { src: 'faces/b27.webp', source: 'eBay listing photo', fsm: 'faces/fsm_b27.webp', fsmSource: 'FSM 2005 EC-710' },
+  ascd_brake: { src: 'faces/e110.webp', source: 'Nissan 25300-AT300, Nissan Parts Deal', fsm: 'faces/fsm_e110.webp', fsmSource: 'FSM 2005 EC-628' },
+  ascd_clutch: { src: 'faces/e122.webp', source: 'Nissan 25300-62J00, Nissan Parts Deal', fsm: 'faces/fsm_e122.webp', fsmSource: 'FSM 2005 EC-628' },
+  stop_lamp: { src: 'faces/e112.webp', source: 'Nissan 25320-4M400, Nissan Parts Deal', fsm: 'faces/fsm_e112.webp', fsmSource: 'FSM 2005 EC-628', srcAt: 'faces/fsm_e111.webp', sourceAt: 'FSM 2005 EC-626' },
   clock_spring: { src: 'faces/fsm_m23.webp', source: 'FSM 2005 EC-618' },
-  dlc: { src: 'faces/fsm_m8.webp', source: 'FSM 2005 EC-742' },
-  wiper_e52: { src: 'faces/fsm_e52.webp', source: 'FSM 2005 WW-11' },
-  washer_e29: { src: 'faces/e29.webp', source: 'listing photo' },
+  dlc: { src: 'faces/m8.webp', source: 'eBay listing, 2004 350Z OBD-II port', fsm: 'faces/fsm_m8.webp', fsmSource: 'FSM 2005 EC-742' },
+  wiper_e52: { src: 'faces/e52.webp', source: 'eBay pure_auto, front wiper motor pigtail', fsm: 'faces/fsm_e52.webp', fsmSource: 'FSM 2005 WW-11' },
+  washer_e29: { src: 'faces/e29.webp', source: 'listing photo', fsm: 'faces/fsm_e29.webp', fsmSource: 'FSM 2005 WW-12' },
   washer_e28: { src: 'faces/fsm_e28.webp', source: 'FSM 2005 WW-40' },
-  wiper_d106: { src: 'faces/fsm_d106.webp', source: 'FSM 2005 WW-40' },
+  wiper_d106: { src: 'faces/d106.webp', source: 'Nissan 28710-CD000 rear wiper motor, eBay item 376219794479', fsm: 'faces/fsm_d106.webp', fsmSource: 'FSM 2005 WW-40' },
   meter_m19: { src: 'faces/fsm_m19.webp', source: 'FSM 2005 DI-67' },
   comb_meter: { src: 'faces/fsm_m48.webp', source: 'FSM 2005 DI-9' },
   unified_m49: { src: 'faces/fsm_m49.webp', source: 'FSM 2005 DI-9' },
   unified_m50: { src: 'faces/fsm_m50.webp', source: 'FSM 2005 ATC-44' },
-  fuel_level_sub: { src: 'faces/fsm_b28.webp', source: 'FSM 2005 DI-9' },
+  fuel_level_sub: { src: 'faces/b28.webp', source: 'Nissan 25060-AL51A fuel level sender, Nissan Parts Deal', fsm: 'faces/fsm_b28.webp', fsmSource: 'FSM 2005 DI-9' },
   defog_b34: { src: 'faces/fsm_b34.webp', source: 'FSM 2005 GW-63' },
   defog_d104: { src: 'faces/fsm_d104.webp', source: 'FSM 2005 GW-63' },
   defog_b202: { src: 'faces/fsm_b202.webp', source: 'FSM 2005 GW-67' },
   socket_b36: { src: 'faces/fsm_b36.webp', source: 'FSM 2005 WW-54' },
   socket_m38: { src: 'faces/fsm_m38.webp', source: 'FSM 2005 WW-54' },
   seat_b37: { src: 'faces/fsm_b37.webp', source: 'FSM 2005 SE-59' },
-  seat_m154: { src: 'faces/m154.webp', source: 'Nissan 25500-AX600, Nissan Parts Deal' },
-  seat_m155: { src: 'faces/m155.webp', source: 'Nissan 25500-AX600, Nissan Parts Deal' },
-  belt_b8: { src: 'faces/fsm_b8.webp', source: 'FSM 2005 SRS-12' },
-  belt_b11: { src: 'faces/fsm_b8.webp', source: 'FSM 2005 SRS-12' },
+  seat_m154: { src: 'faces/m154.webp', source: 'Nissan 25500-AX600, Nissan Parts Deal', fsm: 'faces/fsm_m154.webp', fsmSource: 'FSM 2005 SE-60' },
+  seat_m155: { src: 'faces/m155.webp', source: 'Nissan 25500-AX600, Nissan Parts Deal', fsm: 'faces/fsm_m155.webp', fsmSource: 'FSM 2005 SE-61' },
+  belt_b8: { src: 'faces/b8.webp', source: 'Nissan 86842-CD000 seat belt buckle, eBay item 187505566214', fsm: 'faces/fsm_b8.webp', fsmSource: 'FSM 2005 SRS-12' },
+  belt_b11: { src: 'faces/b11.webp', source: 'Nissan 86842-CD000 seat belt buckle, eBay item 187505566214', fsm: 'faces/fsm_b8.webp', fsmSource: 'FSM 2005 SRS-12' },
   audio_m40: { src: 'faces/fsm_m40.webp', source: 'FSM 2005 AV-12' },
   audio_m41: { src: 'faces/fsm_m41.webp', source: 'FSM 2005 AV-12' },
   audio_m39: { src: 'faces/fsm_m39.webp', source: 'FSM 2005 AV-12' },
-  spk_d3: { src: 'faces/fsm_d3.webp', source: 'FSM 2005 AV-11' },
-  spk_d33: { src: 'faces/d33.webp', source: 'eBay listing photo' },
+  spk_d3: { src: 'faces/d3.webp', source: 'same brown shell as the passenger tweeter', fsm: 'faces/fsm_d3.webp', fsmSource: 'FSM 2005 AV-11' },
+  spk_d33: { src: 'faces/d33.webp', source: 'eBay listing photo', fsm: 'faces/fsm_d3.webp', fsmSource: 'FSM 2005 AV-11' },
   spk_d4: { src: 'faces/fsm_d4.webp', source: 'FSM 2005 AV-11' },
   spk_d34: { src: 'faces/fsm_d4.webp', source: 'FSM 2005 AV-11' },
-  spk_b40: { src: 'faces/fsm_b40.webp', source: 'FSM 2005 AV-12' },
-  spk_b42: { src: 'faces/fsm_b40.webp', source: 'FSM 2005 AV-12' },
-  amb_e34: { src: 'faces/e34.webp', source: 'Connector Experts' },
-  blower_m62: { src: 'faces/fsm_m62.webp', source: 'FSM 2005 ATC-42' },
+  spk_b40: { src: 'faces/b40.webp', source: 'Bose 28156-AL500 rear deck speaker, eBay item 127001037061', fsm: 'faces/fsm_b40.webp', fsmSource: 'FSM 2005 AV-12' },
+  spk_b42: { src: 'faces/b42.webp', source: 'Bose 28156-AL500 rear deck speaker, eBay item 127001037061', fsm: 'faces/fsm_b40.webp', fsmSource: 'FSM 2005 AV-12' },
+  amb_e34: { src: 'faces/e34.webp', source: 'Connector Experts', fsm: 'faces/fsm_e34.webp', fsmSource: 'FSM 2005 ATC-44' },
+  blower_m62: { src: 'faces/m62.webp', source: 'Nissan 27225-1EA0A blower motor, Nissan Parts Deal', fsm: 'faces/fsm_m62.webp', fsmSource: 'FSM 2005 ATC-42' },
   atdev_m47: { src: 'faces/fsm_m47.webp', source: 'FSM 2005 AT-240' },
   top_b66: { src: 'faces/fsm_b66.webp', source: 'FSM 2005 RF-25' },
   top_b67: { src: 'faces/fsm_b67.webp', source: 'FSM 2005 RF-25' },
   top_b68: { src: 'faces/fsm_b68.webp', source: 'FSM 2005 RF-25' },
   top_m14: { src: 'faces/fsm_m14.webp', source: 'FSM 2005 RF-26' },
-  door_sw_b17: { src: 'faces/b17.webp', source: 'Nissan 25360-AD000, Jack-bros' },
-  door_sw_b23: { src: 'faces/b23.webp', source: 'Nissan 25360-AD000, Jack-bros' },
-  door_lock_d11: { src: 'faces/d11.webp', source: 'On Point Parts listing photo' },
-  door_lock_d40: { src: 'faces/d40.webp', source: 'eBay listing photo' },
+  door_sw_b17: { src: 'faces/b17.webp', source: 'Nissan 25360-AD000, Jack-bros', fsm: 'faces/fsm_b17.webp', fsmSource: 'FSM 2005 BL-27' },
+  door_sw_b23: { src: 'faces/b23.webp', source: 'Nissan 25360-AD000, Jack-bros', fsm: 'faces/fsm_b23.webp', fsmSource: 'FSM 2005 BL-27' },
+  door_lock_d11: { src: 'faces/d11.webp', source: 'On Point Parts listing photo', fsm: 'faces/fsm_d11.webp', fsmSource: 'FSM 2005 BL-29' },
+  door_lock_d40: { src: 'faces/d40.webp', source: 'eBay listing photo', fsm: 'faces/fsm_d40.webp', fsmSource: 'FSM 2005 BL-29' },
   comb_sw_m29: { src: 'faces/fsm_m29.webp', source: 'FSM 2005 LT-171' },
-  rke_m78: { src: 'faces/fsm_m78.webp', source: 'FSM 2005 BL-139' },
+  rke_m78: { src: 'faces/m78.webp', source: 'Nissan 28595-CF010 keyless receiver, eBay item 116760345835', fsm: 'faces/fsm_m78.webp', fsmSource: 'FSM 2005 BL-139' },
   tpms_m79: { src: 'faces/fsm_m79.webp', source: 'FSM 2005 WT-14' },
   sec_m34: { src: 'faces/fsm_m34.webp', source: 'FSM 2005 BL-139' },
   key_m25: { src: 'faces/fsm_m25.webp', source: 'FSM 2005 BL-69' },
-  hazard_m153: { src: 'faces/fsm_m153.webp', source: 'FSM 2005 LT-152' },
+  hazard_m153: { src: 'faces/m153.webp', source: 'Nissan 350Z hazard switch 2003-2005, eBay item 305934655951', fsm: 'faces/fsm_m153.webp', fsmSource: 'FSM 2005 LT-152' },
   vdc_m22: { src: 'faces/fsm_m22.webp', source: 'FSM 2005 BRC-103' },
   cb_b55: { src: 'faces/fsm_b55.webp', source: 'FSM 2005 RF-25' },
-  stop_t202: { src: 'faces/fsm_t202.webp', source: 'FSM 2005 LT-180' },
+  stop_t202: { src: 'faces/t202.webp', source: 'Nissan 26590-CE41A high-mount stop lamp, Nissan Parts Deal', fsm: 'faces/fsm_t202.webp', fsmSource: 'FSM 2005 LT-180' },
   map_r52: { src: 'faces/fsm_r52.webp', source: 'FSM 2005 LT-220' },
   map_r53: { src: 'faces/fsm_r53.webp', source: 'FSM 2005 LT-224' },
   bcm_b83: { src: 'faces/fsm_b83.webp', source: 'FSM 2005 PG-83' },
-  mirror_d2: { src: 'faces/fsm_d2.webp', source: 'FSM 2005 GW-67' },
-  mirror_d32: { src: 'faces/fsm_d32.webp', source: 'FSM 2005 GW-67' },
-  pw_sub_d37: { src: 'faces/fsm_d37.webp', source: 'FSM 2005 GW-25' },
-  ix_d1_m11: { src: 'faces/fsm_d1.webp', source: 'FSM 2005 PG-85' },
-  ix_d31_m74: { src: 'faces/fsm_d31.webp', source: 'FSM 2005 PG-85' },
-  pw_d7: { src: 'faces/d7.webp', source: 'eBay listing photo' },
+  mirror_d2: { src: 'faces/d2.webp', source: 'Nissan K6302-CD060 driver mirror, On Point Parts', fsm: 'faces/fsm_d2.webp', fsmSource: 'FSM 2005 GW-67' },
+  mirror_d32: { src: 'faces/d32.webp', source: 'Nissan K6301-CF000 passenger mirror, On Point Parts', fsm: 'faces/fsm_d32.webp', fsmSource: 'FSM 2005 GW-67' },
+  pw_sub_d37: { src: 'faces/d37.webp', source: 'same white housing as the driver window switch', fsm: 'faces/fsm_d37.webp', fsmSource: 'FSM 2005 GW-25' },
+  ix_d1_m11: { src: 'faces/d1.webp', source: 'eBay listing, 2003 350Z driver door main harness', fsm: 'faces/fsm_d1.webp', fsmSource: 'FSM 2005 PG-85' },
+  ix_d31_m74: { src: 'faces/d31.webp', source: 'same shell as the driver door junction', fsm: 'faces/fsm_d31.webp', fsmSource: 'FSM 2005 PG-85' },
+  pw_d7: { src: 'faces/d7.webp', source: 'eBay listing photo', fsm: 'faces/fsm_d7.webp', fsmSource: 'FSM 2005 GW-24' },
   back_door_t12: { src: 'faces/fsm_t12.webp', source: 'FSM 2005 BL-27' },
-  back_opener_t103: { src: 'faces/t103.webp', source: 'Nissan 25380-CD000, Nissan Parts Deal' },
+  back_opener_t103: { src: 'faces/t103.webp', source: 'Nissan 25380-CD000, Nissan Parts Deal', fsm: 'faces/fsm_t103.webp', fsmSource: 'FSM 2005 BL-30' },
   trunk_cancel_b71: { src: 'faces/fsm_b71.webp', source: 'FSM 2005 BL-125' },
-  back_opener_t11: { src: 'faces/fsm_t11.webp', source: 'FSM 2005 BL-30' },
+  back_opener_t11: { src: 'faces/t11.webp', source: 'eBay listing, trunk latch actuator pigtail', fsm: 'faces/fsm_t11.webp', fsmSource: 'FSM 2005 BL-30' },
   fuel_lid_m59: { src: 'faces/fsm_m59.webp', source: 'FSM 2005 BL-54' },
-  fuel_lid_m13: { src: 'faces/fsm_m13.webp', source: 'FSM 2005 BL-54' },
-  fuel_lid_t19: { src: 'faces/fsm_t19.webp', source: 'FSM 2005 BL-54' },
-  brake_fluid_e44: { src: 'faces/e44.webp', source: 'Nissan 46048-64J21, Nissan Parts Deal, marca Standard' },
+  fuel_lid_m13: { src: 'faces/m13.webp', source: 'Nissan 25280-CD000 fuel lid switch, eBay item 255464352939', fsm: 'faces/fsm_m13.webp', fsmSource: 'FSM 2005 BL-54' },
+  fuel_lid_t19: { src: 'faces/t19.webp', source: 'eBay listing, fuel door actuator plug', fsm: 'faces/fsm_t19.webp', fsmSource: 'FSM 2005 BL-54' },
+  brake_fluid_e44: { src: 'faces/e44.webp', source: 'Nissan 46048-64J21, Nissan Parts Deal, marca Standard', fsm: 'faces/fsm_e44.webp', fsmSource: 'FSM 2005 DI-67' },
   pkb_b47: { src: 'faces/fsm_b47.webp', source: 'FSM 2005 DI-67' },
 };
 
@@ -4659,6 +4659,22 @@ function faceBtnHtml(cid){
   if(!face || !face.src) return '';
   return `<button type="button" class="ficha-face-btn" data-face-conn="${esc(cid)}" aria-label="${esc(t('facePhotoOpen'))}" title="${esc(t('facePhotoOpen'))}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-2h6l2 2h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>`;
 }
+/* Photo camera stays. This icon opens the FSM crop only when that view's photo is a different file.
+   stop_lamp on A/T is already fsm_e111, fsmAt is unset, and the icon stays off. */
+function fsmRecord(cid){
+  const face = CONN_FACE && CONN_FACE[cid];
+  if(!face) return null;
+  const photo = faceRecord(cid);
+  if(!photo || !photo.src) return null;
+  const at = !!(face.srcAt && transView() === 'at');
+  const src = at ? face.fsmAt : face.fsm;
+  if(!src || src === photo.src) return null;
+  return {src, source: at ? (face.fsmSourceAt || '') : (face.fsmSource || '')};
+}
+function fsmBtnHtml(cid){
+  if(!fsmRecord(cid)) return '';
+  return `<button type="button" class="ficha-face-btn ficha-fsm-btn" data-fsm-conn="${esc(cid)}" aria-label="${esc(t('faceFsmOpen'))}" title="${esc(t('faceFsmOpen'))}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6"/><path d="M10 17h4"/></svg></button>`;
+}
 
 function renderF102(){
   const panel = document.getElementById('f102Panel');
@@ -4666,7 +4682,7 @@ function renderF102(){
   const titleEl = document.getElementById('f102Title');
   const legendEl = document.getElementById('f102Legend');
   if(!panel || !blocksEl) return;
-  if(titleEl) titleEl.innerHTML = `${mirrorBtnHtml('ix_f102_m72', 'ficha')}<span class="f102-title-txt">${esc(t('f102Title'))}</span>${locBtnHtml('ix_f102_m72')}${faceBtnHtml('ix_f102_m72')}`;
+  if(titleEl) titleEl.innerHTML = `${mirrorBtnHtml('ix_f102_m72', 'ficha')}<span class="f102-title-txt">${esc(t('f102Title'))}</span>${locBtnHtml('ix_f102_m72')}${fsmBtnHtml('ix_f102_m72')}${faceBtnHtml('ix_f102_m72')}`;
   if(!panel.dataset.faceBound){
     panel.dataset.faceBound = '1';
     panel.addEventListener('click', e => {
@@ -4682,6 +4698,13 @@ function renderF102(){
         e.preventDefault();
         e.stopPropagation();
         toggleFichaMirror(mirBtn.dataset.mirrorConn || 'ix_f102_m72');
+        return;
+      }
+      const fsmBtn = e.target.closest && e.target.closest('.ficha-fsm-btn');
+      if(fsmBtn && panel.contains(fsmBtn)){
+        e.preventDefault();
+        e.stopPropagation();
+        openFsmLightbox(fsmBtn.dataset.fsmConn || 'ix_f102_m72');
         return;
       }
       const btn = e.target.closest && e.target.closest('.ficha-face-btn');
@@ -4818,7 +4841,7 @@ function renderECM(){
   const ecmHead = document.querySelector('#ecm .ecm-head');
   if(tools && ecmMirror && ecmHead){
     ecmMirror.innerHTML = mirrorBtnHtml('ecm', 'ecm');
-    tools.innerHTML = `${locBtnHtml('ecm_f101_can')}${faceBtnHtml('ecm_f101_can')}`;
+    tools.innerHTML = `${locBtnHtml('ecm_f101_can')}${fsmBtnHtml('ecm_f101_can')}${faceBtnHtml('ecm_f101_can')}`;
     if(!ecmHead.dataset.bound){
       ecmHead.dataset.bound = '1';
       ecmHead.addEventListener('click', e => {
@@ -4826,6 +4849,8 @@ function renderECM(){
         if(locBtn){ e.preventDefault(); openLocLightbox(locBtn.dataset.locConn || 'ecm_f101_can'); return; }
         const mirBtn = e.target.closest && e.target.closest('.ficha-mirror-btn');
         if(mirBtn){ e.preventDefault(); toggleEcmOrient(); return; }
+        const fsmBtn = e.target.closest && e.target.closest('.ficha-fsm-btn');
+        if(fsmBtn){ e.preventDefault(); openFsmLightbox(fsmBtn.dataset.fsmConn || 'ecm_f101_can'); return; }
         const faceBtn = e.target.closest && e.target.closest('.ficha-face-btn');
         if(faceBtn){ e.preventDefault(); openFaceLightbox(faceBtn.dataset.faceConn || 'ecm_f101_can'); }
       });
@@ -5018,6 +5043,28 @@ function openFaceLightbox(cid){
   root.classList.add('open');
   closeBtn.focus();
 }
+function openFsmLightbox(cid){
+  const face = fsmRecord(cid);
+  if(!face || !face.src) return;
+  const root = ensureFaceLightbox();
+  const img = root.querySelector('.face-lb-img');
+  const srcEl = root.querySelector('.face-lb-src');
+  const closeBtn = root.querySelector('.face-lb-close');
+  img.src = face.src;
+  img.alt = (CONN[cid] && connField(cid, CONN[cid], 'name')) || cid;
+  closeBtn.setAttribute('aria-label', t('facePhotoClose'));
+  setLightboxIpdmMark(null);
+  if(face.source){
+    srcEl.hidden = false;
+    srcEl.textContent = t('faceFsmLabel') + ' ' + face.source;
+  } else {
+    srcEl.hidden = true;
+    srcEl.textContent = '';
+  }
+  _faceLbPrevFocus = document.activeElement;
+  root.classList.add('open');
+  closeBtn.focus();
+}
 function closeFaceLightbox(){
   const root = document.getElementById('faceLightbox');
   if(!root) return;
@@ -5158,7 +5205,7 @@ function makeFichaEl(id, f, opts){
   const viewTxt = viewNoteText(id, f);
   if(viewTxt) extra += `<div class="note-body view-note">${esc(viewTxt)}</div>`;
   const showIpdm = !!(opts && opts.ipdmIcon && IPDM_FSM_MARK[id]);
-  const faceBtn = showIpdm ? ipdmFsmBtnHtml(id) : faceBtnHtml(id);
+  const faceBtn = showIpdm ? ipdmFsmBtnHtml(id) : (fsmBtnHtml(id) + faceBtnHtml(id));
   const mirMode = fichaMirrorMode(id, f);
   el.innerHTML = `<div class="ficha-title-row">${mirrorBtnHtml(id, mirMode)}<h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
   if(mirMode === 'ficha' && FICHA_MIRROR.has(id)){
@@ -5190,6 +5237,13 @@ function makeFichaEl(id, f, opts){
       e.stopPropagation();
       if(mirBtn.dataset.mirrorMode === 'ecm') toggleEcmOrient();
       else toggleFichaMirror(mirBtn.dataset.mirrorConn || id);
+      return;
+    }
+    const fsmBtn = e.target.closest && e.target.closest('.ficha-fsm-btn');
+    if(fsmBtn && wrap.contains(fsmBtn)){
+      e.preventDefault();
+      e.stopPropagation();
+      openFsmLightbox(fsmBtn.dataset.fsmConn || id);
       return;
     }
     const faceBtnEl = e.target.closest && e.target.closest('.ficha-face-btn');
