@@ -411,8 +411,8 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       'faces/ho2s.webp': ['ho2s_b1', 'ho2s_b2', 'vtc_ex_b1', 'vtc_ex_b2'],
       'faces/oil.webp': ['f21_oilp', 'psp', 'ac_press', 'evap_press', 'f38_evtc_b1', 'f42_evtc_b2'],
       'faces/reverse.webp': ['backup_sw', 'evap_purge', 'f35_pnp'],
-      /* B27 GY/5 is one shell: fuel pump draws 3/1, tank temp draws 5/4. Same EC-710 inset. */
-      'faces/fsm_b27.webp': ['fuel_pump', 'fuel_tank_temp'],
+      /* B27 GY/5 is one shell: fuel pump draws 3/1, tank temp draws 5/4. */
+      'faces/b27.webp': ['fuel_pump', 'fuel_tank_temp'],
       /* SRS-12 draws the same white 3-cavity face for both buckle switches. */
       'faces/fsm_b8.webp': ['belt_b8', 'belt_b11'],
       /* AV-11 draws one brown tweeter face for D3 and D33, and one white door-speaker face for D4 and D34. */

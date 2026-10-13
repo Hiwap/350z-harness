@@ -36,46 +36,63 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | f33.webp | EFI Hardware | ix_f221_f33 | "Nissan 8 Pin Injector Loom Male Pin Connector Grey" (SKU C08M-9001, "injector harness engine loom side"), https://www.efihardware.com/products/2207/Nissan-8-Pin-Injector-Loom-Male-Pin-Connector-Grey · 4th gallery thumbnail (images/3090, mating face with orange seal), chosen for this car. Replaced the earlier female-side photo. FSM gender (GI-15: black guide = male, white = female): F33 GY/8 has the **female** terminals (EC-278 T.S., white guide, 1-2-3-4 / 5-6-7-8); F221 has the **male** terminals (EC-279 T.S., black guide, 4-3-2-1 / 8-7-6-5). So this male photo is the F221 face; PG-55 lists F221 as G/8 (green) vs the grey product. The ficha shows the car's F33 female plug (EC-278 T.S., 1-2-3-4 / 5-6-7-8); the caption adds the localized `faceNoteMateMirror` note (mating male half, mirrored vs the ficha). |
 | reverse.webp | Wiring Specialties | backup_sw, evap_purge, f35_pnp | VQ35 Reverse Switch 2-pin (F36 B/2 · F5 GY/2 purge same 2-way · F35 B/2 park/neutral same 2-way) |
 | alt.webp | Wiring Specialties | f20_alt | VQ35 Alternator Plug Connector (SKU WRS-VQ35ALT-CON, https://www.wiringspecialties.com/vq35-alternator-plug-connector/) — harness-side 2-cavity S/L plug = same half as F20 GY/2 (SC-22: 3 L / 4 S), so no mirror note. Re-checked 2026-09-26 for the alternator charge fichas: still the best product photo. The B (E202) and E (E211) ring terminals of the battery cable (PG-53) have no photo (generic ring lugs; skipped on purpose). |
+| f9.webp | photo of the starter plug | f9_starter | Gray 1-cavity starter solenoid plug (FSM F9 GY, SC-13). Three-quarter view, lock and the single terminal visible. |
+| b27.webp | eBay listing photo | fuel_pump, fuel_tank_temp | eBay 396345068231, "Fuel Pump / Sending Unit Connector" for 2003–2009 350Z. Gray 5-cavity in one row, lock over the middle (FSM B27 GY/5, EC-710). One shell: the pump wires 3/1, the tank-temp ficha wires 5/4. |
+| e29.webp | listing photo | washer_e29 | Front washer pump pigtail. Gray 2-cavity side by side, lock on top (FSM E29 GY/2, WW-12). The rear pump E28 is keyed differently and keeps fsm_e28.webp. |
+| e24.webp | Amazon listing photo | turn_e24 | Amazon B0FCC7FB8C, gray 8-pin, two rows of four, lock on top (FSM E24 GY/8 xenon, LT-154). Face crop of the listing collage. |
+| e40.webp | Amazon listing photo | turn_e40 | Same listing photo as e24.webp, saved again for the left xenon lamp (FSM E40 GY/8, LT-153). The two cards do not share one src. |
+| e25.webp | eBay listing photo | turn_e25 | eBay 226990279165, CARFIBER, gray 6-pin, two rows of three, orange terminals, lock on top (FSM E25 GY/6 halogen, LT-154). Faint CARFIBER watermark. Fits 2003–2005. A 6-pin headlamp listing is this halogen shell, not the xenon 8-pin. |
+| e41.webp | eBay listing photo | turn_e41 | Same listing photo as e25.webp, saved again for the left halogen lamp (FSM E41 GY/6, LT-153). The two cards do not share one src. |
+| f16.webp | Nissan 28351-89901 | f16_cond | Ignition condenser. Black body, two male blades. The FSM inset fsm_f16.webp is the white harness socket (EC-689, 1 over 2). |
+| e110.webp | Nissan Parts Deal | ascd_brake | Nissan 25300-AT300, ASCD cancel switch. Brown shell, two cavities stacked (FSM E110 BR, 2 over 1, EC-628). |
+| e122.webp | Nissan Parts Deal | ascd_clutch | Nissan 25300-62J00, ASCD switch on the clutch pedal. Replaced in the catalog by 25300-62J0E. |
+| e112.webp | Nissan Parts Deal | stop_lamp | Nissan 25320-4M400, stop lamp switch, M/T. Black shell. The A/T camera stays on fsm_e111.webp. |
+| b17.webp | Jack-bros listing | door_sw_b17 | Nissan 25360-AD000, door switch. Listing watermark left on the photo. |
+| b23.webp | Jack-bros listing | door_sw_b23 | Same photo as b17.webp, saved again for the passenger door switch. The two cards do not share one src. |
+| e44.webp | Nissan Parts Deal | brake_fluid_e44 | Nissan 46048-64J21, brake fluid level switch. The catalog photo carries a Standard watermark, left in place. |
+| m154.webp | Nissan Parts Deal | seat_m154 | Nissan 25500-AX600, heated-seat switch assembly, back of the panel. |
+| m155.webp | Nissan Parts Deal | seat_m155 | Same photo as m154.webp, saved again for the passenger switch. The two cards do not share one src. |
+| t103.webp | Nissan Parts Deal | back_opener_t103 | Nissan 25380-CD000, trunk opener switch. The pigtail is on the part; the cavity face is not square to the camera. |
 
 FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not product photos):
 
 | file | FSM sheet | maps to |
 |------|-----------|---------|
 | fsm_f103.webp | EC-169 | gnd4 (F103) — the ficha now matches this inset: fixed 1-2-3-4 (2026-09-26 audit; the old default 4-3-2-1 contradicted it) |
-| fsm_f9.webp | SC-13 | f9_starter (F9 · E203 in the same FSM box) |
-| fsm_f16.webp | EC-689 | f16_cond (F16) — the ficha now matches this inset: fixed vertical 1 over 2 (2026-09-26 audit) |
+| fsm_f9.webp | SC-13 | f9_starter (F9 · E203 in the same FSM box). Not linked any more: the ficha uses f9.webp. |
+| fsm_f16.webp | EC-689 | f16_cond (F16) — the ficha drawing matches this inset: fixed vertical 1 over 2 (2026-09-26 audit). Not linked any more: the camera uses f16.webp. |
 | fsm_m51.webp | BRC-101 | vdc_m51 (M51 yaw rate / side G sensor, B/6: 1-2-3 over 4-5-6). No web photo of the harness plug found (parts sites show only the sensor, and block downloads), so the FSM inset is used. |
 | fsm_jb_pg88.webp | PG-88 | jb_fuse_block (cabin fuse block J/B: M4/M5/E101–E104, fuses 1–22). Terminal-arrangement drawing; no web photo used. |
 | fsm_e1_pg89_holder.webp | PG-89 | fuse_link_holder (fusible link holder E1/E2/E201 on the battery + terminal, links A–E). Top crop of the PG-89 page; no web photo used. |
 | fsm_e21_pg89_box.webp | PG-89 | fuse_link_box (box E18 with fuse and fusible link block E21: fuses 31–38, links F–M, back-up lamp and horn relays). Bottom crop of the PG-89 page; no web photo used. |
 | fsm_t20.webp | EC-367 | evap_vent (T20 B/2: 2-1, lock on top). No harness-face product photo. |
-| fsm_b27.webp | EC-710 | fuel_pump and fuel_tank_temp (one B27 GY/5 shell: 5-4-3-2-1, lock on cavity 3). Each ficha draws the whole row. The pump wires 3/1; the tank-temp ficha wires 5/4. The other cavities are empty. |
-| fsm_e110.webp | EC-628 | ascd_brake (E110 BR: 2 over 1). The same inset is on EC-626. |
-| fsm_e112.webp | EC-628 | stop_lamp on M/T (E112 B: 1-2). |
+| fsm_b27.webp | EC-710 | fuel_pump and fuel_tank_temp (one B27 GY/5 shell: 5-4-3-2-1, lock on cavity 3). Not linked any more: both fichas use b27.webp. |
+| fsm_e110.webp | EC-628 | ascd_brake (E110 BR: 2 over 1). The same inset is on EC-626. Not linked any more: the camera uses e110.webp. |
+| fsm_e112.webp | EC-628 | stop_lamp on M/T (E112 B: 1-2). Not linked any more: the M/T camera uses e112.webp. |
 | fsm_e111.webp | EC-626 | stop_lamp on A/T (E111 W/4: 4-3 over 2-1). The ficha draws that shell; 4 and 3 are empty. The camera uses this inset when the selector is A/T. |
-| fsm_e122.webp | EC-628 | ascd_clutch (E122 L: 1-2, lock above). M/T only. |
+| fsm_e122.webp | EC-628 | ascd_clutch (E122 L: 1-2, lock above). M/T only. Not linked any more: the camera uses e122.webp. |
 | fsm_m23.webp | EC-618 | clock_spring (M23 GY: 27-26-25-24 over 34-33-32-31). The ficha draws that half; only 34 and 33 are wired. M203, the other half of that dashed box, is not this connector. |
 | fsm_m8.webp | EC-742 | dlc (M8 W/16: 16-9 over 8-1). |
 | fsm_e52.webp | WW-11 | wiper_e52 (E52 GY/5: 1-2-3 over 4-5, lock on the top row). Cavity 5 is drawn empty. |
-| fsm_e29.webp | WW-12 | washer_e29 (E29 GY/2: 1-2, lock on top). |
+| fsm_e29.webp | WW-12 | washer_e29 (E29 GY/2: 1-2, lock on top). Not linked any more: the ficha uses e29.webp. |
 | fsm_e28.webp | WW-40 | washer_e28 (E28 GY/2: 1-2, lock on top). Coupe only. Separate crop from E29. |
 | fsm_d106.webp | WW-40 | wiper_d106 (D106 W/4: 1-2-3-4, lock over the middle). Cavity 3 is drawn empty. Coupe only. |
 | fsm_m48.webp | DI-9 | comb_meter (M48 GY/20: 1-10 over 11-20). Wired 1, 9, 11 and 19. |
 | fsm_m49.webp | DI-9 | unified_m49 (M49 GY: 21-28 over 29-36). Wired 21, 22, 26, 28, 29, 30 and 36. |
 | fsm_b28.webp | DI-9 | fuel_level_sub (B28 GY/2: 2-1). |
 | fsm_m19.webp | DI-67 | meter_m19 (M19 W/24: 12-1 over 24-13, lock over 8-5). The ficha draws the whole shell. Wired from DI-10/67/69/70. Cavities 4-9 and 19 have no wire there. |
-| fsm_e44.webp | DI-67 | brake_fluid_e44 (E44 GY/2: 1 over 2, lock on top). |
+| fsm_e44.webp | DI-67 | brake_fluid_e44 (E44 GY/2: 1 over 2, lock on top). Not linked any more: the camera uses e44.webp. |
 | fsm_b47.webp | DI-67 | pkb_b47 (B47 B/1: one cavity, lock on top). |
 | fsm_e51.webp | BRC-53 | abs_e51 (E51 GY/30: 15-1 over 30-16, lock over the top row). Same face on BRC-16 and BRC-52. Wired from BRC-14/15/16/52. Cavities 2, 3, 4, 5, 8, 10, 12, 14, 18, 21, 25 and 27 have no wire. No web photo of the harness plug found. |
 | fsm_t5.webp | BRC-53 | abs_t5 (T5 GY/4: 2-1 over 4-3, lock on top). Same face on BRC-16 and BRC-102. No web photo of the harness plug found. |
 | fsm_e118.webp | BRC-100 | vdc_e118 (E118 B/88: 61-88 over 29-55 over 1-28; the top row sits only above 35-55). VDC only. Wired from BRC-99 through BRC-105. Cavities the diagrams do not wire stay empty. 56-60 are not on the face. |
 | fsm_m9.webp | BRC-52 | vdc_off_m9 (M9 GY: 1-2-3-4 plus two unnumbered cavities, lock over 3-4). Same face on BRC-100. TCS or VDC only. |
 | fsm_m91.webp | PG-83 | bcm_m91 (M91 black: 41-49 over 50-55, the lower row stops under 46). Wired 42, 45, 46, 52, 54 and 55. Cavities 41, 43, 44, 47, 48, 49, 50, 51 and 53 have no wire on the pages used. |
-| fsm_e40.webp | LT-153 | turn_e40 (E40 GY/8 xenon LH: 1-2-3-4 over 5-6-7-8). Only 1 and 2 wired. |
-| fsm_e41.webp | LT-153 | turn_e41 (E41 GY/6 halogen LH: 1-2-3 over 4-5-6). Coupe only. Only 1 and 4 wired. |
+| fsm_e40.webp | LT-153 | turn_e40 (E40 GY/8 xenon LH: 1-2-3-4 over 5-6-7-8). Only 1 and 2 wired. Not linked any more: the ficha uses e40.webp. |
+| fsm_e41.webp | LT-153 | turn_e41 (E41 GY/6 halogen LH: 1-2-3 over 4-5-6). Coupe only. Only 1 and 4 wired. Not linked any more: the ficha uses e41.webp. |
 | fsm_t10.webp | LT-153 | turn_t10 (T10 SB/4: 1-2 over 3-4). Only 2 and 4 wired. Not linked any more: the ficha uses the photo t10.webp. |
-| fsm_e24.webp | LT-154 | turn_e24 (E24 GY/8 xenon RH). Only 1 and 2 wired. |
-| fsm_e25.webp | LT-154 | turn_e25 (E25 GY/6 halogen RH). Coupe only. Only 1 and 4 wired. |
+| fsm_e24.webp | LT-154 | turn_e24 (E24 GY/8 xenon RH). Only 1 and 2 wired. Not linked any more: the ficha uses e24.webp. |
+| fsm_e25.webp | LT-154 | turn_e25 (E25 GY/6 halogen RH). Coupe only. Only 1 and 4 wired. Not linked any more: the ficha uses e25.webp. |
 | fsm_t18.webp | LT-154 | turn_t18 (T18 SB/4). Only 2 and 4 wired. Not linked any more: the ficha uses the photo t18.webp. |
 | fsm_t9.webp | LT-179 | stop_t9 (T9 GY/3: 3-2-1). The FSM prints this one inset for T9 and T17; T17 has its own crop of the same inset, without the T9 label. Not linked any more: the ficha uses the photo t9.webp. |
 | fsm_t17.webp | LT-179 | stop_t17 (T17 GY/3: 3-2-1). Same inset as T9. |
@@ -94,18 +111,18 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_b36.webp | WW-54 | socket_b36 (B36 B: 2 over 1). WW-54 prints one inset labeled M38, B36; this crop keeps both labels. |
 | fsm_m38.webp | WW-54 | socket_m38 (M38 B: 2 over 1). Same inset; the crop keeps the M38 label. |
 | fsm_b37.webp | SE-59 | seat_b37 (B37 L: 3 / 5 / 1-X-2). |
-| fsm_m154.webp | SE-60 | seat_m154 (M154 W: 6, blank, 5 / 3-1-2-4). |
-| fsm_m155.webp | SE-61 | seat_m155 (M155 BR: same face as M154). |
+| fsm_m154.webp | SE-60 | seat_m154 (M154 W: 6, blank, 5 / 3-1-2-4). Not linked any more: the camera uses m154.webp. |
+| fsm_m155.webp | SE-61 | seat_m155 (M155 BR: same face as M154). Not linked any more: the camera uses m155.webp. |
 | fsm_b8.webp | SRS-12 | belt_b8 and belt_b11 (shared face: 1 / 2 / 3, index mark). |
 | fsm_t19.webp | BL-54 | fuel_lid_t19 (T19 W: 2 over 1, right column unnumbered). PG-63 lists W/4. |
 | fsm_m13.webp | BL-54 | fuel_lid_m13 (M13 GY: 1-2 and three unnumbered cavities). |
 | fsm_m59.webp | BL-54 | fuel_lid_m59 (M59 L: 3 over 5 over 1, X, 2). Coupe only. |
 | fsm_t11.webp | BL-30 | back_opener_t11 (T11 W: 2 over 1). PG-63 says W/4; the diagram face draws two. Coupe only. |
-| fsm_t103.webp | BL-30 | back_opener_t103 (T103 GY/2: 2-1). |
+| fsm_t103.webp | BL-30 | back_opener_t103 (T103 GY/2: 2-1). Not linked any more: the camera uses t103.webp. |
 | fsm_d11.webp | BL-29 | door_lock_d11 (D11 SB/4: 3-4 over 1-2). The legend also names D40; this crop keeps the D11 label. Not linked any more: the ficha uses the photo d11.webp. |
 | fsm_b71.webp | BL-125 | trunk_cancel_b71 (B71 W/2: 1 over 2). Roadster only. |
-| fsm_b17.webp | BL-27 | door_sw_b17 (B17 W/3: 1-2-3). BL-27 prints one inset for B17, B23 and T12; this crop keeps the B17 label. |
-| fsm_b23.webp | BL-27 | door_sw_b23 (B23 W/3). Same inset; the B17 label sits between the symbol and B23. |
+| fsm_b17.webp | BL-27 | door_sw_b17 (B17 W/3: 1-2-3). BL-27 prints one inset for B17, B23 and T12; this crop keeps the B17 label. Not linked any more: the camera uses b17.webp. |
+| fsm_b23.webp | BL-27 | door_sw_b23 (B23 W/3). Same inset; the B17 label sits between the symbol and B23. Not linked any more: the camera uses b23.webp. |
 | fsm_t12.webp | BL-27 | back_door_t12 (T12 W/3). Same inset, with the B17 and B23 labels still in the crop. |
 
 Not mapped in CONN_FACE:
@@ -115,4 +132,4 @@ Not mapped in CONN_FACE:
 
 Do not use the in-bay F1/F2/F3 location photo (IMG_4403) as F3/E12 faces.
 Do not replace a real product/loom photo with an FSM inset.
-Shared photos (af, inj, coil, ho2s, oil, reverse, vtc, and the B27 FSM inset) are intentional: same connector part. Every share is allowlisted in FACE_SHARE_OK (test/harness_page_tests.mjs); do not swap one without confirmation.
+Shared photos (af, inj, coil, ho2s, oil, reverse, vtc, and b27.webp) are intentional: same connector part. Every share is allowlisted in FACE_SHARE_OK (test/harness_page_tests.mjs); do not swap one without confirmation.
