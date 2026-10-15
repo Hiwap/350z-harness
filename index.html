@@ -2832,7 +2832,8 @@ function connVisibleInLoom(id, conf){
 }
 function activeConnIds(model){
   // Show IPDM fichas (ECM/harness paths). F102 stays in #f102Panel only.
-  const hide = new Set(['orange_box','blue_box','ix_f102_m72','ipdm_legend','ix_f103_f151']);
+  /* ecm_f101_can (ECM F101 · CAN) is not drawn: it duplicated the ECM grid. Its face, location and icons stay on the ECM header. */
+  const hide = new Set(['orange_box','blue_box','ix_f102_m72','ipdm_legend','ix_f103_f151','ecm_f101_can']);
   let ids = Object.keys(CONN_BASE).filter(id => !hide.has(id));
   if(model === 'de_early'){
     ids = ids.filter(id => id !== 'vtc_ex_b1' && id !== 'vtc_ex_b2'

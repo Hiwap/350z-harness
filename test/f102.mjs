@@ -1497,6 +1497,17 @@ console.log('\nIPDM cards E3–E9 turned as on the IPDM (PG-26): wire side, neve
     return { fails, f101: !!f101 && f101.kind === 'jump', f101l, f103, scrolled };
   });
   ok(srch.fails.length === 0, `search finds every card by code and es/en/ja name (${srch.fails.slice(0, 8).join('; ')})`);
+  const ecmF101 = await page.evaluate(() => {
+    const card = !!document.querySelector('#fichas .ficha[data-conn="ecm_f101_can"]');
+    const cam = !!document.querySelector('#ecmTools .ficha-face-btn[data-face-conn="ecm_f101_can"]');
+    const loc = !!document.querySelector('#ecmTools .ficha-loc-btn');
+    selectPin(94);
+    const h26 = [...document.querySelectorAll('#f102Panel .pin')].some((e) => e.dataset.cav === '26H' && (e.classList.contains('hl') || e.classList.contains('hl-group')));
+    const e9 = !!document.querySelector('.cav-hit[data-conn="ipdm_e9"][data-cav="48"].hl, .cav-hit[data-conn="ipdm_e9"][data-cav="48"].hl-group');
+    clearSelection();
+    return { card, cam, loc, h26, e9 };
+  });
+  ok(!ecmF101.card && ecmF101.cam && ecmF101.loc && ecmF101.h26 && ecmF101.e9, `no ECM F101 · CAN card; F101 face + location on the ECM header; ECM 94 still lights F102·26H and IPDM E9 (${JSON.stringify(ecmF101)})`);
   ok(srch.f101 && srch.f101l && srch.f103 && srch.scrolled, `search F101 / f101 / F103 returns a jump row (${JSON.stringify(srch)})`);
 }
 

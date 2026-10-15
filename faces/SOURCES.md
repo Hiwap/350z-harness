@@ -200,7 +200,7 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_d12.webp | GW-24 | key_cyl_d12 (D12 BR/3: 3-2-1). |
 | fsm_d5.webp | AV-17 | spk_d5 (Bose, BR/2: 1-2). AV-17 prints one inset for D5 and D35. |
 | fsm_d35.webp | AV-17 | spk_d35. Own copy of the same AV-17 inset. |
-| fsm_f101.webp | EC-367 | ecm_f101_can and the ECM header camera (ECM F101 B/121, H.S.). Drawing only; there is no ECM photo. |
+| fsm_f101.webp | EC-367 | ECM grid header camera (CONN_FACE key ecm_f101_can; ECM F101 B/121, H.S.). The F101 · CAN card itself is no longer drawn. Drawing only; there is no ECM photo. |
 
 Not mapped in CONN_FACE:
 
