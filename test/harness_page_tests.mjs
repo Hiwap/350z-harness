@@ -496,10 +496,8 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       && ['ipdm_e3','ipdm_e4','ipdm_e5','ipdm_e6','ipdm_e7','ipdm_e8','ipdm_e9'].every((id) =>
         new RegExp(id + ':\\s*\\{l:').test(html)));
     ok('IPDM PG-26 camera on the IPDM group header + per-plug camera on Seleccionados E3–E9 cards (as before 19ebb00)',
-      /function ipdmFsmBtnHtml\(/.test(html)
-      && /class="ficha-face-btn ipdm-fsm-btn"/.test(html)
-      && /sum\.insertAdjacentHTML\('beforeend', ipdmFsmBtnHtml\(''\)\);/.test(html)
-      && /if\(sk === 'ipdm'\) addIpdmGroupBtn\(sum\);/.test(html)
+      /* the header buttons are lifted out of <summary> (a11y); f102.mjs clicks them in the browser */
+      /class="ficha-face-btn ipdm-fsm-btn"/.test(html)
       && (html.match(/makeFichaEl\(id, CONN\[id\], \{ipdmIcon:true\}\)/g) || []).length === 2
       && /const showIpdm = !!\(opts && opts\.ipdmIcon && IPDM_FSM_MARK\[id\]\);/.test(html));
     {
