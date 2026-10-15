@@ -184,6 +184,22 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_d11.webp | BL-29 | door_lock_d11 (D11 SB/4: 3-4 over 1-2). The legend also names D40; this crop keeps the D11 label. The FSM icon opens this crop. The ficha uses the photo d11.webp. |
 | fsm_b71.webp | BL-125 | trunk_cancel_b71 (B71 W/2: 1 over 2). Roadster only. |
 | fsm_b17.webp | BL-27 | door_sw_b17, door_sw_b23 and back_door_t12 (W/3: 1-2-3). BL-27 prints one inset. The FSM icon opens this crop. B17 and B23 keep their own copies of the door-switch photo. T12 uses b17.webp. |
+| fsm_f152.webp | PG-36 | f152. Ground-location inset (passenger side, dash side finisher removed). PG-36 labels F152 "Body ground". A ground eyelet has no connector face. |
+| fsm_e17.webp | PG-32 | e17. Ground-location inset next to the hood switch. A ground eyelet has no connector face. |
+| fsm_f23.webp | PG-35 | f23_gnd. Ground-location inset on the engine. A ground eyelet has no connector face. |
+| fsm_e202.webp | SC-22 | alt_b (alternator B eyelet, terminal 1). |
+| fsm_e211.webp | SC-22 | alt_e (alternator E eyelet, terminal 2). |
+| fsm_b2.webp | EC-367 | ix_e106_b2 (B2 W/18: 1-5, 6-10 over 11-18). |
+| fsm_b43.webp | EC-367 | ix_b43_t1 (B43 W/6: 1, 2 over 3-6). |
+| fsm_b44.webp | EC-367 | ix_t2_b44 (B44 W/16: 1-3, 4-7 over 8-16). |
+| fsm_b1.webp | PG-84 | ix_b1_m12 (B1 SMJ, body harness, T.S.). |
+| fsm_e108.webp | PG-84 | ix_e108_m15 (E108 SMJ, engine room harness, T.S.). |
+| fsm_m44.webp | DI-34 | triple_m44 (M44 W/12: 6-1 over 12-7). |
+| fsm_d6.webp | GW-84 | mirror_sw_d6 (D6 W/10). |
+| fsm_d9.webp | GW-24 | pw_motor_d9 (D9 W/6: 1, 2 over 3-6). |
+| fsm_d12.webp | GW-24 | key_cyl_d12 (D12 BR/3: 3-2-1). |
+| fsm_d5.webp | AV-17 | spk_d5 (Bose, BR/2: 1-2). AV-17 prints one inset for D5 and D35. |
+| fsm_d35.webp | AV-17 | spk_d35. Own copy of the same AV-17 inset. |
 
 Not mapped in CONN_FACE:
 

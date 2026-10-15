@@ -489,7 +489,7 @@ ok('rail-focus helpers present (stay in rail on re-click)',
     }
     ok('A/F face caption carries the localized similar/lock note', /af_b1:[^\n]*note: 'faceNoteSimilarLock'/.test(faceBlock[1])
       && (html.match(/faceNoteSimilarLock: '/g) || []).length === 3 /* es + en + ja packs */);
-    ok('E108/M15 has no face photo', !/ix_e108_m15\s*:\s*\{\s*src:/.test(faceBlock[1]));
+    ok('E108/M15 has no product photo, only the FSM PG-84 drawing', /ix_e108_m15\s*:\s*\{\s*src: 'faces\/fsm_e108\.webp', source: 'FSM 2005 PG-84' \}/.test(faceBlock[1]));
     ok('IPDM FSM PG-26 image exists and each E3–E9 plug has a mark',
       fs.existsSync(path.join(ROOT, 'faces/ipdm_pg26.webp'))
       && /const IPDM_FSM_MARK = \{/.test(html)
