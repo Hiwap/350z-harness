@@ -935,7 +935,7 @@ const FSM_FACE = {
   audio_m40: { mt: "10 8 4 2 / 9 7 6 5 3 1", at: "10 8 4 2 / 9 7 6 5 3 1" },
   audio_m41: { mt: "16 12 / 15 14 13 11", at: "16 12 / 15 14 13 11" },
   audio_m39: { mt: "32 30 / 31 24 17", at: "32 30 / 31 24 17" },
-  spk_d4: { mt: "1 2", at: "1 2" },
+  spk_d4: { mt: "1 2", at: "1 2" }, /* Bose off only */
   spk_d5: { mt: null, at: null }, /* Bose only */
   spk_d3: { mt: "1 2", at: "1 2" },
   spk_d34: { mt: "1 2", at: "1 2" },

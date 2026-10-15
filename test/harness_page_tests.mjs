@@ -469,6 +469,9 @@ ok('rail-focus helpers present (stay in rail on re-click)',
       ok('loaded faceRows on af_b1, af_b2, ho2s_b1, ho2s_b2, ix_f18_f201, ix_f221_f33',
         rowBad.length === 0, rowBad.map(([id, rows]) => id + ' want ' + JSON.stringify(rows)).join('; '));
       const base = cards.__cards;
+      ok('door speakers: D4/D34 only without Bose, D5/D35 only with Bose',
+        base.spk_d4.vif === 'audio=base' && base.spk_d34.vif === 'audio=base'
+        && base.spk_d5.vif === 'audio=bose' && base.spk_d35.vif === 'audio=bose');
       const shapeOk = base.af_b1.shape === 'af6' && base.af_b2.shape === 'af6'
         && base.ho2s_b1.shape === 'ho2s4' && base.ho2s_b1.faceRound === true
         && base.ho2s_b2.shape === 'ho2s4' && base.ho2s_b2.faceRound === true
