@@ -40,7 +40,7 @@ Do not rebuild the IPDM grid from commit `4c99371`. Below 480px it is one column
 
 Do not unhide `ipdm_legend`. Do not add the two 20-pin joint boxes. Do not redo Slack.
 
-`FACE_SHARE_OK` grows only when the maintainer confirms the shared photo is the same part. Do not swap a shared photo without that confirmation. There is no ECM face photo. Do not invent one.
+`FACE_SHARE_OK` grows only when the maintainer confirms the shared photo is the same part. Do not swap a shared photo without that confirmation. The ECM face is the FSM drawing of F101 (EC-367, `faces/fsm_f101.webp`), approved by the maintainer on 2026-10-15. There is still no ECM face photo. Do not add one without approval.
 
 View lines (`Vista` / `View` / `表示`) stay out of the visible card and out of the description. Leave `.view-note` in the card DOM, hidden, and leave the view data in `data/conn.js`. Connector notes that are not view lines go in the description.
 
