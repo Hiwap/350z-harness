@@ -257,7 +257,7 @@ ok('actuators render no longer nests bobinas under actuators',
 
 
 {
-  /* EC-169: ECM grounds 115/1/116 → F103/F151 cav 2/3/4 → engine ground F152 (not E17).
+  /* EC-169: ECM grounds 115/1/116 → F103/F151 cav 2/3/4 → body ground F152 (not E17).
      E17 is only reached via F151·1 → F103·1 → F3/E12·6. No A/B/C/D cavities on F103. */
   const gnd4Body = (html.match(/\n  gnd4:\{[\s\S]*?\n  f152:\{/) || [''])[0];
   ok('gnd4 ficha block found', !!gnd4Body);
@@ -269,11 +269,11 @@ ok('actuators render no longer nests bobinas under actuators',
   ok('gnd4 cav 4 = B/R ECM 116', /\{id:'4',code:'B\/R',ecm:116,/.test(gnd4Body));
   ok('gnd4 cav 1 = B link → F3·6 (no ECM pin)', /\{id:'1',code:'B',ecm:null,rail:'gnd',src:'F3·6'/.test(gnd4Body));
   ok('gnd4 cites EC-169', /EC-169/.test(gnd4Body));
-  ok('f152 engine ground ficha (motor/power ring)',
-    /\n  f152:\{group:'motor', sub:'power', name:'Masa motor · F152', meta:'punto de masa F152 · EC-169'[^\n]*shape:'ring'/.test(html));
+  ok('f152 body ground ficha (motor/power ring)',
+    /\n  f152:\{group:'motor', sub:'power', name:'Masa carrocería · F152', meta:'punto de masa F152 · EC-169'[^\n]*shape:'ring'/.test(html));
   ok('f152 not hidden from Arnès motor (LOOM_BODY_EXTRA)',
     !LOOM_BODY_EXTRA.has('f152'));
-  ok('f152 has CONN_I18N en/ja', /\n  f152: \{\n    en: \{ name:'Engine ground · F152'/.test(html) && /ja: \{ name:'エンジンアース · F152'/.test(html));
+  ok('f152 has CONN_I18N en/ja', /\n  f152: \{\n    en: \{ name:'Body ground · F152'/.test(html) && /ja: \{ name:'ボディアース · F152'/.test(html));
   ok('no stale F103·A/B/C/D or "→ D → E17" strings',
     !/F103·[ABCD]\b/.test(html) && !/→ D → E17/.test(html) && !/D→E17/.test(html) && !/A\/B\/C/.test(html));
   const pp = fs.existsSync(path.join(ROOT, 'make_print_pack.py')) ? fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8') : '';

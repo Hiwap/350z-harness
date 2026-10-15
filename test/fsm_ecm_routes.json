@@ -4232,7 +4232,7 @@
       "pin": "15",
       "map": "f152",
       "cav": "ring",
-      "reason": "knock shield ends at engine ground F152",
+      "reason": "knock shield ends at body ground F152",
       "cite": [
         "EC-317"
       ]

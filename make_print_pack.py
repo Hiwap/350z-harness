@@ -408,7 +408,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         return (lab, code, note)
     by = {str(p[0]): p for p in pins}
 
-    # ---- RING (E17 body ground / F152 engine ground) ----
+    # ---- RING (E17 body ground / F152 body ground) ----
     if shape == "ring":
         card_shell(x, y, w, h, accent=accent or GRP["power"], rail_5v=rail_5v, radius=4)
         draw_ficha_header(x, y, w, h, title, subtitle or qty, accent or GRP["power"], qty)
