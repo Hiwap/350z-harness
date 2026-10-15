@@ -1313,8 +1313,9 @@ console.log('\nLocation icon: FSM PG harness layout with the callout(s) highligh
     const btnCount = document.querySelectorAll('#fichas details.ficha-sec:not(.sel-top) .ficha-loc-btn').length;
     const noLoc = ['ipdm_cover', 'ipdm_legend', 'feed_af_12v', 'ipdm_e3', 'ipdm_e8'].filter((c) => document.querySelector(`#fichas .ficha[data-conn="${c}"] .ficha-loc-btn`));
     const ipdmSum = document.querySelector('#fichas details.ficha-sec[data-sub="ipdm"] > summary');
-    const grp = open('ipdm_group', ipdmSum);
-    const order = ipdmSum ? [...ipdmSum.querySelectorAll('button')].map((b) => b.classList.contains('ficha-loc-btn') ? 'loc' : b.classList.contains('ipdm-fsm-btn') ? 'cam' : '?').join(',') : '';
+    const ipdmHost = ipdmSum && ipdmSum.closest('.sum-host');
+    const grp = open('ipdm_group', ipdmHost);
+    const order = ipdmHost ? [...ipdmHost.querySelectorAll(':scope > .sum-tools > button')].map((b) => b.classList.contains('ficha-loc-btn') ? 'loc' : b.classList.contains('ipdm-fsm-btn') ? 'cam' : '?').join(',') : '';
     const ipdmCardsLoc = document.querySelectorAll('#fichas .ficha[data-conn^="ipdm_"] .ficha-loc-btn').length;
     const stay = ipdmSum.parentElement.open;
     selectConnPin('ipdm_e8', '40');
@@ -1323,7 +1324,7 @@ console.log('\nLocation icon: FSM PG harness layout with the callout(s) highligh
     clearSelection();
     const interNo = [...document.querySelectorAll('#fichas details.ficha-sec[data-sub="intermedias"]:not(.sel-top) .ficha[data-conn]')].map((f) => f.dataset.conn).filter((c) => !document.querySelector(`#fichas .ficha[data-conn="${c}"] .ficha-loc-btn`));
     const b1 = open('ix_b1_m12'); const ckpL = open('ckp'); const dlcL = open('dlc');
-    return { interNo, b1, dlcL, ckpL, grp, order, ipdmCardsLoc, ipdmSelLoc, selShown, stay, ect: open('ect'), ho2s: open('ho2s_b1'), e8: grp, f102: open('ix_f102_m72', document.getElementById('f102Panel')), btnCount, noLoc, after: document.getElementById('faceLightbox').querySelectorAll('.ipdm-mark:not([hidden])').length };
+    return { interNo, b1, dlcL, ckpL, grp, order, ipdmCardsLoc, ipdmSelLoc, selShown, stay, ect: open('ect'), ho2s: open('ho2s_b1'), e8: grp, f102: open('ix_f102_m72', document.getElementById('f102PanelWrap')), btnCount, noLoc, after: document.getElementById('faceLightbox').querySelectorAll('.ipdm-mark:not([hidden])').length };
   });
   ok(loc.ect && loc.ect.open && loc.ect.src === 'faces/loc/pg54.webp' && loc.ect.marks === 1 && /^FSM 2005 · PG-54 · /.test(loc.ect.cap) && loc.ect.sel == null,
     `ECT (F13) location → PG-54, 1 callout marked, no selection change (${JSON.stringify(loc.ect)})`);
@@ -1423,9 +1424,9 @@ console.log('\nIPDM cards E3–E9 turned as on the IPDM (PG-26): wire side, neve
   /* PG-26 camera: only on the IPDM group header; opens the same image/lightbox; never on E3–E9 cards */
   const cam = await page.evaluate(() => {
     const sec = document.querySelector('#fichas details.ficha-sec[data-sub="ipdm"]');
-    const btn = sec && sec.querySelector(':scope > summary .ipdm-fsm-btn');
+    const btn = sec && sec.parentElement.querySelector(':scope > .sum-tools .ipdm-fsm-btn');
     const onCards = document.querySelectorAll('#fichas .ficha .ipdm-fsm-btn').length;
-    const others = [...document.querySelectorAll('#fichas details.ficha-sec > summary .ipdm-fsm-btn')].length;
+    const others = [...document.querySelectorAll('#fichas .sum-tools .ipdm-fsm-btn')].length;
     if (!btn) return { btn: false, onCards, others };
     const wasOpen = sec.open;
     btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));

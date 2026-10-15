@@ -618,7 +618,7 @@
     flex-wrap: wrap;
     margin-top: 14px;
   }
-  .f102-detail-row #f102Panel {
+  .f102-detail-row #f102PanelWrap {
     flex: 0 1 auto;
     margin-top: 0;
     max-width: 100%;
@@ -635,7 +635,7 @@
     flex-direction: column;
     flex-wrap: nowrap;
   }
-  #f102DetailRow:has(#f102Panel:not([open])) > #f102Panel,
+  #f102DetailRow:has(#f102Panel:not([open])) > #f102PanelWrap,
   #f102DetailRow:has(#f102Panel:not([open])) > .info {
     width: 100%;
     max-width: 100%;
@@ -675,8 +675,13 @@
   }
   #f102Title { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
   #f102Title .f102-title-txt { flex: 1 1 auto; min-width: 0; }
-  #f102Title .f102-title-txt + .ficha-loc-btn,
-  #f102Title .f102-title-txt + .ficha-face-btn { margin-left: auto; }
+  #f102Title .f102-title-txt + .sum-slot { margin-left: auto; }
+  /* <summary> holds no buttons (a11y): liftSumButtons() leaves same-size .sum-slot spacers and
+     draws the real buttons in .sum-tools, over the spacers. */
+  .sum-host { position: relative; }
+  .sum-slot { flex: 0 0 auto; display: inline-block; align-self: center; }
+  .sum-tools { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 1; }
+  .sum-tools > button { position: absolute; margin: 0; }
   #ecm details.f102-panel > summary::-webkit-details-marker { display: none; }
   #ecm details.f102-panel > summary::before {
     content: '▾'; font-size: 11px; color: #90a4ae; transition: transform .12s ease;
@@ -920,9 +925,7 @@
 
 
   /* IPDM PG-26 opens from the IPDM group header camera and from selected E3–E9 fichas. */
-  .ficha-sec > summary .ipdm-fsm-btn { margin-left: auto; align-self: center; }
-  .ficha-sec > summary .ficha-loc-btn { margin-left: auto; align-self: center; }
-  .ficha-sec > summary .ficha-loc-btn + .ipdm-fsm-btn { margin-left: 0; }
+  .ficha-sec > summary .sum-slot:first-of-type { margin-left: auto; }
   .ipdm-mark {
     position: absolute; box-sizing: border-box; pointer-events: none;
     border: 2px solid #e65100; border-radius: 5px;
@@ -1275,12 +1278,14 @@
     <div class="blocks" id="blocks"></div>
     <div id="ecmSelCount" class="ecm-sel-pins" hidden></div>
     <div class="f102-detail-row" id="f102DetailRow">
+      <div class="sum-host f102-panel-wrap" id="f102PanelWrap">
       <details class="f102-panel" id="f102Panel" open>
         <summary id="f102Title">F102 · SMJ · PG-85</summary>
         <div class="legend" id="f102Legend" style="font-size:11px;color:var(--muted);display:none"></div>
         <div class="blocks" id="f102Blocks"></div>
         <div id="f102SelPins" class="ecm-sel-pins f102-sel-pins" hidden></div>
       </details>
+      </div>
       <div class="info" id="info"></div>
     </div>
   </section>
@@ -4702,33 +4707,37 @@ function renderF102(){
   const titleEl = document.getElementById('f102Title');
   const legendEl = document.getElementById('f102Legend');
   if(!panel || !blocksEl) return;
-  if(titleEl) titleEl.innerHTML = `${mirrorBtnHtml('ix_f102_m72', 'ficha')}<span class="f102-title-txt">${esc(t('f102Title'))}</span>${locBtnHtml('ix_f102_m72')}${fsmBtnHtml('ix_f102_m72')}${faceBtnHtml('ix_f102_m72')}`;
+  const panelWrap = document.getElementById('f102PanelWrap') || panel;
+  if(titleEl){
+    titleEl.innerHTML = `${mirrorBtnHtml('ix_f102_m72', 'ficha')}<span class="f102-title-txt">${esc(t('f102Title'))}</span>${locBtnHtml('ix_f102_m72')}${fsmBtnHtml('ix_f102_m72')}${faceBtnHtml('ix_f102_m72')}`;
+    if(panelWrap !== panel) liftSumButtons(titleEl, panelWrap);
+  }
   if(!panel.dataset.faceBound){
     panel.dataset.faceBound = '1';
-    panel.addEventListener('click', e => {
+    panelWrap.addEventListener('click', e => {
       const lb = e.target.closest && e.target.closest('.ficha-loc-btn');
-      if(lb && panel.contains(lb)){
+      if(lb && panelWrap.contains(lb)){
         e.preventDefault();
         e.stopPropagation();
         openLocLightbox(lb.dataset.locConn || 'ix_f102_m72');
         return;
       }
       const mirBtn = e.target.closest && e.target.closest('.ficha-mirror-btn');
-      if(mirBtn && panel.contains(mirBtn)){
+      if(mirBtn && panelWrap.contains(mirBtn)){
         e.preventDefault();
         e.stopPropagation();
         toggleFichaMirror(mirBtn.dataset.mirrorConn || 'ix_f102_m72');
         return;
       }
       const fsmBtn = e.target.closest && e.target.closest('.ficha-fsm-btn');
-      if(fsmBtn && panel.contains(fsmBtn)){
+      if(fsmBtn && panelWrap.contains(fsmBtn)){
         e.preventDefault();
         e.stopPropagation();
         openFsmLightbox(fsmBtn.dataset.fsmConn || 'ix_f102_m72');
         return;
       }
       const btn = e.target.closest && e.target.closest('.ficha-face-btn');
-      if(!btn || !panel.contains(btn)) return;
+      if(!btn || !panelWrap.contains(btn)) return;
       e.preventDefault();
       e.stopPropagation();
       openFaceLightbox(btn.dataset.faceConn || 'ix_f102_m72');
@@ -5160,6 +5169,48 @@ function openIpdmFsm(connId){
 
 /* IPDM PG-26 image: camera on the IPDM group header (+ per-plug camera on Seleccionados E3–E9 cards), same lightbox.
    If one E3–E9 plug is lit, its PG-26 box is marked; otherwise the whole module is shown. */
+/* A <summary> may not contain buttons (Chrome a11y "Interactive element inside of a <summary>").
+   Each button is moved into the host's .sum-tools overlay and an empty spacer of the same size
+   keeps its place in the summary; the button is then drawn over that spacer. */
+const _sumHosts = new Set();
+function liftSumButtons(sum, host){
+  if(!sum || !host) return;
+  let ov = host.querySelector(':scope > .sum-tools');
+  if(!ov){ ov = document.createElement('div'); ov.className = 'sum-tools'; host.appendChild(ov); }
+  ov.innerHTML = '';
+  sum.querySelectorAll('button, a[href], input, select, textarea').forEach(btn => {
+    const slot = document.createElement('span');
+    slot.className = 'sum-slot';
+    slot.setAttribute('aria-hidden', 'true');
+    btn.replaceWith(slot);
+    slot._sumBtn = btn;
+    ov.appendChild(btn);
+  });
+  host._sumRef = sum;
+  _sumHosts.add(host);
+  placeSumButtons(host);
+  if(typeof ResizeObserver === 'function' && !host._sumRO){
+    host._sumRO = new ResizeObserver(() => placeSumButtons(host));
+    host._sumRO.observe(host);
+  }
+}
+function placeSumButtons(host){
+  const sum = host && host._sumRef;
+  if(!sum || !sum.isConnected) return;
+  const hb = host.getBoundingClientRect();
+  sum.querySelectorAll('.sum-slot').forEach(slot => {
+    const btn = slot._sumBtn;
+    if(!btn) return;
+    const w = btn.offsetWidth || 22, h = btn.offsetHeight || 22;
+    slot.style.width = w + 'px';
+    slot.style.height = h + 'px';
+    const r = slot.getBoundingClientRect();
+    btn.style.left = (r.left - hb.left) + 'px';
+    btn.style.top = (r.top - hb.top) + 'px';
+  });
+}
+window.addEventListener('resize', () => _sumHosts.forEach(h => h.isConnected ? placeSumButtons(h) : _sumHosts.delete(h)));
+
 function addIpdmGroupBtn(sum){
   sum.insertAdjacentHTML('beforeend', locBtnHtml('ipdm_group'));
   sum.querySelector('.ficha-loc-btn').addEventListener('click', e=>{
@@ -5366,8 +5417,14 @@ function renderFichas(){
     const subCol = SUB_ACCENT[sk] || '#546e7a';
     sec.style.borderColor = subCol;
     sum.style.borderLeft = '3px solid ' + subCol;
-    if(sk === 'ipdm') addIpdmGroupBtn(sum);
     sec.appendChild(sum);
+    let box = sec;
+    if(sk === 'ipdm'){
+      box = document.createElement('div');
+      box.className = 'sum-host sec-wrap';
+      box.appendChild(sec);
+      addIpdmGroupBtn(sum);
+    }
 
     {
       const grid=document.createElement('div');
@@ -5395,7 +5452,8 @@ function renderFichas(){
       if(m) delete sec.dataset.autoOpen; /* stale 'closing' marker: this open is the user's */
       localStorage.setItem(lsKey, sec.open ? '1' : '0');
     });
-    root.appendChild(sec);
+    root.appendChild(box);
+    if(box !== sec) liftSumButtons(sum, box);
   });
 }
 
@@ -5594,7 +5652,7 @@ function promoteSelectedInGroups(connIds){
   const root = document.getElementById('fichas');
   if(root){
     const top = document.getElementById('selTop');
-    const secs = [...root.querySelectorAll(':scope > details.ficha-sec:not(.sel-top)')];
+    const secs = [...root.querySelectorAll(':scope > details.ficha-sec:not(.sel-top), :scope > .sec-wrap > details.ficha-sec')];
     const active = [], idle = [];
     secs.forEach(sec=>{
       const hit = [...sec.querySelectorAll('.ficha')].some(f => set.has(f.dataset.conn));
@@ -5602,13 +5660,14 @@ function promoteSelectedInGroups(connIds){
     });
     const frag = document.createDocumentFragment();
     if(top) frag.appendChild(top);
-    active.forEach(sec => frag.appendChild(sec));
-    idle.forEach(sec => frag.appendChild(sec));
+    active.forEach(sec => frag.appendChild(secBox(sec)));
+    idle.forEach(sec => frag.appendChild(secBox(sec)));
     root.appendChild(frag);
   }
   applyCollapseIdleSubs(connIds);
 }
 
+function secBox(sec){ return sec.parentElement && sec.parentElement.classList.contains('sec-wrap') ? sec.parentElement : sec; }
 function restoreFichaOrder(){
   document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) .fichas-grid').forEach(grid=>{
     const kids = [...grid.children];
@@ -5620,12 +5679,12 @@ function restoreFichaOrder(){
   });
   const root = document.getElementById('fichas');
   if(root){
-    const secs = [...root.querySelectorAll(':scope > details.ficha-sec:not(.sel-top)')];
+    const secs = [...root.querySelectorAll(':scope > details.ficha-sec:not(.sel-top), :scope > .sec-wrap > details.ficha-sec')];
     secs.sort((a,b)=>{
       const oa = parseInt(a.dataset.ord||'0',10), ob = parseInt(b.dataset.ord||'0',10);
       return oa-ob;
     });
-    secs.forEach(sec => root.appendChild(sec));
+    secs.forEach(sec => root.appendChild(secBox(sec)));
   }
 }
 
