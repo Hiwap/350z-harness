@@ -1470,6 +1470,36 @@ console.log('\nIPDM cards E3–E9 turned as on the IPDM (PG-26): wire side, neve
   await page.evaluate(() => clearSelection());
 }
 
+/* Search: every card's connector code(s) and its es/en/ja name return at least one row
+   (cards skipped by the selection jump to where they are drawn; cards not on the chosen car say so). */
+{
+  const srch = await page.evaluate(() => {
+    const fails = [];
+    const prev = lang;
+    for (const [id, f] of Object.entries(CONN_BASE)) {
+      const qs = new Set();
+      for (const L of ['es', 'en', 'ja']) {
+        lang = L;
+        const n = connField(id, f, 'name');
+        (n.match(/\b[A-Z]{1,2}\d{1,3}\b/g) || []).forEach((c) => qs.add(c));
+        qs.add(n);
+      }
+      lang = prev;
+      const v = (f.viewByTrans && f.viewByTrans.mt) || f.view;
+      if (v && v.c) qs.add(v.c);
+      for (const q of qs) if (!collectSearch(q).length) fails.push(id + ' :: ' + q);
+    }
+    const f101 = collectSearch('F101').find((r) => r.id === 'ecm_f101_can');
+    const f101l = collectSearch('f101').some((r) => r.id === 'ecm_f101_can');
+    const f103 = collectSearch('F103').length > 0 && collectSearch(connField('ix_f103_f151', CONN_BASE.ix_f103_f151, 'name')).some((r) => r.id === 'ix_f103_f151' && r.kind === 'jump');
+    let scrolled = false;
+    if (f101) { qRows = [f101]; pickSearchRow(0); scrolled = true; }
+    return { fails, f101: !!f101 && f101.kind === 'jump', f101l, f103, scrolled };
+  });
+  ok(srch.fails.length === 0, `search finds every card by code and es/en/ja name (${srch.fails.slice(0, 8).join('; ')})`);
+  ok(srch.f101 && srch.f101l && srch.f103 && srch.scrolled, `search F101 / f101 / F103 returns a jump row (${JSON.stringify(srch)})`);
+}
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

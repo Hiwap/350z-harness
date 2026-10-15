@@ -7097,10 +7097,22 @@ function collectSearch(raw){
       nameP.add(pn);
     }
   }
-  Object.entries(CONN).forEach(([id, f]) => {
-    if(SKIP_SEL_CONN.has(id)) return;
+  /* Every card can be found. Cards the selection skips (ECM F101, F103/F151, IPDM legend) jump to
+     where they are drawn; cards not on the chosen car say so instead of "nothing found". */
+  const allIds = [...new Set([...Object.keys(CONN), ...Object.keys(CONN_BASE)])];
+  allIds.forEach(id => {
+    const f = CONN[id] || CONN_BASE[id];
+    if(!f || id === 'ix_f102_m72' && !CONN[id]) return;
+    const jump = SKIP_SEL_CONN.has(id) || SEARCH_JUMP[id];
+    const off = !CONN[id];
     const nb = fichaNameBlob(id, f);
     const named = digits ? idNumHit(nb, q) : searchHit(nb, q);
+    if(named && (jump || off)){
+      const k = jump ? 'jump' : 'off';
+      nameRows.push({tier:'name', kind: k, id, label: connField(id, f, 'name') + (k === 'off' ? ' · ' + t('searchOffCar') : ''), rank: (digits ? 0 : rankHit(nb, q)) + (k === 'off' ? 50 : 0)});
+      return;
+    }
+    if(jump || off) return;
     if(named) nameRows.push({tier:'name', kind:'ficha', id, label: connField(id, f, 'name'), rank: digits ? 0 : rankHit(nb, q)});
     else if(!digits && searchHit(fichaDescBlob(id, f), q)){
       const db = fichaDescBlob(id, f);
@@ -7171,7 +7183,7 @@ function renderSearchList(){
     if(!list.length) return;
     html.push(`<div class="q-sec">${esc(title)}</div>`);
     list.forEach(r => {
-      const kind = r.kind === 'ficha' ? t('searchFicha') : r.kind === 'circ' ? t('searchCirc') : t('pinEcm');
+      const kind = (r.kind === 'ficha' || r.kind === 'jump' || r.kind === 'off') ? t('searchFicha') : r.kind === 'circ' ? t('searchCirc') : t('pinEcm');
       const on = i === qActive;
       html.push(`<button type="button" class="q-row${on ? ' on' : ''}" role="option" id="qOpt${i}" data-i="${i}" aria-selected="${on ? 'true' : 'false'}"><span class="q-kind">${esc(kind)}</span><span class="q-label">${esc(r.label)}</span></button>`);
       i++;
@@ -7187,6 +7199,20 @@ function renderSearchList(){
   if(on) on.scrollIntoView({block:'nearest'});
 }
 
+/* Search rows for cards that are not selectable: where to scroll instead. */
+const SEARCH_JUMP = { ipdm_legend: '#fichas .ficha-sec[data-sub="ipdm"]' };
+function searchJump(id){
+  const sel = id === 'ecm_f101_can' ? '#ecm'
+    : SEARCH_JUMP[id] || `#fichas .ficha[data-conn="${CSS.escape(id)}"]`;
+  let el = document.querySelector(sel);
+  if(!el && id === 'ix_f103_f151') el = document.querySelector('#fichas .ficha[data-conn="gnd4"]');
+  if(!el) el = document.getElementById('ecm');
+  const sec = el && el.closest && el.closest('details.ficha-sec');
+  if(sec && !sec.open){ sec.dataset.autoOpen = '1'; sec.open = true; }
+  if(el && el.tagName === 'DETAILS' && !el.open){ el.dataset.autoOpen = '1'; el.open = true; }
+  if(el) el.scrollIntoView({block:'nearest', inline:'nearest'});
+  return el;
+}
 function pickSearchRow(i){
   const row = qRows[i];
   if(!row) return;
@@ -7195,6 +7221,12 @@ function pickSearchRow(i){
   if(box) box.hidden = true;
   if(input) input.setAttribute('aria-expanded', 'false');
   if(row.kind === 'ficha') revealConnHits([row.id], {namePick: row.tier === 'name'});
+  else if(row.kind === 'jump') searchJump(row.id);
+  else if(row.kind === 'off'){
+    const f = CONN_BASE[row.id];
+    const infoEl = document.getElementById('info');
+    if(infoEl && f) infoEl.innerHTML = `<div class="info-short"><b>${esc(connField(row.id, f, 'name'))}</b> — ${esc(t('searchOffCarLong'))}</div>`;
+  }
   else if(row.kind === 'circ') selectCircuits([row.id]);
   else if(row.kind === 'pin'){
     selectPin(row.id);
