@@ -403,30 +403,9 @@ ok('rail-focus helpers present (stay in rail on re-click)',
     ok('no empty CONN_FACE placeholders', keys.length > 0 && uniq.length > 0);
 
     /* Shared face photos are intentional when the fichas use the same connector part.
-       Every share is listed here; a new share outside this list fails so it gets reviewed.
-       Do not change these mappings without confirmation. */
-    const FACE_SHARE_OK = {
-      'faces/inj.webp': ['inj1', 'inj2', 'inj3', 'inj4', 'inj5', 'inj6'],
-      'faces/coil.webp': ['coil1', 'coil2', 'coil3', 'coil4', 'coil5', 'coil6'],
-      'faces/vtc.webp': ['vtc_b1', 'vtc_b2'],
-      'faces/af.webp': ['af_b1', 'af_b2'], /* A/F F22/F34: same 6-way part both banks (Connector Experts i-26377349, similar) */
-      'faces/ho2s.webp': ['ho2s_b1', 'ho2s_b2', 'vtc_ex_b1', 'vtc_ex_b2'],
-      'faces/oil.webp': ['f21_oilp', 'psp', 'ac_press', 'evap_press', 'f38_evtc_b1', 'f42_evtc_b2'],
-      'faces/reverse.webp': ['backup_sw', 'evap_purge', 'f35_pnp'],
-      /* B27 GY/5 is one shell: fuel pump draws 3/1, tank temp draws 5/4. */
-      'faces/b27.webp': ['fuel_pump', 'fuel_tank_temp'],
-      /* SRS-12 draws the same white 3-cavity face for both buckle switches. */
-      'faces/fsm_b8.webp': ['belt_b8', 'belt_b11'],
-      /* BL-27 door switch photo also covers the coupe hatch switch, same shell. */
-      'faces/b17.webp': ['door_sw_b17', 'back_door_t12'],
-      /* WW-54 draws one 2-over-1 face for the trunk socket and the dash socket. */
-      'faces/fsm_b36.webp': ['socket_b36', 'socket_m38'],
-      /* AV-11 draws one brown tweeter face for D3 and D33, and one white door-speaker face for D4 and D34. */
-      'faces/fsm_d3.webp': ['spk_d3', 'spk_d33'],
-      'faces/fsm_d4.webp': ['spk_d4', 'spk_d34'],
-      /* AV-12 draws one brown rear-speaker face for B40 and B42. */
-      'faces/fsm_b40.webp': ['spk_b40', 'spk_b42'],
-    };
+       The allowlist is test/face_share_ok.json (approval date + basis per share; rules.mjs pins its size). */
+    const FACE_SHARE_OK = Object.fromEntries(JSON.parse(fs.readFileSync(path.join(__dirname, 'face_share_ok.json'), 'utf8'))
+      .shares.map((e) => [e.src, e.ids]));
     const bySrc = {};
     for (const m of faceBlock[1].matchAll(/^\s*([A-Za-z0-9_]+)\s*:\s*\{\s*src:\s*'([^']+)'/gm)) {
       (bySrc[m[2]] = bySrc[m[2]] || []).push(m[1]);

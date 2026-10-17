@@ -1,0 +1,19 @@
+{
+  "_comment": "Shared connector-face photos (one image on several cards). Each entry is a maintainer-confirmed same part. Add an entry only with that confirmation: put its date in approved and the reason in basis. test/rules.mjs pins the count.",
+  "shares": [
+    { "src": "faces/inj.webp", "ids": ["inj1", "inj2", "inj3", "inj4", "inj5", "inj6"], "approved": "2026-09-26", "basis": "same injector connector on all six" },
+    { "src": "faces/coil.webp", "ids": ["coil1", "coil2", "coil3", "coil4", "coil5", "coil6"], "approved": "2026-09-26", "basis": "same coil connector on all six" },
+    { "src": "faces/vtc.webp", "ids": ["vtc_b1", "vtc_b2"], "approved": "2026-09-26", "basis": "same VTC solenoid connector both banks" },
+    { "src": "faces/af.webp", "ids": ["af_b1", "af_b2"], "approved": "2026-09-26", "basis": "A/F F22/F34: same 6-way part both banks (Connector Experts i-26377349, similar)" },
+    { "src": "faces/ho2s.webp", "ids": ["ho2s_b1", "ho2s_b2", "vtc_ex_b1", "vtc_ex_b2"], "approved": "2026-09-26", "basis": "round 2x2 4-cavity part" },
+    { "src": "faces/oil.webp", "ids": ["f21_oilp", "psp", "ac_press", "evap_press", "f38_evtc_b1", "f42_evtc_b2"], "approved": "2026-09-26", "basis": "3-pin 5V/SIG/GND part" },
+    { "src": "faces/reverse.webp", "ids": ["backup_sw", "evap_purge", "f35_pnp"], "approved": "2026-10-04", "basis": "same 2-cavity switch part" },
+    { "src": "faces/b27.webp", "ids": ["fuel_pump", "fuel_tank_temp"], "approved": "2026-10-13", "basis": "B27 GY/5 is one shell: fuel pump draws 3/1, tank temp draws 5/4" },
+    { "src": "faces/fsm_b8.webp", "ids": ["belt_b8", "belt_b11"], "approved": "2026-10-08", "basis": "SRS-12 draws the same white 3-cavity face for both buckle switches" },
+    { "src": "faces/b17.webp", "ids": ["door_sw_b17", "back_door_t12"], "approved": "2026-10-13", "basis": "BL-27 door switch photo also covers the coupe hatch switch, same shell" },
+    { "src": "faces/fsm_b36.webp", "ids": ["socket_b36", "socket_m38"], "approved": "2026-10-13", "basis": "WW-54 draws one 2-over-1 face for the trunk socket and the dash socket" },
+    { "src": "faces/fsm_d3.webp", "ids": ["spk_d3", "spk_d33"], "approved": "2026-10-08", "basis": "AV-11 draws one brown tweeter face for D3 and D33" },
+    { "src": "faces/fsm_d4.webp", "ids": ["spk_d4", "spk_d34"], "approved": "2026-10-08", "basis": "AV-11 draws one white door-speaker face for D4 and D34" },
+    { "src": "faces/fsm_b40.webp", "ids": ["spk_b40", "spk_b42"], "approved": "2026-10-08", "basis": "AV-12 draws one brown rear-speaker face for B40 and B42" }
+  ]
+}

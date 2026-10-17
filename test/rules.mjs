@@ -4,6 +4,7 @@
  * Each block names the rule it guards; AGENTS.md points here. Run: node test/rules.mjs
  */
 import fs from 'fs';
+import vm from 'vm';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadMap } from './load_map.mjs';
@@ -50,6 +51,61 @@ const pinIds = (c) => (c.pins || []).map((p) => String(p.id));
   const split = Object.keys(CARDS).filter((id) => !(id in want)
     && /\b(D104|D211|B202|B203)\b/.test(`${id} ${CARDS[id].name} ${CARDS[id].meta}`));
   ok('defogger: no other card is named after a single filament terminal (D104/D211/B202/B203)', split.length === 0, split.join(','));
+}
+
+/* Rule photo-sources: no VQ35HR part photos (the map is the VQ35DE car), and the rejected eBay listing
+   206578549537 never comes back. Checked on faces/SOURCES.md, fichas_fotos_arnes_motor.txt and every
+   CONN_FACE source / caption string. */
+const CONN_FACE = (() => {
+  const m = html.match(/const CONN_FACE = \{[\s\S]*?\n\};/);
+  const ctx = {};
+  vm.createContext(ctx);
+  vm.runInContext(m[0].replace('const CONN_FACE', 'this.CONN_FACE'), ctx);
+  return ctx.CONN_FACE;
+})();
+{
+  const BANNED = [
+    [/\bVQ3[57]\s*V?HR\b/i, 'VQ35HR part'],
+    [/\bHR\b/, 'HR part'],
+    [/206578549537/, 'rejected eBay listing 206578549537'],
+  ];
+  const hits = [];
+  for (const rel of ['faces/SOURCES.md', 'fichas_fotos_arnes_motor.txt']) {
+    const file = path.join(ROOT, rel);
+    if (!fs.existsSync(file)) continue;
+    fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
+      for (const [re, why] of BANNED) if (re.test(line)) hits.push(`${rel}:${i + 1} ${why}`);
+    });
+  }
+  for (const [id, f] of Object.entries(CONN_FACE)) {
+    for (const [k, v] of Object.entries(f)) {
+      if (typeof v !== 'string') continue;
+      for (const [re, why] of BANNED) if (re.test(v)) hits.push(`CONN_FACE.${id}.${k} ${why}`);
+    }
+  }
+  ok('photo sources: no VQ35HR part and no eBay 206578549537 in SOURCES.md, the photo list or CONN_FACE', hits.length === 0, hits.join('; '));
+}
+
+/* Rule face-share-approval: FACE_SHARE_OK (test/face_share_ok.json) grows only with the maintainer's
+   confirmation that the shared photo is the same part. Each share carries its approval date and basis,
+   every listed card really uses that image, and the size is pinned here: raising FACE_SHARE_PINNED is
+   the approval step, done in the same commit that records the confirmation date. */
+{
+  const FACE_SHARE_PINNED = { shares: 14, cards: 43 };
+  const J = JSON.parse(fs.readFileSync(path.join(__dirname, 'face_share_ok.json'), 'utf8'));
+  const today = new Date().toISOString().slice(0, 10);
+  const noDate = J.shares.filter((e) => !/^\d{4}-\d{2}-\d{2}$/.test(e.approved || '') || e.approved > today || !(e.basis || '').trim());
+  ok('face shares: every FACE_SHARE_OK entry has an approval date and a basis', noDate.length === 0, noDate.map((e) => e.src).join(','));
+  const stale = [];
+  for (const e of J.shares) for (const id of e.ids) {
+    const f = CONN_FACE[id];
+    if (!f || (f.src !== e.src && f.fsm !== e.src)) stale.push(`${e.src}→${id}`);
+  }
+  ok('face shares: every FACE_SHARE_OK card really shows that image (no stale pre-approval)', stale.length === 0, stale.join(','));
+  const cards = J.shares.reduce((n, e) => n + e.ids.length, 0);
+  ok('face shares: FACE_SHARE_OK size is pinned (grows only with the maintainer\'s confirmation; then bump FACE_SHARE_PINNED in test/rules.mjs)',
+    J.shares.length === FACE_SHARE_PINNED.shares && cards === FACE_SHARE_PINNED.cards,
+    `${J.shares.length} shares / ${cards} cards, pinned ${FACE_SHARE_PINNED.shares} / ${FACE_SHARE_PINNED.cards}`);
 }
 
 if (failed) { console.error(`rules.mjs: ${failed} failed`); process.exit(1); }
