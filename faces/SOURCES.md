@@ -56,7 +56,6 @@ Interim vendor product faces for connector ID. Replace with loom photos when ava
 | m154.webp | Nissan Parts Deal | seat_m154 | Nissan 25500-AX600, heated-seat switch assembly, back of the panel. |
 | m155.webp | Nissan Parts Deal | seat_m155 | Same photo as m154.webp, saved again for the passenger switch. The two cards do not share one src. |
 | t103.webp | Nissan Parts Deal | back_opener_t103 | Nissan 25380-CD000, trunk opener switch. The pigtail is on the part; the cavity face is not square to the camera. |
-| m90.webp | eBay listing photo | bcm_m90 | White BCM plug, two rows of 20, latch in the center (FSM M90 W, PG-83). Item 257188288160, Lark's Auto Parts, Nissan 284B1-EV00A, cut from a 2007-2009 Roadster. The 2005 face matches. Not M91 and not B83. |
 | e52.webp | eBay listing photo | wiper_e52 | Front wiper motor pigtail, item 317711000018, seller pure_auto. Gray housing, latch on the top row, four wires (FSM E52 GY/5, WW-11). The PURE AUTOMOTIVE sticker is cropped out. The rear wiper motor photo is d106.webp. |
 | t11.webp | eBay listing photo | back_opener_t11 | Coupe trunk latch actuator pigtail, item 236976167398. White shell, latch on top, purple and black wires in one column, the other column empty (FSM T11 W, BL-30). PG-63 calls the shell W/4 and the diagram numbers only 2 over 1. |
 | t19.webp | eBay listing photo | fuel_lid_t19 | Fuel door actuator plug, item 318909324712, 2004 coupe. White four-cavity shell, latch on top (FSM T19 W, BL-54). PG-63 lists W/4 and the diagram numbers only 2 over 1. Not the same file as t11.webp. |
@@ -145,7 +144,7 @@ FSM 2005 connector-face insets (isolated from the wiring-diagram strip; not prod
 | fsm_t5.webp | BRC-53 | abs_t5 (T5 GY/4: 2-1 over 4-3, lock on top). Same face on BRC-16 and BRC-102. No web photo of the harness plug found. |
 | fsm_e118.webp | BRC-100 | vdc_e118 (E118 B/88: 61-88 over 29-55 over 1-28; the top row sits only above 35-55). VDC only. Wired from BRC-99 through BRC-105. Cavities the diagrams do not wire stay empty. 56-60 are not on the face. |
 | fsm_m9.webp | BRC-52 | vdc_off_m9 (M9 GY: 1-2-3-4 plus two unnumbered cavities, lock over 3-4). Same face on BRC-100. TCS or VDC only. The FSM icon opens this crop. The camera uses m9.webp. |
-| fsm_m90.webp | PG-83 | bcm_m90 (M90 white: 1-20 over 21-40, hook is the latch). The camera uses m90.webp. The FSM icon opens this crop. |
+| fsm_m90.webp | PG-83 | bcm_m90 (M90 white: 1-20 over 21-40, hook is the latch). The camera opens this crop. The old m90.webp came from a 2007-2009 Roadster, not a 2003-2005 car, and was removed 2026-10-17; no 2003-2005 350Z or same-BCM G35 harness-side M90 plug photo was found (On Point Parts 2003-2005 BCM, harness and pigtail listings, forums, connector sellers; eBay not searched). |
 | fsm_m91.webp | PG-83 | bcm_m91 (M91 black: 41-49 over 50-55, the lower row stops under 46). Wired 42, 45, 46, 52, 54 and 55. Cavities 41, 43, 44, 47, 48, 49, 50, 51 and 53 have no wire on the pages used. |
 | fsm_t10.webp | LT-153 | turn_t10 (T10 SB/4: 1-2 over 3-4). Only 2 and 4 wired. The FSM icon opens this crop. The ficha uses the photo t10.webp. |
 | fsm_e24.webp | LT-154 | turn_e24 and turn_e40 (GY/8 xenon: 1-2-3-4 over 5-6-7-8). The FSM icon opens this crop. Each lamp keeps its own photo, e24.webp and e40.webp. |
