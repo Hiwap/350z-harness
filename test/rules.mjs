@@ -163,5 +163,93 @@ const CONN_FACE = (() => {
     JSON.stringify({ col: map.PIN_COL[88], rail: map.PIN_RAIL[88], on88, h9, circs: [...new Set(circs)], table: !!TABLE.pins['88'] }));
 }
 
+/* Rule short-descriptions: card notes, circuit notes and pin notes stay short in es/en/ja (the tags already
+   show the route). DESC_MAX is the cap. Notes that were longer when the cap landed are grandfathered at
+   their length in LONG_NOTES: they may shrink, never grow; once one fits the cap, drop it from the list. */
+{
+  const DESC_MAX = { card: { es: 360, en: 360, ja: 180 }, circ: { es: 260, en: 260, ja: 130 }, pin: { es: 320, en: 320, ja: 170 } };
+  const LONG_NOTES = {
+    'card:abs_e51:ja': 185,
+    'card:bcm_b83:es': 361,
+    'card:comb_meter:es': 375,
+    'card:ix_e11_f2:en': 445,
+    'card:ix_e11_f2:es': 447,
+    'card:ix_e11_f2:ja': 202,
+    'card:ix_f18_f201:en': 522,
+    'card:ix_f18_f201:es': 514,
+    'card:ix_f18_f201:ja': 264,
+    'card:ix_f221_f33:en': 408,
+    'card:ix_f221_f33:es': 403,
+    'card:ix_f221_f33:ja': 195,
+    'card:triple_m44:ja': 193,
+    'card:unified_m49:ja': 181,
+    'card:unified_m50:ja': 183,
+    'circ:can_tcm:ja': 146,
+    'circ:pnp_at:en': 402,
+    'circ:pnp_at:es': 392,
+    'circ:pnp_at:ja': 230,
+    'circ:pseat_r:ja': 147,
+    'circ:rear_defog:en': 265,
+    'circ:rear_defog:es': 287,
+    'circ:rear_defog:ja': 144,
+    'circ:rear_wiper:en': 266,
+    'circ:rear_wiper:es': 272,
+    'circ:rear_wiper:ja': 153,
+    'pin:fuse_link_box·F:ja': 254,
+    'pin:ix_b1_m12·27J:en': 360,
+    'pin:ix_b1_m12·27J:es': 347,
+    'pin:ix_b1_m12·27J:ja': 185,
+    'pin:ix_b1_m12·4J:es': 324,
+    'pin:jb_fuse_block·12:en': 489,
+    'pin:jb_fuse_block·12:es': 505,
+    'pin:jb_fuse_block·12:ja': 359,
+    'pin:jb_fuse_block·14:en': 519,
+    'pin:jb_fuse_block·14:es': 537,
+    'pin:jb_fuse_block·14:ja': 369,
+    'pin:jb_fuse_block·15:en': 431,
+    'pin:jb_fuse_block·15:es': 470,
+    'pin:jb_fuse_block·15:ja': 276,
+    'pin:jb_fuse_block·18:en': 414,
+    'pin:jb_fuse_block·18:es': 435,
+    'pin:jb_fuse_block·18:ja': 299,
+    'pin:jb_fuse_block·19:en': 440,
+    'pin:jb_fuse_block·19:es': 461,
+    'pin:jb_fuse_block·19:ja': 325,
+    'pin:jb_fuse_block·1:en': 510,
+    'pin:jb_fuse_block·1:es': 549,
+    'pin:jb_fuse_block·1:ja': 362,
+    'pin:jb_fuse_block·20:es': 329,
+    'pin:jb_fuse_block·20:ja': 193,
+    'pin:jb_fuse_block·6:en': 344,
+    'pin:jb_fuse_block·6:es': 369,
+    'pin:jb_fuse_block·6:ja': 268,
+  };
+  const seen = new Set();
+  const over = [];
+  const check = (kind, key, lg, s) => {
+    if (!s) return;
+    const k = `${kind}:${key}:${lg}`;
+    const cap = k in LONG_NOTES ? LONG_NOTES[k] : DESC_MAX[kind][lg];
+    if (k in LONG_NOTES) seen.add(k);
+    if (s.length > cap) over.push(`${k} ${s.length}>${cap}`);
+    else if (k in LONG_NOTES && s.length <= DESC_MAX[kind][lg]) over.push(`${k} now fits (${s.length}); drop it from LONG_NOTES`);
+  };
+  for (const [id, c] of Object.entries(CARDS)) {
+    const i = map.CONN_I18N[id] || {};
+    check('card', id, 'es', c.note); check('card', id, 'en', i.en && i.en.note); check('card', id, 'ja', i.ja && i.ja.note);
+    for (const p of c.pins || []) {
+      const k = `${id}·${p.id}`;
+      check('pin', k, 'es', p.note); check('pin', k, 'en', p.note_en); check('pin', k, 'ja', p.note_ja);
+    }
+  }
+  const circEs = new Map();
+  for (const c of [...map.early, ...map.rev]) if (c.notes && (!circEs.has(c.id) || circEs.get(c.id).length < c.notes.length)) circEs.set(c.id, c.notes);
+  for (const [id, n] of circEs) check('circ', id, 'es', n);
+  for (const [id, v] of Object.entries(map.NOTES_I18N)) { check('circ', id, 'en', v.en); check('circ', id, 'ja', v.ja); }
+  const gone = Object.keys(LONG_NOTES).filter((k) => !seen.has(k));
+  ok('descriptions: card / circuit / pin notes within DESC_MAX (es/en/ja), grandfathered ones never grow',
+    over.length === 0 && gone.length === 0, [...over, ...gone.map((k) => `${k} no longer exists; drop it from LONG_NOTES`)].join('; '));
+}
+
 if (failed) { console.error(`rules.mjs: ${failed} failed`); process.exit(1); }
 console.log('rules.mjs: all passed');
