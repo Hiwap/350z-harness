@@ -23,6 +23,21 @@ function isSelJoint(cid){
   const f = CONN[cid];
   return !!(f && f.sub === 'intermedias');
 }
+/* Fuse boxes and 12 V feed notes are the supply end of a power path, not the device. */
+function isSelSource(cid){
+  const f = CONN[cid];
+  return !!(f && (f.sub === 'fuses' || f.sub === 'feeds'));
+}
+function isSelDevice(cid){
+  return !isSelGround(cid) && !isSelControl(cid) && !isSelJoint(cid) && !isSelSource(cid);
+}
+/* The ECM grid is not a card: a circuit with ECM pins has the ECM as its module. */
+function selectionFromEcm(){
+  return (lastCircIds || []).some(id => {
+    const cir = (typeof CIRCUITS !== 'undefined' ? CIRCUITS : []).find(c => c.id === id);
+    return !!(cir && cir.ecm && cir.ecm.length);
+  });
+}
 function selectionPathSeq(){
   const seq = [];
   const add = cid => { if(cid && seq.indexOf(cid) < 0) seq.push(cid); };
@@ -47,8 +62,17 @@ function selectionOrder(ids){
   ids.forEach(push);
   const full = seq.filter(cid => !isSelGround(cid));
   const firstCtl = full.findIndex(isSelControl);
-  if(firstCtl > 0 && !isSelControl(full[0]) && !isSelJoint(full[0])){
-    const orderedFull = full.slice(firstCtl).concat(full.slice(0, firstCtl).reverse());
+  let orderedFull = null;
+  const fromEcm = selectionFromEcm();
+  if(firstCtl > 0 && !isSelControl(full[0]) && !(fromEcm && isSelJoint(full[0]))){
+    /* control module drawn after the device: start at the module, walk back toward the device.
+       On an ECM circuit a joint drawn first (F102) is the ECM side, so the path already runs from the module. */
+    orderedFull = full.slice(firstCtl).concat(full.slice(0, firstCtl).reverse());
+  } else if(firstCtl < 0 && fromEcm && full.length > 1 && isSelDevice(full[0])){
+    /* ECM circuit drawn sensor-first (app → E11/F2): the ECM is the module, so the joint next to it comes first */
+    orderedFull = full.slice().reverse();
+  }
+  if(orderedFull){
     const rank = new Map(orderedFull.map((cid, i) => [cid, i]));
     body.sort((a, b) => (rank.has(a) ? rank.get(a) : 999) - (rank.has(b) ? rank.get(b) : 999));
   }

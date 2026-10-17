@@ -49,5 +49,49 @@ check('turn: BCM stays ahead of the lamp', 'turn_lh', ['turn_e40', 'bcm_m91', 'i
 check('ground point stays last', 'ckp_gnd', ['f152', 'ckp', 'gnd4'], ['ckp', 'gnd4', 'f152']);
 check('high beam: IPDM ahead of the lamps', 'headlamp_hi', ['turn_e40', 'turn_e24', 'ipdm_e7'], ['ipdm_e7', 'turn_e24', 'turn_e40']);
 check('fuel level: meter, joint, sensor', 'fuel_level', ['fuel_level_sub', 'ix_b1_m12', 'unified_m49'], ['unified_m49', 'ix_b1_m12', 'fuel_level_sub']);
+
+/* Every real circuit of both models: grounds last; a control module card comes first; on an ECM circuit
+   (the ECM grid is not a card) no device card sits ahead of a joint. Input order is shuffled. */
+{
+  const { loadMap } = await import('./load_map.mjs');
+  const map = loadMap(new URL('../index.html', import.meta.url).pathname);
+  for (const model of ['early', 'rev']) {
+    const circs = map[model];
+    const real = { CONN: map.CONN_BASE, CIRCUITS: circs, lastCircIds: [] };
+    vm.createContext(real);
+    vm.runInContext(src, real);
+    const source = (id) => ['fuses', 'feeds'].includes((map.CONN_BASE[id] || {}).sub);
+    const kind = (id) => real.isSelGround(id) ? 'G' : real.isSelControl(id) ? 'C' : real.isSelJoint(id) ? 'J' : source(id) ? 'S' : 'D';
+    if (model === 'early') {
+      const want = (name, circ, ids, expect) => {
+        real.lastCircIds = [circ];
+        const got = real.selectionOrder(ids).join(' > ');
+        if (got !== expect.join(' > ')) { failed++; console.error('FAIL', name, 'got', got, 'want', expect.join(' > ')); } else console.log('ok', name, got);
+      };
+      /* past mistakes: ECM circuits drawn sensor-first, and a BCM return drawn after the lamp */
+      want('ECM pedal circuit drawn sensor-first: joint next to the ECM first', 'app1_sig', ['app', 'ix_e11_f2'], ['ix_e11_f2', 'app']);
+      want('EVAP vent: F102 side first, tail joint, then the valve', 'evap_vent', ['evap_vent', 'ix_t2_b44', 'ix_b1_m12'], ['ix_b1_m12', 'ix_t2_b44', 'evap_vent']);
+      want('luggage lamp: BCM B83 first, back along the return to the lamp, then the feed joints', 'luggage_lamp', ['ix_b1_m12', 'ix_t2_b44', 'lug_t13', 'ix_b43_t1', 'bcm_b83'], ['bcm_b83', 'ix_b43_t1', 'lug_t13', 'ix_t2_b44', 'ix_b1_m12']);
+    }
+    const bad = [];
+    for (const c of circs) {
+      const ids = [...new Set([...Object.keys(c.path || {}), ...(c.conn || [])])].filter((id) => map.CONN_BASE[id]);
+      if (ids.length < 2) continue;
+      real.lastCircIds = [c.id];
+      for (const input of [ids.slice().reverse(), ids.slice(1).concat(ids[0])]) {
+        const out = real.selectionOrder(input);
+        const ks = out.map(kind).join('');
+        const fromEcm = !!(c.ecm && c.ecm.length);
+        const why = [];
+        if (/G[^G]/.test(ks)) why.push('ground point not last');
+        if (ks.includes('C') && ks[0] !== 'C' && !(fromEcm && ks[0] === 'J')) why.push('control module not first');
+        if (!ks.includes('C') && fromEcm && /D.*J/.test(ks)) why.push('device ahead of a joint on an ECM circuit');
+        if (why.length) { bad.push(`${model}:${c.id} ${out.join(' > ')} (${why.join(', ')})`); break; }
+      }
+    }
+    if (bad.length) { failed++; console.error('FAIL every circuit runs from the module toward the sensor (' + model + '):\n  ' + bad.join('\n  ')); }
+    else console.log('ok every', model, 'circuit runs from the module toward the sensor');
+  }
+}
 if (failed) process.exit(1);
 console.log('sel order ok');
