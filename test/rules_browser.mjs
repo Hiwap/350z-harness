@@ -145,6 +145,39 @@ await fresh();
   ok('fuse cells: J/B, holder and E18/E21 cells = the IPDM cover cell (number / fed system / amps, same box and sizes)', r.bad.length === 0, r.bad.slice(0, 10).join('; '));
 }
 
+/* Rule ipdm-icons: each IPDM plug E3–E9 keeps its own PG-26 photo icon (the Seleccionados card, marked on
+   that plug); the location icon lives only on the IPDM group header (PG-50, one box per plug), never on a plug. */
+{
+  const r = await page.evaluate(() => {
+    const IDS = ['ipdm_e3', 'ipdm_e4', 'ipdm_e5', 'ipdm_e6', 'ipdm_e7', 'ipdm_e8', 'ipdm_e9'];
+    const bad = [];
+    for (const id of IDS) {
+      if (!IPDM_FSM_MARK[id]) bad.push(`${id}: no PG-26 mark`);
+      const sel = makeFichaEl(id, CONN[id], { ipdmIcon: true });
+      const cams = sel.querySelectorAll('.ipdm-fsm-btn');
+      if (cams.length !== 1 || cams[0].dataset.ipdmConn !== id) bad.push(`${id}: ${cams.length} photo icons on its card`);
+      if (sel.querySelector('.ficha-loc-btn')) bad.push(`${id}: location icon on the selected card`);
+      const main = makeFichaEl(id, CONN[id]);
+      if (main.querySelector('.ficha-loc-btn')) bad.push(`${id}: location icon on the group card`);
+      if (locOf(id)) bad.push(`${id}: has its own CONN_LOC`);
+      openIpdmFsm(id);
+      const lb = document.getElementById('faceLightbox');
+      const src = lb.querySelector('.face-lb-img').getAttribute('src');
+      const marks = lb.querySelectorAll('.ipdm-mark:not([hidden])').length;
+      closeFaceLightbox();
+      if (src !== IPDM_FSM_SRC || marks !== 1) bad.push(`${id}: photo ${src}, ${marks} marks`);
+    }
+    const host = document.querySelector('#fichas details.ficha-sec[data-sub="ipdm"]');
+    const tools = host && host.parentElement.querySelector(':scope > .sum-tools');
+    const loc = tools && tools.querySelector('.ficha-loc-btn[data-loc-conn="ipdm_group"]');
+    const boxes = (locOf('ipdm_group') || {}).m || [];
+    if (!loc) bad.push('IPDM group header has no location icon');
+    if (boxes.length < IDS.length) bad.push(`IPDM group location marks ${boxes.length} < ${IDS.length}`);
+    return bad;
+  });
+  ok('IPDM: E3–E9 each keep their own PG-26 photo icon; location only on the IPDM group header', r.length === 0, r.join('; '));
+}
+
 if (failed) { console.error(`rules_browser.mjs: ${failed} failed`); await browser.close(); process.exit(1); }
 console.log('rules_browser.mjs: all passed');
 await browser.close();
