@@ -251,5 +251,20 @@ const CONN_FACE = (() => {
     over.length === 0 && gone.length === 0, [...over, ...gone.map((k) => `${k} no longer exists; drop it from LONG_NOTES`)].join('; '));
 }
 
+/* Rule optional-dimmed (data side): optional equipment (audio / nav / power seat / heated seats) gates pins,
+   which stay drawn dimmed (test/rules_browser.mjs). A whole card hidden by an option is allowed only for the
+   door speakers: D4/D34 without Bose, D5/D35 with Bose (AV-11 / AV-17). Body, brakes, market and
+   transmission are different cars, so their card gates stay. */
+{
+  const OPTION_DIMS = ['audio', 'nav', 'pseat', 'hseat'];
+  const DOOR_SPEAKERS = { spk_d4: 'audio=base', spk_d34: 'audio=base', spk_d5: 'audio=bose', spk_d35: 'audio=bose' };
+  const usesOption = (expr) => OPTION_DIMS.some((k) => new RegExp(`(^|[&|])\\s*${k}\\s*=`).test(expr || ''));
+  const hidden = Object.keys(CARDS).filter((id) => usesOption(CARDS[id].vif));
+  const bad = hidden.filter((id) => DOOR_SPEAKERS[id] !== CARDS[id].vif);
+  const lost = Object.keys(DOOR_SPEAKERS).filter((id) => !CARDS[id] || CARDS[id].vif !== DOOR_SPEAKERS[id]);
+  ok('optional equipment hides a whole card only for the door speakers (D4/D34 base, D5/D35 Bose)', bad.length === 0 && lost.length === 0,
+    `${bad.map((id) => `${id} vif ${CARDS[id].vif}`).join(',')}${lost.length ? ' · door speakers not gated: ' + lost.join(',') : ''}`);
+}
+
 if (failed) { console.error(`rules.mjs: ${failed} failed`); process.exit(1); }
 console.log('rules.mjs: all passed');
