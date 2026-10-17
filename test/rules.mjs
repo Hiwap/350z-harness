@@ -108,5 +108,27 @@ const CONN_FACE = (() => {
     `${J.shares.length} shares / ${cards} cards, pinned ${FACE_SHARE_PINNED.shares} / ${FACE_SHARE_PINNED.cards}`);
 }
 
+/* Rule body-subgroups: Body is one top-level group; each system (BODY_NEST_ORDER) is a subgroup with its own
+   accent, and that accent is the only colour of its cards (cards carry no accent field of their own). */
+{
+  const grab = (re) => { const m = html.match(re); if (!m) throw new Error('missing ' + re); const ctx = {}; vm.createContext(ctx); vm.runInContext('this.v = ' + m[1], ctx); return ctx.v; };
+  const NEST = grab(/const BODY_NEST_ORDER = (\[[^\]]*\]);/);
+  const ACC = grab(/const SUB_ACCENT = (\{[\s\S]*?\n\});/);
+  const own = Object.keys(CARDS).filter((id) => 'accent' in CARDS[id]);
+  ok('body: no card carries its own accent (the group decides)', own.length === 0, own.join(','));
+  const body = Object.keys(CARDS).filter((id) => CARDS[id].sub === 'carroceria');
+  const badNest = body.filter((id) => CARDS[id].group !== 'body' || !NEST.includes(CARDS[id].nest));
+  ok('body: every Body card sits in one BODY_NEST_ORDER subgroup', body.length > 0 && badNest.length === 0, badNest.map((id) => `${id}:${CARDS[id].nest}`).join(','));
+  const nestCards = Object.keys(CARDS).filter((id) => CARDS[id].nest && CARDS[id].sub !== 'carroceria');
+  ok('body: only Body cards use nest (no second-level groups elsewhere)', nestCards.length === 0, nestCards.join(','));
+  const keys = NEST.map((n) => 'body_' + n);
+  const noAcc = keys.filter((k) => !/^#[0-9a-f]{6}$/i.test(ACC[k] || ''));
+  const cols = Object.values(ACC).map((c) => c.toLowerCase());
+  const dupes = keys.filter((k) => ACC[k] && cols.filter((c) => c === ACC[k].toLowerCase()).length > 1);
+  ok('body: each subgroup has its own accent, different from every other group', noAcc.length === 0 && dupes.length === 0, `missing ${noAcc.join(',')} · shared ${dupes.join(',')}`);
+  const noGroup = Object.keys(CARDS).filter((id) => { const c = CARDS[id]; const g = c.sub === 'carroceria' ? 'body_' + c.nest : c.sub; return !ACC[g]; });
+  ok('body: every card\'s group has an accent', noGroup.length === 0, noGroup.join(','));
+}
+
 if (failed) { console.error(`rules.mjs: ${failed} failed`); process.exit(1); }
 console.log('rules.mjs: all passed');
