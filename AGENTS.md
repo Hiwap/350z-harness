@@ -18,8 +18,6 @@ Run `/correct`, then the architect skill, before a structural edit. Answer a fil
 
 Do not commit or push unless the maintainer asks. Trunk is `main`. Graphite is installed. Do not repeat tokens, and do not reopen pull requests 4–13.
 
-Do not recreate `PENDIENTES.md` or `docs/plans/`. The split landed in `09e0d17`.
-
 Do not put the maintainer's name in agent-facing docs. Photo credits in `faces/SOURCES.md`, comments in `index.html`, and the tests stay until the maintainer asks to change them.
 
 On Windows, static tests are `$env:HARNESS_SKIP_BROWSER='1'; node test/harness_page_tests.mjs`. `npm run test:static` uses bash syntax. The main checkout has no `puppeteer-core` installed. Known red checks in the harness suite stay red.
@@ -40,7 +38,7 @@ Do not rebuild the IPDM grid from commit `4c99371`. Below 480px it is one column
 
 Do not unhide `ipdm_legend`. Do not add the two 20-pin joint boxes. Do not redo Slack.
 
-`FACE_SHARE_OK` grows only when the maintainer confirms the shared photo is the same part. Do not swap a shared photo without that confirmation. The ECM face is the FSM drawing of F101 (EC-367, `faces/fsm_f101.webp`), approved by the maintainer on 2026-10-15. There is still no ECM face photo. Do not add one without approval.
+Do not swap a shared photo without the maintainer's confirmation. The ECM face is the FSM drawing of F101 (EC-367, `faces/fsm_f101.webp`), approved by the maintainer on 2026-10-15. There is still no ECM face photo. Do not add one without approval.
 
 View lines (`Vista` / `View` / `表示`) stay out of the visible card and out of the description. Leave `.view-note` in the card DOM, hidden, and leave the view data in `data/conn.js`. Connector notes that are not view lines go in the description.
 
@@ -53,3 +51,23 @@ The ECM orientation dropdown stays in the DOM, hidden, default `invertida` (pin 
 A 12 V path highlight does not use `markFichaHL`. Clicking the F102 card does not open every circuit that crosses it. Do not fan out from a shared cavity or a shared ficha. Empty declared F102 cavities means do not auto-attach F102. The Datos related attach adds ECM pins only and does not merge `.path`. Do not mix a circuit retarget with rail mode. Auto-open of a closed group is not written to `localStorage`. Do not restore collapsed groups before applying the selection.
 
 Find those rules by the comment text. Do not delete the comments.
+
+## Rules and what enforces them
+
+`npm test` runs every check below. A rule here has no prose elsewhere: read the test for the detail, and fix the data or the code when it fails, never the test, unless the maintainer changed the rule.
+
+| Rule | Enforced by |
+|---|---|
+| Speaker and tweeter cards draw only cavities 1 and 2. | `test/rules.mjs` speakers |
+| The rear-glass defogger is one card per body with both terminals (D104/D211, B202/B203). | `test/rules.mjs` defogger |
+| No VQ35HR part photo; eBay 206578549537 is banned (SOURCES.md, photo list, `CONN_FACE`). | `test/rules.mjs` photo sources |
+| `FACE_SHARE_OK` is `test/face_share_ok.json`. A share needs the maintainer's confirmation: add its date and basis, then bump `FACE_SHARE_PINNED`. No stale entries. | `test/rules.mjs` face shares; `test/harness_page_tests.mjs` CONN_FACE share check |
+| Optional-equipment pins are drawn dimmed (FSM colour, `OPT_OFF_OPACITY`, tooltip, live first line), never hidden, and clickable when on a circuit. Only the door speakers hide as whole cards (D4/D34 base, D5/D35 Bose). | `test/rules_browser.mjs` optional pins; `test/rules.mjs` door speakers |
+| Fuse-box cells are the IPDM cover cell: number / what it feeds / amps, never a wire colour. | `test/rules.mjs` + `test/rules_browser.mjs` fuse cells |
+| Body is one group; each system is a `BODY_NEST_ORDER` subgroup with its own `SUB_ACCENT`. Cards carry no `accent`. | `test/rules.mjs` body; `test/variants.mjs` (DOM) |
+| IPDM E3–E9 each keep their own PG-26 photo icon; the location icon is only on the IPDM group header. | `test/rules_browser.mjs` IPDM; `test/f102.mjs` |
+| The selected strip runs from the control module (ECM side) toward the sensor; ground points last. | `test/sel_order.mjs` (every circuit, both models) |
+| Card, circuit and pin notes stay under `DESC_MAX` per language; the grandfathered `LONG_NOTES` only shrink. | `test/rules.mjs` descriptions |
+| No `PENDIENTES.md` and no `docs/plans/`. | `test/rules.mjs` |
+| The ECM 88 → F102·9H wire is not in the FSM and stays off the map. | `test/rules.mjs` ECM 88 |
+| Every card is found by its code and its es/en/ja name. | `test/f102.mjs` search |

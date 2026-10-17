@@ -18,7 +18,7 @@ Do not put live diagnosis on the page.
 
 Do not let English or Japanese fall back to Spanish on the page.
 
-Do not widen `FACE_SHARE_OK` so a bad share passes. A shared photo is the same part, and the maintainer confirms it.
+Do not widen `FACE_SHARE_OK` (`test/face_share_ok.json`) so a bad share passes. A shared photo is the same part, and the maintainer confirms it. The rule table in `AGENTS.md` lists what each test enforces.
 
 Do not rebuild the IPDM grid from commit `4c99371`.
 
