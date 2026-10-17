@@ -727,6 +727,7 @@ function runNested(label, scriptPath, args = []) {
 }
 
 runNested('sel_order.mjs (selected fichas: control module toward the sensor)', path.join(__dirname, 'sel_order.mjs'));
+runNested('rules.mjs (maintainer corrections on the loaded data; AGENTS.md rule table)', path.join(__dirname, 'rules.mjs'));
 runNested('verify_harness_bugs.mjs', path.join(__dirname, 'verify_harness_bugs.mjs'), [HTML]);
 runNested('i18n.mjs', path.join(__dirname, 'i18n.mjs'));
 runNested('fsm_routes.mjs (FSM table: routes, grounds, faces)', path.join(__dirname, 'fsm_routes.mjs'), [HTML]);
