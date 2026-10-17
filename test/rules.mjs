@@ -147,5 +147,21 @@ const CONN_FACE = (() => {
   ok('no PENDIENTES.md (any case, any folder) and no docs/plans/', found.length === 0, found.join(','));
 }
 
+/* Rule ecm-88: the extra wire ECM 88 → F102·9H seen on one car is not in any 2005/2006 FSM diagram or
+   EC terminal table, so it stays off the map: no ECM 88 colour/rail, no card pin on ECM 88, F102·9H empty,
+   no circuit through either, and no FSM-table entry for 88. */
+{
+  const TABLE = JSON.parse(fs.readFileSync(path.join(__dirname, 'fsm_ecm_routes.json'), 'utf8'));
+  const on88 = [];
+  for (const [id, c] of Object.entries(CARDS)) for (const p of c.pins || []) if (Number(p.ecm) === 88) on88.push(`${id}·${p.id}`);
+  const h9 = (CARDS.ix_f102_m72.pins || []).find((p) => p.id === '9H') || {};
+  const h9wired = Object.keys(h9).filter((k) => !['id', 'code', 'ecm'].includes(k)).length > 0 || h9.code !== '—' || h9.ecm != null;
+  const circs = [...map.early, ...map.rev].filter((c) => (c.ecm || []).map(Number).includes(88)
+    || ((c.path || {}).ix_f102_m72 || []).includes('9H')).map((c) => c.id);
+  ok('ECM 88 / F102·9H stay off the map (not in the FSM)',
+    !(88 in map.PIN_COL) && !(88 in map.PIN_RAIL) && on88.length === 0 && !h9wired && circs.length === 0 && !TABLE.pins['88'],
+    JSON.stringify({ col: map.PIN_COL[88], rail: map.PIN_RAIL[88], on88, h9, circs: [...new Set(circs)], table: !!TABLE.pins['88'] }));
+}
+
 if (failed) { console.error(`rules.mjs: ${failed} failed`); process.exit(1); }
 console.log('rules.mjs: all passed');
