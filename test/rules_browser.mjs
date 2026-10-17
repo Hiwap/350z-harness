@@ -109,6 +109,42 @@ await fresh();
   await fresh();
 }
 
+/* Rule fuse-cells (render): J/B, holder and E18/E21 fuse cells are the IPDM cover cell: same box, same three
+   lines (number / what it feeds / amps) at the same sizes. The middle line is never a wire colour. */
+{
+  const r = await page.evaluate(() => {
+    const COL = /^(?:B|W|R|G|L|Y|BR|OR|P|PU|SB|LG|GY|V|CH|DG)(?:\/(?:B|W|R|G|L|Y|BR|OR|P|PU|SB|LG|GY|V|CH|DG))?$/;
+    const cells = (id) => {
+      const el = makeFichaEl(id, CONN[id]);
+      return [...el.querySelectorAll(`.cav-hit[data-conn="${id}"]`)].map((g) => {
+        const rect = g.querySelector('rect');
+        const tx = [...g.querySelectorAll(':scope > text')];
+        return { cav: g.dataset.cav, empty: g.classList.contains('fuse-empty'), w: rect && rect.getAttribute('width'), h: rect && rect.getAttribute('height'),
+          lines: tx.map((t) => t.textContent), sizes: tx.map((t) => t.getAttribute('font-size')).join(',') };
+      });
+    };
+    const ref = cells('ipdm_cover');
+    const want = ref[0];
+    const bad = [];
+    for (const id of ['ipdm_cover', 'jb_fuse_block', 'fuse_link_holder', 'fuse_link_box']) {
+      const cs = cells(id);
+      if (!cs.length) bad.push(`${id}: no cells`);
+      for (const c of cs) {
+        const why = [];
+        if (c.lines.length !== 3) why.push(`${c.lines.length} lines`);
+        if (c.w !== want.w || c.h !== want.h) why.push(`box ${c.w}x${c.h} vs IPDM ${want.w}x${want.h}`);
+        if (c.sizes !== want.sizes) why.push(`font sizes ${c.sizes} vs IPDM ${want.sizes}`);
+        if (c.lines[0] !== c.cav) why.push(`line 1 "${c.lines[0]}"`);
+        if (!c.empty && (!c.lines[1] || COL.test(c.lines[1]))) why.push(`line 2 "${c.lines[1]}"`);
+        if (!(c.empty ? c.lines[2] === 'X' : /^\d+A$/.test(c.lines[2] || ''))) why.push(`line 3 "${c.lines[2]}"`);
+        if (why.length) bad.push(`${id}·${c.cav}: ${why.join(', ')}`);
+      }
+    }
+    return { n: ref.length, bad };
+  });
+  ok('fuse cells: J/B, holder and E18/E21 cells = the IPDM cover cell (number / fed system / amps, same box and sizes)', r.bad.length === 0, r.bad.slice(0, 10).join('; '));
+}
+
 if (failed) { console.error(`rules_browser.mjs: ${failed} failed`); await browser.close(); process.exit(1); }
 console.log('rules_browser.mjs: all passed');
 await browser.close();

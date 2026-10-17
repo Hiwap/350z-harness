@@ -266,5 +266,27 @@ const CONN_FACE = (() => {
     `${bad.map((id) => `${id} vif ${CARDS[id].vif}`).join(',')}${lost.length ? ' · door speakers not gated: ' + lost.join(',') : ''}`);
 }
 
+/* Rule fuse-cells: the fuse-box cards (J/B, fusible link holder, E18/E21 box) read like the IPDM cover, line by
+   line: fuse number / what it feeds / amps. The middle line is the fed system (fuseLab; lab on the IPDM cover),
+   never a wire colour; X slots stay empty. Render side: test/rules_browser.mjs. */
+const WIRE_COLOUR = /^(?:B|W|R|G|L|Y|BR|OR|P|PU|SB|LG|GY|V|CH|DG)(?:\/(?:B|W|R|G|L|Y|BR|OR|P|PU|SB|LG|GY|V|CH|DG))?$/;
+{
+  const bad = [];
+  for (const p of CARDS.ipdm_cover.pins) {
+    if (!p.lab || WIRE_COLOUR.test(p.lab)) bad.push(`ipdm_cover·${p.id} name "${p.lab}"`);
+    if (!/^\d+A$/.test(p.code || '')) bad.push(`ipdm_cover·${p.id} amps "${p.code}"`);
+  }
+  for (const id of ['jb_fuse_block', 'fuse_link_holder', 'fuse_link_box']) {
+    const c = CARDS[id];
+    if (!c || c.shape !== 'fusebox' || !c.fuseLayout) { bad.push(`${id} is not a fusebox card`); continue; }
+    for (const p of c.pins) {
+      if (String(p.src) === 'X') { if (p.fuseLab) bad.push(`${id}·${p.id} X slot has a name`); continue; }
+      if (!p.fuseLab || WIRE_COLOUR.test(p.fuseLab)) bad.push(`${id}·${p.id} name "${p.fuseLab}"`);
+      if (!/^\d+A$/.test(p.src || '')) bad.push(`${id}·${p.id} amps "${p.src}"`);
+    }
+  }
+  ok('fuse cells: every fuse names what it feeds (not a wire colour) and its amps, like the IPDM cover', bad.length === 0, bad.join('; '));
+}
+
 if (failed) { console.error(`rules.mjs: ${failed} failed`); process.exit(1); }
 console.log('rules.mjs: all passed');
