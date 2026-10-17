@@ -130,5 +130,22 @@ const CONN_FACE = (() => {
   ok('body: every card\'s group has an accent', noGroup.length === 0, noGroup.join(','));
 }
 
+/* Rule no-pendientes: PENDIENTES.md and docs/plans/ stay deleted (split landed in 09e0d17). Work lists live
+   in the issue tracker, not in the repo. */
+{
+  const found = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (e.name === 'node_modules' || e.name === '.git') continue;
+      const p = path.join(dir, e.name);
+      const rel = path.relative(ROOT, p).split(path.sep).join('/');
+      if (/^pendientes/i.test(e.name) || rel === 'docs/plans') found.push(rel);
+      if (e.isDirectory()) walk(p);
+    }
+  };
+  walk(ROOT);
+  ok('no PENDIENTES.md (any case, any folder) and no docs/plans/', found.length === 0, found.join(','));
+}
+
 if (failed) { console.error(`rules.mjs: ${failed} failed`); process.exit(1); }
 console.log('rules.mjs: all passed');
