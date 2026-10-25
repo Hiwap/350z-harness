@@ -288,5 +288,122 @@ const WIRE_COLOUR = /^(?:B|W|R|G|L|Y|BR|OR|P|PU|SB|LG|GY|V|CH|DG)(?:\/(?:B|W|R|G
   ok('fuse cells: every fuse names what it feeds (not a wire colour) and its amps, like the IPDM cover', bad.length === 0, bad.join('; '));
 }
 
+/* Rule page-i18n: English and Japanese do not fall back to Spanish. t() returns the key, and a circuit
+   title or note returns the circuit id. The print pack is the exception (English, then Spanish). */
+{
+  const fn = (name) => {
+    const m = html.match(new RegExp(`function ${name}\\([^)]*\\)\\{[\\s\\S]*?\\n\\}`));
+    if (!m) throw new Error('missing function ' + name);
+    return m[0];
+  };
+  const tFn = fn('t');
+  const titleFn = fn('circuitTitle').replace(/if\(lang === 'es'\) return cir\.title;/, '');
+  const notesFn = fn('circuitNotes').replace(/if\(lang === 'es'\) return cir\.notes;/, '');
+  ok('i18n: t(), circuit titles and circuit notes do not fall back to Spanish',
+    /return \(pack\[key\] != null \? pack\[key\] : key\)/.test(tFn)
+      && /return \(tr && tr\[lang\]\) \|\| cir\.id/.test(titleFn)
+      && !/cir\.title/.test(titleFn)
+      && /return n\[lang\] \|\| cir\.id/.test(notesFn)
+      && !/cir\.notes/.test(notesFn),
+    '');
+}
+
+/* Rule alim-off: Alim. stays off unless localStorage z33_railRelPower is '1'. Ground and data stay on. */
+{
+  const box = html.match(/<input type="checkbox" id="railRelPower"[^>]*>/);
+  ok('Alim: #railRelPower is off unless z33_railRelPower is \'1\'',
+    !!box && !/\bchecked\b/.test(box[0])
+      && /return localStorage\.getItem\(LS_RAIL_REL_POWER\) === '1'/.test(html)
+      && /railPowerEl\.checked = ps === '1'/.test(html),
+    box ? box[0] : 'checkbox missing');
+}
+
+/* Rule control-pins: a circuit whose ECM pin is not a rail does not list a 12 V intermediate in conn
+   (feed_*, a fuse card, the IPDM cover, E7, or E12/F3). Those hops stay on path. ECM 77 is the A/F B2
+   IA wire only, never a coil or injector. The starter circuit has no ECM 89. E8·39 is the pump 12 V
+   output, not circ fp_relay; the coil control is E8·40. */
+{
+  const RAIL = new Set(Object.keys(map.PIN_RAIL).map(Number));
+  const POWER_CONN = /^(feed_|ipdm_cover$|jb_fuse_block$|fuse_link_|ipdm_e7$|ix_e12_f3$)/;
+  const seen = new Map();
+  for (const c of [...map.early, ...map.rev]) if (!seen.has(c.id)) seen.set(c.id, c);
+  const badConn = [];
+  for (const c of seen.values()) {
+    const ctrl = (c.ecm || []).map(Number).filter((n) => !RAIL.has(n));
+    if (!ctrl.length) continue;
+    const hits = (c.conn || []).filter((id) => POWER_CONN.test(id));
+    if (hits.length) badConn.push(`${c.id} conn ${hits.join(',')}`);
+  }
+  ok('control pins: 12 V intermediates stay on path, not in circuit.conn', badConn.length === 0, badConn.join('; '));
+  const on77 = [];
+  for (const [id, c] of Object.entries(CARDS)) for (const p of c.pins || []) if (Number(p.ecm) === 77) on77.push(`${id}·${p.id}`);
+  const circ77 = [...seen.values()].filter((c) => (c.ecm || []).map(Number).includes(77)).map((c) => c.id);
+  const coilInj77 = [...seen.values()].filter((c) => /^(coil|inj)_[1-6]$/.test(c.id) && (c.ecm || []).map(Number).includes(77)).map((c) => c.id);
+  ok('ECM 77 is only A/F B2 pin 2, never a coil or injector',
+    on77.join(',') === 'af_b2·2' && circ77.join(',') === 'af_b2' && coilInj77.length === 0,
+    `pins ${on77.join(',')} · circuits ${circ77.join(',')}`);
+  const starter = seen.get('starter') || { ecm: [], path: {}, conn: [] };
+  const starterPins = [];
+  for (const [id, c] of Object.entries(CARDS)) for (const p of c.pins || []) {
+    if (p.circ === 'starter' && Number(p.ecm) === 89) starterPins.push(`${id}·${p.id}`);
+  }
+  ok('starter circuit has no ECM pin 89',
+    !(starter.ecm || []).map(Number).includes(89) && starterPins.length === 0, starterPins.join(','));
+  const e839 = (CARDS.ipdm_e8.pins || []).find((p) => p.id === '39') || {};
+  const fp = seen.get('fp_relay') || { path: {} };
+  const pump = seen.get('fuel_pump_pwr') || { path: {} };
+  ok('E8·39 is the pump 12 V output, not circ fp_relay (the coil is E8·40)',
+    e839.circ !== 'fp_relay' && !(e839.circ)
+      && JSON.stringify((fp.path || {}).ipdm_e8) === JSON.stringify(['40'])
+      && JSON.stringify((pump.path || {}).ipdm_e8) === JSON.stringify(['39']),
+    JSON.stringify({ circ: e839.circ, fp: (fp.path || {}).ipdm_e8, pump: (pump.path || {}).ipdm_e8 }));
+}
+
+/* Rule retired-fuses: the old split fuse cards do not come back. Sub fuses stays the three boxes. */
+{
+  const BANNED = ['jb_10a_inj', 'jb_15a_ht', 'fuse36_alt'];
+  const back = BANNED.filter((id) => CARDS[id] || new RegExp(`\\b${id}\\b`).test(html));
+  const fuseIds = Object.keys(CARDS).filter((id) => CARDS[id].sub === 'fuses');
+  ok('retired fuse cards jb_10a_inj, jb_15a_ht and fuse36_alt stay gone',
+    back.length === 0 && fuseIds.join(',') === 'fuse_link_box,jb_fuse_block,fuse_link_holder',
+    back.join(',') || fuseIds.join(','));
+}
+
+/* Rule ipdm-grid: the IPDM group stays the 4c99371 placement. One column under 480px. At 480px the cover
+   is column 1 rows 1–3, E3 E4 E5 stack in column 2, E6 is column 1 row 4, E7 is column 2 row 4 spanning 2,
+   E8 is column 1 row 5, and E9 spans both columns on row 6. Columns are minmax(0, 1fr). The fuse note
+   stays off the card. */
+{
+  const block = (html.match(/@container ipdmsec \(min-width: 480px\) \{[\s\S]*?\n  \}/) || [''])[0];
+  const want = {
+    ipdm_cover: 'grid-column: 1; grid-row: 1 / span 3;',
+    ipdm_e3: 'grid-column: 2; grid-row: 1;',
+    ipdm_e4: 'grid-column: 2; grid-row: 2;',
+    ipdm_e5: 'grid-column: 2; grid-row: 3;',
+    ipdm_e6: 'grid-column: 1; grid-row: 4;',
+    ipdm_e7: 'grid-column: 2; grid-row: 4 / span 2;',
+    ipdm_e8: 'grid-column: 1; grid-row: 5;',
+    ipdm_e9: 'grid-column: 1 / -1; grid-row: 6;',
+  };
+  const missing = Object.entries(want).filter(([id, decl]) => !block.includes(`[data-conn="${id}"] { ${decl}`));
+  ok('IPDM grid: cover and E3–E9 keep their cells, columns minmax(0, 1fr), fuse note hidden',
+    /\.fichas-grid\.ipdm-grid \{ display: grid; grid-template-columns: minmax\(0, 1fr\);/.test(html)
+      && /\.fichas-grid\.ipdm-grid \{ grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\);/.test(block)
+      && missing.length === 0
+      && /\.ipdm-grid \.note-body \{ display: none !important;/.test(html),
+    missing.map(([id]) => id).join(','));
+}
+
+/* Rule hidden-cards: ipdm_legend stays out of the drawn fichas. The two 20-pin joint boxes are not cards. */
+{
+  const hide = (html.match(/const hide = new Set\(\[([^\]]*)\]\)/) || ['', ''])[1];
+  const hidden = hide.split(',').map((s) => s.trim().replace(/'/g, ''));
+  const boxes = ['orange_box', 'blue_box'].filter((id) => CARDS[id]);
+  ok('ipdm_legend stays hidden, and orange_box / blue_box are not cards',
+    hidden.includes('ipdm_legend') && hidden.includes('orange_box') && hidden.includes('blue_box')
+      && !!CARDS.ipdm_legend && boxes.length === 0,
+    `hide ${hidden.join(',')} · cards ${boxes.join(',')}`);
+}
+
 if (failed) { console.error(`rules.mjs: ${failed} failed`); process.exit(1); }
 console.log('rules.mjs: all passed');

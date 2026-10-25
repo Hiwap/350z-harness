@@ -16,19 +16,9 @@ Answer a file-URL or loader question with a prototype. When the question is whic
 
 Do not put live diagnosis on the page.
 
-Do not let English or Japanese fall back to Spanish on the page.
-
 Do not widen `FACE_SHARE_OK` (`test/face_share_ok.json`) so a bad share passes. A shared photo is the same part, and the maintainer confirms it. The rule table in `AGENTS.md` lists what each test enforces.
 
-Do not rebuild the IPDM grid from commit `4c99371`.
-
-Do not unhide `ipdm_legend`. Do not add the two 20-pin joint boxes. Do not redo Slack.
-
-Sub `fuses` is `fuse_link_box`, `jb_fuse_block`, `fuse_link_holder`. Do not put `jb_10a_inj`, `jb_15a_ht`, or `fuse36_alt` back.
-
-Do not add ECM pin 77 to every coil or injector. Do not add 89 to the starter circuit. Do not set E8-39 `circ` to `fp_relay`.
-
-Alim stays off unless `z33_railRelPower` is `'1'`.
+Do not redo Slack.
 
 Card notes and circuit notes leave out the pin-to-pin route the tags already show. More than two sentences is fine. Keep equipment gates, colour changes, FSM disagreements, empty fuse slots, and FSM pages. Do not shorten pin notes in that cut.
 

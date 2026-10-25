@@ -26,17 +26,7 @@ One-off browser probes go under the temp directory and get deleted. Do not commi
 
 ## Page rules
 
-English and Japanese do not fall back to Spanish on the page. `t()`, circuit titles, and circuit notes do not fall back. The print pack falls back English, then Spanish.
-
-Alim stays off unless `localStorage` `z33_railRelPower` is `'1'`.
-
-Do not put 12 V intermediates in `circuit.conn` for control pins. Do not add ECM pin 77 to every coil or injector. Do not add 89 to the starter circuit. Do not set E8-39 `circ` to `fp_relay`.
-
-Sub `fuses` is `fuse_link_box`, `jb_fuse_block`, `fuse_link_holder`. Do not put `jb_10a_inj`, `jb_15a_ht`, or `fuse36_alt` back.
-
-Do not rebuild the IPDM grid from commit `4c99371`. Below 480px it is one column. At 480px and up the cover is column 1 rows 1–3, E3 E4 E5 stack in column 2, E6 is column 1 row 4, E7 is column 2 row 4 spanning 2, E8 is column 1 row 5, and E9 spans both columns on row 6. Columns are `minmax(0, 1fr)`. The fuse note stays off the card. `.ipdm-grid .note-body` stays hidden.
-
-Do not unhide `ipdm_legend`. Do not add the two 20-pin joint boxes. Do not redo Slack.
+Do not redo Slack.
 
 Do not swap a shared photo without the maintainer's confirmation. The ECM face is the FSM drawing of F101 (EC-367, `faces/fsm_f101.webp`), approved by the maintainer on 2026-10-15. There is still no ECM face photo. Do not add one without approval.
 
@@ -71,3 +61,9 @@ Find those rules by the comment text. Do not delete the comments.
 | No `PENDIENTES.md` and no `docs/plans/`. | `test/rules.mjs` |
 | The ECM 88 → F102·9H wire is not in the FSM and stays off the map. | `test/rules.mjs` ECM 88 |
 | Every card is found by its code and its es/en/ja name. | `test/f102.mjs` search |
+| English and Japanese do not fall back to Spanish. `t()` returns the key. A circuit title or note returns the circuit id. The print pack still falls back English, then Spanish. | `test/rules.mjs` i18n |
+| Alim (`#railRelPower`) stays off unless `localStorage` `z33_railRelPower` is `'1'`. | `test/rules.mjs` Alim |
+| A control circuit does not list a 12 V intermediate in `conn` (`feed_*`, a fuse card, `ipdm_cover`, `ipdm_e7`, `ix_e12_f3`). ECM 77 is only A/F B2 pin 2. The starter circuit has no ECM 89. E8·39 is not `circ` `fp_relay`. | `test/rules.mjs` control pins |
+| `jb_10a_inj`, `jb_15a_ht`, and `fuse36_alt` stay gone. Sub `fuses` is `fuse_link_box`, `jb_fuse_block`, `fuse_link_holder`. | `test/rules.mjs` retired fuses |
+| The IPDM grid stays the `4c99371` placement: one column under 480px, cover and E3–E9 cells at 480px, columns `minmax(0, 1fr)`, fuse note hidden. | `test/rules.mjs` IPDM grid |
+| `ipdm_legend` stays hidden. `orange_box` and `blue_box` are not cards. | `test/rules.mjs` hidden cards |

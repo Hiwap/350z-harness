@@ -1,6 +1,7 @@
 /* Selected strip runs from the control module toward the sensor. */
 import fs from 'fs';
 import vm from 'vm';
+import { fileURLToPath } from 'url';
 
 const src = fs.readFileSync(new URL('../js/selection.js', import.meta.url), 'utf8');
 const pin = (id, rail) => (rail ? { id, rail } : { id });
@@ -54,7 +55,7 @@ check('fuel level: meter, joint, sensor', 'fuel_level', ['fuel_level_sub', 'ix_b
    (the ECM grid is not a card) no device card sits ahead of a joint. Input order is shuffled. */
 {
   const { loadMap } = await import('./load_map.mjs');
-  const map = loadMap(new URL('../index.html', import.meta.url).pathname);
+  const map = loadMap(fileURLToPath(new URL('../index.html', import.meta.url)));
   for (const model of ['early', 'rev']) {
     const circs = map[model];
     const real = { CONN: map.CONN_BASE, CIRCUITS: circs, lastCircIds: [] };
