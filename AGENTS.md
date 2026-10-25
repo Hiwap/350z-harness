@@ -67,3 +67,4 @@ Find those rules by the comment text. Do not delete the comments.
 | `jb_10a_inj`, `jb_15a_ht`, and `fuse36_alt` stay gone. Sub `fuses` is `fuse_link_box`, `jb_fuse_block`, `fuse_link_holder`. | `test/rules.mjs` retired fuses |
 | The IPDM grid stays the `4c99371` placement: one column under 480px, cover and E3–E9 cells at 480px, columns `minmax(0, 1fr)`, fuse note hidden. | `test/rules.mjs` IPDM grid |
 | `ipdm_legend` stays hidden. `orange_box` and `blue_box` are not cards. | `test/rules.mjs` hidden cards |
+| `?pin=` or `?cav=` opens that ECM pin or cavity. `cav` wins when both are set. A bad id selects nothing. A card absent from the chosen car shows `searchOffCarLong` and keeps the query. A later choice or a clear updates the query with `history.replaceState` and keeps `lang`. Auto-open is not stored. The canonical link stays the language URL. ECM 88 stays off the map. | `test/share_link.mjs` |

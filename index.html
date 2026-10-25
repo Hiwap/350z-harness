@@ -5824,6 +5824,7 @@ function retargetSelection(focusPin, focusConn, focusCav){
   if(focusConn && focusCav != null) selKey = 'cav:' + focusConn + ':' + focusCav;
   else if(n!=null) selKey = 'pin:' + String(n);
   else if(focusConn) selKey = 'conn:' + focusConn;
+  noteSel(selKey, selFocusPin);
   return true;
 }
 
@@ -6194,13 +6195,8 @@ function focusRailSelection(focusPin, focusConn, focusCav){
   applyRailFilter({ focusing: true });
   paintRailYellowFocus(focusPin, focusConn, focusCav);
   const n = (focusPin!=null && focusPin!=='') ? Number(focusPin) : null;
-  if(focusConn && focusCav != null){
-    selKey = 'cav:' + focusConn + ':' + focusCav;
-    selFocusPin = n;
-  } else if(n != null){
-    selKey = 'pin:' + String(n);
-    selFocusPin = n;
-  }
+  if(focusConn && focusCav != null) noteSel('cav:' + focusConn + ':' + focusCav, n);
+  else if(n != null) noteSel('pin:' + String(n), n);
 }
 
 function toggleRail(rail){
@@ -6525,8 +6521,7 @@ function selectOptOffPin(cid, cavId, pin0, key, opts){
   const need = optNeedLabel(pin0);
   const pnote = pinNote(live);
   infoEl.innerHTML += `<div class="opt-off-info info-cav" data-note="${esc(pnote || '')}" style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(live.code||'')}${need ? ` · <i>${esc(need)}</i>` : ''}${pnote ? ` — ${esc(pnote)}` : ''}</div>`;
-  selKey = key;
-  selFocusPin = live.ecm != null ? Number(live.ecm) : null;
+  noteSel(key, live.ecm != null ? Number(live.ecm) : null);
 }
 
 /* ---- Short click line + Descripción in the details panel ----
@@ -7303,6 +7298,90 @@ document.addEventListener('mousedown', e => {
   if(input) input.setAttribute('aria-expanded', 'false');
 });
 
+/* Share link: ?pin=90 or ?cav=ix_e11_f2:10. cav wins when both are set.
+   replaceState keeps lang and the hash. The canonical link stays the language URL.
+   Auto-open of a closed group is not written to localStorage.
+   shareReady stays false until the incoming query is read, so init cannot strip it. */
+let shareReady = false;
+function publishShare(key){
+  if(!shareReady) return;
+  try {
+    const q = new URLSearchParams(location.search);
+    q.delete('pin');
+    q.delete('cav');
+    const k = key == null ? '' : String(key);
+    if(k.startsWith('pin:')) q.set('pin', k.slice(4));
+    else if(k.startsWith('cav:')) q.set('cav', k.slice(4));
+    const s = q.toString();
+    const next = location.pathname + (s ? '?' + s : '') + location.hash;
+    const cur = location.pathname + location.search + location.hash;
+    if(next !== cur) history.replaceState(null, '', next);
+  } catch(e){}
+}
+function noteSel(key, pin){
+  const focus = (pin == null || pin === '') ? null : pin;
+  selKey = key;
+  selFocusPin = focus;
+  window.selKey = key;
+  window.selFocusPin = focus;
+  publishShare(key);
+}
+function readShareTarget(){
+  let q;
+  try { q = new URLSearchParams(location.search); }
+  catch(e){ return null; }
+  /* cav is the specific cavity. A present but unusable cav does not fall through to pin. */
+  if(q.has('cav')){
+    const cav = q.get('cav') || '';
+    const i = cav.lastIndexOf(':');
+    if(i > 0 && cav.slice(i + 1)) return { kind:'cav', cid: cav.slice(0, i), cav: cav.slice(i + 1) };
+    return null;
+  }
+  if(q.has('pin')){
+    const pin = q.get('pin') || '';
+    if(!/^\d{1,3}$/.test(pin)) return null;
+    const n = +pin;
+    if(n >= 1 && n <= 121) return { kind:'pin', pin: n };
+  }
+  return null;
+}
+function shareScrollEl(el){
+  if(!el) return;
+  const sec = el.closest && el.closest('details.ficha-sec');
+  if(sec && !sec.open){ sec.dataset.autoOpen = '1'; sec.open = true; }
+  const nest = el.closest && el.closest('details.ficha-nest');
+  if(nest && !nest.open){ nest.dataset.autoOpen = '1'; nest.open = true; }
+  if(el.tagName === 'DETAILS' && !el.open){ el.dataset.autoOpen = '1'; el.open = true; }
+  el.scrollIntoView({ block:'nearest', inline:'nearest' });
+}
+function applyShareLink(){
+  const target = readShareTarget();
+  shareReady = true;
+  if(!target) return;
+  if(target.kind === 'pin'){
+    const el = document.querySelector('#blocks .pin[data-pin="' + target.pin + '"]');
+    if(!el) return;
+    selectPin(target.pin, { keep: true });
+    shareScrollEl(el);
+    return;
+  }
+  const id = target.cid;
+  const f = CONN_BASE[id];
+  if(!f) return;
+  if(SKIP_SEL_CONN.has(id) || SEARCH_JUMP[id]){ searchJump(id); return; }
+  if(!CONN[id]){
+    const infoEl = document.getElementById('info');
+    if(infoEl) infoEl.innerHTML = `<div class="info-short"><b>${esc(connField(id, f, 'name'))}</b> — ${esc(t('searchOffCarLong'))}</div>`;
+    return;
+  }
+  const pin = (f.pins || []).find(p => String(p.id) === String(target.cav));
+  if(pin && cavClickable(id, pin)) selectConnPin(id, target.cav, { keep: true });
+  const el = id === 'ix_f102_m72'
+    ? document.getElementById('f102Panel')
+    : document.querySelector('#fichas .ficha[data-conn="' + CSS.escape(id) + '"]');
+  shareScrollEl(el);
+}
+
 /* Init from localStorage */
 (function init(){
   let m = localStorage.getItem('z33_model');
@@ -7391,6 +7470,7 @@ document.addEventListener('mousedown', e => {
   CIRCUITS = circuitsForView(document.getElementById('model').value);
   rebuildIndexes();
   applyLang();
+  applyShareLink();
 })();
 </script>
 <script>

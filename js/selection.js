@@ -207,9 +207,15 @@ function clearSelectionClasses(){
   });
 }
 
+/* Page script owns the address bar. Isolated loads keep the old assignment. */
+function commitSel(key, pin){
+  if(typeof noteSel === 'function'){ noteSel(key, pin); return; }
+  selKey = key;
+  selFocusPin = (pin == null || pin === '') ? null : pin;
+}
+
 function clearSelection(){
-  selKey = null;
-  selFocusPin = null;
+  commitSel(null, null);
   lastCircIds = [];
   activeRails.clear(); updateRailButtons();
   clearHL();
@@ -238,8 +244,7 @@ function applyRailFilter(opts){
   /* Do not mix circuit-selection retarget with rail mode */
   lastCircIds = [];
   if(!opts || !opts.focusing){
-    selKey = null;
-    selFocusPin = null;
+    commitSel(null, null);
   }
 
   const railEcm = new Set();
@@ -761,13 +766,11 @@ function selectPin(p, opts){
     paintFichaCavHL(new Set([n]), n, null, null);
     updateEcmSelCount(1);
     updateF102SelPins();
-    selKey = key;
-    selFocusPin = n;
+    commitSel(key, n);
     return;
   }
   selectCircuits(circs, n);
-  selKey = key;
-  selFocusPin = n;
+  commitSel(key, n);
 }
 
 function selectConn(cid){
@@ -792,14 +795,12 @@ function selectConn(cid){
     setF102PanelOpen(true);
     updateEcmSelCount(0);
     updateF102SelPins();
-    selKey = 'conn:' + cid;
-    selFocusPin = null;
+    commitSel('conn:' + cid, null);
     return;
   }
   if(circs.length){
     selectCircuits(circs, null, cid, null);
-    selKey = 'conn:' + cid;
-    selFocusPin = null;
+    commitSel('conn:' + cid, null);
   } else {
     activeRails.clear(); updateRailButtons();
     clearHL(); dimAll();
@@ -830,8 +831,7 @@ function selectConn(cid){
     if(collapseF102) setF102PanelOpen(false);
     updateEcmSelCount();
     updateF102SelPins();
-    selKey = 'conn:' + cid;
-    selFocusPin = null;
+    commitSel('conn:' + cid, null);
   }
 }
 
@@ -871,8 +871,7 @@ function selectConnPin(cid, cavId, opts){
     infoEl.innerHTML = `<b>${esc(conf ? connField(cid, conf, 'name') : cid)}</b> · cav <code>${esc(String(cavId))}</code> · <b>?</b>`
       + (ntxt && ntxt !== '—' ? `<div style="color:var(--muted);margin-top:6px">${esc(ntxt)}</div>` : '');
     revealConns([cid]);
-    selKey = key;
-    selFocusPin = null;
+    commitSel(key, null);
     return;
   }
   if(pin && pin.ecm!=null){
@@ -932,8 +931,7 @@ function selectConnPin(cid, cavId, opts){
       const extra = pnote ? ` — ${esc(pnote)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
       infoEl.innerHTML += `<div class="info-cav" data-note="${esc(pnote || '')}" style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(pin.code||'')}${extra} → ECM ${esc(String(pin.ecm))}</div>`;
     }
-    selKey = key;
-    selFocusPin = ecmN;
+    commitSel(key, ecmN);
   } else {
     if(FUSE_BOX_CONNS.has(cid)){
       /* the fuse's own circuit (pin.circ) wins; otherwise every circuit whose path runs through this fuse */
@@ -999,7 +997,6 @@ function selectConnPin(cid, cavId, opts){
       const extra = pnote ? ` — ${esc(pnote)}` : (pin.lab ? ` — ${esc(pin.lab)}` : '');
       infoEl.innerHTML += `<div class="info-cav" data-note="${esc(pnote || '')}" style="color:var(--muted);margin-top:4px"><code>${esc(connShortLabel(cid))}·${esc(String(cavId))}</code> · ${esc(pin.code||'')}${extra}</div>`;
     }
-    selKey = key;
-    selFocusPin = null;
+    commitSel(key, null);
   }
 }

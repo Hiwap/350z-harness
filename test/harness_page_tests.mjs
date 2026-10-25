@@ -727,6 +727,7 @@ if (skipBrowser) {
   runNested('coil_etc_rails.mjs (coils: one 12V + own ground per coil, EC-689/691/693; ETC F31 motor 3/6 ← VMOT, TPS 5V/ground)', path.join(__dirname, 'coil_etc_rails.mjs'));
   runNested('rules_browser.mjs (maintainer corrections on the rendered page: dimmed optional pins, fuse cells, IPDM icons)', path.join(__dirname, 'rules_browser.mjs'));
   runNested('rel_sweep.mjs (every ECM pin × Relacionados/grouping option, every ficha cavity: route + 12V partners lit, clickable)', path.join(__dirname, 'rel_sweep.mjs'));
+  runNested('share_link.mjs (?pin= / ?cav= selects on open and follows the choice)', path.join(__dirname, 'share_link.mjs'));
 }
 
 console.log('---');
