@@ -108,7 +108,7 @@ ok('fixed faces: FACE_FOLLOWS_ECM_ORIENT is exactly the ECM excerpt',
   ok('fixed faces: no svg* renderer other than svgTabN references flipRow/isFaceInv', svgFns.length === 0, svgFns.join(','));
   const noView = [...html.matchAll(/^  (\w+):\{group:'motor'[^\n]*$/gm)]
     .filter((m) => !/(?:\bview|viewByTrans):\{/.test(m[0]) && !/shape:'(?:ring|jb|ixnote)'/.test(m[0]) && !/^  (?:jb_|feed_|fuse\d+_|fuse_link_box|fuse_link_holder|comb_meter|ix_f103_f151)/.test(m[0]))
-    .map((m) => m[1]).filter((id) => !['ecm_f101_can', 'f152', 'e17', 'f23_gnd'].includes(id));
+    .map((m) => m[1]).filter((id) => !['ecm_f101_can', 'ecm_power', 'f152', 'e17', 'f23_gnd'].includes(id)); /* ecm_power = ECM pin summary, not a plug face */
   ok('fixed faces: every plug ficha carries view data (FSM ref + order, or unverified reason)', noView.length === 0, noView.join(','));
   const pp = fs.readFileSync(path.join(ROOT, 'make_print_pack.py'), 'utf8');
   ok('print pack cards are fixed (use_inv = bool(face_inv), never FACE_INV)', /use_inv = bool\(face_inv\)/.test(pp) && !/use_inv = [^\n]*FACE_INV/.test(pp));

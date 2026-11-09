@@ -405,5 +405,51 @@ const WIRE_COLOUR = /^(?:B|W|R|G|L|Y|BR|OR|P|PU|SB|LG|GY|V|CH|DG)(?:\/(?:B|W|R|G
     `hide ${hidden.join(',')} · cards ${boxes.join(',')}`);
 }
 
+/* Rule ecm-power-card: the "ECM · Alimentación y tierras" summary (sub power, first card) lists the ECM power and
+   ground terminals of the 2005 FSM (EC-124..134 terminal table, EC-167/169, EC-441, EC-472). Every cell is an ECM
+   terminal (ecm:N, id = N) whose colour and rail match PIN_COL / PIN_RAIL and the FSM route table, each sits on
+   an existing circuit, every pin is in the visible table once, and fn / volt exist in es/en/ja (no Spanish fallback). */
+{
+  const TABLE = JSON.parse(fs.readFileSync(path.join(__dirname, 'fsm_ecm_routes.json'), 'utf8'));
+  const c = CARDS.ecm_power;
+  const want = ['1', '115', '116', '119', '120', '121', '109', '111', '3', '104', '66', '67', '78', '82', '83'];
+  const bad = [];
+  if (!c) bad.push('no ecm_power card');
+  else {
+    if (c.group !== 'motor' || c.sub !== 'power') bad.push(`group/sub ${c.group}/${c.sub}`);
+    const firstPower = Object.keys(CARDS).find((id) => CARDS[id].group === 'motor' && CARDS[id].sub === 'power');
+    if (firstPower !== 'ecm_power') bad.push(`first power card is ${firstPower}`);
+    if (pinIds(c).join(',') !== want.join(',')) bad.push(`pins ${pinIds(c)}`);
+    if (JSON.stringify(c.faceRows.flat()) !== JSON.stringify(want)) bad.push(`faceRows ${JSON.stringify(c.faceRows)}`);
+    const listed = (c.pinTable || []).flatMap((s) => s.ids);
+    if (listed.join(',') !== want.join(',')) bad.push(`pinTable ${listed}`);
+    for (const s of c.pinTable || []) for (const lg of ['es', 'en', 'ja']) {
+      const v = (map.I18N[lg] || {})[s.h];
+      if (!v || (lg !== 'es' && v === map.I18N.es[s.h])) bad.push(`heading ${s.h} ${lg}`);
+    }
+    const circs = [...map.early, ...map.rev];
+    const rails = { gnd: 'gnd', '12v': '12v', sig: undefined };
+    for (const p of c.pins || []) {
+      const n = Number(p.id);
+      const t = TABLE.pins[p.id];
+      if (p.ecm !== n) bad.push(`${p.id}: ecm ${p.ecm}`);
+      if (p.code !== map.PIN_COL[n]) bad.push(`${p.id}: code ${p.code} vs PIN_COL ${map.PIN_COL[n]}`);
+      if (!t || t.status !== 'verified' || t.color !== p.code) bad.push(`${p.id}: FSM table ${t && t.color}/${t && t.status}`);
+      if (t && (p.rail || undefined) !== rails[t.rail]) bad.push(`${p.id}: rail ${p.rail} vs FSM ${t.rail}`);
+      if ((p.rail || undefined) !== map.PIN_RAIL[n]) bad.push(`${p.id}: rail ${p.rail} vs PIN_RAIL ${map.PIN_RAIL[n]}`);
+      if (!circs.some((ci) => (ci.ecm || []).includes(n))) bad.push(`${p.id}: no circuit`);
+      for (const k of ['fn', 'volt', 'note']) {
+        if (!p[k] || !p[k + '_en'] || !p[k + '_ja']) bad.push(`${p.id}: ${k} missing a language`);
+        else if (p[k + '_en'] === p[k] && k !== 'volt') bad.push(`${p.id}: ${k}_en is Spanish`);
+      }
+      if (!/EC-\d+/.test(p.note || '')) bad.push(`${p.id}: note has no EC page`);
+    }
+    const en = (map.CONN_I18N.ecm_power || {}).en || {}, ja = (map.CONN_I18N.ecm_power || {}).ja || {};
+    if (!/power/i.test(en.name || '') || !/ground/i.test(en.name || '') || !/電源/.test(ja.name || '') || !/アース/.test(ja.name || '')) bad.push(`names ${en.name} / ${ja.name}`);
+    if (!/Alimentaci/.test(c.name) || !/tierras/i.test(c.name)) bad.push(`es name ${c.name}`);
+  }
+  ok('ECM power card: FSM power + ground terminals, colours = PIN_COL = FSM table, on existing circuits, es/en/ja', bad.length === 0, bad.join('; '));
+}
+
 if (failed) { console.error(`rules.mjs: ${failed} failed`); process.exit(1); }
 console.log('rules.mjs: all passed');

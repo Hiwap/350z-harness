@@ -178,6 +178,56 @@ await fresh();
   ok('IPDM: E3–E9 each keep their own PG-26 photo icon; location only on the IPDM group header', r.length === 0, r.join('; '));
 }
 
+/* Rule ecm-power-card (browser): the "ECM · Alimentación y tierras" card is drawn first in the open power group,
+   shows one table row per pin, and a row click (or a cell click) selects the existing circuit of that ECM pin:
+   115 → gnd_ecm_115 lights F103·2 + F152, 119 → ign_vb_119 lights E12/F3·7, 121 → batt_ecm, 111 → ecm_relay_ss.
+   A grid click on ECM 115 lights the card's own 115 cell. en / ja table headings are not Spanish. */
+{
+  await fresh();
+  const r = await page.evaluate(async () => {
+    const bad = [];
+    const sec = document.querySelector('#fichas details.ficha-sec[data-sub="power"]:not(.sel-top)');
+    const first = sec && sec.querySelector('.ficha-wrap[data-conn]');
+    if (!sec || !sec.open) bad.push('power group not open');
+    if (!first || first.dataset.conn !== 'ecm_power') bad.push(`first power card ${first && first.dataset.conn}`);
+    const card = () => document.querySelector('#fichas details.ficha-sec:not(.sel-top) .ficha[data-conn="ecm_power"]');
+    const rows = card() ? [...card().querySelectorAll('.pin-table-row')] : [];
+    if (rows.length !== CONN.ecm_power.pins.length) bad.push(`${rows.length} table rows`);
+    const lit = () => new Set([...document.querySelectorAll('.cav-hit.hl, .cav-hit.hl-group')].map((e) => e.dataset.conn + '·' + e.dataset.cav));
+    const want = { '115': ['gnd_ecm_115', ['gnd4·2', 'f152·ring', 'ecm_power·115']], '119': ['ign_vb_119', ['ix_e12_f3·7', 'ecm_power·119']],
+      '121': ['batt_ecm', ['ix_e108_m15·68G', 'ecm_power·121']], '111': ['ecm_relay_ss', ['ipdm_e9·46', 'ecm_power·111']] };
+    for (const [cav, [circ, cells]] of Object.entries(want)) {
+      clearSelection();
+      const row = card() && card().querySelector(`.pin-table-row[data-cav="${cav}"]`);
+      if (!row) { bad.push(`no row ${cav}`); continue; }
+      row.click();
+      const ids = [...lastCircIds];
+      const L = lit();
+      if (ids.join(',') !== circ) bad.push(`row ${cav}: circuits ${ids}`);
+      const miss = cells.filter((c) => !L.has(c));
+      if (miss.length) bad.push(`row ${cav}: not lit ${miss}`);
+      if (!(document.querySelector(`#blocks .pin[data-pin="${cav}"]`) || {}).classList?.contains('hl')) bad.push(`row ${cav}: ECM grid pin not lit`);
+    }
+    clearSelection();
+    selectPin(115);
+    if (!lit().has('ecm_power·115')) bad.push('grid 115 does not light the card cell');
+    clearSelection();
+    const heads = {};
+    for (const lg of ['en', 'ja']) {
+      { const sel = document.getElementById('lang'); sel.value = lg; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+      await new Promise((res) => setTimeout(res, 50));
+      const c = card();
+      heads[lg] = c ? [...c.querySelectorAll('.pin-table-h th')].map((e) => e.textContent) : [];
+      const fn = c ? c.querySelector('.pin-table-row[data-cav="121"] .pt-fn').textContent : '';
+      if (heads[lg].length !== 4 || heads[lg].some((h) => h === I18N.es[CONN.ecm_power.pinTable[heads[lg].indexOf(h)].h])) bad.push(`${lg} headings ${heads[lg]}`);
+      if (!fn || fn === CONN.ecm_power.pins.find((p) => p.id === '121').fn) bad.push(`${lg} fn 121 "${fn}"`);
+    }
+    { const sel = document.getElementById('lang'); sel.value = 'es'; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+    return bad;
+  });
+  ok('ECM power card: first in power, one row per pin, row click selects the existing ECM circuit, en/ja table', r.length === 0, r.join('; '));
+}
+
 if (failed) { console.error(`rules_browser.mjs: ${failed} failed`); await browser.close(); process.exit(1); }
 console.log('rules_browser.mjs: all passed');
 await browser.close();

@@ -803,6 +803,7 @@ const FSM_FACE = {
   ipdm_e8: { mt: "44 37 / 43 36 / 42 / 41 / 40 35 / 39 34 / 38 33", at: "44 37 / 43 36 / 42 / 41 / 40 35 / 39 34 / 38 33" },
   ipdm_e9: { mt: "53 54 55 56 57 58 59 60 / 45 46 47 48 49 50 51 52", at: "53 54 55 56 57 58 59 60 / 45 46 47 48 49 50 51 52" },
   feed_af_12v: { mt: "AF2-3 AF1-3", at: "AF2-3 AF1-3" },
+  ecm_power: { mt: "1 115 116 / 119 120 121 / 109 111 3 104 / 66 67 78 82 83", at: "1 115 116 / 119 120 121 / 109 111 3 104 / 66 67 78 82 83" }, /* ECM pin summary rows (data order, not a plug face) */
   feed_ho2s_12v: { mt: "B2-12V B1-12V", at: "B2-12V B1-12V" },
   /* fuse fichas are the PG-88/89 grid turned 90° cw (IPDM-style column): screen rows = FSM columns, FSM row 0 on the right */
   jb_fuse_block: { mt: "12 1 / 13 2 / 14 3 / 15 4 / 16 5 / 17 6 / 18 7 / 19 / 20 8 / 21 9 / 22 10 / 11", at: "12 1 / 13 2 / 14 3 / 15 4 / 16 5 / 17 6 / 18 7 / 19 / 20 8 / 21 9 / 22 10 / 11" },

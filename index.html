@@ -501,6 +501,15 @@
   }
   .ficha.note-card .note-body { font-size: 10px; color: #cfd8dc; line-height: 1.35; margin-top: 4px; }
   .ficha.note-card .note-pins { font-size: 10px; color: var(--hl2); margin-top: 4px; }
+  .ficha .pin-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 11px; color: #d0d5dd; }
+  .ficha .pin-table th { text-align: left; font-weight: 600; color: #90caf9; padding: 2px 4px; border-bottom: 1px solid var(--border); }
+  .ficha .pin-table .pin-table-h th { color: #ffd54f; padding-top: 6px; border-bottom: none; }
+  .ficha .pin-table td { padding: 2px 4px; border-bottom: 1px dashed rgba(255,255,255,.06); vertical-align: top; }
+  .ficha .pin-table .pin-table-row { cursor: pointer; }
+  .ficha .pin-table .pin-table-row:hover td { background: rgba(144,202,249,.10); }
+  .ficha .pin-table .pt-pin { font-weight: 700; color: #90caf9; white-space: nowrap; }
+  .ficha .pin-table .pt-col { white-space: nowrap; }
+  .ficha .pin-table .pin-table-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; border: 1px solid #78909c; box-sizing: border-box; }
   .ficha.dim { opacity: 0.25; }
   .ficha.hl { border-color: var(--hl); box-shadow: 0 0 0 2px rgba(255,213,79,.35); opacity: 1 !important; }
   .ficha h3 { margin: 0 0 2px; font-size: 12px; color: #f1f3f5; }
@@ -5276,6 +5285,26 @@ function viewNoteText(id, f){
   const face = vw.g === 'f' ? `cara hembra ${vw.c}` : vw.g === 'm' ? `cara macho ${vw.c}` : vw.g === 'r' ? `terminal de ojal ${vw.c}` : `cara del conector ${vw.c} del arnés`;
   return `Vista: ${face} (${par}${ex}).`;
 }
+/* Pin summary table for cards with f.pinTable (ECM · Alimentación y tierras): pin · colour · function · FSM voltage.
+   Rows reuse the card's own pins (data/conn.js); a row click is the same as clicking that cavity. */
+function pinTableHtml(id, f){
+  if(!f || !Array.isArray(f.pinTable) || !f.pinTable.length) return '';
+  const byId = Object.fromEntries((f.pins||[]).map(p => [String(p.id), p]));
+  const pick = (p, k) => (lang === 'en' ? p[k + '_en'] : lang === 'ja' ? p[k + '_ja'] : p[k]) || '';
+  let body = '';
+  f.pinTable.forEach(sec => {
+    body += `<tr class="pin-table-h"><th colspan="4">${esc(t(sec.h))}</th></tr>`;
+    (sec.ids || []).forEach(pid => {
+      const p = byId[String(pid)];
+      if(!p) return;
+      const code = String(p.code || '');
+      const w = parseWire(code);
+      const sw = `<span class="pin-table-sw" style="background:${w.c1}${w.tracer && w.c2 ? `;border-right:4px solid ${w.c2}` : ''}"></span>`;
+      body += `<tr class="pin-table-row" data-cav="${esc(p.id)}" role="button" tabindex="0"><td class="pt-pin">${esc(p.ecm != null ? p.ecm : p.id)}</td><td class="pt-col">${sw}${esc(code)}</td><td class="pt-fn">${esc(pick(p, 'fn'))}</td><td class="pt-v">${esc(pick(p, 'volt'))}</td></tr>`;
+    });
+  });
+  return `<table class="pin-table" data-conn="${esc(id)}"><thead><tr><th>${esc(t('ecmPwrColPin'))}</th><th>${esc(t('ecmPwrColCol'))}</th><th>${esc(t('ecmPwrColFn'))}</th><th>${esc(t('ecmPwrColV'))}</th></tr></thead><tbody>${body}</tbody></table>`;
+}
 function makeFichaEl(id, f, opts){
   const wrap=document.createElement('div');
   wrap.className = 'ficha-wrap';
@@ -5296,7 +5325,7 @@ function makeFichaEl(id, f, opts){
   const showIpdm = !!(opts && opts.ipdmIcon && IPDM_FSM_MARK[id]);
   const faceBtn = showIpdm ? ipdmFsmBtnHtml(id) : (fsmBtnHtml(id) + faceBtnHtml(id));
   const mirMode = fichaMirrorMode(id, f);
-  el.innerHTML = `<div class="ficha-title-row">${mirrorBtnHtml(id, mirMode)}<h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${extra}`;
+  el.innerHTML = `<div class="ficha-title-row">${mirrorBtnHtml(id, mirMode)}<h3>${esc(connField(id, f, 'name'))}</h3>${locBtnHtml(id)}${faceBtn}</div><div class="meta">${esc(connField(id, f, 'meta'))}</div>${renderConnSvg(id,f)}${pinTableHtml(id,f)}${extra}`;
   if(mirMode === 'ficha' && FICHA_MIRROR.has(id)){
     const svg = el.querySelector('.conn-svg');
     if(svg){
@@ -5340,6 +5369,15 @@ function makeFichaEl(id, f, opts){
       e.preventDefault();
       e.stopPropagation();
       openFaceLightbox(faceBtnEl.dataset.faceConn || id);
+      return;
+    }
+    const ptRow = e.target.closest && e.target.closest('.pin-table-row');
+    if(ptRow && wrap.contains(ptRow)){
+      e.preventDefault();
+      e.stopPropagation();
+      const pin = (f.pins || []).find(x => String(x.id) === String(ptRow.dataset.cav));
+      if(!cavClickable(id, pin)) return;
+      selectConnPin(id, ptRow.dataset.cav);
       return;
     }
     const cav = e.target.closest && e.target.closest('.cav-hit');
