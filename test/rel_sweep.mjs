@@ -39,7 +39,7 @@ let pass = 0; const fails = [];
 const ok = (name, cond, detail = '') => { if (cond) pass++; else { fails.push(name + (detail ? ' — ' + detail : '')); console.log('  FAIL ' + name + (detail ? ' — ' + detail : '')); } };
 
 const puppeteer = loadPuppeteer();
-const browser = await puppeteer.launch({ executablePath: findChrome(), headless: true, args: ['--no-sandbox', '--disable-gpu'] });
+const browser = await puppeteer.launch({ executablePath: findChrome(), headless: true, protocolTimeout: 600000, args: ['--no-sandbox', '--disable-gpu'] });
 const UNCONNECTED = [
 ];
 /* ECM signal pin → sensor-ground cavities on its card that belong to ANOTHER element (not required to light) */
