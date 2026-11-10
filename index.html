@@ -58,10 +58,11 @@
   input[type=search] { min-width: 180px; }
   .q-list {
     position: absolute; z-index: 6; top: calc(100% + 4px); left: 0; right: 0;
-    max-height: 320px; overflow: auto;
+    max-height: 420px; overflow: auto;
     background: #12161d; border: 1px solid var(--border); border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0,0,0,.45);
   }
+  .q-list button.q-row.q-all { font-weight: 600; }
   .q-list[hidden] { display: none; }
   .q-sec { padding: 6px 10px 2px; font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: #9aa3b2; }
   .q-list button.q-row {
@@ -1256,7 +1257,7 @@
   </details>
   <div class="hdr-tools">
     <div class="search">
-      <input id="q" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="qList" aria-expanded="false" placeholder="Buscar: 101, ASCD, APP, stop, CAN…"/>
+      <input id="q" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="qList" aria-expanded="false" placeholder="Buscar: 101, W/L, azul con blanco…"/>
       <button type="button" id="clear">Limpiar</button>
       <div id="qList" class="q-list" hidden role="listbox"></div>
     </div>
@@ -1335,6 +1336,7 @@
 <script src="data/conn.js"></script>
 <script src="data/i18n.js"></script>
 <script src="js/selection.js"></script>
+<script src="js/color_search.js"></script>
 <script>
 /* ========== Color map ========== */
 const OC = {
@@ -7124,7 +7126,119 @@ function rankHit(blob, q){
   if(words.some(w => w.startsWith(q))) return 1;
   return 2;
 }
+
+function colorCavShort(cid){
+  const conf = CONN[cid] || CONN_BASE[cid];
+  if(!conf) return cid;
+  const v = (conf.viewByTrans && typeof transView === 'function' && conf.viewByTrans[transView()]) || conf.view;
+  const fsm = v && v.c;
+  const short = (typeof connShortLabel === 'function') ? connShortLabel(cid) : cid;
+  if(fsm && short && short.indexOf(fsm) !== -1) return short;
+  return fsm || short || cid;
+}
+function pinWireCodes(pin, ecmHint){
+  const out = [];
+  const seen = new Set();
+  const add = (c) => {
+    if(typeof wireColorTokens !== 'function') return;
+    const toks = wireColorTokens(c);
+    if(!toks) return;
+    const norm = toks.join('/');
+    if(seen.has(norm)) return;
+    seen.add(norm);
+    out.push(norm);
+  };
+  if(pin){
+    add(pin.code);
+    add(pin.offCode);
+    add(pin.altCode);
+    if(pin.live && pin.live !== pin) add(pin.live.code);
+  }
+  const ecm = ecmHint != null && ecmHint !== '' ? ecmHint : (pin && pin.ecm);
+  if(ecm != null && ecm !== '' && typeof PIN_COL !== 'undefined'){
+    add(PIN_COL[ecm] || PIN_COL[String(ecm)] || PIN_COL[Number(ecm)]);
+  }
+  return out;
+}
+function collectColorSearch(query){
+  if(!query || typeof colorMatchRank !== 'function') return [];
+  const hits = [];
+  if(typeof PIN_COL !== 'undefined'){
+    Object.entries(PIN_COL).forEach(([pn, code]) => {
+      const n = +pn;
+      if(typeof isPinActive === 'function' && !isPinActive(n)) return;
+      const rank = colorMatchRank(code, query);
+      if(rank < 0) return;
+      hits.push({tier:'color', kind:'pin', id:n, cav:null, code: normalizeWireCode(code) || code, label: pinSearchLabel(n) + ' · ' + code, rank});
+    });
+  }
+  const src = (typeof CONN !== 'undefined' && CONN) ? CONN : {};
+  Object.keys(src).forEach(cid => {
+    if(typeof SKIP_SEL_CONN !== 'undefined' && SKIP_SEL_CONN.has(cid)) return;
+    const conf = src[cid];
+    (conf && conf.pins || []).forEach(pin => {
+      const codes = pinWireCodes(pin);
+      let best = 99, bestCode = '';
+      codes.forEach(code => {
+        const r = colorMatchRank(code, query);
+        if(r >= 0 && r < best){ best = r; bestCode = code; }
+      });
+      if(best === 99) return;
+      const short = colorCavShort(cid);
+      hits.push({tier:'color', kind:'cav', id:cid, cav:String(pin.id), code:bestCode, label: short + '·' + pin.id + ' · ' + bestCode, rank:best});
+    });
+  });
+  hits.sort((a, b) => a.rank - b.rank || String(a.label).localeCompare(String(b.label), undefined, {numeric:true}));
+  if(!hits.length) return [];
+  const shown = hits.slice(0, 48);
+  const all = {tier:'color', kind:'colorAll', id:'all', cav:null, code: (typeof formatColorQuery === 'function' ? formatColorQuery(query) : ''), label: t('searchColorAll') + ' (' + hits.length + ')', rank:-1, hits};
+  return [all].concat(shown);
+}
+function paintColorHit(h){
+  if(!h) return;
+  if(h.kind === 'pin'){
+    const el = document.querySelector('#blocks .pin[data-pin="'+h.id+'"]');
+    if(el){ el.classList.remove('dim'); el.classList.add('hl-group'); }
+    return;
+  }
+  if(h.kind !== 'cav') return;
+  document.querySelectorAll('.cav-hit[data-conn="'+h.id+'"][data-cav="'+CSS.escape(String(h.cav))+'"]').forEach(cav => {
+    const conf = CONN[h.id] || CONN_BASE[h.id];
+    const pin = (conf && conf.pins || []).find(x => String(x.id) === String(h.cav));
+    applyHlGroupEl(cav, pin && typeof accentForCav === 'function' ? accentForCav(h.id, pin) : null);
+  });
+  if(h.id === 'ix_f102_m72'){
+    const fp = (typeof f102PinEl === 'function') ? f102PinEl(h.cav) : document.querySelector('#f102Panel .pin[data-cav="'+CSS.escape(String(h.cav))+'"]');
+    if(fp){ fp.classList.remove('dim'); fp.classList.add('hl-group'); }
+  }
+}
+function highlightColorHits(hits){
+  const list = (hits || []).filter(h => h && h.kind !== 'colorAll');
+  if(typeof commitSel === 'function') commitSel(null, null);
+  lastCircIds = [];
+  activeRails.clear(); updateRailButtons();
+  clearHL(); dimAll();
+  const connIds = [];
+  list.forEach(h => {
+    if(h.kind === 'cav' && h.id) connIds.push(h.id);
+    paintColorHit(h);
+  });
+  const infoEl = document.getElementById('info');
+  if(infoEl){
+    infoEl.dataset.locked = '1';
+    delete infoEl.dataset.railMode;
+    const code = (list[0] && list[0].code) || '';
+    infoEl.innerHTML = '<div class="info-short">'+esc(t('searchColorAll'))+' · '+list.length+(code ? ' · <code>'+esc(code)+'</code>' : '')+'</div>';
+  }
+  revealConns([...new Set(connIds)]);
+  list.forEach(paintColorHit);
+  updateEcmSelCount();
+  updateF102SelPins();
+}
+
 function collectSearch(raw){
+  const colorQ = (typeof parseColorQuery === 'function') ? parseColorQuery(raw) : null;
+  if(colorQ) return collectColorSearch(colorQ);
   const q = foldQ(String(raw||'').trim());
   const cjk = /[\u3040-\u30ff\u3400-\u9fff]/.test(q);
   const digits = /^\d{1,3}$/.test(q);
@@ -7202,7 +7316,8 @@ function renderSearchList(){
   qRows = collectSearch(input.value);
   const q = foldQ(input.value.trim());
   const cjk = /[\u3040-\u30ff\u3400-\u9fff]/.test(q);
-  const show = q && (cjk || /^\d{1,3}$/.test(q) || q.length >= 2);
+  const colorQ = (typeof parseColorQuery === 'function') ? parseColorQuery(input.value) : null;
+  const show = !!(colorQ || (q && (cjk || /^\d{1,3}$/.test(q) || q.length >= 2)));
   if(!show){
     box.hidden = true;
     box.innerHTML = '';
@@ -7220,18 +7335,21 @@ function renderSearchList(){
   if(qActive >= qRows.length) qActive = 0;
   const names = qRows.filter(r => r.tier === 'name');
   const mens = qRows.filter(r => r.tier === 'mention');
+  const cols = qRows.filter(r => r.tier === 'color');
   const html = [];
   let i = 0;
   const add = (title, list) => {
     if(!list.length) return;
     html.push(`<div class="q-sec">${esc(title)}</div>`);
     list.forEach(r => {
-      const kind = (r.kind === 'ficha' || r.kind === 'jump' || r.kind === 'off') ? t('searchFicha') : r.kind === 'circ' ? t('searchCirc') : t('pinEcm');
+      const kind = (r.kind === 'ficha' || r.kind === 'jump' || r.kind === 'off') ? t('searchFicha') : r.kind === 'circ' ? t('searchCirc') : (r.tier === 'color') ? (r.code || t('searchColors')) : t('pinEcm');
       const on = i === qActive;
-      html.push(`<button type="button" class="q-row${on ? ' on' : ''}" role="option" id="qOpt${i}" data-i="${i}" aria-selected="${on ? 'true' : 'false'}"><span class="q-kind">${esc(kind)}</span><span class="q-label">${esc(r.label)}</span></button>`);
+      const allCls = r.kind === 'colorAll' ? ' q-all' : '';
+      html.push(`<button type="button" class="q-row${allCls}${on ? ' on' : ''}" role="option" id="qOpt${i}" data-i="${i}" aria-selected="${on ? 'true' : 'false'}"><span class="q-kind">${esc(kind)}</span><span class="q-label">${esc(r.label)}</span></button>`);
       i++;
     });
   };
+  add(t('searchColors'), cols);
   add(t('searchNames'), names);
   add(t('searchMentions'), mens);
   box.innerHTML = html.join('');
@@ -7269,6 +7387,13 @@ function pickSearchRow(i){
     const f = CONN_BASE[row.id];
     const infoEl = document.getElementById('info');
     if(infoEl && f) infoEl.innerHTML = `<div class="info-short"><b>${esc(connField(row.id, f, 'name'))}</b> — ${esc(t('searchOffCarLong'))}</div>`;
+  }
+  else if(row.kind === 'colorAll') highlightColorHits(row.hits || qRows);
+  else if(row.kind === 'cav'){
+    selectConnPin(row.id, row.cav);
+    const el = document.querySelector(`.cav-hit[data-conn="${CSS.escape(String(row.id))}"][data-cav="${CSS.escape(String(row.cav))}"]`)
+      || (row.id === 'ix_f102_m72' ? document.querySelector(`#f102Panel .pin[data-cav="${CSS.escape(String(row.cav))}"]`) : null);
+    if(el) el.scrollIntoView({block:'nearest', inline:'nearest'});
   }
   else if(row.kind === 'circ') selectCircuits([row.id]);
   else if(row.kind === 'pin'){

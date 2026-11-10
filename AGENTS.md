@@ -61,6 +61,7 @@ Find those rules by the comment text. Do not delete the comments.
 | No `PENDIENTES.md` and no `docs/plans/`. | `test/rules.mjs` |
 | The ECM 88 → F102·9H wire is not in the FSM and stays off the map. | `test/rules.mjs` ECM 88 |
 | Every card is found by its code and its es/en/ja name. | `test/f102.mjs` search |
+| Search also finds wires by FSM colour code and es/en/ja colour names (`W/L`, `l\w`, azul con blanco, 青と白), with a highlight-all row. `P` does not match `PU`. | `test/color_search.mjs` |
 | English and Japanese do not fall back to Spanish. `t()` returns the key. A circuit title or note returns the circuit id. The print pack still falls back English, then Spanish. | `test/rules.mjs` i18n |
 | Alim (`#railRelPower`) stays off unless `localStorage` `z33_railRelPower` is `'1'`. | `test/rules.mjs` Alim |
 | A control circuit does not list a 12 V intermediate in `conn` (`feed_*`, a fuse card, `ipdm_cover`, `ipdm_e7`, `ix_e12_f3`). ECM 77 is only A/F B2 pin 2. The starter circuit has no ECM 89. E8·39 is not `circ` `fp_relay`. | `test/rules.mjs` control pins |
