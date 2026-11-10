@@ -232,7 +232,8 @@ ok('actuators render no longer nests bobinas under actuators',
     && !/if\(focusConn === 'backup_sw'\) return true/.test(html));
   ok('selectCircuits keeps declared F102 cavities (f102Declared)',
     /f102Declared/.test(html) && /keepF102/.test(html)
-    && /Explicit cir\.f102 only/.test(html));
+    && /ownPathF102/.test(html)
+    && /Explicit cir\.f102/.test(html));
 }
 
 {

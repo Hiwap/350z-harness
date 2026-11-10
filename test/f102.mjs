@@ -1512,6 +1512,191 @@ console.log('\nIPDM cards E3–E9 turned as on the IPDM (PG-26): wire side, neve
   ok(srch.f101 && srch.f101l && srch.f103 && srch.scrolled, `search F101 / f101 / F103 returns a jump row (${JSON.stringify(srch)})`);
 }
 
+console.log('\nSame-wire intermediates appear in Seleccionados with Alim. off');
+async function setAlim(on) {
+  await page.evaluate((on) => {
+    const pwr = document.getElementById('railRelPower');
+    if (pwr.checked !== !!on) {
+      pwr.checked = !!on;
+      pwr.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }, on);
+}
+async function setLoomView(v) {
+  await page.evaluate((v) => {
+    const s = document.getElementById('loomView');
+    s.value = v;
+    s.dispatchEvent(new Event('change', { bubbles: true }));
+  }, v);
+}
+async function selTopIds() {
+  return page.evaluate(() => {
+    const sel = document.getElementById('selTop');
+    if (!sel) return [];
+    const ids = new Set();
+    sel.querySelectorAll('[data-conn]').forEach((el) => { if (el.dataset.conn) ids.add(el.dataset.conn); });
+    return [...ids].sort();
+  });
+}
+async function litCavs(cid) {
+  return page.evaluate((cid) => {
+    const lit = (e) => e.classList.contains('hl') || e.classList.contains('hl-group') || e.classList.contains('hl-end');
+    return [...new Set([...document.querySelectorAll(`.cav-hit[data-conn="${cid}"]`)].filter(lit).map((e) => String(e.dataset.cav)))].sort();
+  }, cid);
+}
+async function clickCav(cid, cav) {
+  await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+  await page.evaluate((c, v) => selectConnPin(c, v), cid, cav);
+  await page.waitForFunction((cid) => {
+    return !!document.querySelector(`.ficha.hl[data-conn="${cid}"], .ficha-wrap.hl[data-conn="${cid}"], #selTop [data-conn="${cid}"]`);
+  }, {}, cid);
+}
+await setAlim(false);
+await setLoomView('all');
+
+await clickCav('coil5', '3');
+{
+  const ids = await selTopIds();
+  const f3 = await litCavs('ix_e12_f3');
+  const cond = await litCavs('f16_cond');
+  ok(ids.includes('coil5') && ids.includes('ix_e12_f3'), `coil5·3 Seleccionados has coil5 + E12/F3 (${ids.join(',')})`);
+  ok(ids.includes('f16_cond'), `coil5·3 also has condenser F16 (same W/L, EC-689) (${ids.join(',')})`);
+  ok(!ids.includes('ix_f18_f201'), `coil5·3 no F18 (${ids.join(',')})`);
+  ok(!ids.includes('ipdm_e7') && !ids.some((id) => id.startsWith('feed_')), `coil5·3 no IPDM/feeds (${ids.join(',')})`);
+  ok(f3.join(',') === '5', `coil5·3 only F3·5 lit (${f3.join(',')})`);
+  ok(cond.join(',') === '1', `coil5·3 only condenser W/L ·1 lit, not ground (${cond.join(',')})`);
+}
+
+await clickCav('coil1', '3');
+{
+  const ids = await selTopIds();
+  const f3 = await litCavs('ix_e12_f3');
+  const f18 = await litCavs('ix_f18_f201');
+  const cond = await litCavs('f16_cond');
+  ok(ids.includes('coil1') && ids.includes('ix_e12_f3') && ids.includes('ix_f18_f201'), `coil1·3 has coil1 + F3 + F18 (${ids.join(',')})`);
+  ok(ids.includes('f16_cond'), `coil1·3 also has condenser F16 (${ids.join(',')})`);
+  ok(!ids.includes('ipdm_e7') && !ids.some((id) => id.startsWith('feed_')), `coil1·3 no IPDM/feeds (${ids.join(',')})`);
+  ok(cond.join(',') === '1', `coil1·3 only condenser W/L ·1 lit (${cond.join(',')})`);
+  ok(f3.join(',') === '5', `coil1·3 only F3·5 lit (${f3.join(',')})`);
+  ok(f18.includes('6') && !f18.includes('5'), `coil1·3 F18·6 lit, not ·5 (${f18.join(',')})`);
+}
+
+await clickCav('coil3', '3');
+{
+  const ids = await selTopIds();
+  const f3 = await litCavs('ix_e12_f3');
+  const f18 = await litCavs('ix_f18_f201');
+  const cond = await litCavs('f16_cond');
+  ok(ids.includes('coil3') && ids.includes('ix_e12_f3') && ids.includes('ix_f18_f201'), `coil3·3 has coil3 + F3 + F18 (${ids.join(',')})`);
+  ok(ids.includes('f16_cond'), `coil3·3 also has condenser F16 (${ids.join(',')})`);
+  ok(cond.join(',') === '1', `coil3·3 only condenser W/L ·1 lit (${cond.join(',')})`);
+  ok(f3.join(',') === '5', `coil3·3 only F3·5 lit (${f3.join(',')})`);
+  ok(f18.includes('5') && !f18.includes('6'), `coil3·3 F18·5 lit, not ·6 (${f18.join(',')})`);
+}
+
+await clickCav('vtc_b1', '2');
+{
+  const ids = await selTopIds();
+  const f3 = await litCavs('ix_e12_f3');
+  const f18 = await litCavs('ix_f18_f201');
+  const cond = await litCavs('f16_cond');
+  ok(ids.includes('vtc_b1') && ids.includes('ix_e12_f3') && ids.includes('ix_f18_f201'), `VTC B1 12V has VTC + F3 + F18 (${ids.join(',')})`);
+  ok(ids.includes('f16_cond'), `VTC B1 12V also has condenser F16 (${ids.join(',')})`);
+  ok(!ids.includes('ipdm_e7'), `VTC B1 12V no IPDM (${ids.join(',')})`);
+  ok(cond.join(',') === '1', `VTC B1 12V only condenser W/L ·1 lit (${cond.join(',')})`);
+  ok(f3.join(',') === '5', `VTC B1 12V only F3·5 lit (${f3.join(',')})`);
+  ok(f18.includes('5') && !f18.includes('6'), `VTC B1 12V F18·5 lit, not ·6 (${f18.join(',')})`);
+}
+
+await clickCav('ckp', '1');
+{
+  const ids = await selTopIds();
+  const f3 = await litCavs('ix_e12_f3');
+  ok(ids.includes('ckp') && ids.includes('ix_e12_f3'), `ckp·1 has CKP + E12/F3 (${ids.join(',')})`);
+  ok(!ids.includes('f16_cond'), `ckp·1 (F3·7 / E7·18) no condenser (${ids.join(',')})`);
+  ok(!ids.includes('ix_f18_f201') && !ids.includes('ipdm_e7') && !ids.some((id) => id.startsWith('feed_')), `ckp·1 no F18/IPDM/feeds (${ids.join(',')})`);
+  ok(f3.join(',') === '7', `ckp·1 only F3·7 lit (${f3.join(',')})`);
+}
+
+await clickCav('ckp', '3');
+{
+  const ids = await selTopIds();
+  ok(ids.includes('ckp') && ids.includes('gnd4') && ids.includes('f152'), `ckp·3 still shows ground path gnd4 + F152 (${ids.join(',')})`);
+}
+
+await clickCav('ckp', '2');
+{
+  /* A lone SIG click highlights the device in its group; #selTop is only created when another ficha joins. */
+  const ids = await hlConns();
+  const top = await selTopIds();
+  ok(ids.includes('ckp'), `ckp·2 includes CKP (${ids.join(',')})`);
+  ok(!ids.includes('ix_e12_f3') && !ids.includes('gnd4') && !ids.includes('f152') && !ids.includes('ipdm_e7'), `ckp·2 SIG no rail partners in hl (${ids.join(',')})`);
+  ok(!top.includes('ix_e12_f3') && !top.includes('gnd4') && !top.includes('f152') && !top.includes('ipdm_e7'), `ckp·2 SIG no rail partners in Seleccionados (${top.join(',')})`);
+}
+
+await clickCav('coil5', '1');
+{
+  const ids = await hlConns();
+  const top = await selTopIds();
+  ok(ids.includes('coil5'), `coil5·1 includes coil5 (${ids.join(',')})`);
+  ok(!ids.includes('ix_e12_f3') && !ids.includes('ipdm_e7') && !ids.includes('f16_cond') && !ids.some((id) => id.startsWith('feed_')), `coil5·1 SIG no F3/IPDM/condenser/feeds in hl (${ids.join(',')})`);
+  ok(!top.includes('ix_e12_f3') && !top.includes('ipdm_e7') && !top.includes('f16_cond') && !top.some((id) => id.startsWith('feed_')), `coil5·1 SIG no F3/IPDM/condenser/feeds in Seleccionados (${top.join(',')})`);
+}
+
+await setAlim(true);
+await clickCav('coil5', '3');
+{
+  const ids = await selTopIds();
+  ok(ids.includes('coil5') && ids.includes('ix_e12_f3') && ids.includes('ipdm_e7'), `coil5·3 + Alim. adds IPDM E7 (${ids.join(',')})`);
+  ok(ids.includes('f16_cond'), `coil5·3 + Alim. still has condenser F16 (${ids.join(',')})`);
+  ok(!ids.some((id) => id.startsWith('feed_')), `coil5·3 + Alim. still no feed notes (${ids.join(',')})`);
+}
+await setAlim(false);
+
+await setLoomView('motor');
+await clickCav('coil5', '3');
+{
+  const ids = await selTopIds();
+  ok(ids.includes('coil5') && ids.includes('ix_e12_f3'), `Arnés motor coil5·3 still has F3 (${ids.join(',')})`);
+  ok(!ids.includes('ipdm_e7'), `Arnés motor coil5·3 no IPDM (${ids.join(',')})`);
+  ok(!ids.includes('f16_cond'), `Arnés motor hides F16 condenser (not on the pulled control loom) (${ids.join(',')})`);
+}
+await setLoomView('all');
+
+/* Converse: condenser W/L shows the same-wire intermediate F3·5, not sibling coils (device-end click, like coil5·3). */
+await clickCav('f16_cond', '1');
+{
+  const ids = await selTopIds();
+  const f3 = await litCavs('ix_e12_f3');
+  const cond = await litCavs('f16_cond');
+  const coils = ids.filter((id) => /^coil[1-6]$/.test(id) || id === 'vtc_b1' || id === 'vtc_b2');
+  ok(ids.includes('f16_cond') && ids.includes('ix_e12_f3'), `F16·1 Seleccionados has condenser + E12/F3 (${ids.join(',')})`);
+  ok(!ids.includes('ix_f18_f201') && !ids.includes('ipdm_e7') && !ids.some((id) => id.startsWith('feed_')), `F16·1 no F18/IPDM/feeds (${ids.join(',')})`);
+  ok(coils.length === 0, `F16·1 does not fan out sibling coils/VTC (same as a coil 12V click) (${ids.join(',')})`);
+  ok(f3.join(',') === '5', `F16·1 only F3·5 lit (${f3.join(',')})`);
+  ok(cond.join(',') === '1', `F16·1 only condenser W/L lit, not ground (${cond.join(',')})`);
+}
+
+/* Shared splice clicks (bc1441f) already include the condenser with Alim. off. */
+await clickCav('ix_e12_f3', '5');
+{
+  const ids = await selTopIds();
+  const cond = await litCavs('f16_cond');
+  ok(ids.includes('ix_e12_f3') && ids.includes('f16_cond'), `F3·5 with Alim. off has F3 + condenser (${ids.join(',')})`);
+  ok(!ids.some((id) => id.startsWith('feed_')), `F3·5 with Alim. off no feed notes (${ids.join(',')})`);
+  ok(cond.join(',') === '1', `F3·5 only condenser W/L ·1 lit (${cond.join(',')})`);
+}
+await clickCav('ipdm_e7', '17');
+{
+  const ids = await selTopIds();
+  const cond = await litCavs('f16_cond');
+  ok(ids.includes('f16_cond'), `E7·17 with Alim. off has condenser F16 (${ids.join(',')})`);
+  ok(ids.includes('ix_e12_f3'), `E7·17 with Alim. off has E12/F3 (${ids.join(',')})`);
+  ok(cond.join(',') === '1', `E7·17 only condenser W/L ·1 lit (${cond.join(',')})`);
+}
+
+await page.evaluate(() => { if (typeof clearSelection === 'function') clearSelection(); });
+
 await browser.close();
 if (failed) {
   console.log(`\n${failed} failed`);

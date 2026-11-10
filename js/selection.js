@@ -466,7 +466,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     cir.conn.forEach(cid=>connSet.add(cid));
     if(cir.path){
       Object.entries(cir.path).forEach(([cid, cavs])=>{
-        /* path = Alim. 12V cavity HL — fichas join Selección only if Alim. is on.
+        /* path cavities HL on the selected circuit's own wire. Same-wire intermediates
+           join Seleccionados via attachSameWirePathFichas even with Alim. off.
            SIG-pin click: rail-only (12V / GND) path cavities stay dark unless Alim. relacionada is on
            (route tag text still lists them). Exception: cir.shieldPath (knock shield, EC-317). */
         if(!pathCavByConn.has(cid)) pathCavByConn.set(cid, new Set());
@@ -484,6 +485,8 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   attachPowerPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
   attachGroundPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
   attachAlimPathFichas(pathCavByConn, connSet, focusConn);
+  attachSameWirePathFichas(pathCavByConn, connSet);
+  attachSameWireFeedDevices(pathCavByConn, connSet);
   if(focusConn && FUSE_BOX_CONNS.has(focusConn)) connSet.add(focusConn);
   attachDataRelatedEcm(circIds, ecmSet);
   /* Loom filter: drop body/rear fichas when viewing pulled engine harness */
@@ -511,14 +514,16 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
      Shared SNS 67 on 20H must not open the panel for 66 / 70 / PSP / etc. */
   const f102Allow = f102AllowForCircuits(circIds, focusConn==='ix_f102_m72' ? focusCav : null);
   const f102Hits = f102HitsForEcm(ecmSet, focusPin, f102Allow);
-  /* Explicit cir.f102 only (e.g. backup 22H). Path.ix_f102_m72 stays Alim-gated (inj 17H). */
+  /* Explicit cir.f102 (e.g. backup 22H). Same-wire path cavities (inj 17H) keep F102
+     even with Alim. off; partner-rail F102 still needs Alim. (sigFocusNoRail). */
   const f102Declared = new Set();
   (circIds||[]).forEach(id=>{
     const cir = CIRCUITS.find(x=>x.id===id);
     if(cir && Array.isArray(cir.f102)) cir.f102.forEach(c=>f102Declared.add(String(c)));
   });
+  const ownPathF102 = pathCavByConn.has('ix_f102_m72') && (pathCavByConn.get('ix_f102_m72')||new Set()).size > 0;
   const alimF102 = railRelPowerEnabled() && pathCavByConn.has('ix_f102_m72') && connSet.has('ix_f102_m72');
-  const keepF102 = focusConn==='ix_f102_m72' || f102Hits.length > 0 || alimF102 || f102Declared.size > 0;
+  const keepF102 = focusConn==='ix_f102_m72' || f102Hits.length > 0 || alimF102 || ownPathF102 || f102Declared.size > 0;
   const collapseF102 = !keepF102;
   if(!keepF102) connSet.delete('ix_f102_m72');
   if(keepF102){

@@ -6131,6 +6131,39 @@ function attachAlimPathFichas(pathCavByConn, connSet, focusConn){
     }
   });
 }
+/** Intermediates that already sit on the selected circuit's own wire belong in
+ *  Seleccionados even with Alim. relacionada off (coil5·3 → E12/F3·5; coil1·3 →
+ *  F3·5 + F18·6). Alim. still means "also pull the other wires of the ficha"
+ *  (12V/GND partners of a SIG click). IPDM, fuse boxes and feed notes stay
+ *  Alim-gated: in Completo they are the source, not an intermediate. */
+function isSameWirePathFicha(cid){
+  if(!cid) return false;
+  if(cid === 'ix_f18_f201' || cid === 'ix_f102_m72') return true;
+  const f = CONN[cid] || CONN_BASE[cid];
+  return !!(f && f.sub === 'intermedias');
+}
+function attachSameWirePathFichas(pathCavByConn, connSet){
+  if(!pathCavByConn) return;
+  pathCavByConn.forEach((cavs, cid) => {
+    if(!cavs || !cavs.size) return;
+    if(isSameWirePathFicha(cid)) connSet.add(cid);
+  });
+}
+/** EC-689: condenser F16·1 hangs on the same W/L splice as the coils / VTC
+ *  (IPDM E7·17 → E12/F3·5). Show it in Seleccionados with Alim. off when that
+ *  splice is already on the selected circuit's own path. Only the condenser
+ *  12V end is added — not other coils, F18, IPDM or the condenser's ground. */
+function attachSameWireFeedDevices(pathCavByConn, connSet){
+  if(!pathCavByConn) return;
+  const hasSplice = (cid, cav) => pathCavByConn.has(cid) && pathCavByConn.get(cid).has(String(cav));
+  if(!(hasSplice('ix_e12_f3', '5') || hasSplice('ipdm_e7', '17'))) return;
+  const cir = CIRCUITS.find(c => c.id === 'f16_cond_pwr');
+  const cavs = cir && cir.path && cir.path.f16_cond;
+  if(!cavs || !cavs.length) return;
+  if(!pathCavByConn.has('f16_cond')) pathCavByConn.set('f16_cond', new Set());
+  cavs.forEach(c => pathCavByConn.get('f16_cond').add(String(c)));
+  connSet.add('f16_cond');
+}
 function attachPowerPathFichas(coreIds, connSet, pathCavByConn, onPathCir=null){
   if(!railRelPowerEnabled()) return;
   powerRelatedCircuits(coreIds).forEach(id => {
