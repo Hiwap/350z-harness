@@ -431,6 +431,41 @@
   }
   .ficha-sub:not([open]) > summary::before { opacity: 0.5; }
   .ficha-sub[open] > summary { border-bottom: 1px solid #2a3140; }
+  .ficha-sm {
+    margin-top: 6px;
+    border: 1px solid #2a3140;
+    border-radius: 8px;
+    background: #12161d;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .ficha-sm > summary {
+    cursor: pointer; list-style: none; user-select: none;
+    font-size: 11px; font-weight: 700; color: #e3e8ef;
+    padding: 6px 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ficha-sm > summary::-webkit-details-marker { display: none; }
+  .ficha-sm > summary::before {
+    content: '▾'; color: #78909c; font-size: 10px; display: inline-block;
+    margin-right: 2px; opacity: 0.5;
+  }
+  .ficha-sm[open] > summary::before { opacity: 1; }
+  .ficha-sm[open] > summary { border-bottom: 1px solid #2a3140; }
+  .ficha-sm .sm-body { padding: 2px 0 4px; }
+  .ficha-sm .sm-entry {
+    padding: 6px 8px;
+    border-top: 1px solid #2a3140;
+    font-size: 11px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  .ficha-sm .sm-entry:first-child { border-top: 0; }
+  .ficha-sm .sm-pins { color: #ffd54f; font-weight: 600; margin-bottom: 2px; }
+  .ficha-sm .sm-value { color: #e8edf5; }
+  .ficha-sm .sm-cond { color: #c5cad3; margin-top: 2px; }
+  .ficha-sm .sm-src { color: #90caf9; margin-top: 2px; font-weight: 600; }
+  .ficha-sm .sm-none { color: #c5cad3; }
   .ficha-nest {
     border: 1px solid #2a3140; border-radius: 8px; background: #12161d;
     margin-top: 4px;
@@ -1335,6 +1370,7 @@
 </dialog>
 <script src="data/conn.js"></script>
 <script src="data/i18n.js"></script>
+<script src="data/sm_values.js"></script>
 <script src="js/selection.js"></script>
 <script src="js/color_search.js"></script>
 <script>
@@ -5049,6 +5085,28 @@ function connField(id, f, field){
   return (tr && tr[field]) || base;
 }
 
+
+function smLoc(entry){
+  if(!entry) return {value:'', cond:''};
+  return entry[lang] || entry.es || {value:'', cond:''};
+}
+function smSectionHtml(id){
+  if(typeof SM_VALUES === 'undefined' || !SM_VALUES[id]) return '';
+  const rows = SM_VALUES[id];
+  let body;
+  if(rows.none){
+    const loc = smLoc(rows);
+    body = `<div class="sm-entry sm-none">${esc(loc.value)}</div>`;
+  } else {
+    body = rows.map(e => {
+      const loc = smLoc(e);
+      const cond = loc.cond ? `<div class="sm-cond">${esc(loc.cond)}</div>` : '';
+      return `<div class="sm-entry"><div class="sm-pins">${esc(e.pins || '')}</div><div class="sm-value">${esc(loc.value)}</div>${cond}<div class="sm-src">${esc(e.src || '')}</div></div>`;
+    }).join('');
+  }
+  return `<details class="ficha-sm"><summary>${esc(t('smTitle'))}</summary><div class="sm-body">${body}</div></details>`;
+}
+
 let _faceLbPrevFocus = null;
 function ensureFaceLightbox(){
   let root = document.getElementById('faceLightbox');
@@ -5333,6 +5391,7 @@ function makeFichaEl(id, f, opts){
   }
   const viewTxt = viewNoteText(id, f);
   if(viewTxt) extra += `<div class="note-body view-note">${esc(viewTxt)}</div>`;
+  extra += smSectionHtml(id);
   const showIpdm = !!(opts && opts.ipdmIcon && IPDM_FSM_MARK[id]);
   const faceBtn = showIpdm ? ipdmFsmBtnHtml(id) : (fsmBtnHtml(id) + faceBtnHtml(id));
   const mirMode = fichaMirrorMode(id, f);
@@ -5380,6 +5439,11 @@ function makeFichaEl(id, f, opts){
       e.preventDefault();
       e.stopPropagation();
       openFaceLightbox(faceBtnEl.dataset.faceConn || id);
+      return;
+    }
+    const smBox = e.target.closest && e.target.closest('.ficha-sm');
+    if(smBox && wrap.contains(smBox)){
+      e.stopPropagation();
       return;
     }
     const ptRow = e.target.closest && e.target.closest('.pin-table-row');

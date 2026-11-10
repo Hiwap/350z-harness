@@ -20,12 +20,14 @@ export function loadMap(htmlPath) {
   const dir = path.join(path.dirname(path.resolve(htmlPath)), 'data');
   const connSrc = fs.readFileSync(path.join(dir, 'conn.js'), 'utf8');
   const i18nSrc = fs.readFileSync(path.join(dir, 'i18n.js'), 'utf8');
+  const smSrc = fs.readFileSync(path.join(dir, 'sm_values.js'), 'utf8');
   const src = connSrc + '\n'
     + i18nSrc + '\n'
+    + smSrc + '\n'
     + script.match(/const PIN_COL = \{[\s\S]*?\};/)[0] + '\n'
     + script.match(/const PIN_RAIL = \{[\s\S]*?\};/)[0] + '\n'
     + script.match(/function buildCircuits\(model\)\{[\s\S]*?\n\}/)[0] + '\n'
-    + 'result = {CONN_BASE, PIN_COL, PIN_RAIL, early: buildCircuits("de_early"), rev: buildCircuits("de_revup"), I18N, CONN_I18N, TITLES_I18N, NOTES_I18N};';
+    + 'result = {CONN_BASE, PIN_COL, PIN_RAIL, early: buildCircuits("de_early"), rev: buildCircuits("de_revup"), I18N, CONN_I18N, TITLES_I18N, NOTES_I18N, SM_VALUES, SM_NONE};';
   const ctx = { result: null };
   vm.createContext(ctx);
   vm.runInContext(src, ctx);

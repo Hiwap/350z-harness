@@ -34,6 +34,7 @@ const html = readSrc(HTML).replace(
   readSrc(path.join(ROOT, 'data', 'conn.js'))
     + readSrc(path.join(ROOT, 'data', 'i18n.js'))
     + 'let CONN = {};\n'
+    + readSrc(path.join(ROOT, 'data', 'sm_values.js'))
     + readSrc(path.join(ROOT, 'js', 'selection.js')),
 );
 const LOOM_BODY_EXTRA = loadLoomBodyExtra(html);
@@ -705,6 +706,7 @@ function runNested(label, scriptPath, args = []) {
   }
 }
 
+runNested('sm_values.mjs (FSM expected values on cards: schema, collapse, es/en/ja)', path.join(__dirname, 'sm_values.mjs'));
 runNested('sel_order.mjs (selected fichas: control module toward the sensor)', path.join(__dirname, 'sel_order.mjs'));
 runNested('rules.mjs (maintainer corrections on the loaded data; AGENTS.md rule table)', path.join(__dirname, 'rules.mjs'));
 runNested('verify_harness_bugs.mjs', path.join(__dirname, 'verify_harness_bugs.mjs'), [HTML]);
