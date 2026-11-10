@@ -959,9 +959,14 @@ function selectConnPin(cid, cavId, opts){
       selectCircuits([pin.circ], null, cid, String(cavId));
     } else {
     let circs = connToCirc[cid] || [];
+    /* Circuits that name this cavity in .path, even when the connector is not in cir.conn
+       (IPDM E7·17 / E12/F3·5 feed the coils + VTC + condenser but only sit in .path so Alim.
+       can gate the IPDM card). Union them with connToCirc or the shared-feed click only
+       keeps circuits that list the connector in conn (e.g. EVAP vent) and drops the coils. */
+    const pathCircsForCav = (cavId == null) ? [] : ((typeof pathCavToCirc !== 'undefined' && pathCavToCirc[cid + '·' + String(cavId)]) || []);
     /* A cavity listed only in some circuit's path (feed-note cavities such as CKP+ / AF1-3): those circuits */
     if(!circs.length && cavId != null){
-      circs = (CIRCUITS || []).filter(cir => (cir.path && cir.path[cid] || []).map(String).includes(String(cavId))).map(cir => cir.id);
+      circs = pathCircsForCav.slice();
     }
     /* F102 cavity without ECM: only circuits that declare this cav (f102[] or path), not every F102 circuit */
     if(cid === 'ix_f102_m72' && cavId!=null){
@@ -975,14 +980,17 @@ function selectConnPin(cid, cavId, opts){
       });
       if(byCav.length) circs = byCav;
       else circs = []; /* unknown cavity — don't fan out the whole SMJ */
-    } else if(cavId != null && circs.length > 1){
-      /* Prefer circuits whose path declares this exact cavity (body circuits share B1/M12, E108/M15, DLC…) */
-      const byCav = circs.filter(id => {
+    } else if(cavId != null && (circs.length > 1 || pathCircsForCav.length)){
+      /* Prefer circuits whose path declares this exact cavity (body circuits share B1/M12, E108/M15, DLC…).
+         Also keep path-only feeds for this cavity (E7·17 → coils/VTC/condenser, EC-689). */
+      const byCavFromConn = circs.filter(id => {
         const cir = CIRCUITS.find(x => x.id === id);
         const pc = cir && cir.path && cir.path[cid];
         return !!pc && pc.map(String).includes(String(cavId));
       });
-      if(byCav.length) circs = byCav;
+      const union = [...new Set([...byCavFromConn, ...pathCircsForCav])];
+      if(union.length) circs = union;
+      /* else keep circs (connector-level fallback when no path names this cavity) */
     }
     if(circs.length) selectCircuits(circs, null, cid, String(cavId));
     else {

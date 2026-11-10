@@ -226,9 +226,10 @@ async function runScenario(model, trans) {
   await page.close();
   return r;
 }
-/* one tab per model / transmission, run in parallel (each tab has its own renderer; localStorage is shared, so the
-   options are set explicitly before every click and never read back from storage) */
-const results = await Promise.all(SCEN.map(([m, t]) => runScenario(m, t)));
+/* one tab per model / transmission. Run one after another: four parallel page.evaluate sweeps on a loaded
+   box hit the 10-min protocolTimeout (each alone is ~2 min). Options are set before every click, not from storage. */
+const results = [];
+for (const [m, t] of SCEN) results.push(await runScenario(m, t));
 {
   const seenAny = new Set(results.flatMap((r) => r.gapSeen));
   const stale = UNCONNECTED.filter((k) => !seenAny.has(k));

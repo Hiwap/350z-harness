@@ -2391,6 +2391,7 @@ const NEST_ACCENT = { bobinas: '#f57f17', inyectores: '#c62828' };
 let CONN = {};
 let pinToCirc = {};
 let connToCirc = {};
+let pathCavToCirc = {};
 
 /* Connector faces. A photo may be shared by fichas that use the same connector part; every shared
    src is listed in FACE_SHARE_OK (test/harness_page_tests.mjs) so an accidental new share gets flagged.
@@ -2561,7 +2562,7 @@ const CONN_FACE = {
 };
 
 function rebuildIndexes(){
-  pinToCirc = {}; connToCirc = {};
+  pinToCirc = {}; connToCirc = {}; pathCavToCirc = {};
   CIRCUITS.forEach(cir => {
     cir.ecm.forEach(p => {
       const arr = (pinToCirc[p]=pinToCirc[p]||[]);
@@ -2570,6 +2571,14 @@ function rebuildIndexes(){
     cir.conn.forEach(cid => {
       const arr = (connToCirc[cid]=connToCirc[cid]||[]);
       if(!arr.includes(cir.id)) arr.push(cir.id);
+    });
+    /* path-only feeds (IPDM E7·17 / E12/F3·5 → coils) indexed like conn, keyed cid·cav */
+    Object.entries(cir.path || {}).forEach(([cid, cavs]) => {
+      (cavs || []).forEach(cav => {
+        const k = cid + '·' + String(cav);
+        const arr = (pathCavToCirc[k]=pathCavToCirc[k]||[]);
+        if(!arr.includes(cir.id)) arr.push(cir.id);
+      });
     });
   });
 }

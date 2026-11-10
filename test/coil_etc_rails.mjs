@@ -97,6 +97,32 @@ for (const grp of ['sensor', 'ficha']) {
   }
 }
 await page.evaluate(() => { const el = document.getElementById('transView'); el.value = 'mt'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+/* Shared ECM-relay 12V feed: IPDM E7·17 (W/L) → E12/F3·5 → coils / VTC / condenser (EC-689/691/455).
+ * Clicking E7·17 must fan out to every circuit that carries that cavity in .path, even when the
+ * connector is only listed on some other circuit's conn (EVAP vent). E7·18 (R/W) must not. */
+for (const grp of ['sensor', 'ficha']) {
+  await setRel(1, 1, 1, grp);
+  const L17 = new Set(await lit({ conn: 'ipdm_e7', cav: '17' }));
+  const want17 = [
+    'ipdm_e7·17', 'ix_e12_f3·5',
+    'coil1·3', 'coil2·3', 'coil3·3', 'coil4·3', 'coil5·3', 'coil6·3',
+    'ix_f18_f201·5', 'ix_f18_f201·6',
+    'vtc_b1·2', 'vtc_b2·2',
+    'f16_cond·1',
+  ];
+  ok(`${grp} IPDM E7·17 + Alim.: all six coil 12V, both intake VTC, condenser, F3·5, F18·5 and ·6 (EC-689/691/455)`,
+    want17.every((k) => L17.has(k)),
+    'missing ' + want17.filter((k) => !L17.has(k)).join(' ') + ' | lit ' + [...L17].sort().join(' '));
+  const L3 = new Set(await lit({ conn: 'ix_e12_f3', cav: '5' }));
+  ok(`${grp} E12/F3·5 + Alim.: same shared feed as E7·17 (coils + VTC + condenser + F18·5/·6)`,
+    want17.filter((k) => k !== 'ipdm_e7·17').concat(['ipdm_e7·17']).every((k) => L3.has(k)),
+    'missing ' + want17.filter((k) => !L3.has(k)).join(' ') + ' | lit ' + [...L3].sort().join(' '));
+  const L18 = new Set(await lit({ conn: 'ipdm_e7', cav: '18' }));
+  const coilish = [...L18].filter((k) => /^coil\d·/.test(k) || /^vtc_/.test(k) || k.startsWith('f16_cond') || k === 'ix_f18_f201·5' || k === 'ix_f18_f201·6');
+  ok(`${grp} IPDM E7·18 (R/W) + Alim.: no coils / VTC / condenser / F18 12V (EC-167 VB only)`,
+    coilish.length === 0 && L18.has('ipdm_e7·18'),
+    coilish.join(' ') + ' | lit ' + [...L18].sort().join(' '));
+}
 /* ETC (F31) */
 for (const grp of ['sensor', 'ficha']) {
   await setRel(1, 1, 1, grp);
