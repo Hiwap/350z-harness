@@ -26,8 +26,20 @@ function loadSm() {
 }
 
 const LANGS = ['es', 'en', 'ja'];
-/* First commit covers these three; later commits add the rest of the sensor/actuator cards. */
-const REQUIRED = ['app', 'etc', 'maf'];
+/* Every motor-harness sensor, switch and output/actuator card. */
+const REQUIRED = [
+  'app', 'etc', 'maf',
+  'ckp', 'cmp_b1', 'cmp_b2', 'f38_evtc_b1', 'f42_evtc_b2',
+  'knock', 'ect', 'af_b1', 'af_b2', 'ho2s_b1', 'ho2s_b2',
+  'evap_press', 'psp', 'ac_press', 'f21_oilp',
+  'fuel_tank_temp', 'fuel_level_sub',
+  'f35_pnp', 'backup_sw', 'stop_lamp', 'ascd_brake', 'ascd_clutch', 'clock_spring',
+  'coil1', 'coil2', 'coil3', 'coil4', 'coil5', 'coil6',
+  'inj1', 'inj2', 'inj3', 'inj4', 'inj5', 'inj6',
+  'vtc_b1', 'vtc_b2', 'vtc_ex_b1', 'vtc_ex_b2',
+  'evap_purge', 'evap_vent', 'fuel_pump', 'f16_cond',
+  'f9_starter', 'f20_alt', 'alt_b', 'alt_e', 'f24_comp', 'f6_at', 'f242_eot'
+];
 
 const { SM_VALUES, SM_NONE } = loadSm();
 ok(!!SM_VALUES && !!SM_NONE, 'SM_VALUES and SM_NONE load');
@@ -55,8 +67,9 @@ function checkEntry(id, e, idx) {
 
 REQUIRED.forEach((id) => {
   const rows = SM_VALUES[id];
-  ok(Array.isArray(rows) && rows.length > 0, id + ' has SM entries');
-  if (Array.isArray(rows)) rows.forEach((e, i) => checkEntry(id, e, i));
+  ok(!!rows && (rows.none || (Array.isArray(rows) && rows.length > 0)), id + ' has SM entries');
+  if (rows && rows.none) checkEntry(id, rows, 0);
+  else if (Array.isArray(rows)) rows.forEach((e, i) => checkEntry(id, e, i));
 });
 
 ok(SM_VALUES.maf && SM_VALUES.maf.some((e) => e.pins.includes('F25·2') && e.src === 'EC-210'),
@@ -73,6 +86,22 @@ ok(SM_VALUES.app && SM_VALUES.app.some((e) => /ECM 106/.test(e.pins) && e.src ==
   'APP1 ECM 106 cites EC-670');
 ok(SM_VALUES.etc && SM_VALUES.etc.some((e) => /ECM 50/.test(e.pins) && e.src === 'EC-240'),
   'TPS1 ECM 50 cites EC-240');
+
+ok(SM_VALUES.ckp && SM_VALUES.ckp.some((e) => /F10·1/.test(e.pins) && /R\/W/.test(e.pins) && e.src === 'EC-326'),
+  'CKP F10·1 supply keeps R/W and cites EC-326');
+ok(SM_VALUES.ckp && SM_VALUES.ckp.some((e) => e.en && /Battery voltage/.test(e.en.value)),
+  'CKP F10·1 value is "Battery voltage"');
+ok(SM_VALUES.clock_spring && SM_VALUES.clock_spring.some((e) => /M203·14/.test(e.pins) && e.src === 'EC-623'),
+  'ASCD steering resistance is measured at M203·14–15, EC-623');
+ok(SM_VALUES.clock_spring && SM_VALUES.clock_spring.every((e) => !/M23·34\/33/.test(e.pins) || e.src !== 'EC-623'),
+  'resistance entry does not claim M23·34/33 as the EC-623 measurement point');
+ok(SM_VALUES.fuel_pump && SM_VALUES.fuel_pump.some((e) => /B27·2/.test(e.pins) && /B27·5/.test(e.pins) && e.src === 'DI-24'),
+  'main fuel level resistance is on the fuel_pump card at B27·2–5, DI-24');
+ok(SM_VALUES.f16_cond && SM_VALUES.f16_cond.some((e) => e.src === 'EC-700'),
+  'ignition condenser cites EC-700, not the fuel-pump condenser page');
+ok(SM_VALUES.f242_eot && SM_VALUES.f242_eot.none, 'oil temp F242 is explicit SM_NONE');
+ok(SM_VALUES.f6_at && SM_VALUES.f6_at.none, 'F6 A/T assembly is explicit SM_NONE');
+ok(SM_VALUES.alt_e && SM_VALUES.alt_e.none, 'alternator E ground is explicit SM_NONE');
 
 const html = fs.readFileSync(htmlFile, 'utf8');
 ok(html.includes('data/sm_values.js'), 'index.html loads data/sm_values.js');
@@ -182,6 +211,23 @@ if (skipBrowser) {
     ok(JSON.stringify(en.mafValues) !== JSON.stringify(ja.mafValues), 'switching to ja changes MAF value text');
     ok(JSON.stringify(es.mafConds) !== JSON.stringify(en.mafConds), 'switching to en changes MAF condition text');
     ok(JSON.stringify(en.mafConds) !== JSON.stringify(ja.mafConds), 'switching to ja changes MAF condition text');
+
+    const extraCards = await page.evaluate(() => {
+      const sel = document.getElementById('lang');
+      if (sel) sel.value = 'es';
+      if (typeof applyLang === 'function') applyLang();
+      const ckp = document.querySelector('.ficha[data-conn="ckp"] details.ficha-sm');
+      const none = document.querySelector('.ficha[data-conn="alt_e"] details.ficha-sm');
+      return {
+        ckpSrcs: ckp ? [...ckp.querySelectorAll('.sm-src')].map((n) => n.textContent) : [],
+        noneText: none ? (none.querySelector('.sm-none') || {}).textContent : '',
+        noneOpen: !!(none && none.open),
+      };
+    });
+    ok(extraCards.ckpSrcs.includes('EC-326') && extraCards.ckpSrcs.includes('EC-328'),
+      'CKP section cites EC-326 and EC-328');
+    ok(extraCards.noneText === 'Sin dato en el SM', 'alt_e none card shows Sin dato en el SM');
+    ok(extraCards.noneOpen === false, 'alt_e Rangos section is collapsed by default');
   } finally {
     await browser.close();
   }
