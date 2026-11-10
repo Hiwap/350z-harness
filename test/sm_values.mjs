@@ -27,6 +27,26 @@ function loadSm() {
 
 const LANGS = ['es', 'en', 'ja'];
 /* Every motor-harness sensor, switch and output/actuator card. */
+const BODY_REQUIRED = [
+  'abs_e51', 'abs_t5', 'vdc_e118', 'vdc_off_m9', 'vdc_m22', 'vdc_m51',
+  'rke_m78', 'tpms_m79', 'sec_m34', 'key_m25', 'bcm_m90', 'bcm_b83', 'bcm_m91',
+  'comb_sw_m29', 'hazard_m153', 'turn_e40', 'turn_e41', 'turn_t10', 'turn_e24', 'turn_e25', 'turn_t18',
+  'stop_t9', 'stop_t17', 'stop_t202', 'stop_d103', 'map_r52', 'map_r53', 'lug_t13', 'dtrl_e14', 'dtrl_e15',
+  'door_lock_d40', 'mirror_d2', 'mirror_d32', 'pw_d7', 'mirror_sw_d6', 'pw_motor_d9', 'key_cyl_d12',
+  'pw_sub_d37', 'pw_motor_d38', 'ix_d1_m11', 'ix_d31_m74', 'door_sw_b17', 'door_sw_b23', 'door_lock_d11',
+  'back_door_t12', 'back_opener_t103', 'trunk_cancel_b71', 'back_opener_t11',
+  'fuel_lid_m59', 'fuel_lid_m13', 'fuel_lid_t19',
+  'defog_b34', 'defog_d104', 'defog_b202',
+  'socket_b36', 'socket_m38',
+  'seat_b37', 'seat_m154', 'seat_m155', 'belt_b8', 'belt_b11',
+  'audio_m40', 'audio_m41', 'audio_m39',
+  'spk_d4', 'spk_d5', 'spk_d3', 'spk_d34', 'spk_d35', 'spk_d33', 'spk_b40', 'spk_b42',
+  'meter_m19', 'brake_fluid_e44', 'pkb_b47',
+  'amb_e34', 'blower_m62',
+  'wiper_e52', 'washer_e29', 'washer_e28', 'wiper_d106',
+  'cb_b55', 'top_b66', 'top_b67', 'top_b68', 'top_m14',
+  'atdev_m47'
+];
 const REQUIRED = [
   'app', 'etc', 'maf',
   'ckp', 'cmp_b1', 'cmp_b2', 'f38_evtc_b1', 'f42_evtc_b2',
@@ -38,7 +58,8 @@ const REQUIRED = [
   'inj1', 'inj2', 'inj3', 'inj4', 'inj5', 'inj6',
   'vtc_b1', 'vtc_b2', 'vtc_ex_b1', 'vtc_ex_b2',
   'evap_purge', 'evap_vent', 'fuel_pump', 'f16_cond',
-  'f9_starter', 'f20_alt', 'alt_b', 'alt_e', 'f24_comp', 'f6_at', 'f242_eot'
+  'f9_starter', 'f20_alt', 'alt_b', 'alt_e', 'f24_comp', 'f6_at', 'f242_eot',
+  ...BODY_REQUIRED
 ];
 
 const { SM_VALUES, SM_NONE } = loadSm();
@@ -56,7 +77,7 @@ function checkEntry(id, e, idx) {
     return;
   }
   ok(typeof e.pins === 'string' && e.pins.length > 0, tag + ' has pins');
-  ok(typeof e.src === 'string' && /^(EC|PG|SC|DI|AT|ATC|LT|MT|LAN|EM)-/.test(e.src), tag + ' has FSM src page (' + (e.src || '') + ')');
+  ok(typeof e.src === 'string' && /^(EC|PG|SC|DI|AT|ATC|LT|MT|LAN|EM|BRC|BCS|WW|SE|AV|GW|BL|WT|SRS|RF)-/.test(e.src), tag + ' has FSM src page (' + (e.src || '') + ')');
   LANGS.forEach((l) => {
     ok(e[l] && typeof e[l].value === 'string' && e[l].value.length > 0, tag + ' has ' + l + ' value');
     ok(e[l] && typeof e[l].cond === 'string' && e[l].cond.length > 0, tag + ' has ' + l + ' condition');
@@ -102,6 +123,19 @@ ok(SM_VALUES.f16_cond && SM_VALUES.f16_cond.some((e) => e.src === 'EC-700'),
 ok(SM_VALUES.f242_eot && SM_VALUES.f242_eot.none, 'oil temp F242 is explicit SM_NONE');
 ok(SM_VALUES.f6_at && SM_VALUES.f6_at.none, 'F6 A/T assembly is explicit SM_NONE');
 ok(SM_VALUES.alt_e && SM_VALUES.alt_e.none, 'alternator E ground is explicit SM_NONE');
+ok(BODY_REQUIRED.length === 87, 'all 87 carrocería cards are in the required list');
+ok(SM_VALUES.amb_e34 && SM_VALUES.amb_e34.some((e) => /E34·1/.test(e.pins) && /E34·2/.test(e.pins) && e.src === 'ATC-99'),
+  'ambient sensor resistance E34·1–2 cites ATC-99');
+ok(SM_VALUES.vdc_off_m9 && SM_VALUES.vdc_off_m9.some((e) => /M9/.test(e.pins) && e.src === 'BRC-138'),
+  'VDC/TCS OFF switch M9 cites BRC-138');
+ok(SM_VALUES.abs_e51 && SM_VALUES.abs_e51.some((e) => /E51·1/.test(e.pins) && e.src === 'BRC-33'),
+  'ABS E51·1 actuator-relay supply cites BRC-33');
+ok(SM_VALUES.socket_b36 && SM_VALUES.socket_b36.none, 'luggage power socket is explicit SM_NONE');
+ok(SM_VALUES.spk_d4 && SM_VALUES.spk_d4.none, 'door speaker is explicit SM_NONE');
+ok(SM_VALUES.meter_m19 && SM_VALUES.meter_m19.some((e) => /M19·24/.test(e.pins) && e.src === 'DI-16'),
+  'combination meter M19·24 supply cites DI-16');
+ok(SM_VALUES.atdev_m47 && SM_VALUES.atdev_m47.some((e) => e.src === 'AT-177'),
+  'A/T device manual-mode switch cites AT-177');
 
 const html = fs.readFileSync(htmlFile, 'utf8');
 ok(html.includes('data/sm_values.js'), 'index.html loads data/sm_values.js');
@@ -228,6 +262,27 @@ if (skipBrowser) {
       'CKP section cites EC-326 and EC-328');
     ok(extraCards.noneText === 'Sin dato en el SM', 'alt_e none card shows Sin dato en el SM');
     ok(extraCards.noneOpen === false, 'alt_e Rangos section is collapsed by default');
+
+    const bodyCards = await page.evaluate(() => {
+      const amb = document.querySelector('.ficha[data-conn="amb_e34"] details.ficha-sm');
+      const off = document.querySelector('.ficha[data-conn="abs_e51"] details.ficha-sm');
+      const sock = document.querySelector('.ficha[data-conn="socket_b36"] details.ficha-sm');
+      return {
+        ambSrcs: amb ? [...amb.querySelectorAll('.sm-src')].map((n) => n.textContent) : [],
+        ambOpen: !!(amb && amb.open),
+        offSrcs: off ? [...off.querySelectorAll('.sm-src')].map((n) => n.textContent) : [],
+        sockText: sock ? (sock.querySelector('.sm-none') || {}).textContent : '',
+        sockOpen: !!(sock && sock.open),
+        sockTitle: sock ? (sock.querySelector('summary') || {}).textContent : '',
+      };
+    });
+    ok(bodyCards.ambSrcs.includes('ATC-99') && bodyCards.ambSrcs.includes('ATC-97'),
+      'ambient sensor section cites ATC-97 and ATC-99');
+    ok(bodyCards.ambOpen === false, 'ambient sensor Rangos section is collapsed by default');
+    ok(bodyCards.offSrcs.includes('BRC-33'), 'ABS actuator E51 section cites BRC-33');
+    ok(bodyCards.sockText === 'Sin dato en el SM', 'power socket none card shows Sin dato en el SM');
+    ok(bodyCards.sockOpen === false, 'power socket Rangos section is collapsed by default');
+    ok(bodyCards.sockTitle === 'Rangos', 'power socket default language summary is Rangos');
   } finally {
     await browser.close();
   }
