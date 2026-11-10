@@ -619,7 +619,7 @@
         'サブのフューエルレベルセンサユニットの端子1と2の間の抵抗を測定。'
       )
     ],
-    f242_eot: SM_NONE, /* 35th Anniversary M/T only; 2005/2006 FSM publishes no numeric values (EC-123). */
+    f242_eot: SM_NONE /* 35th Anniversary M/T only; 2005/2006 FSM publishes no numeric values (EC-123). */,
 
     /* —— Switches —— */
     f35_pnp: [
@@ -960,7 +960,7 @@
         'B端子が清潔で確実に締まっていることを確認。E202端子1（B/GY）とアース間、および（暖機アイドル回転中）E202·1とバッテリー正極間を測定。'
       )
     ],
-    alt_e: SM_NONE, /* Ground terminal E211·2 to body ground E212; SC-22 / PG-53 give no voltage or resistance spec. */
+    alt_e: SM_NONE /* Ground terminal E211·2 to body ground E212; SC-22 / PG-53 give no voltage or resistance spec. */,
     f24_comp: [
       sm(
         'F24·1',
@@ -973,7 +973,1281 @@
         'イグニッションOFF。IPDM E/Rコネクターとコンプレッサコネクターを外す。まずIPDM E8端子33（L/Y）とF24端子1（L/Y）の導通があることを確認。その後、端子にバッテリー電圧（直流）を加えて作動音を点検。'
       )
     ],
-    f6_at: SM_NONE /* A/T assembly connector; this Coupe M/T FSM has no component-inspection value at F6. */
+    f6_at: SM_NONE /* A/T assembly connector; this Coupe M/T FSM has no component-inspection value at F6. */,
+
+    /* —— Body / carrocería cards —— */
+    /* ABS actuator E51 (without VDC). BRC-33/34/35. */
+    abs_e51: [
+      sm(
+        'E51·1 (SB)',
+        'BRC-33',
+        'Tensión de batería (aprox. 12 V)',
+        'Contacto OFF. Desconectar el conector E51. Medir la tensión entre el terminal 1 (SB) y masa (alimentación del relé del actuador ABS).',
+        'Battery voltage (approx. 12V)',
+        'Ignition switch OFF. Disconnect ABS actuator and electric unit (control unit) connector E51. Check voltage between connector terminal 1 (SB) and ground (ABS actuator relay power).',
+        'バッテリー電圧（約12 V）',
+        'イグニッションOFF。ABSアクチュエータ＆コントロールユニットのコネクターE51を外す。端子1（SB）とアース間を測定（ABSアクチュエータリレー電源）。'
+      ),
+      sm(
+        'E51·15 (R/B)',
+        'BRC-33',
+        'Tensión de batería (aprox. 12 V)',
+        'Contacto OFF. Desconectar el conector E51. Medir la tensión entre el terminal 15 (R/B) y masa (alimentación del relé del motor ABS).',
+        'Battery voltage (approx. 12V)',
+        'Ignition switch OFF. Disconnect connector E51. Check voltage between connector terminal 15 (R/B) and ground (ABS motor relay power).',
+        'バッテリー電圧（約12 V）',
+        'イグニッションOFF。コネクターE51を外す。端子15（R/B）とアース間を測定（ABSモーターリレー電源）。'
+      ),
+      sm(
+        'E51·16 (B) y E51·30 (B)',
+        'BRC-34',
+        'Debe existir continuidad a masa',
+        'Comprobar el circuito de masa de la unidad ABS: entre los terminales 16 (B) y 30 (B) del conector E51 (lado arnés) y masa.',
+        'Continuity should exist to ground',
+        'Check the ABS actuator and electric unit (control unit) ground circuit between harness connector E51 terminals 16 (B) and 30 (B) and ground.',
+        'アースとの導通があること',
+        'ABSユニットのアース回路を点検。ハーネス側コネクターE51の端子16（B）および30（B）とアース間。'
+      ),
+      sm(
+        'E51·17 (P/L)',
+        'BRC-35',
+        'Pedal de freno pisado: tensión de batería (aprox. 12 V). Pedal suelto: 0 V',
+        'Contacto OFF. Desconectar el conector E51. Medir la tensión entre el terminal 17 (P/L) y masa.',
+        'Brake pedal depressed: Battery voltage (approx. 12V). Brake pedal not depressed: 0V',
+        'Ignition switch OFF. Disconnect connector E51. Check voltage between the connector terminal 17 (P/L) and ground.',
+        'ブレーキペダルを踏んだとき: バッテリー電圧（約12 V）。離したとき: 0 V',
+        'イグニッションOFF。コネクターE51を外す。端子17（P/L）とアース間を測定。'
+      )
+    ],
+    /* Rear wheel sensors T5 (RR-RH pins 1-2, RR-LH pins 3-4). Active sensors: do not measure at the sensor terminals. BRC-29/30. */
+    abs_t5: [
+      sm(
+        'T5 (sensores traseros)',
+        'BRC-29',
+        'No medir resistencia ni tensión entre los terminales del sensor con un polímetro (es un sensor activo)',
+        'Precaución del SM. No ensanchar el terminal del conector con la punta del polímetro. Después de localizar el sensor con CONSULT-II (SELF-DIAG RESULTS), comprobar montaje, rotor y conector.',
+        'Do not measure the resistance value and also voltage between the sensor terminal with tester etc., because the sensor is an active sensor',
+        'FSM caution. Do not expand the terminal of the connector with a tester terminal stick. After using CONSULT-II SELF-DIAG RESULTS to determine the malfunctioning wheel sensor, check the mount, sensor rotor and connector.',
+        'アクティブセンサのため、テスターなどでセンサ端子間の抵抗値および電圧を測定しないこと',
+        'SMの注意。テスターの端子スティックでコネクター端子を広げないこと。CONSULT-IIのセルフ診断で不具合センサを特定したあと、取付け・センサロータ・コネクターを点検。'
+      ),
+      sm(
+        'T5·1 (BR/W) – E51·28 (BR) y T5·2 (BR) – E51·13 (BR/W) (RR RH); T5·3 (OR) – E51·26 (OR) y T5·4 (P) – E51·11 (P) (RR LH)',
+        'BRC-30',
+        'Alimentación y señal: debe existir continuidad. Circuito de masa (señal o alimentación del actuador contra masa E51·16/30): no debe existir continuidad',
+        'Contacto OFF. Desconectar T5 y E51. Comprobar también con el volante a uno y otro lado y moviendo el arnés en el paso de rueda.',
+        'Power system and signal system: Continuity should exist. Ground system (actuator signal or power terminals to E51 grounds 16 and 30): Continuity should not exist',
+        'Ignition switch OFF. Disconnect wheel sensor connector T5 (RR-RH, LH) and ABS control unit connector E51. Also check continuity when the steering wheel is turned right and left and when the sensor harness inside the wheel well is moved.',
+        '電源系統・信号系統: 導通があること。アース系統（アクチュエータの信号または電源端子とE51のアース16/30間）: 導通がないこと',
+        'イグニッションOFF。ホイールセンサコネクターT5（後右・後左）とABSコントロールユニットコネクターE51を外す。ステアリングを左右に切ったとき、およびホイールハウス内のハーネスを動かしたときも導通を確認。'
+      )
+    ],
+    /* VDC/TCS/ABS control unit E118. BRC-129/135/136. */
+    vdc_e118: [
+      sm(
+        'E118·26 (W/G), ·5 (G/OR), ·6 (PU/W), ·53 (R/W), ·49 (B/W), ·50 (R) a masa',
+        'BRC-129',
+        '6.0 - 11 Ω',
+        'Contacto OFF. Desconectar el conector E118. Medir la resistencia entre cada terminal y masa (inspección de la señal de entrada de los solenoides).',
+        '6.0 - 11Ω',
+        'Ignition switch OFF. Disconnect the VDC/TCS/ABS control unit connector E118. Check the resistance between each terminal and ground (solenoid input signal inspection).',
+        '6.0 - 11 Ω',
+        'イグニッションOFF。VDC/TCS/ABSコントロールユニットのコネクターE118を外す。各端子とアース間の抵抗を測定（ソレノイド入力信号の点検）。'
+      ),
+      sm(
+        'E118·55 (R/Y), ·3 (Y/G), ·4 (GY/R), ·25 (L/W), ·54 (W/L), ·52 (R/L) a masa',
+        'BRC-129',
+        '3.0 - 5.0 Ω',
+        'Contacto OFF. Desconectar el conector E118. Medir la resistencia entre cada terminal y masa (inspección de la señal de entrada de los solenoides).',
+        '3.0 - 5.0Ω',
+        'Ignition switch OFF. Disconnect connector E118. Check the resistance between each terminal and ground (solenoid input signal inspection).',
+        '3.0 - 5.0 Ω',
+        'イグニッションOFF。コネクターE118を外す。各端子とアース間の抵抗を測定（ソレノイド入力信号の点検）。'
+      ),
+      sm(
+        'E118·48 (P/L)',
+        'BRC-135',
+        'Pedal de freno pisado: tensión de batería (aprox. 12 V). Pedal suelto: aprox. 0 V',
+        'Contacto OFF. Desconectar el conector de la unidad VDC/TCS/ABS. Medir la tensión entre E118 terminal 48 (P/L) y masa.',
+        'Brake pedal depressed: Battery voltage (approx. 12V). Brake pedal not depressed: Approx. 0V',
+        'Ignition switch OFF. Disconnect the VDC/TCS/ABS control unit connector. Check the voltage between E118 terminal 48 (P/L) and ground.',
+        'ブレーキペダルを踏んだとき: バッテリー電圧（約12 V）。離したとき: 約0 V',
+        'イグニッションOFF。VDC/TCS/ABSコントロールユニットのコネクターを外す。E118端子48（P/L）とアース間を測定。'
+      ),
+      sm(
+        'E118·1 (G/R)',
+        'BRC-136',
+        'Tensión de batería (aprox. 12 V)',
+        'Desconectar el conector E118. Con el contacto ON y OFF, medir la tensión entre el terminal 1 (G/R) (alimentación) y masa.',
+        'Battery voltage (Approx. 12V)',
+        'Disconnect VDC/TCS/ABS control unit connector E118. With the ignition switch turned on and off, check the voltage between terminal 1 (G/R) (power supply) and ground.',
+        'バッテリー電圧（約12 V）',
+        'コネクターE118を外す。イグニッションONおよびOFFで、端子1（G/R）（電源）とアース間の電圧を測定。'
+      ),
+      sm(
+        'E118·28 (B) y E118·29 (B)',
+        'BRC-136',
+        'Debe existir continuidad a masa',
+        'Desconectar el conector E118. Comprobar la continuidad entre los terminales 28 (B) y 29 (B) (masa) y masa.',
+        'Continuity should exist to ground',
+        'Disconnect connector E118. Check continuity between terminals 28 (B) and 29 (B) (ground) and ground.',
+        'アースとの導通があること',
+        'コネクターE118を外す。端子28（B）および29（B）（アース）とアース間の導通を確認。'
+      )
+    ],
+    /* TCS OFF switch (BRC-78) and VDC OFF switch (BRC-138) share connector M9; same continuity check. */
+    vdc_off_m9: [
+      sm(
+        'M9·1 – M9·2',
+        'BRC-138',
+        'Interruptor pulsado: debe existir continuidad. Interruptor suelto: no debe existir continuidad',
+        'Contacto OFF. Desconectar el conector M9 del interruptor TCS OFF / VDC OFF. Comprobar la continuidad entre los terminales 1 (L/Y en VDC, BRC-138) y 2. El mismo criterio aparece en BRC-78 para TCS OFF.',
+        'Continuity should exist when pushing the switch. Continuity should not exist when releasing the switch',
+        'Ignition switch OFF. Disconnect the TCS OFF / VDC OFF switch connector M9, and check the continuity between terminals 1 (L/Y on the VDC procedure, BRC-138) and 2. The same check is published for the TCS OFF switch on BRC-78.',
+        'スイッチを押しているとき: 導通があること。離しているとき: 導通がないこと',
+        'イグニッションOFF。TCS OFF / VDC OFFスイッチのコネクターM9を外し、端子1（VDC手順BRC-138ではL/Y）と2の導通を確認。同じ点検がTCS OFFスイッチについてBRC-78にも記載。'
+      )
+    ],
+    /* Steering angle sensor M22. BRC-125/126. */
+    vdc_m22: [
+      sm(
+        'M22·3 (Y/R) – E118·2 (Y/R)',
+        'BRC-125',
+        'Debe existir continuidad',
+        'Contacto OFF. Desconectar el conector del sensor de ángulo de volante M22 y el de la unidad VDC/TCS/ABS. Comprobar la continuidad entre E118 terminal 2 (Y/R) y M22 terminal 3 (Y/R).',
+        'Continuity should exist',
+        'Ignition switch OFF. Disconnect the steering angle sensor connector M22 and the VDC/TCS/ABS control unit connector. Check the continuity between E118 terminal 2 (Y/R) and M22 terminal 3 (Y/R).',
+        '導通があること',
+        'イグニッションOFF。ステアリング角度センサのコネクターM22とVDC/TCS/ABSコントロールユニットのコネクターを外す。E118端子2（Y/R）とM22端子3（Y/R）の導通を確認。'
+      ),
+      sm(
+        'Señal de ángulo (Data Monitor)',
+        'BRC-126',
+        'Al frente: -5 deg a +5 deg. 90° a la derecha: aprox. +90 deg. 90° a la izquierda: aprox. -90 deg',
+        'Conectar los conectores. En CONSULT-II, Data Monitor de STEERING ANGLE SIGNAL, comprobar si el estado es normal.',
+        'Straight-ahead: -5deg - +5deg. Turn wheel to the right by 90°: Approx. +90deg. Turn wheel to the left by 90°: Approx. -90deg',
+        'Connect the steering angle sensor and VDC/TCS/ABS control unit connectors. Conduct Data Monitor of the STEERING ANGLE SIGNAL to check if the status is normal.',
+        '直進: -5 deg〜+5 deg。右に90°: 約+90 deg。左に90°: 約-90 deg',
+        'コネクターを接続する。CONSULT-IIのData MonitorでSTEERING ANGLE SIGNALが正常か確認。'
+      )
+    ],
+    /* Yaw rate / side G sensor M51. BRC-127. */
+    vdc_m51: [
+      sm(
+        'M51 a E118 (arnés)',
+        'BRC-127',
+        'Debe existir continuidad en cada par: M51·5 (LG)–E118·18 (LG); M51·3 (OR)–E118·34 (W/B); M51·2 (Y/B)–E118·77 (Y/B); M51·1 (L/B)–E118·78 (L/R); M51·4 (LG/R)–E118·79 (GY/L); M51·6 (W/R)–E118·80 (W/R)',
+        'Contacto OFF. Desconectar el conector del sensor de giro/aceleración lateral y el de la unidad VDC/TCS/ABS. Comprobar la continuidad entre los conectores del lado vehículo.',
+        'Continuity should exist on each pair: M51·5 (LG)–E118·18 (LG); M51·3 (OR)–E118·34 (W/B); M51·2 (Y/B)–E118·77 (Y/B); M51·1 (L/B)–E118·78 (L/R); M51·4 (LG/R)–E118·79 (GY/L); M51·6 (W/R)–E118·80 (W/R)',
+        'Ignition switch OFF. Disconnect the yaw rate/side G sensor connector and the VDC/TCS/ABS control unit connector. Check the continuity between the vehicle-side connectors.',
+        '各対で導通があること: M51·5（LG）–E118·18（LG）; M51·3（OR）–E118·34（W/B）; M51·2（Y/B）–E118·77（Y/B）; M51·1（L/B）–E118·78（L/R）; M51·4（LG/R）–E118·79（GY/L）; M51·6（W/R）–E118·80（W/R）',
+        'イグニッションOFF。ヨーレート/横GセンサとVDC/TCS/ABSコントロールユニットのコネクターを外し、車両側コネクター間の導通を確認。'
+      ),
+      sm(
+        'Sensor de guiñada / aceleración lateral (Data Monitor)',
+        'BRC-127',
+        'Detenido: guiñada -4 a +4 deg/s; aceleración lateral -1.1 a +1.1 m/s². Giro a la derecha: valores negativos. Giro a la izquierda: valores positivos',
+        'Conectar los conectores. Con Data Monitor comprobar si los sensores son normales.',
+        'When stopped: yaw rate -4 to +4 deg/s; side G -1.1 to +1.1 m/s². Right turn: Negative value. Left turn: Positive value',
+        'Connect the yaw rate sensor/side G sensor and VDC/TCS/ABS control unit connectors. Use Data Monitor to check if the yaw rate sensor/side G sensor are normal.',
+        '停車時: ヨーレート -4〜+4 deg/s、横G -1.1〜+1.1 m/s²。右旋回: 負の値。左旋回: 正の値',
+        'コネクターを接続し、Data Monitorでヨーレートセンサ/横Gセンサが正常か確認。'
+      )
+    ],
+    /* BCM connector M90 power and related pins. WW-16 / WW-44 / BL-41 / LT-166 / BL-50. */
+    bcm_m90: [
+      sm(
+        'M90·38 (W/L)',
+        'WW-16',
+        'Contacto OFF: aprox. 0 V. Contacto ON: tensión de batería',
+        'Contacto OFF. Desconectar el conector del BCM. Medir la tensión entre M90 terminal 38 (W/L) y masa (alimentación IGN ON). El mismo valor aparece en WW-44.',
+        'Ignition switch OFF: Approx. 0V. Ignition switch ON: Battery voltage',
+        'Ignition switch OFF. Disconnect the BCM connector. Check voltage between M90 terminal 38 (W/L) and ground (ignition ON supply). The same value is published on WW-44.',
+        'イグニッションOFF: 約0 V。イグニッションON: バッテリー電圧',
+        'イグニッションOFF。BCMコネクターを外し、M90端子38（W/L）とアース間を測定（イグニッションON電源）。同じ値はWW-44にも記載。'
+      ),
+      sm(
+        'M90·37 (B/R) (interruptor de llave)',
+        'BL-41',
+        'Llave insertada: tensión de batería. Llave extraída: 0 V',
+        'Sin CONSULT-II. Medir la tensión entre el conector del BCM M90 terminal 37 (B/R) y masa.',
+        'Key is inserted: Battery voltage. Key is removed: 0V',
+        'Without CONSULT-II. Check voltage between BCM connector M90 terminal 37 (B/R) and ground.',
+        'キー挿入時: バッテリー電圧。キー抜去時: 0 V',
+        'CONSULT-IIを使わず、BCMコネクターM90端子37（B/R）とアース間を測定。'
+      ),
+      sm(
+        'M90·29 (G/R) – M153·2 (PU)',
+        'LT-166',
+        'Debe existir continuidad',
+        'Contacto OFF. Desconectar el BCM y el interruptor de emergencia. Comprobar la continuidad entre M90 terminal 29 (G/R) y M153 terminal 2 (PU).',
+        'Continuity should exist',
+        'Ignition switch OFF. Disconnect the BCM connector and the hazard switch connector. Check continuity between M90 terminal 29 (G/R) and M153 terminal 2 (PU).',
+        '導通があること',
+        'イグニッションOFF。BCMとハザードスイッチのコネクターを外し、M90端子29（G/R）とM153端子2（PU）の導通を確認。'
+      ),
+      sm(
+        'M90·30 (P) (pulsador del portón)',
+        'BL-50',
+        'Pulsador ON: 0 V. Pulsador OFF: tensión de batería (si el ahorro de batería de luces interiores está OFF: aprox. 5 V)',
+        'Medir entre M90 terminal 30 (P) y masa, con la puerta del conductor desbloqueada, al pulsar el abridor del portón.',
+        'Back door opener switch ON: 0V. Switch OFF: Battery voltage (when interior lamp battery saver control is in OFF position: Approx. 5V)',
+        'Check voltage between BCM connector M90 terminal 30 (P) and ground. Press the back door opener switch when the driver side door is unlocked.',
+        'オープナーON: 0 V。OFF: バッテリー電圧（室内灯バッテリーセーバー制御がOFFのときは約5 V）',
+        '運転席ドアがアンロックの状態でバックドアオープナースイッチを押し、BCMコネクターM90端子30（P）とアース間を測定。'
+      )
+    ],
+    /* BCM connector M91 battery feeds and ground. WW-16 / BL-38. */
+    bcm_m91: [
+      sm(
+        'M91·42 (GY)',
+        'WW-16',
+        'Tensión de batería con el contacto OFF y ON',
+        'Contacto OFF. Desconectar el conector del BCM. Medir la tensión entre M91 terminal 42 (GY) y masa (alimentación de batería). El mismo valor aparece en BL-38 y WW-44.',
+        'Battery voltage with the ignition switch OFF and ON',
+        'Ignition switch OFF. Disconnect the BCM connector. Check voltage between M91 terminal 42 (GY) and ground (battery power supply). The same value is published on BL-38 and WW-44.',
+        'イグニッションOFFおよびONでバッテリー電圧',
+        'イグニッションOFF。BCMコネクターを外し、M91端子42（GY）とアース間を測定（バッテリー電源）。同じ値はBL-38とWW-44にも記載。'
+      ),
+      sm(
+        'M91·55 (R)',
+        'WW-16',
+        'Tensión de batería con el contacto OFF y ON',
+        'Contacto OFF. Desconectar el conector del BCM. Medir la tensión entre M91 terminal 55 (R) y masa (alimentación de batería). El mismo valor aparece en BL-38 y WW-44.',
+        'Battery voltage with the ignition switch OFF and ON',
+        'Ignition switch OFF. Disconnect the BCM connector. Check voltage between M91 terminal 55 (R) and ground (battery power supply). The same value is published on BL-38 and WW-44.',
+        'イグニッションOFFおよびONでバッテリー電圧',
+        'イグニッションOFF。BCMコネクターを外し、M91端子55（R）とアース間を測定（バッテリー電源）。同じ値はBL-38とWW-44にも記載。'
+      ),
+      sm(
+        'M91·52 (B)',
+        'WW-16',
+        'Debe existir continuidad a masa',
+        'Comprobar la continuidad entre M91 terminal 52 (B) y masa. El mismo valor aparece en BL-38 y WW-44.',
+        'Continuity should exist to ground',
+        'Check continuity between BCM harness connector M91 terminal 52 (B) and ground. The same value is published on BL-38 and WW-44.',
+        'アースとの導通があること',
+        'M91端子52（B）とアース間の導通を確認。同じ値はBL-38とWW-44にも記載。'
+      )
+    ],
+    /* BCM body connector B83: door switch and rear wiper. GW-44 / WW-48 / WW-49. */
+    bcm_b83: [
+      sm(
+        'B83·62 (W) (interruptor puerta conductor)',
+        'GW-44',
+        'Puerta cerrada: tensión de batería. Puerta abierta: 0 V. Con el conector del interruptor desconectado, a masa: tensión de batería',
+        'Medir entre B83 terminal 62 (W) y masa (señal del interruptor de la puerta del conductor). Con el interruptor y el BCM desconectados, 62 (W) a masa: no debe existir continuidad.',
+        'Door closed: Battery voltage. Door open: 0V. With the door switch disconnected, 62 to ground: Battery voltage (BCM output)',
+        'Check voltage between BCM connector B83 terminal 62 (W) and ground (driver door switch signal). With the door switch and BCM disconnected, continuity between 62 and ground should not exist; with the BCM connected, voltage to ground is battery voltage.',
+        'ドア閉: バッテリー電圧。ドア開: 0 V。スイッチを外した状態でアース間はバッテリー電圧（BCM出力）',
+        'BCMコネクターB83端子62（W）とアース間を測定（運転席ドアスイッチ信号）。スイッチとBCMを外した状態では62とアースの導通がないこと。BCM接続時はアース間がバッテリー電圧。'
+      ),
+      sm(
+        'B83·70 (SB) – D106·4 (SB)',
+        'WW-48',
+        'Debe existir continuidad. B83·70 a masa: no debe existir continuidad',
+        'Contacto OFF. Desconectar el BCM y el motor del limpialuneta. Comprobar la continuidad entre B83 terminal 70 (SB) y D106 terminal 4 (SB), y entre 70 (SB) y masa.',
+        'Continuity should exist. B83·70 to ground: Continuity should not exist',
+        'Ignition switch OFF. Disconnect the BCM connector and the rear wiper motor connector. Check continuity between B83 terminal 70 (SB) and D106 terminal 4 (SB), and between 70 (SB) and ground.',
+        '導通があること。B83·70とアース間: 導通がないこと',
+        'イグニッションOFF。BCMとリヤワイパーモーターのコネクターを外し、B83端子70（SB）とD106端子4（SB）の導通、および70（SB）とアース間の導通を確認。'
+      ),
+      sm(
+        'B83·59 (OR) – D106·2 (OR)',
+        'WW-49',
+        'Debe existir continuidad. B83·59 a masa: no debe existir continuidad',
+        'Contacto OFF. Desconectar el BCM y el motor del limpialuneta. Comprobar la continuidad entre B83 terminal 59 (OR) y D106 terminal 2 (OR), y entre 59 (OR) y masa (circuito de auto-stop).',
+        'Continuity should exist. B83·59 to ground: Continuity should not exist',
+        'Ignition switch OFF. Disconnect the BCM connector and the rear wiper motor connector. Check continuity between B83 terminal 59 (OR) and D106 terminal 2 (OR), and between 59 (OR) and ground (auto stop circuit).',
+        '導通があること。B83·59とアース間: 導通がないこと',
+        'イグニッションOFF。BCMとリヤワイパーモーターのコネクターを外し、B83端子59（OR）とD106端子2（OR）の導通、および59（OR）とアース間の導通を確認（オートストップ回路）。'
+      )
+    ],
+    /* Ignition key switch (insert). BL-41. */
+    key_m25: [
+      sm(
+        'M25·1 – M25·2',
+        'BL-41',
+        'Llave insertada en el cilindro de arranque: debe existir continuidad. Llave extraída: no debe existir continuidad',
+        'Contacto OFF. Desconectar el conector del interruptor de llave. Comprobar la continuidad entre los terminales 1 y 2.',
+        'Key is inserted in ignition key cylinder: Continuity Yes. Key is removed from ignition key cylinder: Continuity No',
+        'Ignition switch OFF. Disconnect the key switch connector. Check continuity between key switch terminals 1 and 2.',
+        'イグニッションキーシリンダにキーが挿入されているとき: 導通あり。抜かれているとき: 導通なし',
+        'イグニッションOFF。キースイッチのコネクターを外し、端子1と2の導通を確認。'
+      )
+    ],
+    /* Security indicator lamp M34. BL-160. */
+    sec_m34: [
+      sm(
+        'M34·1 (R/W)',
+        'BL-160',
+        'Tensión de batería',
+        'Desconectar el conector del testigo de seguridad. Medir la tensión entre M34 terminal 1 (R/W) y masa (alimentación; fusible 19 10A del J/B).',
+        'Battery voltage',
+        'Disconnect the security indicator lamp connector. Check voltage between security indicator lamp connector M34 terminal 1 (R/W) and ground (power supply; 10A fuse No. 19 in the fuse block J/B).',
+        'バッテリー電圧',
+        'セキュリティインジケーターランプのコネクターを外し、M34端子1（R/W）とアース間を測定（電源。J/Bの10AヒューズNo.19）。'
+      )
+    ],
+    /* Remote keyless entry receiver M78. BL-93/94. */
+    rke_m78: [
+      sm(
+        'M78·4 (Y) – M90·19 (Y)',
+        'BL-93',
+        'Debe existir continuidad. M78·4 a masa: no debe existir continuidad',
+        'Contacto OFF. Desconectar el receptor del mando y el BCM. Comprobar la continuidad entre M78 terminal 4 (Y) y M90 terminal 19 (Y), y entre 4 (Y) y masa.',
+        'Continuity should exist. M78·4 to ground: Continuity should not exist',
+        'Ignition switch OFF. Disconnect the remote keyless entry receiver connector and the BCM connector. Check continuity between M78 terminal 4 (Y) and M90 terminal 19 (Y), and between 4 (Y) and ground.',
+        '導通があること。M78·4とアース間: 導通がないこと',
+        'イグニッションOFF。リモートキーレスエントリー受信機とBCMのコネクターを外し、M78端子4（Y）とM90端子19（Y）の導通、および4（Y）とアース間の導通を確認。'
+      ),
+      sm(
+        'M78·2 (L) – M90·20 (L)',
+        'BL-94',
+        'Debe existir continuidad. M78·2 a masa: no debe existir continuidad',
+        'Contacto OFF. Desconectar el receptor y el BCM. Comprobar la continuidad entre M78 terminal 2 (L) y M90 terminal 20 (L), y entre 2 (L) y masa. La forma de la señal de salida se comprueba con osciloscopio (figura en BL-94).',
+        'Continuity should exist. M78·2 to ground: Continuity should not exist',
+        'Ignition switch OFF. Disconnect the remote keyless entry receiver and BCM connectors. Check continuity between M78 terminal 2 (L) and M90 terminal 20 (L), and between 2 (L) and ground. The output signal waveform is checked with an oscilloscope (figure on BL-94).',
+        '導通があること。M78·2とアース間: 導通がないこと',
+        'イグニッションOFF。受信機とBCMのコネクターを外し、M78端子2（L）とM90端子20（L）の導通、および2（L）とアース間の導通を確認。出力信号波形はオシロスコープで確認（BL-94の図）。'
+      )
+    ],
+    /* Tire pressure warning check connector M79. WT-22. */
+    tpms_m79: [
+      sm(
+        'M79 (conector de comprobación)',
+        'WT-22',
+        'Poner a masa el terminal del conector de comprobación para entrar en el modo de resultados de autodiagnosis (el testigo de presión baja parpadea y suena el zumbador)',
+        'El BCM del sistema de presión de neumáticos tiene función de diagnóstico. Con el contacto ON, la lámpara de aviso debe encenderse 1 segundo y apagarse si el sistema está en orden (WT-29). No hay tabla de tensión o resistencia publicada en el propio M79.',
+        'Ground the terminal of the tire pressure warning check connector to start the self-diagnostic results mode (the warning lamp flashes and the buzzer sounds)',
+        'The BCM of the low tire pressure warning system has a trouble diagnosis function. With the ignition switch ON, the warning lamp comes on immediately and turns off after 1 second when the system is OK (WT-29). No voltage or resistance table is published at M79 itself.',
+        'タイヤ空気圧警告点検コネクターの端子をアースすると、セルフ診断結果モードが始まる（警告灯が点滅し、ブザーが鳴る）',
+        '低圧タイヤ警告システムのBCMには故障診断機能がある。イグニッションONで、システム正常時は警告灯が直ちに点灯し1秒後に消灯する（WT-29）。M79自体に電圧・抵抗の表は掲載されていない。'
+      )
+    ],
+    /* Combination switch M29. LT-175/176. */
+    comb_sw_m29: [
+      sm(
+        'M29 a M90 (arnés del sistema sospechoso)',
+        'LT-175',
+        'Debe existir continuidad entre cada par del sistema: sistema 1 M90·6 (YG)–M29·6 (YG) y M90·36 (W/R)–M29·1 (W/R); sistema 2 M90·5 (Y/R)–M29·7 (Y/R) y M90·35 (W/G)–M29·2 (W/G); sistema 3 M90·4 (PU/W)–M29·10 (PU/W) y la salida 3 correspondiente',
+        'Contacto OFF. Desconectar el BCM y el interruptor combinado. Comprobar la continuidad entre los terminales del BCM del sistema sospechoso y los del interruptor combinado (tabla LT-175).',
+        'Continuity should exist (Yes) between each suspect-system pair: system 1 M90·6 (YG)–M29·6 (YG) and M90·36 (W/R)–M29·1 (W/R); system 2 M90·5 (Y/R)–M29·7 (Y/R) and M90·35 (W/G)–M29·2 (W/G); system 3 M90·4 (PU/W)–M29·10 (PU/W) and the matching output 3',
+        'Ignition switch OFF. Disconnect the BCM and combination switch connectors. Check for continuity between the BCM harness connector of the suspect system and the corresponding combination switch connector terminals (table on LT-175).',
+        '疑わしい系統の各対で導通があること（Yes）。系統1 M90·6（YG）–M29·6（YG）およびM90·36（W/R）–M29·1（W/R）; 系統2 M90·5（Y/R）–M29·7（Y/R）およびM90·35（W/G）–M29·2（W/G）; 系統3 M90·4（PU/W）–M29·10（PU/W）と対応する出力3',
+        'イグニッションOFF。BCMとコンビネーションスイッチのコネクターを外し、疑わしい系統のBCM端子とコンビネーションスイッチ端子間の導通を確認（LT-175の表）。'
+      ),
+      sm(
+        'M29·1 (W/R), ·2 (W/G), ·3 (W/L), ·4 (G), ·5 (G/B) a masa',
+        'LT-176',
+        'Comprobar la forma de onda de tensión de cada terminal de salida del BCM en el interruptor combinado (figura SKIA4976E)',
+        'Luces y limpiaparabrisas en OFF, dial del intermitente del limpia en posición 4. Conectar el BCM y el interruptor combinado. Medir cada terminal (+) del sistema sospechoso contra masa.',
+        'Check the BCM output terminal voltage waveform of the suspect system (figure SKIA4976E)',
+        'Turn lighting switch and wiper switch OFF. Set wiper dial position 4. Connect the BCM and combination switch connectors, and check the BCM output terminal voltage waveform of the suspect malfunctioning system: M29 terminals 1 (W/R), 2 (W/G), 3 (W/L), 4 (G) or 5 (G/B) to ground.',
+        'コンビネーションスイッチ側でBCM出力端子の電圧波形を点検（図 SKIA4976E）',
+        'ライトおよびワイパーをOFF、ワイパーダイヤル位置4。BCMとコンビネーションスイッチのコネクターを接続し、疑わしい系統の出力端子（M29の1（W/R）、2（W/G）、3（W/L）、4（G）または5（G/B））とアース間の波形を確認。'
+      )
+    ],
+    /* Hazard switch M153. LT-166/167. */
+    hazard_m153: [
+      sm(
+        'M153·2 (PU)',
+        'LT-166',
+        'Interruptor de emergencia ON: aprox. 0 V. Interruptor OFF: aprox. 5 V',
+        'Sin CONSULT-II. Medir la tensión entre M153 terminal 2 (PU) y masa.',
+        'Hazard switch is ON: Approx. 0V. Hazard switch is OFF: Approx. 5V',
+        'Without CONSULT-II. Check voltage between hazard switch harness connector M153 terminal 2 (PU) and ground.',
+        'ハザードスイッチON: 約0 V。OFF: 約5 V',
+        'CONSULT-IIを使わず、ハザードスイッチハーネスコネクターM153端子2（PU）とアース間を測定。'
+      ),
+      sm(
+        'M153·1 (B)',
+        'LT-167',
+        'Debe existir continuidad a masa',
+        'Comprobar la continuidad entre M153 terminal 1 (B) y masa.',
+        'Continuity should exist to ground',
+        'Check continuity between hazard switch harness connector M153 terminal 1 (B) and ground.',
+        'アースとの導通があること',
+        'ハザードスイッチハーネスコネクターM153端子1（B）とアース間の導通を確認。'
+      ),
+      sm(
+        'M153·1 – M153·2',
+        'LT-167',
+        'Interruptor ON: debe existir continuidad. Interruptor OFF: no debe existir continuidad',
+        'Comprobar la continuidad del interruptor de emergencia entre los terminales 1 y 2.',
+        'Hazard switch is ON: Continuity Yes. Hazard switch is OFF: Continuity No',
+        'Check continuity of the hazard switch between terminals 1 and 2.',
+        'スイッチON: 導通あり。OFF: 導通なし',
+        'ハザードスイッチの端子1と2の導通を点検。'
+      )
+    ],
+    /* Map lamp Coupe R52. LT-233. */
+    map_r52: [
+      sm(
+        'R52·3 – R52·2',
+        'LT-233',
+        'Interruptor en DOOR: debe existir continuidad. Interruptor en OFF: no debe existir continuidad',
+        'Desconectar el conector de la luz de mapa. Comprobar la continuidad entre los terminales de la lámpara.',
+        'Map lamp switch is DOOR: Continuity Yes. Map lamp switch is OFF: Continuity No',
+        'Disconnect the map lamp connector. Check continuity between the map lamp terminals 3 and 2.',
+        'マップランプスイッチがDOOR: 導通あり。OFF: 導通なし',
+        'マップランプのコネクターを外し、端子3と2の導通を確認。'
+      ),
+      sm(
+        'R52·2 (PU/W) – M91·48 (P)',
+        'LT-233',
+        'Debe existir continuidad',
+        'Desconectar el BCM. Comprobar la continuidad entre M91 terminal 48 (P) y R52 terminal 2 (PU/W).',
+        'Continuity should exist',
+        'Disconnect the BCM connector. Check continuity between BCM harness connector M91 terminal 48 (P) and map lamp harness connector R52 terminal 2 (PU/W).',
+        '導通があること',
+        'BCMコネクターを外し、M91端子48（P）とR52端子2（PU/W）の導通を確認。'
+      )
+    ],
+    /* Luggage room lamp T13. LT-236. */
+    lug_t13: [
+      sm(
+        'T13·1 (Y)',
+        'LT-236',
+        'Tensión de batería. T13·1 a masa (circuito en corto): no debe existir continuidad',
+        'Contacto ON. Medir la tensión entre T13 terminal 1 (Y) y masa. Luego, con el BCM desconectado, comprobar que no hay continuidad entre T13·1 (Y) y masa, y que sí la hay entre M91·41 (R/B) y T13·1 (Y), y entre B83·64 (R/W) y T13·2 (R/W).',
+        'Battery voltage. T13·1 to ground (short circuit check): Continuity should not exist',
+        'Turn ignition switch ON. Check voltage between luggage room lamp harness connector T13 terminal 1 (Y) and ground. Then, with the BCM disconnected, check continuity between T13·1 (Y) and ground (should not exist), between M91·41 (R/B) and T13·1 (Y) (should exist), and between B83·64 (R/W) and T13·2 (R/W) (should exist).',
+        'バッテリー電圧。T13·1とアース間（短絡点検）: 導通がないこと',
+        'イグニッションON。荷物室ランプハーネスコネクターT13端子1（Y）とアース間を測定。その後BCMを外し、T13·1（Y）とアース間に導通がないこと、M91·41（R/B）とT13·1（Y）、B83·64（R/W）とT13·2（R/W）に導通があることを確認。'
+      )
+    ],
+    /* Daytime light control unit connector E14 (Canada). LT-81. */
+    dtrl_e14: [
+      sm(
+        'E14·1 (W/R) (alternador L)',
+        'LT-81',
+        'Contacto ON: aprox. 0 V. Motor en marcha: tensión de batería. Contacto OFF: aprox. 0 V',
+        'Valores de referencia de la unidad de luces diurnas (Canadá). Medir en las condiciones indicadas.',
+        'When turning ignition switch to ON: Approx. 0V. When engine is running: Battery voltage. When turning ignition switch to OFF: Approx. 0V',
+        'Terminals and reference values for the daytime light control unit (Canada). Check under the stated conditions.',
+        'イグニッションON: 約0 V。エンジン回転中: バッテリー電圧。イグニッションOFF: 約0 V',
+        'デイタイムライトコントロールユニット（カナダ仕様）の端子基準値。記載の条件で測定。'
+      ),
+      sm(
+        'E14·5 (BR) (luz alta derecha, entrada)',
+        'LT-81',
+        'Tensión de batería al poner el interruptor de luces en HI BEAM',
+        'Valores de referencia de la unidad de luces diurnas (Canadá), señal del interruptor de luces (LH/RH high beam en el terminal 5 según la tabla, BR).',
+        'Battery voltage when turning lighting switch to HI BEAM',
+        'Terminals and reference values for the daytime light control unit (Canada), lighting switch (RH hi beam) input.',
+        'ライトスイッチをHI BEAMにしたときバッテリー電圧',
+        'デイタイムライトコントロールユニット（カナダ仕様）の端子基準値。ライトスイッチ（右ハイビーム）入力。'
+      ),
+      sm(
+        'E14·6 (L) (luz alta derecha, salida)',
+        'LT-81',
+        'Interruptor en 2.ª con HI BEAM o FLASH TO PASS: tensión de batería. Luces diurnas (freno de mano suelto, motor en marcha, luces OFF): aprox. 6 V',
+        'Calzar las ruedas y dejar la palanca en N o P. Valores de referencia de la unidad de luces diurnas (Canadá).',
+        'Lighting switch turned to the 2ND position with HI BEAM or FLASH TO PASS: Battery voltage. Daytime light operation (parking brake released, engine running, lighting switch OFF): Approx. 6V',
+        'CAUTION: Block wheels and ensure selector lever is in N or P position. Terminals and reference values for the daytime light control unit (Canada).',
+        'ライトスイッチ2NDでHI BEAMまたはFLASH TO PASS: バッテリー電圧。デイタイムライト作動（パーキングブレーキ解除、エンジン回転中、ライトOFF）: 約6 V',
+        '車輪を止め、セレクトレバーをNまたはPにすること。デイタイムライトコントロールユニット（カナダ仕様）の端子基準値。'
+      )
+    ],
+    /* Daytime light control unit connector E15 (Canada). LT-81. */
+    dtrl_e15: [
+      sm(
+        'E15·9 (Y/G) (luz alta izquierda, salida / masa de hi beam)',
+        'LT-81',
+        'Interruptor en 2.ª con HI BEAM o FLASH TO PASS: aprox. 0 V. Luces diurnas (freno de mano suelto, motor en marcha, luces OFF): aprox. 6 V',
+        'Calzar las ruedas y dejar la palanca en N o P. Valores de referencia de la unidad de luces diurnas (Canadá).',
+        'Lighting switch turned to the 2ND position with HI BEAM or FLASH TO PASS: Approx. 0V. Daytime light operation (parking brake released, engine running, lighting switch OFF): Approx. 6V',
+        'CAUTION: Block wheels and ensure selector lever is in N or P position. Terminals and reference values for the daytime light control unit (Canada), LH hi beam (ground).',
+        'ライトスイッチ2NDでHI BEAMまたはFLASH TO PASS: 約0 V。デイタイムライト作動（パーキングブレーキ解除、エンジン回転中、ライトOFF）: 約6 V',
+        '車輪を止め、セレクトレバーをNまたはPにすること。デイタイムライトコントロールユニット（カナダ仕様）の端子基準値（左ハイビーム・アース）。'
+      ),
+      sm(
+        'E15·17 (G) (freno de mano)',
+        'LT-81',
+        'Freno de mano suelto: tensión de batería. Freno de mano puesto: aprox. 0 V',
+        'Valores de referencia de la unidad de luces diurnas (Canadá), interruptor de freno de mano.',
+        'When parking brake is released: Battery voltage. When parking brake is applied: Approx. 0V',
+        'Terminals and reference values for the daytime light control unit (Canada), parking brake switch.',
+        'パーキングブレーキ解除: バッテリー電圧。パーキングブレーキ作動: 約0 V',
+        'デイタイムライトコントロールユニット（カナダ仕様）の端子基準値。パーキングブレーキスイッチ。'
+      )
+    ],
+    /* Ambient sensor E34. ATC-97/99. */
+    amb_e34: [
+      sm(
+        'E34·1 (Y/G)',
+        'ATC-97',
+        'Aprox. 5 V a masa',
+        'Desconectar el conector del sensor. Contacto ON. Medir la tensión entre E34 terminal 1 (Y/G) y masa.',
+        'Approx. 5V to ground',
+        'Disconnect the ambient sensor connector. Turn ignition switch ON. Check voltage between ambient sensor harness connector E34 terminal 1 (Y/G) and ground.',
+        'アース間 約5 V',
+        'センサコネクターを外す。イグニッションON。E34端子1（Y/G）とアース間を測定。'
+      ),
+      sm(
+        'E34·1 – E34·2 (lado sensor)',
+        'ATC-99',
+        'Tras desconectar E34, medir la resistencia entre los terminales 1 y 2 del lado del sensor. -15 °C (5 °F): 12.73 kΩ; -10 (14): 9.92; -5 (23): 7.80; 0 (32): 6.19; 5 (41): 4.95; 10 (50): 3.99; 15 (59): 3.24; 20 (68): 2.65; 25 (77): 2.19; 30 (86): 1.81; 35 (95): 1.51; 40 (104): 1.27; 45 (113): 1.07',
+        'Inspección del componente. Si no coincide, sustituir el sensor de temperatura exterior.',
+        'After disconnecting ambient sensor connector E34, measure resistance between terminals 1 and 2 at sensor side, using the table: -15 °C (5 °F): 12.73 kΩ; -10 (14): 9.92; -5 (23): 7.80; 0 (32): 6.19; 5 (41): 4.95; 10 (50): 3.99; 15 (59): 3.24; 20 (68): 2.65; 25 (77): 2.19; 30 (86): 1.81; 35 (95): 1.51; 40 (104): 1.27; 45 (113): 1.07',
+        'Component inspection. If NG, replace the ambient sensor.',
+        'アンビエントセンサコネクターE34を外し、センサ側端子1と2の間の抵抗を表で確認。-15 °C（5 °F）: 12.73 kΩ; -10（14）: 9.92; -5（23）: 7.80; 0（32）: 6.19; 5（41）: 4.95; 10（50）: 3.99; 15（59）: 3.24; 20（68）: 2.65; 25（77）: 2.19; 30（86）: 1.81; 35（95）: 1.51; 40（104）: 1.27; 45（113）: 1.07',
+        'コンポーネント点検。不適合の場合はアンビエントセンサを交換。'
+      )
+    ],
+    /* Blower motor M62. ATC-78. Duty-ratio table is a figure, not transcribed. */
+    blower_m62: [
+      sm(
+        'M62·2 (G)',
+        'ATC-78',
+        'Las relaciones de trabajo habituales de la señal de mando al variar el ventilador entre Lo y Hi están en la tabla de ATC-78 (figura). Si el caudal no cambia, usar esa misma tabla',
+        'Volver a conectar el motor y el amplificador unificado de A/C. Contacto ON. Variar el ventilador entre Lo y Hi y confirmar las relaciones de trabajo entre M62 terminal 2 (G) y masa con osciloscopio.',
+        'Usual terminal 2 (G) drive signal duty ratios while varying fan speed between Lo and Hi are shown in the table on ATC-78 (figure). If the fan air flow does not change, the same table applies',
+        'Reconnect the blower motor connector and the unified meter and A/C amp. connector. Turn ignition switch ON. Vary the fan speed between Lo and Hi and confirm the duty ratios between M62 terminal 2 (G) and ground using an oscilloscope.',
+        'ファン速度をLo〜Hiで変化させたときの端子2（G）駆動信号の通常デューティ比はATC-78の表（図）を参照。風量が変化しない場合も同じ表を使う',
+        'ブロアモーターとunified meter and A/C amp.のコネクターを再接続。イグニッションON。ファン速度をLoとHiの間で変え、オシロスコープでM62端子2（G）とアース間のデューティ比を確認。'
+      ),
+      sm(
+        'Motor del ventilador',
+        'ATC-78',
+        'Debe girar con suavidad. No debe haber partículas extrañas dentro de la unidad',
+        'Inspección del componente (blower motor).',
+        'Confirm smooth rotation of the blower motor. Ensure that there are no foreign particles inside the blower unit',
+        'Component inspection of the blower motor.',
+        'ブロアモーターが滑らかに回転すること。ブロアユニット内に異物がないこと',
+        'ブロアモーターのコンポーネント点検。'
+      )
+    ],
+    /* Front wiper motor E52. WW-23/26/27. */
+    wiper_e52: [
+      sm(
+        'E52·4 (B)',
+        'WW-23',
+        'Debe existir continuidad a masa',
+        'Comprobar la continuidad entre E52 terminal 4 (B) y masa.',
+        'Continuity should exist to ground',
+        'Check continuity between front wiper motor harness connector E52 terminal 4 (B) and ground.',
+        'アースとの導通があること',
+        'フロントワイパーモーターハーネスコネクターE52端子4（B）とアース間の導通を確認。'
+      ),
+      sm(
+        'E52·3 (PU) – E7·21 (PU)',
+        'WW-26',
+        'Debe existir continuidad. E7·21 a masa: no debe existir continuidad. Con el limpia en LO (ACTIVE TEST o auto active test): tensión de batería en E7·21 a masa',
+        'Contacto OFF. Desconectar el IPDM y el motor. Comprobar la continuidad; luego reconectar y medir la tensión con el limpia en LO.',
+        'Continuity should exist. E7·21 to ground: Continuity should not exist. During LO operation (ACTIVE TEST or auto active test): Battery voltage at E7·21 to ground',
+        'Ignition switch OFF. Disconnect the IPDM E/R connector and the front wiper motor connector. Check continuity between E7 terminal 21 (PU) and E52 terminal 3 (PU). Then reconnect and check voltage between E7 terminal 21 (PU) and ground while front wiper LO is operating.',
+        '導通があること。E7·21とアース間: 導通がないこと。LO作動中（ACTIVE TESTまたはオートアクティブテスト）: E7·21とアース間はバッテリー電圧',
+        'イグニッションOFF。IPDM E/Rとフロントワイパーモーターのコネクターを外し、E7端子21（PU）とE52端子3（PU）の導通を確認。再接続後、LO作動中にE7端子21（PU）とアース間の電圧を測定。'
+      ),
+      sm(
+        'E52·2 (L/B) – E7·31 (L/B)',
+        'WW-27',
+        'Debe existir continuidad. E7·31 a masa: no debe existir continuidad. Con el limpia en HI: tensión de batería en E7·31 a masa',
+        'Contacto OFF. Desconectar el IPDM y el motor. Comprobar la continuidad; luego reconectar y medir la tensión con el limpia en HI.',
+        'Continuity should exist. E7·31 to ground: Continuity should not exist. During HI operation: Battery voltage at E7·31 to ground',
+        'Ignition switch OFF. Disconnect the IPDM E/R connector and the front wiper motor connector. Check continuity between E7 terminal 31 (L/B) and E52 terminal 2 (L/B). Then reconnect and check voltage between E7 terminal 31 (L/B) and ground while front wiper HI is operating.',
+        '導通があること。E7·31とアース間: 導通がないこと。HI作動中: E7·31とアース間はバッテリー電圧',
+        'イグニッションOFF。IPDM E/Rとフロントワイパーモーターのコネクターを外し、E7端子31（L/B）とE52端子2（L/B）の導通を確認。再接続後、HI作動中にE7端子31（L/B）とアース間の電圧を測定。'
+      )
+    ],
+    /* Rear wiper motor D106. WW-47/49. */
+    wiper_d106: [
+      sm(
+        'D106·4 (SB)',
+        'WW-47',
+        'Con el interruptor del limpialuneta ON: tensión de batería a masa',
+        'Con el interruptor del limpialuneta en ON, medir la tensión entre D106 terminal 4 (SB) y masa.',
+        'With rear wiper switch ON: Battery voltage to ground',
+        'With rear wiper switch ON, check voltage between rear wiper motor harness connector D106 terminal 4 (SB) and ground.',
+        'リヤワイパースイッチONでアース間がバッテリー電圧',
+        'リヤワイパースイッチONで、リヤワイパーモーターハーネスコネクターD106端子4（SB）とアース間を測定。'
+      ),
+      sm(
+        'D106·1 (B)',
+        'WW-47',
+        'Debe existir continuidad a masa',
+        'Contacto OFF. Desconectar el motor. Comprobar la continuidad entre D106 terminal 1 (B) y masa.',
+        'Continuity should exist to ground',
+        'Turn ignition switch OFF. Disconnect the rear wiper motor connector. Check continuity between D106 terminal 1 (B) and ground.',
+        'アースとの導通があること',
+        'イグニッションOFF。モーターコネクターを外し、D106端子1（B）とアース間の導通を確認。'
+      ),
+      sm(
+        'D106·2 (OR)',
+        'WW-49',
+        'Limpia parado: tensión de batería. Limpia en marcha: aprox. 0 V',
+        'Conectar el BCM y el motor. Contacto ON. Medir entre D106 terminal 2 (OR) y masa con el limpialuneta parado y en marcha (señal de auto-stop).',
+        'Wiper stopped: Battery voltage. Wiper operating: Approx. 0V',
+        'Connect the BCM connector and the rear wiper motor connector. Turn ignition switch ON. Check voltage between D106 terminal 2 (OR) and ground while the rear wiper motor is stopped and while it is operating (auto stop signal).',
+        'ワイパー停止: バッテリー電圧。作動中: 約0 V',
+        'BCMとモーターのコネクターを接続。イグニッションON。リヤワイパー停止中および作動中にD106端子2（OR）とアース間を測定（オートストップ信号）。'
+      )
+    ],
+    /* Power window main switch D7. GW-27/47. */
+    pw_d7: [
+      sm(
+        'D7·1 (W)',
+        'GW-47',
+        'Tensión de batería',
+        'Contacto ON. Medir la tensión entre D7 terminal 1 (W) y masa (alimentación de batería). La tabla de referencia de GW-27 también indica tensión de batería en el terminal 1.',
+        'Battery voltage',
+        'Turn ignition switch ON. Check voltage between power window main switch connector D7 terminal 1 (W) and ground (BAT power supply). The reference-value table on GW-27 also lists battery voltage at terminal 1.',
+        'バッテリー電圧',
+        'イグニッションON。パワーウィンドウメインスイッチコネクターD7端子1（W）とアース間を測定（バッテリー電源）。GW-27の基準値表でも端子1はバッテリー電圧。'
+      ),
+      sm(
+        'D7·10 (SB)',
+        'GW-47',
+        'Tensión de batería (contacto ON, y también durante 45 s después de pasar a OFF)',
+        'Contacto ON. Medir entre D7 terminal 10 (SB) y masa (señal RAP). GW-27: tensión de batería con IGN ON y dentro de los 45 s posteriores a IGN OFF.',
+        'Battery voltage (ignition ON, and also within 45 seconds after the ignition switch is turned to OFF)',
+        'Turn ignition switch ON. Check voltage between D7 terminal 10 (SB) and ground (RAP signal). GW-27 lists battery voltage with IGN SW ON and within 45 seconds after the ignition switch is turned to OFF.',
+        'バッテリー電圧（イグニッションON、およびOFF後45秒以内）',
+        'イグニッションON。D7端子10（SB）とアース間を測定（RAP信号）。GW-27ではIGN ON、およびイグニッションOFF後45秒以内もバッテリー電圧。'
+      ),
+      sm(
+        'D7·8 (L) y D7·11 (G) (mandos UP/DOWN del motor del conductor)',
+        'GW-27',
+        'Al subir el cristal: tensión de batería en el terminal 8. Al bajar: tensión de batería en el terminal 11',
+        'Tabla de referencia del interruptor principal. Condición: cuando el motor del elevalunas del conductor opera UP o DOWN.',
+        'When the driver side power window motor is in UP operation: Battery voltage at terminal 8. In DOWN operation: Battery voltage at terminal 11',
+        'Terminal and reference value for the power window main switch. Condition: when the driver side power window motor is in UP or DOWN operation.',
+        '運転席パワーウィンドウモーター上昇作動時: 端子8がバッテリー電圧。下降作動時: 端子11がバッテリー電圧',
+        'パワーウィンドウメインスイッチの端子基準値。運転席パワーウィンドウモーターがUPまたはDOWN作動しているとき。'
+      ),
+      sm(
+        'D7·15 (B)',
+        'GW-47',
+        'Debe existir continuidad a masa. Referencia: aprox. 0 V',
+        'Contacto OFF. Desconectar el interruptor principal. Comprobar la continuidad entre D7 terminal 15 y masa. GW-27 indica aprox. 0 V en el terminal 15 (masa).',
+        'Continuity should exist to ground. Reference value: Approx. 0V',
+        'Turn ignition switch OFF. Disconnect the power window main switch connector. Check continuity between D7 terminal 15 and ground. GW-27 lists approximately 0 V at terminal 15 (ground).',
+        'アースとの導通があること。基準値: 約0 V',
+        'イグニッションOFF。メインスイッチのコネクターを外し、D7端子15とアース間の導通を確認。GW-27では端子15（アース）は約0 V。'
+      )
+    ],
+    /* Power window sub-switch D37. GW-28. */
+    pw_sub_d37: [
+      sm(
+        'D37·10 (W)',
+        'GW-28',
+        'Tensión de batería',
+        'Tabla de referencia del subinterruptor: alimentación de batería, terminal 10.',
+        'Battery voltage',
+        'Terminal and reference value for the power window sub-switch: BAT power supply, terminal 10.',
+        'バッテリー電圧',
+        'パワーウィンドウサブスイッチの端子基準値。バッテリー電源、端子10。'
+      ),
+      sm(
+        'D37·8 (L) y D37·9 (G)',
+        'GW-28',
+        'Al subir el cristal del acompañante: tensión de batería en el terminal 8. Al bajar: tensión de batería en el terminal 9',
+        'Tabla de referencia del subinterruptor, cuando el motor del acompañante opera UP o DOWN.',
+        'When the passenger side power window motor is in UP operation: Battery voltage at terminal 8. In DOWN operation: Battery voltage at terminal 9',
+        'Terminal and reference value for the power window sub-switch, when the passenger side power window motor is in UP or DOWN operation.',
+        '助手席パワーウィンドウモーター上昇作動時: 端子8がバッテリー電圧。下降作動時: 端子9がバッテリー電圧',
+        'パワーウィンドウサブスイッチの端子基準値。助手席パワーウィンドウモーターがUPまたはDOWN作動しているとき。'
+      ),
+      sm(
+        'D37·11 (B) y D37·3 (GY)',
+        'GW-28',
+        'Aprox. 0 V (masa, y masa del limit switch/encoder)',
+        'Tabla de referencia del subinterruptor.',
+        'Approx. 0V (ground, and limit switch/encoder ground)',
+        'Terminal and reference value for the power window sub-switch, terminals 11 (ground) and 3 (limit switch and encoder ground).',
+        '約0 V（アース、およびリミットスイッチ/エンコーダアース）',
+        'パワーウィンドウサブスイッチの端子基準値。端子11（アース）および端子3（リミットスイッチ/エンコーダアース）。'
+      )
+    ],
+    /* Driver power window motor D9. GW-34. */
+    pw_motor_d9: [
+      sm(
+        'D9·1 (G) y D9·2 (L)',
+        'GW-34',
+        'Contacto ON. Interruptor UP: D9·1 aprox. 0 V, D9·2 tensión de batería. Interruptor DOWN: D9·1 tensión de batería, D9·2 aprox. 0 V',
+        'Operar el interruptor principal y medir la tensión entre cada terminal del motor y masa. Continuidad del arnés, contacto OFF: D7·8 (L)–D9·2 (L) y D7·11 (G)–D9·1 (G) deben tener continuidad.',
+        'Ignition switch ON. Main switch UP: D9·1 approx. 0V, D9·2 battery voltage. Main switch DOWN: D9·1 battery voltage, D9·2 approx. 0V',
+        'Operate the power window main switch and check voltage between the driver side power window motor connector and ground. Harness continuity, ignition switch OFF: continuity should exist between D7·8 (L)–D9·2 (L) and D7·11 (G)–D9·1 (G).',
+        'イグニッションON。メインスイッチUP: D9·1 約0 V、D9·2 バッテリー電圧。DOWN: D9·1 バッテリー電圧、D9·2 約0 V',
+        'パワーウィンドウメインスイッチを操作し、運転席パワーウィンドウモーターコネクターとアース間を測定。ハーネス導通はイグニッションOFFで、D7·8（L）–D9·2（L）およびD7·11（G）–D9·1（G）に導通があること。'
+      )
+    ],
+    /* Passenger power window motor D38. GW-34. */
+    pw_motor_d38: [
+      sm(
+        'D38·1 (G) y D38·2 (L)',
+        'GW-34',
+        'Contacto ON. Subinterruptor en cierre: D38·1 aprox. 0 V, D38·2 tensión de batería. En apertura: D38·1 tensión de batería',
+        'Operar el subinterruptor y medir la tensión entre cada terminal del motor del acompañante y masa.',
+        'Ignition switch ON. Sub-switch closing: D38·1 approx. 0V, D38·2 battery voltage. Sub-switch opening: D38·1 battery voltage',
+        'Operate the power window sub-switch and check voltage between the passenger side power window motor connector and ground.',
+        'イグニッションON。サブスイッチ閉じ側: D38·1 約0 V、D38·2 バッテリー電圧。開き側: D38·1 バッテリー電圧',
+        'パワーウィンドウサブスイッチを操作し、助手席パワーウィンドウモーターコネクターとアース間を測定。'
+      )
+    ],
+    /* Driver door switch B17. GW-44 / BL-40. */
+    door_sw_b17: [
+      sm(
+        'B17·1 a masa del interruptor',
+        'GW-44',
+        'Interruptor pulsado (puerta cerrada): no debe existir continuidad. Interruptor suelto (puerta abierta): debe existir continuidad',
+        'Comprobar la continuidad entre el terminal 1 del interruptor de puerta (conductor) y la parte de masa del propio interruptor. El mismo criterio está en BL-40.',
+        'Switch pushed (door closed): Continuity No. Switch released (door open): Continuity Yes',
+        'Check continuity between door switch (driver side) terminal 1 and the ground part of the door switch. The same check is published on BL-40.',
+        'スイッチが押されている（ドア閉）: 導通なし。離されている（ドア開）: 導通あり',
+        '運転席ドアスイッチの端子1とドアスイッチのアース部の導通を確認。同じ点検はBL-40にも記載。'
+      ),
+      sm(
+        'B17·1 (P o W) – M90·12 (P) o B83·62 (W)',
+        'GW-44',
+        'Debe existir continuidad. Terminal 1 a masa de carrocería: no debe existir continuidad',
+        'Contacto OFF. Desconectar el interruptor y el BCM. En GW-44 el conductor va a B83·62 (W) y el acompañante a M90·12 (P); comprobar el par que corresponda a esta ficha (conductor B17).',
+        'Continuity should exist. Terminal 1 to body ground: Continuity should not exist',
+        'Ignition switch OFF. Disconnect the door switch and BCM connectors. On GW-44 the driver switch goes to B83·62 (W) and the passenger switch to M90·12 (P); check the pair that belongs to this card (driver B17).',
+        '導通があること。端子1とボディアース間: 導通がないこと',
+        'イグニッションOFF。ドアスイッチとBCMのコネクターを外す。GW-44では運転席はB83·62（W）、助手席はM90·12（P）。このカード（運転席B17）に該当する対を確認。'
+      )
+    ],
+    /* Passenger door switch B23. GW-44 / BL-40. */
+    door_sw_b23: [
+      sm(
+        'B23·1 a masa del interruptor',
+        'GW-44',
+        'Interruptor pulsado (puerta cerrada): no debe existir continuidad. Interruptor suelto (puerta abierta): debe existir continuidad',
+        'Comprobar la continuidad entre el terminal 1 del interruptor de puerta (acompañante) y la parte de masa del propio interruptor. El mismo criterio está en BL-40.',
+        'Switch pushed (door closed): Continuity No. Switch released (door open): Continuity Yes',
+        'Check continuity between door switch (passenger side) terminal 1 and the ground part of the door switch. The same check is published on BL-40.',
+        'スイッチが押されている（ドア閉）: 導通なし。離されている（ドア開）: 導通あり',
+        '助手席ドアスイッチの端子1とドアスイッチのアース部の導通を確認。同じ点検はBL-40にも記載。'
+      ),
+      sm(
+        'B23·1 (P) – M90·12 (P)',
+        'GW-44',
+        'Debe existir continuidad. Terminal 1 a masa de carrocería: no debe existir continuidad',
+        'Contacto OFF. Desconectar el interruptor y el BCM. En GW-44 el acompañante va a M90·12 (P).',
+        'Continuity should exist. Terminal 1 to body ground: Continuity should not exist',
+        'Ignition switch OFF. Disconnect the door switch and BCM connectors. On GW-44 the passenger switch goes to M90·12 (P).',
+        '導通があること。端子1とボディアース間: 導通がないこと',
+        'イグニッションOFF。ドアスイッチとBCMのコネクターを外す。GW-44では助手席はM90·12（P）。'
+      )
+    ],
+    /* Driver door lock actuator D11. BL-46. */
+    door_lock_d11: [
+      sm(
+        'D11·3 (Y) – M91·44 (Y) y D11·1 (PU) – M91·50 (PU)',
+        'BL-46',
+        'Debe existir continuidad. M91·44 y ·50 a masa: no debe existir continuidad. En M91, al pasar el interruptor a UNLOCK, 44 (Y) va de 0 V a tensión de batería y vuelve a 0 V; al pasar a LOCK, lo mismo en 50 (PU)',
+        'Desconectar el BCM. Comprobar la continuidad del arnés. La señal de mando se mide en el BCM (M91) con el contacto OFF, entre esos terminales y masa.',
+        'Continuity should exist. M91·44 and ·50 to ground: Continuity should not exist. At M91, when the driver door lock/unlock switch is turned to UNLOCK, 44 (Y) goes 0V → battery voltage → 0V; when turned to LOCK, 50 (PU) does the same',
+        'Disconnect the BCM connector. Check harness continuity. The actuator signal is checked at the BCM (M91), ignition switch OFF, between those terminals and ground.',
+        '導通があること。M91·44および·50とアース間: 導通がないこと。M91では、運転席ロック/アンロックスイッチをUNLOCKにすると44（Y）が0 V→バッテリー電圧→0 V、LOCKにすると50（PU）が同様',
+        'BCMコネクターを外し、ハーネスの導通を確認。アクチュエータ信号はイグニッションOFFでBCM（M91）の当該端子とアース間で測定。'
+      )
+    ],
+    /* Passenger door lock actuator D40. BL-47. */
+    door_lock_d40: [
+      sm(
+        'D40·1 (PU) – M91·50 (PU) y D40·3 (GY) – M91·51 (W/R)',
+        'BL-47',
+        'Debe existir continuidad. M91·50 y ·51 a masa: no debe existir continuidad. En M91, al pasar el interruptor a LOCK, 50 (PU) va de 0 V a tensión de batería y vuelve a 0 V; al pasar a UNLOCK, lo mismo en 51 (W/R)',
+        'Desconectar el BCM. Comprobar la continuidad del arnés. La señal se mide en el BCM (M91) entre esos terminales y masa.',
+        'Continuity should exist. M91·50 and ·51 to ground: Continuity should not exist. At M91, when the door lock/unlock switch is turned to LOCK, 50 (PU) goes 0V → battery voltage → 0V; when turned to UNLOCK, 51 (W/R) does the same',
+        'Disconnect the BCM connector. Check harness continuity. The actuator signal is checked at the BCM (M91) between those terminals and ground.',
+        '導通があること。M91·50および·51とアース間: 導通がないこと。M91では、ロック/アンロックスイッチをLOCKにすると50（PU）が0 V→バッテリー電圧→0 V、UNLOCKにすると51（W/R）が同様',
+        'BCMコネクターを外し、ハーネスの導通を確認。アクチュエータ信号はBCM（M91）の当該端子とアース間で測定。'
+      )
+    ],
+    /* Door key cylinder switch D12. GW-50. */
+    key_cyl_d12: [
+      sm(
+        'D12·1 (SB) – D12·2 (B) y D12·3 (R) – D12·2 (B)',
+        'GW-50',
+        '1–2: Neutral/Lock sin continuidad, Unlock con continuidad. 3–2: Neutral/Unlock sin continuidad, Lock con continuidad. Además D12·2 a masa: debe existir continuidad',
+        'Comprobar la continuidad entre los terminales 1, 3 y 2 según la posición de la llave. También D7·6 (R)–D12·3 (R) y D7·7 (SB)–D12·1 (SB): debe existir continuidad (arnés, contacto OFF).',
+        '1–2: Neutral/Lock continuity No, Unlock continuity Yes. 3–2: Neutral/Unlock continuity No, Lock continuity Yes. Also D12·2 to ground: Continuity should exist',
+        'Check continuity between door key cylinder switch connector D12 terminals 1, 3 and 2 according to key position. Also, ignition switch OFF, continuity should exist between D7·6 (R)–D12·3 (R) and D7·7 (SB)–D12·1 (SB).',
+        '1–2: Neutral/Lockは導通なし、Unlockは導通あり。3–2: Neutral/Unlockは導通なし、Lockは導通あり。またD12·2とアース間は導通があること',
+        'キー位置に応じてD12端子1、3と2の導通を確認。イグニッションOFFでD7·6（R）–D12·3（R）およびD7·7（SB）–D12·1（SB）にも導通があること。'
+      )
+    ],
+    /* Back door switch T12. BL-89. */
+    back_door_t12: [
+      sm(
+        'T12·1 – T12·3',
+        'BL-89',
+        'Portón abierto: debe existir continuidad. Además T12·3 (B) a masa: debe existir continuidad',
+        'Comprobar la continuidad entre los terminales 1 y 3 del interruptor del portón, y entre el terminal 3 (B) y masa.',
+        'Open position: Continuity Yes. Also T12·3 (B) to ground: Continuity should exist',
+        'Check continuity between back door switch terminals 1 and 3. Check continuity between door switch harness connector T12 terminal 3 (B) and ground.',
+        '開位置: 導通あり。またT12·3（B）とアース間は導通があること',
+        'バックドアスイッチ端子1と3の導通、およびハーネスコネクターT12端子3（B）とアース間の導通を確認。'
+      )
+    ],
+    /* Back door opener switch T103. BL-50. */
+    back_opener_t103: [
+      sm(
+        'T103·1 – T103·2',
+        'BL-50',
+        'Pulsador ON: debe existir continuidad. Pulsador OFF: no debe existir continuidad. T103·1 (P) – M90·30 (P): debe existir continuidad',
+        'Comprobar la continuidad entre los terminales 1 y 2 del pulsador. Contacto OFF, desconectar BCM y pulsador: continuidad entre M90·30 (P) y T103·1 (P).',
+        'Back door opener switch ON: Continuity Yes. Switch OFF: Continuity No. T103·1 (P) – M90·30 (P): Continuity should exist',
+        'Check continuity between back door opener switch terminals 1 and 2. Ignition switch OFF, disconnect the BCM and the switch: check continuity between M90 terminal 30 (P) and T103 terminal 1 (P).',
+        'オープナーON: 導通あり（OFFの行はBL-50の表の続き）。T103·1（P）–M90·30（P）: 導通があること',
+        'オープナースイッチ端子1と2の導通を確認。イグニッションOFFでBCMとスイッチを外し、M90端子30（P）とT103端子1（P）の導通を確認。'
+      )
+    ],
+    /* Back door opener actuator T11. BL-52. */
+    back_opener_t11: [
+      sm(
+        'T11·1 (PU) – B83·68 (PU); T11·2 (B) a masa',
+        'BL-52',
+        'Debe existir continuidad en ambos casos',
+        'Contacto OFF. Desconectar el BCM y el actuador. Comprobar la continuidad entre B83 terminal 68 (PU) y T11 terminal 1 (PU), y entre T11 terminal 2 (B) y masa.',
+        'Continuity should exist in both checks',
+        'Ignition switch OFF. Disconnect the BCM and the back door opener actuator. Check continuity between B83 terminal 68 (PU) and T11 terminal 1 (PU), and between T11 terminal 2 (B) and ground.',
+        'どちらも導通があること',
+        'イグニッションOFF。BCMとバックドアオープナーアクチュエータを外し、B83端子68（PU）とT11端子1（PU）、およびT11端子2（B）とアース間の導通を確認。'
+      )
+    ],
+    /* Fuel lid opener switch M13. BL-60/61. */
+    fuel_lid_m13: [
+      sm(
+        'M13·1 – M13·2',
+        'BL-60',
+        'Pulsado (ON): debe existir continuidad. Suelto (OFF): no debe existir continuidad. M13·2 (B) a masa: debe existir continuidad',
+        'Comprobar la continuidad entre los terminales 1 y 2, y entre el terminal 2 y masa (BL-61). También M13·1 (L/R) – B83·58 (Y/B): debe existir continuidad; 58 a masa: no debe existir.',
+        'ON (Pushed): Continuity Yes. OFF (Released): Continuity No. M13·2 (B) to ground: Continuity should exist',
+        'Check continuity between fuel lid opener switch harness connector M13 terminals 1 and 2, and between terminal 2 and ground (BL-61). Also continuity should exist between M13·1 (L/R) and B83·58 (Y/B); 58 to ground should not exist.',
+        'ON（押した状態）: 導通あり。OFF（離した状態）: 導通なし。M13·2（B）とアース間: 導通があること',
+        'フューエルリッドオープナースイッチM13端子1と2の導通、および端子2とアース間（BL-61）を確認。M13·1（L/R）とB83·58（Y/B）は導通あり、58とアース間は導通なし。'
+      )
+    ],
+    /* Fuel lid opener actuator T19. BL-60. */
+    fuel_lid_t19: [
+      sm(
+        'T19·1 (PU) – B83·70 (PU); T19·2 (B) a masa',
+        'BL-60',
+        'T19·1–B83·70: debe existir continuidad. T19·1 a masa: no debe existir. T19·2 a masa: debe existir continuidad',
+        'Desconectar el BCM y el actuador. Comprobar esas continuidades.',
+        'T19·1–B83·70: Continuity should exist. T19·1 to ground: Continuity should not exist. T19·2 to ground: Continuity should exist',
+        'Disconnect the BCM connector and the fuel lid opener actuator connector. Check those continuities.',
+        'T19·1–B83·70: 導通があること。T19·1とアース間: 導通がないこと。T19·2とアース間: 導通があること',
+        'BCMとフューエルリッドオープナーアクチュエータのコネクターを外し、それらの導通を確認。'
+      )
+    ],
+    /* Driver door mirror (defogger pins). GW-80. */
+    mirror_d2: [
+      sm(
+        'D2·2 (SB)',
+        'GW-80',
+        'Desempañador ON: tensión de batería. Desempañador OFF: 0 V',
+        'Contacto OFF, desconectar el conector del espejo; luego contacto ON. Operar el interruptor del desempañador y medir entre D2 terminal 2 (SB) y masa.',
+        'Rear window defogger switch ON: Battery voltage. Switch OFF: 0V',
+        'Turn ignition switch OFF and disconnect the driver side door mirror defogger connector, then turn ignition switch ON. Operate the rear window defogger switch and check voltage between D2 terminal 2 (SB) and ground.',
+        'リヤデフォッガースイッチON: バッテリー電圧。OFF: 0 V',
+        'イグニッションOFFで運転席ドアミラーデフォッガーのコネクターを外し、イグニッションON。リヤデフォッガースイッチを操作し、D2端子2（SB）とアース間を測定。'
+      ),
+      sm(
+        'D2·1 (B)',
+        'GW-80',
+        'Debe existir continuidad a masa',
+        'Contacto OFF. Comprobar la continuidad entre D2 terminal 1 (B) y masa. El SM indica a continuación comprobar la continuidad del filament del espejo, sin publicar un valor en ohmios.',
+        'Continuity should exist to ground',
+        'Turn ignition switch OFF. Check continuity between driver side door mirror defogger connector D2 terminal 1 (B) and ground. The FSM then says to check door mirror defogger filament continuity, but publishes no ohm value.',
+        'アースとの導通があること',
+        'イグニッションOFF。運転席ドアミラーデフォッガーコネクターD2端子1（B）とアース間の導通を確認。その後SMはフィラメントの導通点検を指示するが、抵抗値は掲載していない。'
+      )
+    ],
+    /* Passenger door mirror (defogger pins). GW-80/81. */
+    mirror_d32: [
+      sm(
+        'D32·2 (L)',
+        'GW-80',
+        'Desempañador ON: tensión de batería. Desempañador OFF: 0 V',
+        'Contacto ON. Desconectar el conector del espejo del acompañante. Operar el interruptor del desempañador y medir entre D32 terminal 2 (L) y masa.',
+        'Rear window defogger switch ON: Battery voltage. Switch OFF: 0V',
+        'Turn ignition switch ON. Disconnect the passenger side door mirror defogger connector. Operate the rear window defogger switch and check voltage between D32 terminal 2 (L) and ground.',
+        'リヤデフォッガースイッチON: バッテリー電圧。OFF: 0 V',
+        'イグニッションON。助手席ドアミラーデフォッガーのコネクターを外す。リヤデフォッガースイッチを操作し、D32端子2（L）とアース間を測定。'
+      ),
+      sm(
+        'D32·1 (B)',
+        'GW-81',
+        'Debe existir continuidad a masa',
+        'Contacto OFF. Comprobar la continuidad entre D32 terminal 1 (B) y masa. El SM indica comprobar la continuidad del filament, sin publicar un valor en ohmios.',
+        'Continuity should exist to ground',
+        'Turn ignition switch OFF. Check continuity between passenger side door mirror defogger connector D32 terminal 1 and ground. The FSM then says to check door mirror defogger filament continuity, but publishes no ohm value.',
+        'アースとの導通があること',
+        'イグニッションOFF。助手席ドアミラーデフォッガーコネクターD32端子1とアース間の導通を確認。その後SMはフィラメントの導通点検を指示するが、抵抗値は掲載していない。'
+      )
+    ],
+    /* Rear window defogger relay B34. GW-76. */
+    defog_b34: [
+      sm(
+        'B34·1',
+        'GW-76',
+        'Tensión de batería a masa (el color es G o P según el SM)',
+        'Contacto OFF. Retirar el relé del desempañador. Medir la tensión entre B34 terminal 1 y masa (alimentación del relé).',
+        'Battery voltage to ground (the wire colour is G or P in the FSM)',
+        'Turn ignition switch OFF. Remove the rear window defogger relay. Check voltage between rear window defogger relay connector B34 terminal 1 and ground (relay power supply).',
+        'アース間はバッテリー電圧（SMでは線色はGまたはP）',
+        'イグニッションOFF。リヤデフォッガーリレーを外し、B34端子1とアース間を測定（リレー電源）。'
+      ),
+      sm(
+        'Relé B34 (bobina 1–2, contactos 3–5 y 6–7)',
+        'GW-76',
+        'Al alimentar 12 V CC entre 1 y 2: debe existir continuidad entre 3 y 5, y entre 6 y 7. Sin alimentación: no debe existir continuidad en esos pares',
+        'Retirar el relé. Comprobar la continuidad de los contactos con y sin alimentación de 12 V entre los terminales 1 y 2.',
+        'With 12V direct current supplied between terminals 1 and 2: Continuity Yes between 3 and 5, and between 6 and 7. No current supply: Continuity No on those pairs',
+        'Remove the rear window defogger relay. Check continuity between relay terminals 3 and 5, and 6 and 7, with and without 12V direct current between terminals 1 and 2.',
+        '端子1と2に12 V直流を加えると、3–5および6–7に導通あり。電流を加えないときはそれらの導通なし',
+        'リヤデフォッガーリレーを外し、端子1と2に12 V直流を加えたときと加えないときで、端子3と5、および6と7の導通を確認。'
+      )
+    ],
+    /* Rear window defogger (Roadster) B202. GW-79. */
+    defog_b202: [
+      sm(
+        'B202·1 – B34·5',
+        'GW-79',
+        'Debe existir continuidad entre B34·5 (B/W) y B202·1 (B)',
+        'Contacto OFF. Desconectar el relé del desempañador. Comprobar la continuidad entre el conector del relé B34 terminal 5 y el conector del desempañador B202 terminal 1.',
+        'Continuity should exist between B34·5 (B/W) and B202·1 (B)',
+        'Turn ignition switch OFF. Disconnect the rear window defogger relay connector. Check continuity between rear window defogger relay connector B34 terminal 5 and rear window defogger connector B202 terminal 1.',
+        'B34·5（B/W）とB202·1（B）の間に導通があること',
+        'イグニッションOFF。リヤデフォッガーリレーのコネクターを外し、B34端子5とリヤデフォッガーコネクターB202端子1の導通を確認。'
+      )
+    ],
+    /* Rear window defogger Coupe D104/D211. GW-77/78. */
+    defog_d104: [
+      sm(
+        'D104·1 (B/W)',
+        'GW-77',
+        'Desempañador ON: tensión de batería. Desempañador OFF: 0 V',
+        'Medir la tensión entre D104 terminal 1 (B/W) y masa, operando el interruptor del desempañador.',
+        'Rear window defogger switch ON: Battery voltage. Switch OFF: 0V',
+        'Check voltage between rear window defogger connector D104 terminal 1 (B/W) and ground while operating the rear window defogger switch.',
+        'リヤデフォッガースイッチON: バッテリー電圧。OFF: 0 V',
+        'リヤデフォッガースイッチを操作し、D104端子1（B/W）とアース間を測定。'
+      ),
+      sm(
+        'D211·2 (B)',
+        'GW-77',
+        'Debe existir continuidad a masa',
+        'Contacto OFF. Desconectar el conector del desempañador. Comprobar la continuidad entre D211 terminal 2 (B) y masa. B34·5/·7 (B/W) a D104·1 (B/W): debe existir continuidad; esos terminales a masa: no debe existir (GW-78).',
+        'Continuity should exist to ground',
+        'Turn ignition switch OFF. Disconnect the rear window defogger connector. Check continuity between D211 terminal 2 (B) and ground. Continuity should exist between B34 terminals 5 and 7 (B/W) and D104 terminal 1 (B/W); those relay terminals to ground should not have continuity (GW-78).',
+        'アースとの導通があること',
+        'イグニッションOFF。リヤデフォッガーのコネクターを外し、D211端子2（B）とアース間の導通を確認。B34端子5/7（B/W）とD104端子1（B/W）は導通あり、それらのリレー端子とアース間は導通なし（GW-78）。'
+      )
+    ],
+    /* Audio unit M40 (pins 1-10). AV-28/36. */
+    audio_m40: [
+      sm(
+        'M40·6 (Y)',
+        'AV-36',
+        'Tensión de batería con el contacto OFF, ACC y ON',
+        'Medir la tensión entre M40 terminal 6 (Y) y masa (alimentación de batería). El mismo valor aparece en AV-28 (contacto OFF, tensión de batería).',
+        'Battery voltage with the ignition switch OFF, ACC and ON',
+        'Check voltage between audio unit harness connector M40 terminal 6 (Y) and ground (battery power supply). AV-28 also lists battery voltage at this terminal with the ignition switch OFF.',
+        'イグニッションOFF、ACC、ONでバッテリー電圧',
+        'オーディオユニットハーネスコネクターM40端子6（Y）とアース間を測定（バッテリー電源）。AV-28でもイグニッションOFFでバッテリー電圧。'
+      ),
+      sm(
+        'M40·10 (LG)',
+        'AV-36',
+        'Contacto OFF: 0 V. ACC u ON: tensión de batería',
+        'Medir la tensión entre M40 terminal 10 (LG) y masa (alimentación ACC). AV-28 indica tensión de batería con el contacto en ACC.',
+        'Ignition switch OFF: 0V. ACC or ON: Battery voltage',
+        'Check voltage between M40 terminal 10 (LG) and ground (ACC power supply). AV-28 lists battery voltage with the ignition switch in ACC.',
+        'イグニッションOFF: 0 V。ACCまたはON: バッテリー電圧',
+        'M40端子10（LG）とアース間を測定（ACC電源）。AV-28ではイグニッションACCでバッテリー電圧。'
+      ),
+      sm(
+        'M40·5 (G/W)',
+        'AV-28',
+        'Aprox. 12 V (contacto ON, señal de antena, salida)',
+        'Tabla de referencia de la unidad de audio (sistema base), entre el terminal 5 y masa.',
+        'Approx. 12V (ignition switch ON, antenna signal, output)',
+        'Terminals and reference value for the audio unit for the base system, between terminal 5 and ground.',
+        '約12 V（イグニッションON、アンテナ信号、出力）',
+        'ベースシステム用オーディオユニットの端子基準値。端子5とアース間。'
+      ),
+      sm(
+        'M40·8 (R/L)',
+        'AV-28',
+        'Interruptor de luces ON: aprox. 12 V. Interruptor OFF: aprox. 0 V',
+        'Contacto ON. Tabla de referencia, señal del interruptor de luces entre el terminal 8 y masa.',
+        'Lighting switch ON: Approx. 12V. Lighting switch OFF: Approx. 0V',
+        'Ignition switch ON. Terminals and reference value, lighting switch signal between terminal 8 and ground.',
+        'ライトスイッチON: 約12 V。OFF: 約0 V',
+        'イグニッションON。端子基準値。端子8とアース間のライトスイッチ信号。'
+      ),
+      sm(
+        'M40·7 (R/Y)',
+        'AV-28',
+        'Cambia entre aprox. 0 y aprox. 12 V al operar el control de iluminación con el interruptor de luces en ON',
+        'Contacto ON. Tabla de referencia, señal de control de iluminación.',
+        'Changes between approx. 0 and approx. 12V when the illumination control switch is operated with the lighting switch in the ON position',
+        'Ignition switch ON. Terminals and reference value, illumination control signal.',
+        'ライトスイッチONでイルミネーションコントロールスイッチを操作すると、約0 Vと約12 Vの間で変化',
+        'イグニッションON。端子基準値。イルミネーションコントロール信号。'
+      )
+    ],
+    /* Audio unit M41 (pins 11-16), BOSE system. AV-29. */
+    audio_m41: [
+      sm(
+        'M41·12 (G/Y)',
+        'AV-29',
+        'Aprox. 12 V (contacto ON, señal Amp. ON, salida)',
+        'Tabla de referencia de la unidad de audio para sistema Bose, entre el terminal 12 y masa.',
+        'Approx. 12V (ignition switch ON, Amp. ON signal, output)',
+        'Terminals and reference value for the audio unit for the BOSE system, between terminal 12 and ground.',
+        '約12 V（イグニッションON、Amp. ON信号、出力）',
+        'BOSEシステム用オーディオユニットの端子基準値。端子12とアース間。'
+      ),
+      sm(
+        'M41·11 (malla)',
+        'AV-29',
+        'Aprox. 0 V (contacto ON, shield)',
+        'Tabla de referencia de la unidad de audio para sistema Bose.',
+        'Approx. 0V (ignition switch ON, shield)',
+        'Terminals and reference value for the audio unit for the BOSE system, terminal 11 (shield) to ground.',
+        '約0 V（イグニッションON、シールド）',
+        'BOSEシステム用オーディオユニットの端子基準値。端子11（シールド）とアース間。'
+      )
+    ],
+    /* Audio unit M39 (pins 17-32). AV-30/37. */
+    audio_m39: [
+      sm(
+        'M39·17 (Y/R)',
+        'AV-30',
+        'AudioPilot OFF: aprox. 7.5 V. AudioPilot ON: aprox. 0 V',
+        'Contacto ON, salida. Tabla de referencia, señal AudioPilot ON/OFF. Continuidad del arnés: M39·17 (Y/R) a T7·31 (Y/R) debe existir; 17 a masa no debe existir (AV-37).',
+        'AudioPilot OFF: Approx. 7.5V. AudioPilot ON: Approx. 0V',
+        'Ignition switch ON, output. Terminals and reference value, AudioPilot ON/OFF signal. Harness continuity should exist between M39·17 (Y/R) and T7·31 (Y/R); 17 to ground should not exist (AV-37).',
+        'AudioPilot OFF: 約7.5 V。AudioPilot ON: 約0 V',
+        'イグニッションON、出力。端子基準値、AudioPilot ON/OFF信号。ハーネスはM39·17（Y/R）とT7·31（Y/R）に導通があり、17とアース間に導通がないこと（AV-37）。'
+      )
+    ],
+    /* Combination meter M19. DI-16/17/11/97. */
+    meter_m19: [
+      sm(
+        'M19·24 (R/W)',
+        'DI-16',
+        'Tensión de batería con el contacto OFF, ACC y ON',
+        'Medir la tensión entre M19 terminal 24 (R/W) y masa (alimentación de batería).',
+        'Battery voltage with the ignition switch OFF, ACC and ON',
+        'Check voltage between combination meter harness connector M19 terminal 24 (R/W) and ground (battery power).',
+        'イグニッションOFF、ACC、ONでバッテリー電圧',
+        'コンビネーションメータハーネスコネクターM19端子24（R/W）とアース間を測定（バッテリー電源）。'
+      ),
+      sm(
+        'M19·23 (G/Y)',
+        'DI-16',
+        'Contacto OFF o ACC: 0 V. Contacto ON: tensión de batería',
+        'Medir la tensión entre M19 terminal 23 (G/Y) y masa (alimentación IGN ON/START, fusible 14).',
+        'Ignition switch OFF or ACC: 0V. Ignition switch ON: Battery voltage',
+        'Check voltage between M19 terminal 23 (G/Y) and ground (ignition ON or START supply, fuse 14).',
+        'イグニッションOFFまたはACC: 0 V。ON: バッテリー電圧',
+        'M19端子23（G/Y）とアース間を測定（イグニッションONまたはSTART電源、ヒューズ14）。'
+      ),
+      sm(
+        'M19·14 (LG)',
+        'DI-16',
+        'Contacto OFF: 0 V. ACC u ON: tensión de batería',
+        'Medir la tensión entre M19 terminal 14 (LG) y masa (alimentación ACC u ON). DI-11 también indica tensión de batería con el contacto en ACC.',
+        'Ignition switch OFF: 0V. ACC or ON: Battery voltage',
+        'Check voltage between M19 terminal 14 (LG) and ground (ACC or ON supply). DI-11 also lists battery voltage with the ignition switch in ACC.',
+        'イグニッションOFF: 0 V。ACCまたはON: バッテリー電圧',
+        'M19端子14（LG）とアース間を測定（ACCまたはON電源）。DI-11でもイグニッションACCでバッテリー電圧。'
+      ),
+      sm(
+        'M19·10 (B), ·11 (B) y ·12 (B)',
+        'DI-17',
+        'Debe existir continuidad a masa. Referencia (DI-11, terminal 11, contacto ON): aprox. 0 V',
+        'Contacto OFF. Desconectar el cuadro y el amplificador unificado. Comprobar la continuidad entre M19 terminales 10, 11 y 12 (B) y masa.',
+        'Continuity should exist to ground. Reference value (DI-11, terminal 11, ignition ON): Approx. 0 V',
+        'Turn ignition switch OFF. Disconnect the combination meter connector and the unified meter and A/C amp. connector. Check continuity between M19 terminals 10 (B), 11 (B), 12 (B) and ground.',
+        'アースとの導通があること。基準値（DI-11、端子11、イグニッションON）: 約0 V',
+        'イグニッションOFF。コンビネーションメータとunified meter and A/C amp.のコネクターを外し、M19端子10、11、12（B）とアース間の導通を確認。'
+      ),
+      sm(
+        'M19·1 (BR/Y) (cinturón del conductor)',
+        'DI-97',
+        'Cinturón abrochado: aprox. 12 V. Cinturón desabrochado: aprox. 0 V',
+        'Contacto ON. Medir la tensión entre M19 terminal 1 (BR/Y) y masa.',
+        'When seat belt is fastened: Approx. 12 V. When seat belt is unfastened: Approx. 0 V',
+        'Turn ignition switch ON. Check voltage between combination meter harness connector M19 terminal 1 (BR/Y) and ground.',
+        'シートベルト着用時: 約12 V。非着用時: 約0 V',
+        'イグニッションON。コンビネーションメータハーネスコネクターM19端子1（BR/Y）とアース間を測定。'
+      )
+    ],
+    /* Driver seat belt buckle switch B8. DI-98. */
+    belt_b8: [
+      sm(
+        'B8·1 (BR) – M19·1 (BR/Y)',
+        'DI-98',
+        'Debe existir continuidad. M19·1 a masa: no debe existir continuidad',
+        'Desconectar el conector del cuadro. Comprobar la continuidad entre M19 terminal 1 (BR/Y) y B8 terminal 1 (BR), y entre M19·1 y masa. Luego comprobar el circuito de masa del interruptor del hebijón.',
+        'Continuity should exist. M19·1 to ground: Continuity should not exist',
+        'Disconnect the combination meter connector. Check harness continuity between M19 terminal 1 (BR/Y) and seat belt buckle switch (driver side) harness connector B8 terminal 1 (BR), and between M19·1 and ground. Then check the seat belt buckle switch ground circuit.',
+        '導通があること。M19·1とアース間: 導通がないこと',
+        'コンビネーションメータのコネクターを外し、M19端子1（BR/Y）と運転席シートベルトバックルスイッチB8端子1（BR）の導通、およびM19·1とアース間の導通を確認。その後バックルスイッチのアース回路を点検。'
+      )
+    ],
+    /* Brake fluid level switch E44. BRC-138. */
+    brake_fluid_e44: [
+      sm(
+        'E44·1 (W) – E118·40 (W); E44·2 (B) a masa',
+        'BRC-138',
+        'E44·1–E118·40: debe existir continuidad. E118·40 a masa: no debe existir. E44·2 a masa: debe existir continuidad',
+        'Contacto OFF. Desconectar el sensor de nivel de líquido de frenos y la unidad VDC/TCS/ABS. Comprobar esas continuidades.',
+        'E44·1–E118·40: Continuity should exist. E118·40 to ground: Continuity should not exist. E44·2 to ground: Continuity should exist',
+        'Ignition switch OFF. Disconnect the brake fluid level sensor connector and the VDC/TCS/ABS control unit connector. Check those continuities.',
+        'E44·1–E118·40: 導通があること。E118·40とアース間: 導通がないこと。E44·2とアース間: 導通があること',
+        'イグニッションOFF。ブレーキフルードレベルセンサとVDC/TCS/ABSコントロールユニットのコネクターを外し、それらの導通を確認。'
+      )
+    ],
+    /* Soft top control unit B66 (power). RF-39. */
+    top_b66: [
+      sm(
+        'B66·1 (W/R) y B66·8 (W/R)',
+        'RF-39',
+        'Tensión de batería a masa',
+        'Comprobar la tensión entre los terminales 1 y 8 del control del techo (conectores B66/B67) y masa. También el fusible 12 10A del J/B.',
+        'Battery voltage to ground',
+        'Check voltage between soft top control unit connector B66/B67 terminals 1 and 8 and ground. Also check 10A fuse No. 12 in the fuse block (J/B).',
+        'アース間はバッテリー電圧',
+        'ソフトトップコントロールユニットコネクターB66/B67の端子1および8とアース間を測定。J/Bの10AヒューズNo.12も確認。'
+      ),
+      sm(
+        'B66·7 (B) y B66·16 (B)',
+        'RF-39',
+        'Debe existir continuidad a masa',
+        'Contacto OFF. Comprobar la continuidad entre B66 terminales 7 y 16 y masa.',
+        'Continuity should exist to ground',
+        'Turn ignition switch OFF. Check continuity between soft top control unit connector B66 terminals 7 and 16 and ground.',
+        'アースとの導通があること',
+        'イグニッションOFF。ソフトトップコントロールユニットコネクターB66端子7および16とアース間の導通を確認。'
+      )
+    ],
+    /* Soft top control unit B67 (switch inputs / IGN). RF-39/42. */
+    top_b67: [
+      sm(
+        'B67·17 (G)',
+        'RF-39',
+        'Tensión de batería a masa (alimentación de encendido)',
+        'Comprobar la tensión entre el terminal 17 (G) y masa, junto con los terminales 1 y 8 (RF-39).',
+        'Battery voltage to ground (ignition supply)',
+        'Check voltage between soft top control unit terminal 17 (G) and ground, together with terminals 1 and 8 (RF-39).',
+        'アース間はバッテリー電圧（イグニッション電源）',
+        '端子17（G）とアース間を、端子1および8とともに測定（RF-39）。'
+      ),
+      sm(
+        'B67·18 (L/W) – M14·3 (L/B)',
+        'RF-40',
+        'Debe existir continuidad. B67·18 a masa: no debe existir continuidad',
+        'Comprobar la continuidad entre B67 terminal 18 y M14 terminal 3, y entre 18 y masa.',
+        'Continuity should exist. B67·18 to ground: Continuity should not exist',
+        'Check continuity between soft top control unit connector B67 terminal 18 and soft top switch connector M14 terminal 3, and between 18 and ground.',
+        '導通があること。B67·18とアース間: 導通がないこと',
+        'ソフトトップコントロールユニットB67端子18とソフトトップスイッチM14端子3の導通、および18とアース間の導通を確認。'
+      ),
+      sm(
+        'B67·19 (R/W) – M14·4 (R/G)',
+        'RF-42',
+        'Debe existir continuidad. B67·19 a masa: no debe existir. Con el conector conectado, B67·19 a masa: aprox. 5 V (señal de salida de la unidad)',
+        'Comprobar la continuidad del arnés y luego, con los conectores puestos, la tensión de salida en B67·19.',
+        'Continuity should exist. B67·19 to ground: Continuity should not exist. With the connectors attached, B67·19 to ground: Approx. 5V (control unit output signal)',
+        'Check harness continuity between B67 terminal 19 and M14 terminal 4, then with the connectors attached check voltage between B67 terminal 19 and ground.',
+        '導通があること。B67·19とアース間: 導通がないこと。コネクター接続時、B67·19とアース間は約5 V（コントロールユニット出力信号）',
+        'B67端子19とM14端子4のハーネス導通を確認し、コネクター接続後にB67端子19とアース間の電圧を測定。'
+      )
+    ],
+    /* Soft top switch M14. RF-40/42. */
+    top_m14: [
+      sm(
+        'M14·1 (B)',
+        'RF-40',
+        'Debe existir continuidad a masa',
+        'Contacto OFF. Comprobar la continuidad entre M14 terminal 1 (B) y masa.',
+        'Continuity should exist to ground',
+        'Turn ignition switch OFF. Check continuity between soft top switch connector M14 terminal 1 (B) and ground.',
+        'アースとの導通があること',
+        'イグニッションOFF。ソフトトップスイッチコネクターM14端子1（B）とアース間の導通を確認。'
+      ),
+      sm(
+        'M14·1 – M14·3',
+        'RF-40',
+        'Posición OPEN: debe existir continuidad',
+        'Operar el interruptor del techo y comprobar la continuidad entre los terminales 1 y 3.',
+        'OPEN position: Continuity Yes',
+        'Operate the soft top switch and check continuity between soft top switch connector M14 terminals 1 and 3.',
+        'OPEN位置: 導通あり',
+        'ソフトトップスイッチを操作し、M14端子1と3の導通を確認。'
+      ),
+      sm(
+        'M14·1 – M14·4',
+        'RF-42',
+        'Posición CLOSE: debe existir continuidad',
+        'Operar el interruptor del techo y comprobar la continuidad entre los terminales 1 y 4.',
+        'CLOSE position: Continuity Yes',
+        'Operate the soft top switch and check continuity between soft top switch connector M14 terminals 1 and 4.',
+        'CLOSE位置: 導通あり',
+        'ソフトトップスイッチを操作し、M14端子1と4の導通を確認。'
+      )
+    ],
+    /* A/T device (manual mode switch) M47. AT-177. */
+    atdev_m47: [
+      sm(
+        'M47 (lado unidad, interruptor de modo manual)',
+        'AT-177',
+        'Debe existir continuidad: Auto 9–10; Manual 6–9; UP 8–9; DOWN 7–9',
+        'Inspección del componente (manual mode switch). Comprobar la continuidad entre los terminales indicados según la posición.',
+        'Continuity should exist (Yes): Auto 9–10; Manual 6–9; UP 8–9; DOWN 7–9',
+        'Component inspection of the manual mode switch. Check continuity between the listed terminals at the unit side of connector M47, according to position.',
+        '導通があること（Yes）: Auto 9–10; Manual 6–9; UP 8–9; DOWN 7–9',
+        'マニュアルモードスイッチのコンポーネント点検。位置に応じて、コネクターM47のユニット側で記載の端子間導通を確認。'
+      )
+    ],
+    turn_e40: SM_NONE /* Front combination lamp LH xenon. FSM diagnosis is bulb and circuit checks (e.g. LT-25/26); no component voltage or resistance table is published at E40. */,
+    turn_e41: SM_NONE /* Front combination lamp LH halogen. Same as the xenon diagnosis: bulb/circuit checks, no component table at E41. */,
+    turn_t10: SM_NONE /* Rear combination lamp LH (turn). No component voltage or resistance table is published at T10; wiring pages only. */,
+    turn_e24: SM_NONE /* Front combination lamp RH xenon. FSM diagnosis is bulb and circuit checks; no component table at E24. */,
+    turn_e25: SM_NONE /* Front combination lamp RH halogen. FSM diagnosis is bulb and circuit checks; no component table at E25. */,
+    turn_t18: SM_NONE /* Rear combination lamp RH (turn). Connector id does not appear in the 2005 LT text layer; no published component value at T18. */,
+    stop_t9: SM_NONE /* Rear combination lamp LH (stop/tail). Diagnosis is bulb and circuit checks (LT-202/205); no component table at T9. */,
+    stop_t17: SM_NONE /* Rear combination lamp RH (stop/tail). Same: bulb and circuit checks, no component table at T17. */,
+    stop_t202: SM_NONE /* High-mounted stop lamp Roadster T202. LT-181 is a heading; no voltage or resistance table at T202. */,
+    stop_d103: SM_NONE /* High-mounted stop lamp Coupe D103. LT-181 is a heading; no voltage or resistance table at D103. */,
+    map_r53: SM_NONE /* Map lamp Roadster R53. LT-233/234/235 cover Coupe continuity at R52 and a Roadster active-test procedure; no component table was published at R53 in the extracted pages. */,
+    ix_d1_m11: SM_NONE /* Door SMJ D1↔M11 is an intermediate. The 2005 FSM publishes no component-inspection value at this connector. */,
+    ix_d31_m74: SM_NONE /* Door SMJ D31↔M74 is an intermediate. The 2005 FSM publishes no component-inspection value at this connector. */,
+    mirror_sw_d6: SM_NONE /* Door mirror switch D6. GW-80/84 are location/wiring; no voltage or resistance table was found at D6 in the extracted GW inspection pages. */,
+    trunk_cancel_b71: SM_NONE /* Trunk lid opener cancel switch B71. BL-130/133 mention the circuit; no standalone component voltage or continuity table was confirmed at B71 in the extracted pages. */,
+    fuel_lid_m59: SM_NONE /* Fuel lid opener relay M59. BL-53/60 cover the actuator and switch; no component-inspection table was confirmed at the relay connector itself. */,
+    socket_b36: SM_NONE /* Luggage power socket B36. WW-54/55 are the wiring diagram and R&R only; no voltage or resistance spec is published. */,
+    socket_m38: SM_NONE /* Instrument panel power socket M38. WW-54/55 are the wiring diagram and R&R only; no voltage or resistance spec is published. */,
+    seat_b37: SM_NONE /* Heated-seat relay B37. SE-57..64 and SE-71 are description, wiring diagrams and R&R; no component voltage or resistance table is published. */,
+    seat_m154: SM_NONE /* Driver heated-seat switch M154. The 2005 SE heated-seat pages have no component-inspection table at this connector. */,
+    seat_m155: SM_NONE /* Passenger heated-seat switch M155. The 2005 SE heated-seat pages have no component-inspection table at this connector. */,
+    belt_b11: SM_NONE /* Passenger seat belt buckle B11. DI-97/98 inspect the driver buckle B8 and the meter input; no component table was found at B11. SRS-12 is a wiring figure. */,
+    spk_d4: SM_NONE /* Door speaker (non-Bose). AV has terminal tables for the audio unit and amps, and R&R for speakers, but no speaker resistance or voltage table. */,
+    spk_d5: SM_NONE /* Bose door speaker. No speaker resistance or voltage table is published in AV. */,
+    spk_d3: SM_NONE /* Tweeter. AV-42 is R&R only; no resistance table. */,
+    spk_d34: SM_NONE /* Passenger door speaker (non-Bose). No speaker resistance or voltage table is published in AV. */,
+    spk_d35: SM_NONE /* Passenger Bose door speaker. No speaker resistance or voltage table is published in AV. */,
+    spk_d33: SM_NONE /* Passenger tweeter. No resistance table is published in AV. */,
+    spk_b40: SM_NONE /* Rear speaker LH. AV-42 is R&R only; no resistance table. */,
+    spk_b42: SM_NONE /* Rear speaker RH. No resistance table is published in AV. */,
+    pkb_b47: SM_NONE /* Parking-brake switch B47. DI-67 is a wiring figure. A parking-brake voltage table appears at the DTRL unit (E15·17, LT-81), not at B47 itself. */,
+    washer_e29: SM_NONE /* Front washer motor E29. WW describes operation and IPDM E7·44 washer power (battery voltage, WW-15), but no component voltage or resistance table is published at E29. */,
+    washer_e28: SM_NONE /* Rear washer motor E28. Same: system description only, no component table at E28. */,
+    cb_b55: SM_NONE /* Soft-top circuit breaker B55. RF inspection pages do not publish a voltage or resistance value at B55. */,
+    top_b68: SM_NONE /* Soft-top control unit B68. RF-33/34 terminal tables are dense and partly figure-based; no clean, complete numeric set was taken for B68 alone, so this card is left without invented values. */,
+
   };
 
   global.sm = sm;
