@@ -1436,8 +1436,10 @@
 <script src="data/conn.js"></script>
 <script src="data/i18n.js"></script>
 <script src="data/sm_values.js"></script>
+<script src="data/dtc.js"></script>
 <script src="js/selection.js"></script>
 <script src="js/color_search.js"></script>
+<script src="js/dtc_search.js"></script>
 <script>
 /* ========== Color map ========== */
 const OC = {
@@ -7480,9 +7482,61 @@ function highlightColorHits(hits){
   updateF102SelPins();
 }
 
+function selectDtc(code){
+  const d = (typeof DTC_BY_CODE !== 'undefined') ? DTC_BY_CODE[code] : null;
+  if(!d) return;
+  const ids = (typeof dtcCircuitIds === 'function') ? dtcCircuitIds(d, pinToCirc, CIRCUITS) : [];
+  const pins = (typeof dtcSelectPins === 'function') ? dtcSelectPins(d) : (d.ecm || []);
+  const focus = pins.length ? pins[0] : null;
+  /* No SIG focus: a DTC should light the whole FSM circuit, including
+     named ground / 5V path cavities (FTT term 5, APP term 4, etc.). */
+  if(ids.length){
+    selectCircuits(ids, null);
+  } else if(typeof clearSelection === 'function'){
+    clearSelection();
+  } else {
+    clearHL();
+  }
+  /* selectCircuits dims 5V/GND siblings unless Relacionados is on.
+     A DTC pick must still show every terminal the FSM names for that code. */
+  (pins || []).forEach(p => {
+    const el = document.querySelector(`#blocks .pin[data-pin="${p}"]`);
+    if(el){ el.classList.remove('dim'); if(!el.classList.contains('hl') && !el.classList.contains('hl-end')) el.classList.add('hl-group'); }
+    Object.keys(CONN || {}).forEach(cid => {
+      const conf = CONN[cid];
+      (conf && conf.pins || []).forEach(pin => {
+        if(pin.ecm == null || Number(pin.ecm) !== Number(p)) return;
+        document.querySelectorAll(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(pin.id))}"]`).forEach(cav => {
+          cav.classList.remove('dim');
+          if(cav.classList.contains('hl') || cav.classList.contains('hl-end')) return;
+          if(typeof applyHlGroupEl === 'function') applyHlGroupEl(cav, typeof accentForCav === 'function' ? accentForCav(cid, pin) : null);
+          else cav.classList.add('hl-group');
+        });
+        if(cid === 'ix_f102_m72' && typeof f102PinEl === 'function'){
+          const fp = f102PinEl(pin.id);
+          if(fp){ fp.classList.remove('dim'); if(!fp.classList.contains('hl')) fp.classList.add('hl-group'); }
+        }
+      });
+    });
+  });
+  if(typeof updateEcmSelCount === 'function') updateEcmSelCount();
+  if(typeof updateF102SelPins === 'function') updateF102SelPins();
+  const infoEl = document.getElementById('info');
+  if(!infoEl) return;
+  const name = (typeof dtcLocalizedName === 'function') ? dtcLocalizedName(d, lang) : (d.consult || d.code);
+  const note = (typeof dtcNoteText === 'function') ? dtcNoteText(d, t) : '';
+  const head = `<div class="info-short"><b>${esc(d.code)}</b> · ${esc(d.consult || '')}${name && name !== d.consult ? ' — ' + esc(name) : ''}${d.src ? ' · ' + esc(d.src) : ''}${note ? ' — ' + esc(note) : ''}</div>`;
+  infoEl.dataset.locked = '1';
+  delete infoEl.dataset.railMode;
+  infoEl.innerHTML = head + (ids.length ? (infoEl.innerHTML || '') : '');
+  const pinEl = focus != null ? document.querySelector(`#blocks .pin[data-pin="${focus}"]`) : null;
+  if(pinEl) pinEl.scrollIntoView({block:'nearest', inline:'nearest'});
+}
+
 function collectSearch(raw){
   const colorQ = (typeof parseColorQuery === 'function') ? parseColorQuery(raw) : null;
   if(colorQ) return collectColorSearch(colorQ);
+  const dtcRows = (typeof collectDtcSearch === 'function') ? collectDtcSearch(raw, {lang}) : [];
   const q = foldQ(String(raw||'').trim());
   const cjk = /[\u3040-\u30ff\u3400-\u9fff]/.test(q);
   const digits = /^\d{1,3}$/.test(q);
@@ -7550,7 +7604,7 @@ function collectSearch(raw){
     });
   }
   const byRank = (a, b) => a.rank - b.rank;
-  return nameRows.sort(byRank).slice(0, 8).concat(mentionRows.sort(byRank).slice(0, 6));
+  return dtcRows.concat(nameRows.sort(byRank).slice(0, 8).concat(mentionRows.sort(byRank).slice(0, 6)));
 }
 
 function renderSearchList(){
@@ -7580,19 +7634,21 @@ function renderSearchList(){
   const names = qRows.filter(r => r.tier === 'name');
   const mens = qRows.filter(r => r.tier === 'mention');
   const cols = qRows.filter(r => r.tier === 'color');
+  const dtcs = qRows.filter(r => r.tier === 'dtc');
   const html = [];
   let i = 0;
   const add = (title, list) => {
     if(!list.length) return;
     html.push(`<div class="q-sec">${esc(title)}</div>`);
     list.forEach(r => {
-      const kind = (r.kind === 'ficha' || r.kind === 'jump' || r.kind === 'off') ? t('searchFicha') : r.kind === 'circ' ? t('searchCirc') : (r.tier === 'color') ? (r.code || t('searchColors')) : t('pinEcm');
+      const kind = (r.kind === 'ficha' || r.kind === 'jump' || r.kind === 'off') ? t('searchFicha') : r.kind === 'circ' ? t('searchCirc') : r.kind === 'dtc' ? t('searchDtc') : (r.tier === 'color') ? (r.code || t('searchColors')) : t('pinEcm');
       const on = i === qActive;
       const allCls = r.kind === 'colorAll' ? ' q-all' : '';
       html.push(`<button type="button" class="q-row${allCls}${on ? ' on' : ''}" role="option" id="qOpt${i}" data-i="${i}" aria-selected="${on ? 'true' : 'false'}"><span class="q-kind">${esc(kind)}</span><span class="q-label">${esc(r.label)}</span></button>`);
       i++;
     });
   };
+  add(t('searchDtc'), dtcs);
   add(t('searchColors'), cols);
   add(t('searchNames'), names);
   add(t('searchMentions'), mens);
@@ -7639,6 +7695,7 @@ function pickSearchRow(i){
       || (row.id === 'ix_f102_m72' ? document.querySelector(`#f102Panel .pin[data-cav="${CSS.escape(String(row.cav))}"]`) : null);
     if(el) el.scrollIntoView({block:'nearest', inline:'nearest'});
   }
+  else if(row.kind === 'dtc') selectDtc(row.id);
   else if(row.kind === 'circ') selectCircuits([row.id]);
   else if(row.kind === 'pin'){
     selectPin(row.id);

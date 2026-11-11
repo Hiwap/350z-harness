@@ -61,7 +61,7 @@ const expect = {
   pathTag5v: { es: '5V ref', en: '5V ref', ja: '5V基準' },
   pathTagGnd: { es: 'Masa', en: 'Ground', ja: 'アース' },
   pathTagSig: { es: 'Señal', en: 'Signal', ja: '信号' },
-  searchPh: { es: 'Buscar: 101, W/L, azul con blanco…', en: 'Search: 101, W/L, blue and white…', ja: '検索: 101, W/L, 青と白…' },
+  searchPh: { es: 'Buscar: 101, W/L, azul con blanco, P0183…', en: 'Search: 101, W/L, blue and white, P0183…', ja: '検索: 101, W/L, 青と白, P0183…' },
   searchColors: { es: 'Colores', en: 'Colors', ja: '色' },
   searchColorAll: { es: 'Resaltar todos', en: 'Highlight all matches', ja: '一致をすべて強調' },
 };
