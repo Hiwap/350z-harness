@@ -56,9 +56,29 @@ ok(ja && /燃料タンク温度/.test(ja.label), 'JA result shows Japanese name'
 ok(ctx.collectDtcSearch('0183', { lang: 'es' })[0].id === 'P0183', 'collectSearch-style 0183 hits P0183');
 
 const unmapped = ctx.DTC_LIST.filter((d) => d.kind === 'unmapped' && !(d.ecm && d.ecm.length) && !(d.circ && d.circ.length));
-ok(unmapped.some((d) => d.code === 'P0700'), 'A/T index code P0700 is unmapped (AT section)');
-ok(unmapped.some((d) => d.code === 'P1610'), 'P1610 NATS is unmapped (BL-164)');
+ok(ctx.DTC_BY_CODE.P0700 && ctx.DTC_BY_CODE.P0700.kind === 'logic' && ctx.DTC_BY_CODE.P0700.note === 'sinCircuito', 'P0700 TCM is logic without a pin circuit (AT-115)');
+ok(unmapped.some((d) => d.code === 'P0705') && ctx.DTC_BY_CODE.P0705.note === 'atInternal', 'P0705 PNP stays unmapped: TCM F505/F503 are not on the map');
+ok(unmapped.some((d) => d.code === 'P1614') && ctx.DTC_BY_CODE.P1614.note === 'natsAmp', 'P1614 NATS antenna amp M27 is not on the map');
+ok(unmapped.some((d) => d.code === 'P1613') && ctx.DTC_BY_CODE.P1613.note === 'natsMissing', 'P1613 is unmapped: BL-170 does not assign a procedure');
+ok(unmapped.some((d) => d.code === 'P0000'), 'P0000 stays sin DTC');
 ok(ctx.DTC_BY_CODE.P0420 && ctx.DTC_BY_CODE.P0420.note === 'sinCircuito', 'P0420 is logic without a specific circuit');
+
+const u1000 = ctx.DTC_BY_CODE.U1000;
+ok(u1000 && u1000.kind === 'circuit' && u1000.ecm.includes(86) && u1000.ecm.includes(94) && u1000.circ.includes('can'), 'U1000 maps ECM 86/94 and circuit can (LAN)');
+ok(ctx.DTC_BY_CODE.U1001 && ctx.DTC_BY_CODE.U1001.ecm.includes(94), 'U1001 maps the same CAN terminals');
+ok(ctx.parseDtcQuery('U1000')[0] === 'U1000', 'parse U1000');
+const p0500 = ctx.DTC_BY_CODE.P0500;
+ok(p0500 && p0500.ecm.includes(86) && p0500.ecm.includes(94) && p0500.circ.includes('can'), 'P0500 VSS is the CAN path (no dedicated ECM VSS pin)');
+ok(ctx.DTC_BY_CODE.P1212 && ctx.DTC_BY_CODE.P1212.circ.includes('can'), 'P1212 TCS communication is the CAN line');
+ok(ctx.DTC_BY_CODE.P1574 && ctx.DTC_BY_CODE.P1574.circ.includes('can') && ctx.DTC_BY_CODE.P1574.circ.includes('can_tcm'), 'P1574 ASCD compares meter and TCM speed on CAN');
+const p0462 = ctx.DTC_BY_CODE.P0462;
+ok(p0462 && p0462.kind === 'circuit' && p0462.circ.includes('fuel_level') && p0462.circ.includes('ftt_gnd') && !(p0462.ecm && p0462.ecm.length), 'P0462 fuel level maps M49/B28 path, no ECM pin');
+ok(ctx.DTC_BY_CODE.P0725 && ctx.DTC_BY_CODE.P0725.ecm.includes(94) && ctx.DTC_BY_CODE.P0725.circ.includes('can_tcm'), 'P0725 engine speed TCM is CAN ECM↔TCM');
+ok(ctx.DTC_BY_CODE.P1705 && ctx.DTC_BY_CODE.P1705.circ.includes('can'), 'P1705 TP to TCM is CAN');
+ok(ctx.DTC_BY_CODE.P1612 && ctx.DTC_BY_CODE.P1612.circ.includes('can') && ctx.DTC_BY_CODE.P1612.ecm.includes(86), 'P1612 CHAIN OF ECM-IMMU maps CAN');
+ok(ctx.DTC_BY_CODE.P1610 && ctx.DTC_BY_CODE.P1610.kind === 'logic' && ctx.DTC_BY_CODE.P1610.note === 'natsInit', 'P1610 lock mode is NATS init/logic');
+ok(ctx.dtcNoteText(ctx.DTC_BY_CODE.P0000, (k) => ({ dtcSinDtc: 'sin DTC' }[k] || k)) === 'sin DTC', 'P0000 note is sin DTC');
+ok(ctx.dtcNoteText(ctx.DTC_BY_CODE.P0705, (k) => ({ dtcAtInternal: 'F502' }[k] || k)) === 'F502', 'P0705 note mentions missing A/T internal fichas');
 
 if (process.env.HARNESS_SKIP_BROWSER === '1') {
   if (failed) { console.log(`\n${failed} failed`); process.exit(1); }
@@ -241,6 +261,59 @@ const hl1111 = await page.evaluate(() => {
 });
 ok(hl1111.found && hl1111.pin11, 'P1111 highlights ECM 11 (IVT B1)');
 ok(!hl1111.pin10, 'P1111 does not highlight ECM 10 (IVT B2)');
+
+const hlCan = await page.evaluate(() => {
+  if (typeof clearSelection === 'function') clearSelection();
+  const rows = collectSearch('U1000');
+  qRows = rows;
+  const i = rows.findIndex((r) => r.kind === 'dtc' && r.id === 'U1000');
+  if (i >= 0) pickSearchRow(i);
+  const pinLit = (n) => {
+    const el = document.querySelector('#blocks .pin[data-pin="' + n + '"]');
+    return !!(el && (el.classList.contains('hl') || el.classList.contains('hl-end') || el.classList.contains('hl-group') || el.classList.contains('sel')));
+  };
+  const info = (document.getElementById('info') || {}).textContent || '';
+  return { found: i >= 0, pin86: pinLit(86), pin94: pinLit(94), info };
+});
+ok(hlCan.found && hlCan.pin86 && hlCan.pin94, 'U1000 highlights ECM 86 and 94 (CAN-L / CAN-H)');
+ok(/U1000/.test(hlCan.info) && /CAN/.test(hlCan.info), 'info panel names U1000 CAN');
+
+const hlFuel = await page.evaluate(() => {
+  if (typeof clearSelection === 'function') clearSelection();
+  const rows = collectSearch('P0462');
+  qRows = rows;
+  const i = rows.findIndex((r) => r.kind === 'dtc' && r.id === 'P0462');
+  if (i >= 0) pickSearchRow(i);
+  const cavLit = (cid, cav) => {
+    const el = document.querySelector('.cav-hit[data-conn="' + cid + '"][data-cav="' + CSS.escape(String(cav)) + '"]');
+    return !!(el && (el.classList.contains('hl') || el.classList.contains('hl-end') || el.classList.contains('hl-group') || el.classList.contains('sel')));
+  };
+  const info = (document.getElementById('info') || {}).textContent || '';
+  return {
+    found: i >= 0,
+    b28_1: cavLit('fuel_level_sub', '1'),
+    m49_28: cavLit('unified_m49', '28'),
+    b27_5: cavLit('fuel_tank_temp', '5'),
+    m49_36: cavLit('unified_m49', '36'),
+    info,
+  };
+});
+ok(hlFuel.found && hlFuel.b28_1 && hlFuel.m49_28, 'P0462 highlights fuel level B28·1 and M49·28' +
+  (hlFuel.b28_1 && hlFuel.m49_28 ? '' : ` (B28·1=${hlFuel.b28_1} M49·28=${hlFuel.m49_28})`));
+ok(hlFuel.b27_5 && hlFuel.m49_36, 'P0462 highlights fuel-level ground B27·5 and M49·36');
+ok(/P0462/.test(hlFuel.info) && /M49/.test(hlFuel.info), 'info panel names P0462 and the meter path');
+
+const hlAt = await page.evaluate(() => {
+  if (typeof clearSelection === 'function') clearSelection();
+  const rows = collectSearch('P0705');
+  qRows = rows;
+  const i = rows.findIndex((r) => r.kind === 'dtc' && r.id === 'P0705');
+  if (i >= 0) pickSearchRow(i);
+  const info = (document.getElementById('info') || {}).textContent || '';
+  return { found: i >= 0, info };
+});
+ok(hlAt.found && /F502|F503|conjunto A\/T|A\/T assembly/.test(hlAt.info),
+  'P0705 note says the A/T internal fichas are not on the map (got: ' + JSON.stringify(hlAt.info).slice(0, 220) + ')');
 
 const logic = await page.evaluate(() => {
   if (typeof clearSelection === 'function') clearSelection();
