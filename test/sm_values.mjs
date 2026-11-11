@@ -21,7 +21,7 @@ function loadSm() {
   const src = fs.readFileSync(path.join(root, 'data', 'sm_values.js'), 'utf8');
   const ctx = {};
   vm.createContext(ctx);
-  vm.runInContext(src + '\n; this._out = { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs };', ctx);
+  vm.runInContext(src + '\n; this._out = { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs, smPinRangeText };', ctx);
   return ctx._out;
 }
 
@@ -62,7 +62,7 @@ const REQUIRED = [
   ...BODY_REQUIRED
 ];
 
-const { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs } = loadSm();
+const { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs, smPinRangeText } = loadSm();
 ok(!!SM_VALUES && !!SM_NONE, 'SM_VALUES and SM_NONE load');
 
 function checkEntry(id, e, idx) {
@@ -143,7 +143,24 @@ ok(/smTitle: 'Rangos'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 
 ok(/smTitle: 'Values'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'utf8')), 'I18N en smTitle is Values');
 ok(/smTitle: '値'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'utf8')), 'I18N ja smTitle is 値');
 
-ok(typeof smCompactText === 'function' && typeof smWrapPinText === 'function', 'typography helpers export');
+ok(typeof smCompactText === 'function' && typeof smWrapPinText === 'function' && typeof smPinRangeText === 'function', 'typography helpers export');
+ok(smPinRangeText('Suelto: 0.5 - 1.0 V. A fondo: 3.9 - 4.7 V') === '0.5–1.0 V · 3.9–4.7 V',
+  'smPinRangeText keeps both APP ranges, without condition words');
+ok(smPinRangeText('Aproximadamente 5 V') === '≈5 V', 'smPinRangeText shortens Aproximadamente 5 V to ≈5 V');
+ok(smPinRangeText('Approximately 5 V') === '≈5 V', 'smPinRangeText shortens Approximately 5 V to ≈5 V');
+ok(smPinRangeText('約5 V') === '≈5 V', 'smPinRangeText shortens 約5 V to ≈5 V');
+ok(smPinRangeText('Pedal de freno y/o embrague ligeramente pisados (M/T), o freno ligeramente pisado (A/T): aproximadamente 0 V. Freno y embrague sueltos (M/T), o freno suelto (A/T): tensión de batería (11 - 14 V)') === '≈0 V · 11–14 V',
+  'smPinRangeText compacts the ASCD brake pin to ≈0 V · 11–14 V');
+ok(smPinRangeText('ブレーキおよび／またはクラッチをわずかに踏んだ状態（M/T）、またはブレーキをわずかに踏んだ状態（A/T）: 約0 V。ブレーキとクラッチを離した状態（M/T）、またはブレーキを離した状態（A/T）: バッテリー電圧（11–14 V）') === '≈0 V · 11–14 V',
+  'smPinRangeText reads 11–14 V out of Japanese fullwidth parentheses');
+ok(smPinRangeText('A 20 °C (68 °F): 2.1 - 2.9 kΩ. A 50 °C (122 °F): 0.68 - 1.00 kΩ. A 90 °C (194 °F): 0.236 - 0.260 kΩ') === '0.236–2.9 kΩ',
+  'smPinRangeText collapses a temperature table to one min–max');
+ok(smPinRangeText('Tras desconectar E34, medir la resistencia entre los terminales 1 y 2 del lado del sensor. -15 °C (5 °F): 12.73 kΩ; -10 (14): 9.92; -5 (23): 7.80; 0 (32): 6.19; 5 (41): 4.95; 10 (50): 3.99; 15 (59): 3.24; 20 (68): 2.65; 25 (77): 2.19; 30 (86): 1.81; 35 (95): 1.51; 40 (104): 1.27; 45 (113): 1.07') === '1.07–12.73 kΩ',
+  'smPinRangeText collapses the ambient-sensor table to 1.07–12.73 kΩ, without intermediate points');
+ok(smPinRangeText('0 - aproximadamente 1.0 V') === '0–1.0 V', 'smPinRangeText drops aproximadamente inside a range');
+ok(smPinRangeText('Tensión de batería') === '', 'smPinRangeText does not invent a number for battery voltage with no published range');
+ok(smPinRangeText('Sin vacío aplicado: 1.8 - 4.8 V. A −26.7 kPa (−200 mmHg, −7.87 inHg): 2.1 a 2.5 V menos que el valor anterior') === '1.8–4.8 V',
+  'smPinRangeText keeps the evap absolute range and skips the delta');
 ok(smCompactText('0.5 - 1.0 V') === '0.5–1.0 V', 'smCompactText uses an en-dash in ranges');
 ok(smCompactText('Suelto: 0.5 - 1.0 V. A fondo: 3.9 - 4.7 V') === 'Suelto: 0.5–1.0 V · A fondo: 3.9–4.7 V',
   'smCompactText joins condition sentences with a middot');
@@ -415,10 +432,85 @@ if (skipBrowser) {
       }
       return out;
     });
-    ok(/Suelto/.test(langSel.es) && /Fully releas/.test(langSel.en),
-      'Seleccionados APP value switches es/en (got es=' + langSel.es.slice(0, 80) + ' en=' + langSel.en.slice(0, 80) + ')');
-    ok(/全閉|0\.5–1\.0/.test(langSel.ja), 'Seleccionados APP value has ja text (got ' + langSel.ja.slice(0, 100) + ')');
-    ok(langSel.es !== langSel.en && langSel.en !== langSel.ja, 'es/en/ja selected-pin values differ');
+    ok(/0\.5–1\.0/.test(langSel.es) && /3\.9–4\.7/.test(langSel.es),
+      'Seleccionados APP pin (es) shows both compact ranges (got ' + JSON.stringify(langSel.es).slice(0, 120) + ')');
+    ok(/0\.5–1\.0/.test(langSel.en) && /3\.9–4\.7/.test(langSel.en),
+      'Seleccionados APP pin (en) shows both compact ranges (got ' + JSON.stringify(langSel.en).slice(0, 120) + ')');
+    ok(/0\.5–1\.0/.test(langSel.ja) && /3\.9–4\.7/.test(langSel.ja),
+      'Seleccionados APP pin (ja) shows both compact ranges (got ' + JSON.stringify(langSel.ja).slice(0, 120) + ')');
+    ok(!/Suelto|Fully releas|全閉|Aproximadamente|Approximately/.test(langSel.es + langSel.en + langSel.ja),
+      'Seleccionados pin line has no condition prose (got ' + JSON.stringify(langSel).slice(0, 200) + ')');
+
+    /* Compact pin labels on the SM view, and no overflow in es/en/ja. */
+    const pinLabels = await page.evaluate(() => {
+      const sel = document.getElementById('lang');
+      if (sel) sel.value = 'es';
+      if (typeof applyLang === 'function') applyLang();
+      const txt = (pin) => {
+        const el = document.querySelector('#blocks .pin[data-pin="' + pin + '"] .smv');
+        return el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
+      };
+      return { p108: txt(108), p106: txt(106), p90: txt(90), p51: txt(51) };
+    });
+    ok(/≈0\s*V/.test(pinLabels.p108) && /11–14\s*V/.test(pinLabels.p108) && !/Pedal de freno/.test(pinLabels.p108),
+      'SM view pin 108 shows compact ≈0 V · 11–14 V (got ' + JSON.stringify(pinLabels.p108) + ')');
+    ok(/0\.5–1\.0/.test(pinLabels.p106) && /3\.9–4\.7/.test(pinLabels.p106) && !/Suelto/.test(pinLabels.p106),
+      'SM view pin 106 shows both APP ranges without condition words (got ' + JSON.stringify(pinLabels.p106) + ')');
+    ok(/^≈5\s*V$/.test(pinLabels.p90), 'SM view pin 90 (5 V ref) shows the single value ≈5 V (got ' + JSON.stringify(pinLabels.p90) + ')');
+    ok(/0\.4–2\.4\s*V/.test(pinLabels.p51) && !/Ralentí/.test(pinLabels.p51),
+      'SM view pin 51 collapses MAF intermediates to 0.4–2.4 V (got ' + JSON.stringify(pinLabels.p51) + ')');
+
+    const overflow = await page.evaluate(() => {
+      const langs = ['es', 'en', 'ja'];
+      const report = { langs: {}, worst: [] };
+      const check = (node, tag) => {
+        if (!node) return;
+        const t = (node.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!t) return;
+        const ox = node.scrollWidth > node.clientWidth + 1;
+        const oy = node.scrollHeight > node.clientHeight + 1;
+        const prose = /Pedal de freno|Fully released|Aproximadamente|Approximately|Ralentí|Ignition switch|warm-up protocol/.test(t);
+        if (ox || oy || prose) {
+          report.worst.push({ tag, t: t.slice(0, 80), ox, oy, prose, sw: node.scrollWidth, cw: node.clientWidth, sh: node.scrollHeight, ch: node.clientHeight });
+        }
+      };
+      const svgOverflow = (textEl, tag) => {
+        if (!textEl) return;
+        const t = (textEl.textContent || '').trim();
+        if (!t) return;
+        const cav = textEl.closest('svg') && textEl.closest('svg').querySelector('rect.cavity, rect.cav-face, .cavity');
+        /* Compare the text's ink box to the cavity width (the clip path). */
+        const host = textEl.closest('.cav-sm-band') || textEl.parentElement;
+        const clipRect = host && host.closest('svg') && (textEl.closest('g') && textEl.ownerSVGElement
+          ? textEl.ownerSVGElement.querySelector('clipPath rect')
+          : null);
+        let maxW = 40;
+        try {
+          const pin = textEl.closest('.ficha, #selTop, svg');
+          const face = pin && pin.querySelector('rect.cavity, rect.cav-face');
+          if (face && typeof face.getBBox === 'function') maxW = face.getBBox().width;
+        } catch (e) {}
+        let inkW = 0;
+        try { inkW = textEl.getComputedTextLength ? textEl.getComputedTextLength() : (textEl.getBBox().width); } catch (e) {}
+        if (inkW > maxW + 1.5) report.worst.push({ tag, t: t.slice(0, 80), ox: true, oy: false, prose: false, inkW, maxW });
+      };
+      for (const L of langs) {
+        const sel = document.getElementById('lang');
+        if (sel) sel.value = L;
+        if (typeof applyLang === 'function') applyLang();
+        document.querySelectorAll('#blocks .pin .smv, #f102Blocks .pin .smv').forEach((n) => {
+          const pin = n.closest('.pin');
+          check(n, L + ' html ' + ((pin && (pin.dataset.pin || pin.dataset.cav)) || ''));
+        });
+        document.querySelectorAll('.ficha .cav-sm, #selTop .cav-sm').forEach((n) => {
+          svgOverflow(n, L + ' svg');
+        });
+        report.langs[L] = report.worst.length;
+      }
+      return report;
+    });
+    ok(overflow.worst.length === 0,
+      'no SM/Seleccionados pin value overflows or keeps long prose in es/en/ja (got ' + JSON.stringify(overflow.worst.slice(0, 8)) + ')');
 
     const shotDir = '/workspace/printpack_preview';
     try { fs.mkdirSync(shotDir, { recursive: true }); } catch (e) {}
@@ -434,6 +526,59 @@ if (skipBrowser) {
     const shotEl = selTopEl || appHl;
     if (shotEl) {
       await shotEl.screenshot({ path: shotDir + '/sel_app_pin.png' });
+    }
+    /* Single-value pin in Seleccionados (APP cavity 6, ≈5 V). */
+    await page.evaluate(() => {
+      if (typeof clearSelection === 'function') clearSelection();
+      const hit = document.querySelector('.cav-hit[data-conn="app"][data-cav="6"]');
+      if (hit) hit.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    const selSingle = await page.$('#selTop');
+    if (selSingle) await selSingle.screenshot({ path: shotDir + '/sel_single_pin.png' });
+
+    /* SM view: full ECM grid + a close-up of pin 108 (and nearby range pins). */
+    await page.setViewport({ width: 2000, height: 1800, deviceScaleFactor: 2 });
+    await page.evaluate(() => {
+      if (typeof clearSelection === 'function') clearSelection();
+    });
+    const blockOf = async (pin) => {
+      const el = await page.$('#blocks .pin[data-pin="' + pin + '"]');
+      if (!el) return null;
+      await el.evaluate((node) => node.scrollIntoView({ block: 'center', inline: 'nearest' }));
+      const handle = await page.evaluateHandle((node) => node.closest('.block') || node, el);
+      return handle.asElement();
+    };
+    const ecmEl = await page.$('#ecm') || await page.$('#blocks');
+    if (ecmEl) {
+      await ecmEl.evaluate((node) => node.scrollIntoView({ block: 'start' }));
+      await ecmEl.screenshot({ path: shotDir + '/sm_view_fixed.png' });
+      try {
+        const { execFileSync } = require('child_process');
+        execFileSync('python3', [path.join(root, 'tools', 'crop_preview_png.py'), shotDir + '/sm_view_fixed.png'], { timeout: 15000 });
+      } catch (e) { /* keep the uncropped frame if PIL is missing */ }
+    }
+    const zoomBlock = await blockOf('108');
+    if (zoomBlock) await zoomBlock.screenshot({ path: shotDir + '/sm_view_fixed_zoom.png' });
+    const singleBlock = await blockOf('90');
+    if (singleBlock) {
+      /* Same mid block as 108; crop a tight row around pin 90 (single ≈5 V). */
+      const singleClip = await page.evaluate(() => {
+        const el = document.querySelector('#blocks .pin[data-pin="90"]');
+        const n91 = document.querySelector('#blocks .pin[data-pin="91"]');
+        if (!el) return null;
+        el.scrollIntoView({ block: 'center', inline: 'nearest' });
+        const r = el.getBoundingClientRect();
+        const r2 = n91 ? n91.getBoundingClientRect() : r;
+        const pad = 18;
+        const x = Math.min(r.x, r2.x) - pad;
+        const y = Math.min(r.y, r2.y) - pad;
+        const right = Math.max(r.right, r2.right) + pad;
+        const bot = Math.max(r.bottom, r2.bottom) + pad;
+        return { x: Math.max(0, x), y: Math.max(0, y), width: right - Math.max(0, x), height: bot - Math.max(0, y) };
+      });
+      if (singleClip && singleClip.width > 10) {
+        await page.screenshot({ path: shotDir + '/sm_view_single.png', clip: singleClip, captureBeyondViewport: true });
+      }
     }
     /* Intermediate ficha detail: select the E11/F2 card and expand Rangos. */
     const ixShot = await page.evaluate(() => {

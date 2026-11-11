@@ -2276,6 +2276,145 @@
     t = t.replace(/[·\s]+$/g, '').trim();
     return t;
   }
+  function smNormUnit(u){
+    if(!u) return '';
+    let s = String(u).replace(/Ω/g, 'Ω').replace(/ohm/ig, 'Ω');
+    if(/^kΩ$/i.test(s)) return 'kΩ';
+    if(/^mV$/i.test(s)) return 'mV';
+    if(/^V$/i.test(s)) return 'V';
+    if(/^Ω$/.test(s)) return 'Ω';
+    return s;
+  }
+  function smParseNum(s){
+    return Number(String(s).replace(',', '.'));
+  }
+  /* Pin/Seleccionados label: only the published number or min–max, no prose and no intermediate table points. */
+  function smHitsFromChunk(chunk){
+    if(!chunk) return [];
+    let s = String(chunk);
+    s = s.replace(/（/g, '(').replace(/）/g, ')').replace(/［/g, '[').replace(/］/g, ']').replace(/〜/g, '–');
+    s = s.replace(/\[[^\]]*\]/g, ' ');
+    s = s.replace(/[+\-−]?\d+(?:[.,]\d+)?\s*°C\s*(?:\([^)]*\))?/g, ' ');
+    s = s.replace(/[+\-−]?\d+(?:[.,]\d+)?\s*°F/g, ' ');
+    s = s.replace(/[+\-−]?\d+(?:[.,]\d+)?\s*(?:rpm|kPa|mmHg|inHg|min|minutes?)\b/gi, ' ');
+    s = s.replace(/[+\-]?\d+\s*\(\s*\d+\s*\)\s*:/g, ' ');
+    s = s.replace(/[+\-]?\d+\s*:/g, ' ');
+    const unitRe = '(kΩ|kΩ|mV|Ω|Ω|V)';
+    const numRe = '([+\\-]?\\d+(?:[.,]\\d+)?)';
+    const approxRe = '(?:≈|aproximadamente|aprox\\.?|approximately|approx\\.?|約)';
+    const hits = [];
+    const add = (index, len, lo, hi, unit, range, approx, after) => {
+      if(/^\s*(menos que|lower than|低い)/.test(String(after || ''))) return;
+      hits.push({ index: index, len: len || 0, lo: lo, hi: hi, unit: smNormUnit(unit || ''), range: !!range, approx: !!approx });
+    };
+    let m;
+    const rangeRe = new RegExp(numRe + '\\s*[–-]\\s*(?:' + approxRe + '\\s*)?' + numRe + '\\s*' + unitRe, 'gi');
+    while((m = rangeRe.exec(s))){
+      add(m.index, m[0].length, m[1], m[2], m[3], true, false, s.slice(m.index + m[0].length));
+    }
+    const altRangeRe = new RegExp(numRe + '\\s+(?:a|to)\\s+' + numRe + '\\s*' + unitRe, 'gi');
+    while((m = altRangeRe.exec(s))){
+      add(m.index, m[0].length, m[1], m[2], m[3], true, false, s.slice(m.index + m[0].length));
+    }
+    const singleRe = new RegExp('(?:' + approxRe + '\\s*)?' + numRe + '\\s*' + unitRe, 'gi');
+    while((m = singleRe.exec(s))){
+      const around = s.slice(Math.max(0, m.index - 2), m.index + m[0].length + 2);
+      if(/[–-]/.test(around)) continue;
+      if(hits.some((h) => m.index >= h.index && m.index < h.index + (h.len || 0))) continue;
+      const approx = new RegExp('^(?:' + approxRe + ')', 'i').test(m[0]);
+      add(m.index, m[0].length, m[1], m[1], m[2], false, approx, s.slice(m.index + m[0].length));
+    }
+    if(hits.length){
+      /* Inherit the unit of the nearest previous hit, so a kΩ table is not tagged with a leading V. */
+      const used = Object.create(null);
+      hits.forEach((h) => { used[h.lo] = true; used[h.hi] = true; });
+      const bare = new RegExp('(?:^|[^\\d.,])(' + '[+\\-]?\\d+\\.\\d+' + ')(?=\\s*(?:[;,]|·|$))', 'g');
+      while((m = bare.exec(s))){
+        if(used[m[1]]) continue;
+        const prev = s.slice(Math.max(0, m.index - 12), m.index);
+        if(/°|rpm|kPa|mmHg|inHg|\(\s*$/.test(prev)) continue;
+        let unit = '';
+        hits.forEach((h) => { if(h.index <= m.index && h.unit) unit = h.unit; });
+        if(!unit) unit = hits.map((h) => h.unit).find(Boolean) || '';
+        if(!unit) continue;
+        add(m.index, m[0].length, m[1], m[1], unit, false, false, '');
+      }
+    }
+    hits.sort((a, b) => a.index - b.index);
+    return hits;
+  }
+  function smFormatHits(hits, src, forceCollapse){
+    if(!hits.length) return '';
+    const unit = hits.map((h) => h.unit).find(Boolean) || '';
+    const same = hits.every((h) => !h.unit || h.unit === unit);
+    const fmt = (h) => {
+      if(!h.range && h.lo === h.hi) return (h.approx ? '≈' : '') + h.lo + (h.unit ? ' ' + h.unit : '');
+      return h.lo + '–' + h.hi + (h.unit ? ' ' + h.unit : '');
+    };
+    const table = /°C|°F/.test(src || '');
+    if(same && (forceCollapse || hits.length >= 3 || (table && hits.length >= 2))){
+      let minH = hits[0], maxH = hits[0];
+      hits.forEach((h) => {
+        if(smParseNum(h.lo) < smParseNum(minH.lo)) minH = h;
+        if(smParseNum(h.hi) > smParseNum(maxH.hi)) maxH = h;
+      });
+      const min = minH.lo, max = maxH.hi;
+      return (min === max ? ((hits.every((h) => h.approx) ? '≈' : '') + min) : (min + '–' + max)) + (unit ? ' ' + unit : '');
+    }
+    const tokens = [];
+    const seen = Object.create(null);
+    hits.forEach((h) => {
+      const tok = fmt(h);
+      if(!tok || seen[tok]) return;
+      seen[tok] = true;
+      tokens.push(tok);
+    });
+    return tokens.join(' · ');
+  }
+  function smPinRangeText(text){
+    const t = smCompactText(text || '');
+    if(!t) return '';
+    const chunks = t.split(/\s*·\s*/).filter(Boolean);
+    const parts = [];
+    const seen = Object.create(null);
+    chunks.forEach((ch) => {
+      const tok = smFormatHits(smHitsFromChunk(ch), ch, false);
+      if(!tok || seen[tok]) return;
+      seen[tok] = true;
+      parts.push(tok);
+    });
+    if(!parts.length) return '';
+    /* Collapse same-unit table/list chunks (e.g. three ECT resistances) even if another unit is also on the pin. */
+    const grouped = [];
+    const byUnit = Object.create(null);
+    parts.forEach((tok, i) => {
+      const um = tok.match(/(kΩ|mV|Ω|V)$/);
+      const u = um ? um[1] : ('_' + i);
+      if(!byUnit[u]) byUnit[u] = [];
+      byUnit[u].push(tok);
+    });
+    const table = /°C|°F/.test(t);
+    const out = [];
+    const seenU = Object.create(null);
+    parts.forEach((tok, i) => {
+      const um = tok.match(/(kΩ|mV|Ω|V)$/);
+      const u = um ? um[1] : ('_' + i);
+      if(seenU[u]) return;
+      seenU[u] = true;
+      const group = byUnit[u];
+      if(group.length >= 2 && (table || group.length >= 3) && !/_/.test(u)){
+        const hits = [];
+        chunks.forEach((ch) => {
+          smHitsFromChunk(ch).forEach((h) => { if(h.unit === u) hits.push(h); });
+        });
+        const collapsed = smFormatHits(hits, t, true);
+        out.push(collapsed || group[0]);
+      } else {
+        group.forEach((g) => out.push(g));
+      }
+    });
+    return out.join(' · ');
+  }
   function smConnDict(){
     if(typeof CONN !== 'undefined' && CONN && typeof CONN === 'object' && Object.keys(CONN).length) return CONN;
     if(typeof CONN_BASE !== 'undefined' && CONN_BASE) return CONN_BASE;
@@ -2566,6 +2705,7 @@
   global.SM_VALUES = SM_VALUES;
   global.smLoc = smLoc;
   global.smCompactText = smCompactText;
+  global.smPinRangeText = smPinRangeText;
   global.smPinLine = smPinLine;
   global.smPinLines = smPinLines;
   global.smEcmLine = smEcmLine;
