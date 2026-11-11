@@ -132,7 +132,7 @@
 
   #ecm {
     overflow-x: visible; overflow-y: visible; min-width: 0;
-    --pin-w: 45px; --pin-h: 54px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 12px; --pin-sm: 10px;
+    --pin-w: 45px; --pin-h: 76px; --pin-gap: 3px; --block-gap: 10px; --pin-fs: 12px; --pin-sm: 10px;
   }
   .blocks {
     display: flex; gap: var(--block-gap, 10px); align-items: center;
@@ -188,7 +188,8 @@
   }
   .pin small { font-size: var(--pin-sm, 8px); font-weight: 700; opacity: 1; }
   #blocks .pin {
-    overflow: visible;
+    height: var(--pin-h, 32px);
+    overflow: visible; /* keep tracer / selection halo; size is fixed so content cannot grow the pin */
   }
   #blocks .pin .pw {
     letter-spacing: -0.04em;
@@ -234,8 +235,35 @@
     text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95), 0 0 1px #000;
   }
   #blocks .pin.has-dest {
-    min-height: calc(var(--pin-h, 32px) + 10px);
+    /* Class stays for tests; height matches every ECM pin (room for the expected-value line). */
+    min-height: var(--pin-h, 32px);
   }
+  #blocks .pin .smv,
+  #ecm #f102Blocks .pin .smv {
+    display: block;
+    height: 3.2em;
+    min-height: 3.2em;
+    max-height: 3.2em;
+    font-size: 5.4px;
+    font-weight: 700;
+    line-height: 1.05;
+    text-align: center;
+    color: #ffe082;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: normal;
+    letter-spacing: -0.04em;
+    margin-top: 1px;
+    text-shadow: 0 0 2px #000, 0 0 3px #000, 0 1px 2px rgba(0,0,0,.95);
+  }
+  .sel-desc .sel-sm { margin-top: 8px; }
+  .sel-desc .sel-sm .sm-entry { padding: 4px 0; }
+  .sel-desc .sel-sm .sm-pins { color: #ffd54f; font-weight: 600; }
+  .sel-desc .sel-sm .sm-value { color: #e8edf5; }
+  .sel-desc .sel-sm .sm-cond { color: #c5cad3; margin-top: 2px; }
+  .sel-desc .sel-sm .sm-src { color: #90caf9; margin-top: 2px; font-weight: 600; }
   #blocks .pin .dest.lab-5v { color: #F9A825; }
   #blocks .pin .dest.lab-12v { color: #ef9a9a; }
   #blocks .pin .dest.lab-gnd { color: #81c784; }
@@ -810,28 +838,28 @@
   }
   #ecm #f102Blocks {
     --f102-pin-w: 45px;
-    --f102-pin-h: 64px;
+    --f102-pin-h: 82px;
     --f102-pin-fs: 11.9px;
     --f102-pin-sm: 9.3px;
     --f102-pin-lg-w: 58px;
-    --f102-pin-lg-h: 71px;
+    --f102-pin-lg-h: 89px;
     --f102-pin-lg-fs: 13.2px;
     --f102-pin-sm-w: 40px;
-    --f102-pin-sm-h: 61px;
+    --f102-pin-sm-h: 79px;
     --f102-pin-sm-fs: 11.3px;
   }
   #ecm #f102Blocks .pin {
-    width: var(--f102-pin-w); height: auto; min-height: var(--f102-pin-h); padding: 2px 1px;
+    width: var(--f102-pin-w); height: var(--f102-pin-h); min-height: var(--f102-pin-h); padding: 2px 1px;
     font-size: var(--f102-pin-fs); line-height: 1.05;
     flex: 0 0 auto;
   }
   #ecm #f102Blocks .f102-face-block.pin-lg .pin {
-    width: var(--f102-pin-lg-w); min-height: var(--f102-pin-lg-h); font-size: var(--f102-pin-lg-fs);
+    width: var(--f102-pin-lg-w); height: var(--f102-pin-lg-h); min-height: var(--f102-pin-lg-h); font-size: var(--f102-pin-lg-fs);
   }
   #ecm #f102Blocks .f102-face-block.pin-lg .pin small { font-size: var(--f102-pin-sm); }
   #ecm #f102Blocks .f102-face-block.pin-lg .pin .dest { font-size: var(--f102-pin-sm); }
   #ecm #f102Blocks .f102-face-block.pin-sm .pin {
-    width: var(--f102-pin-sm-w); min-height: var(--f102-pin-sm-h); font-size: var(--f102-pin-sm-fs);
+    width: var(--f102-pin-sm-w); height: var(--f102-pin-sm-h); min-height: var(--f102-pin-sm-h); font-size: var(--f102-pin-sm-fs);
   }
   #ecm #f102Blocks .f102-face-block.pin-sm .pin small { font-size: var(--f102-pin-sm); }
   #ecm #f102Blocks .f102-face-block.pin-sm .pin .dest { font-size: var(--f102-pin-sm); }
@@ -2619,6 +2647,7 @@ function rebuildIndexes(){
       });
     });
   });
+  if(typeof smResetIndex === 'function') smResetIndex();
 }
 
 /* Loom view: all = full map; motor = pulled engine-control harness only.
@@ -3025,9 +3054,9 @@ function cavRailBottomClass(pin){
 }
 /* Uniform cavity cell size for all connector face SVGs (not ECM #blocks). */
 const CAV_STD_W = 40;
-const CAV_STD_H = 36;
+const CAV_STD_H = 52;
 const CAV_GAP = 4;
-/* On-screen cavity size for ficha connector SVGs (not ECM #blocks). Locked fixed. */
+/* On-screen cavity width stays locked; height grows with CAV_STD_H so every pin has the expected-value lines. */
 const CAV_CSS_PX = 67;
 const CAV_CSS_SCALE = CAV_CSS_PX / CAV_STD_W;
 /* ECM #blocks pin visual size (independent of fichas / F102). Locked default 45. */
@@ -3036,7 +3065,7 @@ function applyEcmPinPx(){
   const n = ECM_PIN_PX;
   const ecm = document.getElementById('ecm');
   if(ecm){
-    const h = Math.round(n * 1.2);
+    const h = Math.round(n * 1.2) + 22;
     const fs = Math.max(7, Math.round(n * 11 / 40));
     const sm = Math.max(6, Math.round(n * 9 / 40));
     ecm.style.setProperty('--pin-w', n + 'px');
@@ -3055,14 +3084,15 @@ function applyF102PinPx(){
   const host = document.getElementById('f102Blocks') || document.getElementById('ecm');
   if(host){
     const scale = n / 34;
-    const h = Math.round(48 * scale);
+    const smBand = 22;
+    const h = Math.round(48 * scale) + smBand;
     const fs = Math.max(6, Math.round(9 * scale * 10) / 10);
     const sm = Math.max(5, Math.round(7 * scale * 10) / 10);
     const lgW = Math.round(44 * scale);
-    const lgH = Math.round(54 * scale);
+    const lgH = Math.round(54 * scale) + smBand;
     const lgFs = Math.max(6, Math.round(10 * scale * 10) / 10);
     const smW = Math.round(30 * scale);
-    const smH = Math.round(46 * scale);
+    const smH = Math.round(46 * scale) + smBand;
     const smFs = Math.max(5.5, Math.round(8.5 * scale * 10) / 10);
     host.style.setProperty('--f102-pin-w', n + 'px');
     host.style.setProperty('--f102-pin-h', h + 'px');
@@ -3095,6 +3125,35 @@ function wrapConnSvg(svgStr){
   return '<svg' + attrs + '>' + svgStr.slice(m[0].length);
 }
 
+let _svgIdSeq = 0;
+function svgUnique(base){
+  _svgIdSeq += 1;
+  return String(base) + '-' + _svgIdSeq;
+}
+function smCavSvg(cid, pin, cx, y0, w, fill, inkFn, bandH){
+  if(!pin || typeof smPinLine !== 'function') return '';
+  const raw = smPinLine(cid, pin);
+  if(!raw) return '';
+  const maxChars = Math.max(11, Math.floor((w - 2) / 2.85));
+  let lines = (typeof smWrapPinText === 'function') ? smWrapPinText(raw, maxChars) : [raw];
+  if(lines.length > 3) lines = lines.slice(0, 2).concat([lines[2].replace(/…$/, '') + '…']);
+  const n = Math.max(1, lines.length);
+  const longest = Math.max(...lines.map((ln) => [...String(ln)].length), 1);
+  let fs = n >= 3 ? (w < 36 ? 4.4 : 4.8) : (w < 36 ? 5.0 : 5.4);
+  const maxFs = (w - 2.2) / (longest * 0.58);
+  fs = Math.max(3.2, Math.min(fs, maxFs));
+  const step = fs + 0.65;
+  const room = (bandH != null && bandH > 0) ? bandH : (step * n + 2);
+  const yStart = y0 + Math.max(0, (room - step * n) / 2) + fs * 0.8;
+  return lines.map((ln, i) => `<text class="cav-sm" x="${cx}" y="${yStart + i * step}" text-anchor="middle" ${inkFn(fill)} font-size="${fs.toFixed(2)}" font-weight="700" letter-spacing="-0.04">${esc(ln)}</text>`).join('');
+}
+function smvSpanHtml(text){
+  let raw = text || '';
+  /* Narrow HTML ECM/F102 cells: typography-only shortening, same value. */
+  raw = raw.replace(/\bAproximadamente\b/g, 'Aprox.').replace(/\bApproximately\b/g, 'Approx.');
+  const lines = raw && typeof smWrapPinText === 'function' ? smWrapPinText(raw, 18) : (raw ? [raw] : []);
+  return `<span class="smv">${lines.map(ln => esc(ln)).join('<br>')}</span>`;
+}
 function cavGroup(cid, pin, x, y, w, h, rx){
   const optOff = !!(pin && (pin.vifOff || pin.transOff));
   const optNeed = optOff ? optNeedLabel(pin) : '';
@@ -3106,7 +3165,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const wcol = code ? parseWire(code) : {c1:'#455a64', c2:null, tracer:false};
   const sc = isUnk ? '#78909c' : wcol.c1;
   const rx0 = rx||3;
-  const safeId = String(cid).replace(/[^A-Za-z0-9_-]/g,'_') + '-' + String(pin.id).replace(/[^A-Za-z0-9_-]/g,'_');
+  const safeId = svgUnique(String(cid).replace(/[^A-Za-z0-9_-]/g,'_') + '-' + String(pin.id).replace(/[^A-Za-z0-9_-]/g,'_'));
   const gid = 'grad-' + safeId;
   let defs = '';
   let fillVal = isUnk ? '#263238' : (code ? fillFor(code) : '#1a1f28');
@@ -3116,6 +3175,7 @@ function cavGroup(cid, pin, x, y, w, h, rx){
     </linearGradient></defs>`;
     fillVal = `url(#${gid})`;
   }
+  defs += `<defs><clipPath id="cavsm-${safeId}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"/></clipPath></defs>`;
   const inset = (!isUnk && wcol.tracer)
     ? `<rect class="cav-tracer" x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="${Math.max(1,rx0-1)}"
         fill="none" stroke="${wcol.c2}" stroke-width="2"/>`
@@ -3136,12 +3196,13 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   if(mode !== 'solid' && !rail && cavCanOf(pin)) txtFill = '#ce93d8';
   if(isUnk) txtFill = '#b0bec5';
   const ink = (c) => svgInk(c, true);
-  /* Scale 3 lines to cavity height so short IPDM faces don't stack/halo-overlap */
-  const topPad = Math.max(7, Math.min(10, h * 0.28));
-  const botPad = Math.max(4, Math.min(6, h * 0.16));
+  /* Four uniform lines: ECM · wire · rail/id · expected value (band reserved on every cavity). */
+  const topPad = Math.max(6, Math.min(9, h * 0.14));
+  const valBand = Math.max(18, Math.round(h * 0.38));
   const ecmY = y + topPad;
-  const idY = y + h - botPad;
+  const idY = y + h - valBand - 1;
   const codeY = (ecmY + idY) / 2 + 1;
+  const smY = y + h - valBand;
   const codeSw = h < 28 ? 1.05 : (h < 34 ? 1.25 : 1.45);
   const railAttr = (rail && !optOff) ? ` data-rail="${rail}"` : '';
   const ecmFace = isUnk ? '—' : cavTopLabel(pin);
@@ -3156,16 +3217,17 @@ function cavGroup(cid, pin, x, y, w, h, rx){
   const cavCls = (h < 30 ? ' cav-compact' : '') + (isUnk ? ' cav-unknown' : '') + (noClick ? ' cav-noclick' : '') + (optOff ? ' cav-opt-off' : '');
   const optAttr = optOff ? ` opacity="${OPT_OFF_OPACITY}" data-opt-off="${esc(optNeed)}"` : '';
   const optTitle = optNeed ? `<title>${esc(optNeed)}</title>` : '';
-  /* keyline sits just before the group (outside it) so the cavity's own box / face-row geometry is unchanged */
-  return `${keyline}<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr}${optAttr}${noClick ? '' : ' role="button"'}>
-    ${optTitle}${defs}
+  /* keyline, clip defs and the expected-value band sit outside .cav-hit so face-row geometry (bbox) stays the cavity */
+  const smBand = isUnk ? '' : `<g class="cav-sm-band" pointer-events="none" clip-path="url(#cavsm-${safeId})">${smCavSvg(cid, pin, x+w/2, smY, w, '#ffe082', ink, valBand)}</g>`;
+  return `${defs}${keyline}<g class="cav-hit${cavCls}" data-conn="${esc(cid)}" data-cav="${esc(pin.id)}"${railAttr}${optAttr}${noClick ? '' : ' role="button"'}>
+    ${optTitle}
     <rect class="cavity cav-face" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx0}"
       style="stroke:${sc};--cav-fill:${fillVal}" />
     ${inset}
     <text class="cav-ecm" x="${x+w/2}" y="${ecmY}" text-anchor="middle" ${ink(topFill)}>${esc(ecmFace)}</text>
     ${midFace}
     <text class="cav-label ${lc}" x="${x+w/2}" y="${idY}" text-anchor="middle" ${ink(txtFill)}>${esc(disp)}</text>
-  </g>`;
+  </g>${smBand}`;
 }
 
 
@@ -3295,7 +3357,7 @@ function svgRing(cid, f){
   const wcol = parseWire(p.code);
   const sc = wcol.c1;
   const ecmTxt = p.ecm != null ? ('→'+p.ecm) : '—';
-  const safeId = String(cid).replace(/[^A-Za-z0-9_-]/g,'_') + '-' + String(p.id).replace(/[^A-Za-z0-9_-]/g,'_');
+  const safeId = svgUnique(String(cid).replace(/[^A-Za-z0-9_-]/g,'_') + '-' + String(p.id).replace(/[^A-Za-z0-9_-]/g,'_'));
   const gid = 'grad-' + safeId;
   let defs = '';
   let fillVal = fillFor(p.code);
@@ -3319,7 +3381,7 @@ function svgRing(cid, f){
     else if(rail === 'gnd') botFill = '#81C784';
   }
   const ink = (c) => svgInk(c, true);
-  return `<svg class="conn-svg" viewBox="0 0 90 84" xmlns="http://www.w3.org/2000/svg">
+  return `<svg class="conn-svg" viewBox="0 0 90 102" xmlns="http://www.w3.org/2000/svg">
     <g class="cav-hit" data-conn="${esc(cid)}" data-cav="${esc(p.id)}">
       ${defs}
       <circle class="cav-face" cx="45" cy="34" r="22" fill="none" stroke="${f.accent}" stroke-width="3"/>
@@ -3328,6 +3390,7 @@ function svgRing(cid, f){
       <text class="cav-ecm" x="45" y="30" text-anchor="middle" ${ink(topFill)}>${esc(cavTopLabel(p))}</text>
       ${wireCodeSvg(p.code||'', 45, 64, 'cav-sub cav-code', true)}
       <text class="cav-label" x="45" y="76" text-anchor="middle" ${ink(botFill)}>${esc(cavBottomLabel(p))}</text>
+      ${smCavSvg(cid, p, 45, 82, 80, '#ffe082', ink, 18)}
     </g>
   </svg>`;
 }
@@ -4306,14 +4369,14 @@ function makePinEl(p){
   const d = document.createElement('div');
   if(p==null){
     d.className='pin empty';
-    d.textContent='';
+    d.innerHTML = smvSpanHtml('');
     d.setAttribute('aria-hidden','true');
     return d;
   }
   if(!isPinActive(p)){
     d.className='pin empty unused';
     d.dataset.pin = p;
-    d.textContent = String(p);
+    d.innerHTML = `<span class="pn">${p}</span>` + smvSpanHtml('');
     d.title = `Pin ${p} (n/a)`;
     d.setAttribute('aria-disabled','true');
     return d;
@@ -4339,9 +4402,11 @@ function makePinEl(p){
   if(dest) d.classList.add('has-dest');
   if(PIN_RAIL[p]) d.classList.add('rail-lab');
   if(PIN_CAN[p]) d.classList.add('can-lab');
+  const smTxt = (typeof smEcmLine === 'function') ? smEcmLine(p) : '';
   d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>`
-    + (dest ? `<span class="dest${lc?' '+lc:''}">${esc(dest)}</span>` : '');
-  d.title = `Pin ${p} ${pinName(p)||''} ${code}`;
+    + (dest ? `<span class="dest${lc?' '+lc:''}">${esc(dest)}</span>` : '')
+    + smvSpanHtml(smTxt);
+  d.title = `Pin ${p} ${pinName(p)||''} ${code}` + (smTxt ? ` · ${smTxt}` : '');
   d.onclick = () => selectPin(p);
   return d;
 }
@@ -4387,9 +4452,11 @@ function makeF102PinEl(pin){
   const bot = hasWire || pin.ecm != null ? cavBottomLabel(pin) : String(pin.id);
   const blc = labClass(bot);
   /* ECM # · wire · rail/CAN/id (same as fichas) */
-  d.innerHTML = `<span class="pn">${esc(ecmTop)}</span><small class="pw">${midHtml}</small><span class="dest${blc?' '+blc:''}">${esc(bot)}</span>`;
+  const smTxt = (typeof smPinLine === 'function') ? smPinLine('ix_f102_m72', livePin) : '';
+  d.innerHTML = `<span class="pn">${esc(ecmTop)}</span><small class="pw">${midHtml}</small><span class="dest${blc?' '+blc:''}">${esc(bot)}</span>`
+    + smvSpanHtml(smTxt);
   const ecmTxt = pin.ecm != null ? ` → ECM ${pin.ecm}` : '';
-  d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}` + (optNeed ? ` · ${optNeed}` : '') + (pin.transOff && pinNote(pin) ? ` · ${pinNote(pin)}` : '');
+  d.title = `F102 ${pin.id} ${pin.lab||''} ${code}${ecmTxt}` + (optNeed ? ` · ${optNeed}` : '') + (pin.transOff && pinNote(pin) ? ` · ${pinNote(pin)}` : '') + (smTxt ? ` · ${smTxt}` : '');
   if(pin.transOff) d.dataset.transOff = pin.transOff;
   if(optOff){ d.classList.add('opt-off'); d.style.opacity = String(OPT_OFF_OPACITY); d.dataset.optOff = optNeed; delete d.dataset.wired; if(cavClickable('ix_f102_m72', livePin)) d.classList.add('opt-click'); }
   if(hasWire && cavClickable('ix_f102_m72', livePin)){
@@ -5088,23 +5155,63 @@ function connField(id, f, field){
 
 function smLoc(entry){
   if(!entry) return {value:'', cond:''};
-  return entry[lang] || entry.es || {value:'', cond:''};
+  return entry[lang] || entry.en || entry.es || {value:'', cond:''};
+}
+function smEntryHtml(e){
+  const loc = smLoc(e);
+  const val = (typeof smCompactText === 'function' ? smCompactText(loc.value) : loc.value) || '';
+  const cond = loc.cond ? `<div class="sm-cond">${esc(loc.cond)}</div>` : '';
+  const src = e && e.src ? `<div class="sm-src">${esc(e.src)}</div>` : '';
+  return `<div class="sm-entry"><div class="sm-pins">${esc((e && e.pins) || '')}</div><div class="sm-value">${esc(val)}</div>${cond}${src}</div>`;
 }
 function smSectionHtml(id){
-  if(typeof SM_VALUES === 'undefined' || !SM_VALUES[id]) return '';
-  const rows = SM_VALUES[id];
+  const rows = (typeof smRowsForCard === 'function') ? smRowsForCard(id)
+    : ((typeof SM_VALUES !== 'undefined') ? SM_VALUES[id] : null);
+  if(!rows) return '';
   let body;
   if(rows.none){
     const loc = smLoc(rows);
     body = `<div class="sm-entry sm-none">${esc(loc.value)}</div>`;
-  } else {
-    body = rows.map(e => {
-      const loc = smLoc(e);
-      const cond = loc.cond ? `<div class="sm-cond">${esc(loc.cond)}</div>` : '';
-      return `<div class="sm-entry"><div class="sm-pins">${esc(e.pins || '')}</div><div class="sm-value">${esc(loc.value)}</div>${cond}<div class="sm-src">${esc(e.src || '')}</div></div>`;
-    }).join('');
-  }
+  } else if(Array.isArray(rows) && rows.length){
+    body = rows.map(smEntryHtml).join('');
+  } else return '';
   return `<details class="ficha-sm"><summary>${esc(t('smTitle'))}</summary><div class="sm-body">${body}</div></details>`;
+}
+function smSelDescHtml(){
+  const key = String(selKey || '');
+  let entries = [];
+  if(key.startsWith('cav:')){
+    const rest = key.slice(4); const i = rest.indexOf(':');
+    const cid = rest.slice(0, i); const cavId = rest.slice(i + 1);
+    const conf = (typeof CONN !== 'undefined' && CONN[cid]) || (typeof CONN_BASE !== 'undefined' && CONN_BASE[cid]);
+    const pin = (conf && conf.pins || []).find(x => String(x.id) === String(cavId));
+    if(typeof smEntriesForCavity === 'function'){
+      entries = smEntriesForCavity(cid, cavId, pin).map(x => x.entry);
+    }
+    if(typeof smIsJointCard === 'function' && smIsJointCard(cid) && typeof smRowsForCard === 'function'){
+      const rows = smRowsForCard(cid);
+      if(Array.isArray(rows)){
+        rows.forEach(e => { if(entries.indexOf(e) < 0) entries.push(e); });
+      }
+    }
+  } else if(key.startsWith('conn:')){
+    const cid = key.slice(5);
+    const rows = (typeof smRowsForCard === 'function') ? smRowsForCard(cid) : null;
+    if(Array.isArray(rows)) entries = rows.slice();
+  } else if(key.startsWith('pin:')){
+    const n = Number(key.slice(4));
+    if(typeof smEntriesForEcm === 'function'){
+      entries = smEntriesForEcm(n).map(x => x.entry);
+    }
+    if(!entries.length && typeof smEcmLines === 'function'){
+      const lines = smEcmLines(n);
+      if(lines.length){
+        return `<div class="sel-sm"><div class="sm-entry"><div class="sm-value">${esc(lines.map(l => l.text).join(' · '))}</div></div></div>`;
+      }
+    }
+  }
+  if(!entries.length) return '';
+  return `<div class="sel-sm"><div class="sel-desc-h">${esc(t('smTitle'))}</div>${entries.map(smEntryHtml).join('')}</div>`;
 }
 
 let _faceLbPrevFocus = null;
@@ -6985,7 +7092,8 @@ function compactSelectionInfo(){
     return `<div class="sel-ficha-blurb">${title}<div class="sel-pin-note">${esc(b.note)}</div></div>`;
   }).join('');
   const activeHtml = activeLine ? `<div class="sel-pin-note">${esc(activeLine)}</div>` : '';
-  const body = activeHtml + (skipLong ? '' : longHtml) + blurbHtml;
+  const smHtml = (typeof smSelDescHtml === 'function') ? smSelDescHtml() : '';
+  const body = activeHtml + (skipLong ? '' : longHtml) + blurbHtml + smHtml;
   info.innerHTML = `<div class="info-short">${shortHtml}</div>`;
   if(!body.trim()) return;
   const d = document.createElement('div');

@@ -21,7 +21,7 @@ function loadSm() {
   const src = fs.readFileSync(path.join(root, 'data', 'sm_values.js'), 'utf8');
   const ctx = {};
   vm.createContext(ctx);
-  vm.runInContext(src + '\n; this._out = { SM_VALUES, SM_NONE };', ctx);
+  vm.runInContext(src + '\n; this._out = { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs };', ctx);
   return ctx._out;
 }
 
@@ -62,7 +62,7 @@ const REQUIRED = [
   ...BODY_REQUIRED
 ];
 
-const { SM_VALUES, SM_NONE } = loadSm();
+const { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs } = loadSm();
 ok(!!SM_VALUES && !!SM_NONE, 'SM_VALUES and SM_NONE load');
 
 function checkEntry(id, e, idx) {
@@ -142,6 +142,38 @@ ok(html.includes('data/sm_values.js'), 'index.html loads data/sm_values.js');
 ok(/smTitle: 'Rangos'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'utf8')), 'I18N es smTitle is Rangos');
 ok(/smTitle: 'Values'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'utf8')), 'I18N en smTitle is Values');
 ok(/smTitle: '値'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'utf8')), 'I18N ja smTitle is 値');
+
+ok(typeof smCompactText === 'function' && typeof smWrapPinText === 'function', 'typography helpers export');
+ok(smCompactText('0.5 - 1.0 V') === '0.5–1.0 V', 'smCompactText uses an en-dash in ranges');
+ok(smCompactText('Suelto: 0.5 - 1.0 V. A fondo: 3.9 - 4.7 V') === 'Suelto: 0.5–1.0 V · A fondo: 3.9–4.7 V',
+  'smCompactText joins condition sentences with a middot');
+ok(smCompactText('aprox. 0.4 V') === 'aprox. 0.4 V', 'smCompactText does not split aprox. as a sentence');
+ok(smCompactText('Approximately 0.4 V') === 'Approximately 0.4 V', 'smCompactText keeps Approximately 0.4 V intact');
+ok(smCompactText('0 - aproximadamente 1.0 V') === '0–aproximadamente 1.0 V', 'smCompactText en-dashes a range before a word');
+{
+  const wrapped = smWrapPinText('Suelto: 0.5–1.0 V · A fondo: 3.9–4.7 V', 22);
+  ok(Array.isArray(wrapped) && wrapped.length === 2, 'APP range wraps into two lines at the middot (got ' + JSON.stringify(wrapped) + ')');
+  ok(wrapped[0].includes('0.5–1.0') && wrapped[1].includes('3.9–4.7'), 'wrapped APP lines keep both ranges');
+  const narrow = smWrapPinText('Suelto: 0.5–1.0 V · A fondo: 3.9–4.7 V', 12);
+  ok(narrow.length === 2 && narrow[0].includes('0.5–1.0') && narrow[1].includes('3.9–4.7'),
+    'narrow width still keeps both APP conditions on their own lines (got ' + JSON.stringify(narrow) + ')');
+  const aprox = smWrapPinText('Aproximadamente 5 V', 12);
+  ok(aprox.length >= 1 && aprox.every((ln) => !/Aproximadam$/.test(ln) && !/^nte /.test(ln)),
+    'Aproximadamente 5 V does not break mid-word (got ' + JSON.stringify(aprox) + ')');
+  ok(aprox.join(' ').includes('Aproximadamente') && aprox.join(' ').includes('5 V'),
+    'Aproximadamente 5 V keeps both words (got ' + JSON.stringify(aprox) + ')');
+}
+{
+  const refs = smParsePinRefs('E113·5 / ECM 106');
+  ok(refs && refs.ecm && refs.ecm.map(String).includes('106') && refs.cavs.some((c) => c.id === '5' && c.code === 'E113'),
+    'smParsePinRefs reads E113·5 / ECM 106 (got ' + JSON.stringify(refs) + ')');
+}
+
+const packPy = fs.readFileSync(path.join(root, 'make_print_pack.py'), 'utf8');
+ok(/use_inv = bool\(face_inv\)/.test(packPy) && !/use_inv = [^\n]*FACE_INV/.test(packPy),
+  'print pack still uses use_inv = bool(face_inv)');
+ok(/def sm_pin_lines|sm_pin_lines\(/.test(packPy) && /SM_DUMP/.test(packPy),
+  'print pack loads FSM values from the SM dump');
 
 const skipBrowser = process.env.HARNESS_SKIP_BROWSER === '1';
 if (skipBrowser) {
@@ -283,6 +315,140 @@ if (skipBrowser) {
     ok(bodyCards.sockText === 'Sin dato en el SM', 'power socket none card shows Sin dato en el SM');
     ok(bodyCards.sockOpen === false, 'power socket Rangos section is collapsed by default');
     ok(bodyCards.sockTitle === 'Rangos', 'power socket default language summary is Rangos');
+
+    /* Intermediate card detail + Seleccionados value line + uniform pin height (all pins, not only valued ones). */
+    const ixDetail = await page.evaluate(() => {
+      const sel = document.getElementById('lang');
+      if (sel) sel.value = 'es';
+      if (typeof applyLang === 'function') applyLang();
+      const det = document.querySelector('.ficha[data-conn="ix_e11_f2"] details.ficha-sm');
+      const values = det ? [...det.querySelectorAll('.sm-value')].map((n) => n.textContent) : [];
+      const srcs = det ? [...det.querySelectorAll('.sm-src')].map((n) => n.textContent) : [];
+      return { has: !!det, open: !!(det && det.open), values, srcs };
+    });
+    ok(ixDetail.has, 'E11/F2 intermediate has a .ficha-sm Rangos section');
+    ok(ixDetail.open === false, 'E11/F2 Rangos section is collapsed by default');
+    ok(ixDetail.values.some((v) => /0\.5–1\.0\s*V/.test(v) && /3\.9–4\.7\s*V/.test(v)),
+      'E11/F2 Rangos includes the APP1 range (got ' + JSON.stringify(ixDetail.values).slice(0, 240) + ')');
+    ok(ixDetail.srcs.includes('EC-670'), 'E11/F2 Rangos cites EC-670');
+
+    const pinHeights = await page.evaluate(() => {
+      const hOf = (sel) => [...document.querySelectorAll(sel)].map((el) => Math.round(el.getBoundingClientRect().height));
+      const uniq = (arr) => [...new Set(arr)];
+      const ecm = hOf('#blocks .pin');
+      const ecmDest = hOf('#blocks .pin.has-dest');
+      const ecmEmpty = hOf('#blocks .pin:not(.has-dest)');
+      const f102Lg = hOf('#f102Blocks .f102-face-block.pin-lg .pin');
+      const f102Sm = hOf('#f102Blocks .f102-face-block.pin-sm .pin');
+      const appCav = [...document.querySelectorAll('.ficha[data-conn="app"] .cav-face, .ficha[data-conn="app"] rect.cavity')]
+        .map((el) => Math.round(el.getBoundingClientRect().height));
+      const ecmPins = document.querySelectorAll('#blocks .pin');
+      const ecmSmv = document.querySelectorAll('#blocks .pin .smv');
+      return {
+        ecmUniq: uniq(ecm), ecmN: ecm.length, ecmMin: Math.min(...ecm), ecmMax: Math.max(...ecm),
+        destUniq: uniq(ecmDest), emptyUniq: uniq(ecmEmpty),
+        f102LgUniq: uniq(f102Lg), f102LgN: f102Lg.length, f102LgMin: f102Lg.length ? Math.min(...f102Lg) : 0, f102LgMax: f102Lg.length ? Math.max(...f102Lg) : 0,
+        f102SmUniq: uniq(f102Sm), f102SmN: f102Sm.length, f102SmMin: f102Sm.length ? Math.min(...f102Sm) : 0, f102SmMax: f102Sm.length ? Math.max(...f102Sm) : 0,
+        appUniq: uniq(appCav), appN: appCav.length, appMin: appCav.length ? Math.min(...appCav) : 0, appMax: appCav.length ? Math.max(...appCav) : 0,
+        ecmSmv: ecmSmv.length, ecmPins: ecmPins.length,
+        hasDestClass: !!document.querySelector('#blocks .pin.has-dest'),
+      };
+    });
+    ok(pinHeights.ecmN > 80 && (pinHeights.ecmMax - pinHeights.ecmMin) <= 1,
+      'all ECM pins share one height (got ' + JSON.stringify(pinHeights.ecmUniq) + ' n=' + pinHeights.ecmN + ')');
+    ok((pinHeights.destUniq.length <= 1 || Math.abs((pinHeights.destUniq[0]||0) - (pinHeights.destUniq[1]||pinHeights.destUniq[0])) <= 1)
+      && (pinHeights.emptyUniq[0] == null || Math.abs(pinHeights.destUniq[0] - pinHeights.emptyUniq[0]) <= 1),
+      'has-dest does not change ECM pin height (dest=' + JSON.stringify(pinHeights.destUniq) + ' empty=' + JSON.stringify(pinHeights.emptyUniq) + ')');
+    ok(pinHeights.ecmSmv === pinHeights.ecmPins && pinHeights.ecmPins > 0,
+      'every ECM pin has a reserved .smv band');
+    ok(pinHeights.hasDestClass, 'has-dest class remains on ECM pins');
+    ok(pinHeights.f102LgN > 0 && (pinHeights.f102LgMax - pinHeights.f102LgMin) <= 1,
+      'F102 L (pin-lg) cavities share one height including empties (got ' + JSON.stringify(pinHeights.f102LgUniq) + ')');
+    ok(pinHeights.f102SmN > 0 && (pinHeights.f102SmMax - pinHeights.f102SmMin) <= 1,
+      'F102 M (pin-sm) cavities share one height including empties (got ' + JSON.stringify(pinHeights.f102SmUniq) + ')');
+    ok(pinHeights.appN >= 6 && (pinHeights.appMax - pinHeights.appMin) <= 1,
+      'APP cavities share one height (got ' + JSON.stringify(pinHeights.appUniq) + ')');
+
+    const selected = await page.evaluate(() => {
+      const sel = document.getElementById('lang');
+      if (sel) sel.value = 'es';
+      if (typeof applyLang === 'function') applyLang();
+      const hit = document.querySelector('.cav-hit[data-conn="app"][data-cav="5"]');
+      if (hit) hit.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      const shortEl = document.getElementById('info-short') || document.querySelector('#info .info-short, #info p, #info');
+      const short = (shortEl && (shortEl.innerText || shortEl.textContent) || '').split('\n')[0];
+      const selTop = document.getElementById('selTop');
+      const smv = selTop ? [...selTop.querySelectorAll('.smv, .cav-sm')].map((n) => n.textContent).join(' | ') : '';
+      const desc = [...document.querySelectorAll('.sel-desc')].map((n) => n.innerText);
+      return {
+        clicked: !!hit,
+        short: short.replace(/\s+/g, ' ').trim(),
+        shortLen: short.replace(/\s+/g, ' ').trim().length,
+        smv,
+        desc: desc.join(' | '),
+      };
+    });
+    ok(selected.clicked, 'clicked APP cavity 5');
+    ok(selected.shortLen <= 140, 'click info short line stays <= 140 chars (got ' + selected.shortLen + ')');
+    ok(!/Medir entre el terminal|Check voltage between ECM terminal/.test(selected.short),
+      'short info line does not carry the long FSM measurement procedure');
+    ok(/0\.5–1\.0/.test(selected.smv) && /3\.9–4\.7/.test(selected.smv),
+      'Seleccionados APP pin shows the FSM range (got ' + JSON.stringify(selected.smv).slice(0, 240) + ')');
+    ok(/0\.5–1\.0/.test(selected.desc) && (/EC-670/.test(selected.desc) || /Suelto/.test(selected.desc)),
+      'sel-desc includes the APP expected value');
+
+    /* Language switch still updates the selected-pin value. */
+    const langSel = await page.evaluate(() => {
+      const out = {};
+      const clickApp = () => {
+        const hit = document.querySelector('.cav-hit[data-conn="app"][data-cav="5"]');
+        if (hit) hit.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      };
+      for (const L of ['es', 'en', 'ja']) {
+        const sel = document.getElementById('lang');
+        if (sel) sel.value = L;
+        if (typeof applyLang === 'function') applyLang();
+        clickApp();
+        if (!document.querySelector('#selTop .smv, #selTop .cav-sm')) clickApp();
+        const selTop = document.getElementById('selTop');
+        out[L] = selTop ? [...selTop.querySelectorAll('.smv, .cav-sm')].map((n) => n.textContent).join(' | ') : '';
+      }
+      return out;
+    });
+    ok(/Suelto/.test(langSel.es) && /Fully releas/.test(langSel.en),
+      'Seleccionados APP value switches es/en (got es=' + langSel.es.slice(0, 80) + ' en=' + langSel.en.slice(0, 80) + ')');
+    ok(/全閉|0\.5–1\.0/.test(langSel.ja), 'Seleccionados APP value has ja text (got ' + langSel.ja.slice(0, 100) + ')');
+    ok(langSel.es !== langSel.en && langSel.en !== langSel.ja, 'es/en/ja selected-pin values differ');
+
+    const shotDir = '/workspace/printpack_preview';
+    try { fs.mkdirSync(shotDir, { recursive: true }); } catch (e) {}
+    await page.select('#lang', 'es');
+    await page.evaluate(() => {
+      if (typeof applyLang === 'function') applyLang();
+      if (typeof clearSelection === 'function') clearSelection();
+      const hit = document.querySelector('.cav-hit[data-conn="app"][data-cav="5"]');
+      if (hit) hit.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    const selTopEl = await page.$('#selTop');
+    const appHl = await page.$('#selTop, .ficha.hl[data-conn="app"], .ficha-wrap.hl[data-conn="app"] .ficha, .ficha[data-conn="app"]');
+    const shotEl = selTopEl || appHl;
+    if (shotEl) {
+      await shotEl.screenshot({ path: shotDir + '/sel_app_pin.png' });
+    }
+    /* Intermediate ficha detail: select the E11/F2 card and expand Rangos. */
+    const ixShot = await page.evaluate(() => {
+      if (typeof clearSelection === 'function') clearSelection();
+      if (typeof selectConn === 'function') selectConn('ix_e11_f2');
+      const det = document.querySelector('.ficha[data-conn="ix_e11_f2"] details.ficha-sm');
+      if (det) det.open = true;
+      const panel = document.querySelector('.sel-desc, #selPanel, #info').parentElement;
+      return { opened: !!(det && det.open), hasDesc: !!document.querySelector('.sel-desc') };
+    });
+    ok(ixShot.opened, 'E11/F2 Rangos can be expanded for the detail shot');
+    const ixCard = await page.$('.ficha[data-conn="ix_e11_f2"]');
+    if (ixCard) await ixCard.screenshot({ path: shotDir + '/ix_e11_f2_ficha.png' });
+    const descEl = await page.$('.sel-desc');
+    if (descEl) await descEl.screenshot({ path: shotDir + '/ix_e11_f2_sel_desc.png' });
   } finally {
     await browser.close();
   }
