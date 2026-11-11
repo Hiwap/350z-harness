@@ -34,10 +34,17 @@
     const translate = tFn || (typeof t === 'function' ? t : function (k) { return k; });
     if (!d) return '';
     if (d.note === 'sinCircuito') return translate('dtcNoCirc');
+    if (d.note === 'index') return translate('dtcSinDtc');
     if (d.note === 'atSection') return translate('dtcAtSection');
+    if (d.note === 'atInternal') return translate('dtcAtInternal');
     if (d.note === 'natsBl') return translate('dtcNatsBl');
+    if (d.note === 'natsAmp') return translate('dtcNatsAmp');
+    if (d.note === 'natsInit') return translate('dtcNatsInit');
+    if (d.note === 'natsMissing') return translate('dtcNatsMissing');
     if (d.note === 'meterCan') return translate('dtcMeterCan');
+    if (d.note === 'fuelMeter') return translate('dtcFuelMeter');
     if (d.note === 'canVss') return translate('dtcCanVss');
+    if (d.note === 'canLine') return translate('dtcCanLine');
     if (d.kind === 'unmapped' && !(d.ecm && d.ecm.length) && !(d.circ && d.circ.length)) return translate('dtcUnmapped');
     if (d.kind === 'logic' && !(d.related && d.related.length) && !(d.ecm && d.ecm.length)) return translate('dtcNoCirc');
     return '';
