@@ -712,6 +712,7 @@ runNested('rules.mjs (maintainer corrections on the loaded data; AGENTS.md rule 
 runNested('verify_harness_bugs.mjs', path.join(__dirname, 'verify_harness_bugs.mjs'), [HTML]);
 runNested('i18n.mjs', path.join(__dirname, 'i18n.mjs'));
 runNested('color_search.mjs (search by wire colour: W/L, azul con blanco, 青と白)', path.join(__dirname, 'color_search.mjs'));
+runNested('dtc_search.mjs (search DTC codes: P0183, APP, ASCD, IVT)', path.join(__dirname, 'dtc_search.mjs'));
 runNested('fsm_routes.mjs (FSM table: routes, grounds, faces)', path.join(__dirname, 'fsm_routes.mjs'), [HTML]);
 
 const skipBrowser = process.env.HARNESS_SKIP_BROWSER === '1';
