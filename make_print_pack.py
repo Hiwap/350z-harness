@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-"""Engine harness print pack: p1 cover+EC-123+rails+F102, p2 motor fichas.
+"""Engine/body harness print pack: EC-123 + FSM values + every ficha (paginated).
 White backgrounds. Cards = group outline (web) · 5V = amber outer ring.
-Color cable = solo contorno de cavidad + código escrito.
-Caras Invertida (bancada): espejo L/R en ECM e intermedias motor (F-series mates).
-Fichas grouped by PATH to final destination (motor loom only — no cabin / IPDM room).
+Color cable = cavity contour + written code only. Faces are fixed FSM T.S. order.
 """
 import json
 import os
@@ -56,6 +54,29 @@ I18N = _MAP['I18N']
 CONN_BASE = _MAP['CONN_BASE']
 CONN_I18N = _MAP['CONN_I18N']
 print('I18N source: index.html · lang=%s · keys=%d' % (LANG, len(I18N.get(LANG) or {})))
+
+def _load_sm_dump():
+    dump = os.path.join(_ROOT, 'tools', 'sm_dump.mjs')
+    raw = subprocess.check_output(['node', dump], text=True)
+    return json.loads(raw)
+
+SM_DUMP = _load_sm_dump()
+print('SM dump: cards=%d ecm=%d' % (len(SM_DUMP.get('cards') or {}), len(SM_DUMP.get('ecm') or {})))
+
+def sm_pin_lines(cid, pid):
+    rec = (((SM_DUMP.get('cards') or {}).get(cid) or {}).get('pins') or {}).get(str(pid)) or {}
+    return rec.get(LANG) or []
+
+def sm_ecm_lines(n):
+    rec = (SM_DUMP.get('ecm') or {}).get(str(n)) or {}
+    return rec.get(LANG) or []
+
+def sm_card_rows(cid):
+    rows = ((SM_DUMP.get('cards') or {}).get(cid) or {}).get('rows')
+    if not rows or (isinstance(rows, dict) and rows.get('none')):
+        return []
+    return rows or []
+
 
 def t(key, **kwargs):
     """Translate key from map I18N[LANG]; fall back to en then es then key."""
@@ -114,8 +135,8 @@ MUTED = HexColor("#555555")
 LIGHT_GRAY = HexColor("#BDBDBD")
 PATH_BG = HexColor("#FAFAFA")
 # Uniform cavity size across all fichas (print ≈ web fixed pin cells)
-CAV_STD_W = 24.0
-CAV_STD_H = 24.0
+CAV_STD_W = 32.0
+CAV_STD_H = 36.0
 
 # Match web SUB_ACCENT (group outline on fichas)
 GRP = {
@@ -184,7 +205,7 @@ def ecm_bottom_label(pin):
 
 
 def draw_pin(x, y, w, h, pin):
-    """ECM cell like web: pin nº · wire code · rail/CAN bottom (when present)."""
+    """ECM cell: pin nº · wire code · rail/CAN · reserved SM value band (uniform height)."""
     code = PIN_COL.get(pin, "")
     bot = ecm_bottom_label(pin)
     is_bench = pin in BENCH
@@ -196,14 +217,16 @@ def draw_pin(x, y, w, h, pin):
         c.setStrokeColor(oc(code.split("/")[1]))
         c.setLineWidth(1.4)
         c.line(x + w - 2.2, y + 2.5, x + w - 2.2, y + h - 2.5)
+    band_h = max(12.0, min(24.0, h * 0.36))
+    body_h = h - band_h
     has_bot = bool(bot)
-    fs_pin = max(5.5, min(9.5, h * (0.32 if has_bot else 0.40)))
-    fs_code = max(3.6, min(6.2, h * (0.22 if has_bot else 0.28)))
-    fs_bot = max(3.4, min(5.8, h * 0.20))
+    fs_pin = max(5.5, min(9.5, body_h * (0.36 if has_bot else 0.44)))
+    fs_code = max(3.6, min(6.2, body_h * (0.24 if has_bot else 0.30)))
+    fs_bot = max(3.4, min(5.8, body_h * 0.22))
     c.setFillColor(HexColor("#212121"))
     c.setFont(FONT_B, fs_pin)
-    c.drawCentredString(x + w / 2, y + h * (0.62 if has_bot else 0.55), str(pin))
-    draw_wire_code(x + w / 2, y + h * (0.34 if has_bot else 0.12), code if code else "·", fs_code)
+    c.drawCentredString(x + w / 2, y + band_h + body_h * (0.62 if has_bot else 0.55), str(pin))
+    draw_wire_code(x + w / 2, y + band_h + body_h * (0.34 if has_bot else 0.14), code if code else "·", fs_code)
     if has_bot:
         if bot in ("GND", "12V", "5V"):
             c.setFillColor(lab_fill(bot))
@@ -212,7 +235,28 @@ def draw_pin(x, y, w, h, pin):
         else:
             c.setFillColor(MUTED)
         c.setFont(FONT_B, fs_bot)
-        c.drawCentredString(x + w / 2, y + max(2.0, h * 0.06), bot)
+        c.drawCentredString(x + w / 2, y + band_h + max(1.6, body_h * 0.05), bot)
+    # Reserved band on every cell (uniform height). Wrap 1–3 condition lines; the next page has the full text.
+    raw = " · ".join(
+        pdf_safe(item.get("text") if isinstance(item, dict) else str(item))
+        for item in (sm_ecm_lines(pin) or [])
+        if (item.get("text") if isinstance(item, dict) else str(item))
+    )
+    if raw:
+        fs_v = max(2.5, min(3.8, min(band_h * 0.28, w * 0.20)))
+        lines = wrap_to_width(raw, FONT, fs_v, w - 2.4, max_lines=3)
+        if lines and len(lines[0].rstrip("…")) >= 2:
+            c.saveState()
+            pth = c.beginPath()
+            pth.roundRect(x, y, w, h, 2)
+            c.clipPath(pth, stroke=0, fill=0)
+            c.setFillColor(HexColor("#6D4C00"))
+            c.setFont(FONT, fs_v)
+            step = min(fs_v + 0.45, (band_h - 1.0) / max(len(lines), 1))
+            y0 = y + 1.0 + (band_h - step * len(lines)) / 2
+            for i, ln in enumerate(lines):
+                c.drawCentredString(x + w / 2, y0 + (len(lines) - 1 - i) * step, ln)
+            c.restoreState()
 
 
 def draw_empty(x, y, w, h):
@@ -225,8 +269,9 @@ def draw_empty(x, y, w, h):
 
 
 def draw_block(x0, y_top, rows, pw, ph, gap=1.6):
+    """y_top is the top of the first row; reportlab rects are drawn from the bottom."""
     for ri, row in enumerate(rows):
-        y = y_top - ri * (ph + gap)
+        y = y_top - ph - ri * (ph + gap)
         for ci, pin in enumerate(row):
             x = x0 + ci * (pw + gap)
             if pin is None:
@@ -259,10 +304,82 @@ def lab_fill(lab):
     return TITLE_BLACK
 
 
-def draw_cavity(px, py, cw, ch, lab, col, note, fs=None):
-    """Cavity: white fill · wire-color contour stroke only · codes as text."""
+def pdf_safe(text):
+    """Map characters Helvetica cannot draw (keeps FSM wording, typography only)."""
+    if not text:
+        return ""
+    return (
+        str(text)
+        .replace("≈", "~")
+        .replace("ω", "ohm")
+        .replace("Ω", "ohm")
+        .replace("℃", "°C")
+        .replace("℉", "°F")
+    )
+
+
+def wrap_to_width(text, font, size, width, max_lines=2):
+    """Greedy wrap. Prefer middot breaks; works for ja (no spaces)."""
+    from reportlab.pdfbase.pdfmetrics import stringWidth
+    text = pdf_safe(text).strip()
+    if not text or width <= 2 or max_lines <= 0:
+        return []
+
+    def sw(s):
+        try:
+            return stringWidth(s, font, size)
+        except Exception:
+            return len(s) * size * 0.5
+
+    def split_chunk(chunk):
+        if sw(chunk) <= width:
+            return [chunk]
+        out, cur = [], ""
+        # word wrap when spaces exist (en/es); else character wrap (ja)
+        tokens = chunk.split(" ") if (" " in chunk and LANG != "ja") else list(chunk)
+        glue = " " if (" " in chunk and LANG != "ja") else ""
+        for tok in tokens:
+            trial = tok if not cur else cur + glue + tok
+            if cur and sw(trial) > width:
+                out.append(cur)
+                cur = tok
+            else:
+                cur = trial
+        if cur:
+            out.append(cur)
+        return out
+
+    pieces = [p.strip() for p in text.split(" · ") if p.strip()] if " · " in text else [text]
+    lines = []
+    for i, piece in enumerate(pieces):
+        chunk = piece if i == 0 or not lines else "· " + piece
+        for bit in split_chunk(chunk if sw(chunk) <= width or i == 0 else piece):
+            if len(lines) < max_lines:
+                lines.append(bit)
+            else:
+                break
+        if len(lines) >= max_lines:
+            break
+    leftover = False
+    rendered = " ".join(lines).replace(" ", "")
+    compact = text.replace(" ", "")
+    if len(rendered) < len(compact) - 1:
+        leftover = True
+    if leftover and lines:
+        last = lines[-1]
+        while last and sw(last + "…") > width:
+            last = last[:-1]
+        lines[-1] = (last + "…") if last else "…"
+    return lines
+
+
+def draw_cavity(px, py, cw, ch, lab, col, note, fs=None, sm_lines=None):
+    """Cavity: white fill · wire-color contour · codes · reserved SM value band (same height for every pin)."""
+    sm_lines = sm_lines or []
+    # Reserve a value band on EVERY cavity, empty or not, so pin size stays uniform.
+    band_h = max(7.5, min(14.0, ch * 0.34)) if ch >= 22 else max(5.5, ch * 0.28)
     if fs is None:
-        fs = max(4.0, min(7.2, min(ch * 0.26, cw * 0.22)))
+        fs = max(4.0, min(7.2, min((ch - band_h) * 0.32, cw * 0.22)))
     pad = 1.0 if min(cw, ch) < 28 else 1.4
     c.setFillColor(white)
     stroke = oc(col) if col and col not in ("", "—", "nc") else LIGHT_GRAY
@@ -273,16 +390,45 @@ def draw_cavity(px, py, cw, ch, lab, col, note, fs=None):
         c.setStrokeColor(oc(col.split("/")[1]))
         c.setLineWidth(1.35)
         c.line(px + cw - 3.8, py + 2.5, px + cw - 3.8, py + ch - 2.5)
-    # Order matches web fichas: ECM # (top) · wire code · cavity id (bottom)
+    body_h = ch - band_h
     c.setFillColor(ECM_BLUE)
     c.setFont(FONT_B, max(3.4, fs - 0.5))
-    c.drawCentredString(px + cw / 2, py + ch * 0.68, ecm_label(note)[:8])
+    c.drawCentredString(px + cw / 2, py + band_h + body_h * 0.70, ecm_label(note)[:8])
     c.setFillColor(black)
     c.setFont(FONT_B, max(3.4, fs - 0.7))
-    c.drawCentredString(px + cw / 2, py + ch * 0.40, str(col)[:8])
+    c.drawCentredString(px + cw / 2, py + band_h + body_h * 0.38, str(col)[:8])
     c.setFillColor(lab_fill(lab))
     c.setFont(FONT, max(3.2, fs - 0.9))
-    c.drawCentredString(px + cw / 2, py + max(2.4, ch * 0.08), str(lab)[:7])
+    c.drawCentredString(px + cw / 2, py + band_h + max(1.4, body_h * 0.06), str(lab)[:7])
+    # value band — always reserved; text only when FSM has a value
+    texts = []
+    for item in sm_lines:
+        if isinstance(item, dict):
+            tx = item.get("text") or ""
+        else:
+            tx = str(item)
+        if tx:
+            texts.append(pdf_safe(tx))
+    raw = " · ".join(texts)
+    if raw:
+        fs_v = max(2.6, min(4.4, min(band_h * 0.42, cw * 0.16)))
+        lines = wrap_to_width(raw, FONT, fs_v, cw - 2 * pad - 1.5, max_lines=2)
+        # Don't paint unreadable 2–3 character fragments; the table under the face has the full text.
+        if lines and len(lines[0].rstrip("…")) >= 4:
+            c.saveState()
+            pth = c.beginPath()
+            pth.roundRect(px + pad, py + pad, cw - 2 * pad, ch - 2 * pad, min(2.4, ch * 0.12))
+            c.clipPath(pth, stroke=0, fill=0)
+            c.setFillColor(HexColor("#6D4C00"))
+            c.setFont(FONT, fs_v)
+            if len(lines) == 1:
+                c.drawCentredString(px + cw / 2, py + pad + (band_h - fs_v) / 2, lines[0])
+            else:
+                step = min(fs_v + 0.6, (band_h - 1.2) / max(len(lines), 1))
+                y0 = py + pad + band_h - step - 0.4
+                for i, ln in enumerate(lines):
+                    c.drawCentredString(px + cw / 2, y0 - i * step, ln)
+            c.restoreState()
     c.setFillColor(black)
 
 
@@ -308,12 +454,15 @@ def card_shell(x, y, w, h, accent=None, rail_5v=False, radius=3.5):
 
 
 def cav_fit(face_w, face_h, cols, rows=1):
-    """Uniform pin size, shrink only if the card is too small."""
+    """Uniform pin size, shrink only if the card is too small.
+    Height may exceed width so every cavity can reserve a value band."""
     cw = min(CAV_STD_W, face_w / max(cols, 1))
     ch = min(CAV_STD_H, face_h / max(rows, 1))
-    # keep roughly square
-    side = min(cw, ch)
-    return side, side
+    if cw > 0 and ch / cw > 1.45:
+        ch = cw * 1.45
+    if ch > 0 and cw / ch > 1.25:
+        cw = min(CAV_STD_W, ch * 1.25)
+    return cw, ch
 
 
 def split_ficha_title(title):
@@ -412,7 +561,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     if shape == "ring":
         card_shell(x, y, w, h, accent=accent or GRP["power"], rail_5v=rail_5v, radius=4)
         draw_ficha_header(x, y, w, h, title, subtitle or qty, accent or GRP["power"], qty)
-        lab, col, note = pins[0] if pins else ("ring", "B", "")
+        lab, col, note = _pin_disp(pins[0]) if pins else ("ring", "B", "")
         cx, cy, r = x + w / 2, y + h * 0.40, min(w, h) * 0.22
         c.setStrokeColor(SHELL)
         c.setLineWidth(1.8)
@@ -485,6 +634,39 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     face_w = w - 7
     face_h = max(18, h - title_band - 3)
 
+    # Fixed FSM T.S. plug face from CONN_BASE.faceRows (never mirrored by FACE_INV).
+    rows = None
+    if cid:
+        _card = CONN_BASE.get(cid) or {}
+        rows = _card.get("faceRows")
+        if not rows:
+            _vbt = _card.get("faceRowsByTrans") or {}
+            rows = _vbt.get("mt") or _vbt.get("at")
+    if rows:
+        n_rows = len(rows)
+        cols = max((len(row) for row in rows), default=1)
+        cw, ch = cav_fit(face_w, face_h, max(cols, 1), max(n_rows, 1))
+        ox = face_x + max(0, (face_w - cols * cw) / 2)
+        oy = face_y + max(0, (face_h - n_rows * ch) / 2)
+        for ri, row in enumerate(rows):
+            for ci, key in enumerate(row):
+                if key is None or key == "":
+                    continue
+                px = ox + ci * cw
+                py = oy + (n_rows - 1 - ri) * ch
+                if str(key) in by:
+                    lab, col, note = _pin_disp(by[str(key)])
+                    draw_cavity(px, py, cw, ch, lab, col, note, sm_lines=sm_pin_lines(cid, str(key)) if cid else [])
+                else:
+                    c.setFillColor(white)
+                    c.setStrokeColor(HexColor("#E0E0E0"))
+                    c.setLineWidth(0.5)
+                    c.roundRect(px + 1, py + 1, cw - 2, ch - 2, 1.5, fill=1, stroke=1)
+                    c.setFillColor(LIGHT_GRAY)
+                    c.setFont(FONT, 4)
+                    c.drawCentredString(px + cw / 2, py + ch / 2 - 1, str(key))
+        return
+
     # Fixed FSM T.S. plug face. Not mirrored by FACE_INV.
     if face == "af6":
         rows = (CONN_BASE.get(cid) or {}).get("faceRows") if cid else None
@@ -522,7 +704,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
                 if num not in by_num:
                     continue
                 lab, col, note = _pin_disp(by_num[num])
-                draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note, fs=3.4)
+                draw_cavity(face_x + ci * cw, face_y + (1 - ri) * ch, cw, ch, lab, col, note, fs=3.4, sm_lines=sm_pin_lines(cid, num) if cid else [])
         return
 
     # ---- RECT6 (ETC F31, EC-235/464 T.S.): fixed top 3-2-1 / bot 6-5-4, same as the map ----
@@ -558,10 +740,10 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
                 top, bot = list(reversed(top)), list(reversed(bot))
             for ci, pid in enumerate(top):
                 lab, col, note = _pin_disp(by[pid])
-                draw_cavity(ox + ci * cw, oy + ch, cw, ch, lab, col, note, fs=4.2)
+                draw_cavity(ox + ci * cw, oy + ch, cw, ch, lab, col, note, fs=4.2, sm_lines=sm_pin_lines(cid, pid) if cid else [])
             for ci, pid in enumerate(bot):
                 lab, col, note = _pin_disp(by[pid])
-                draw_cavity(ox + ci * cw, oy, cw, ch, lab, col, note, fs=4.2)
+                draw_cavity(ox + ci * cw, oy, cw, ch, lab, col, note, fs=4.2, sm_lines=sm_pin_lines(cid, pid) if cid else [])
             return
 
     # ---- F1 (mapa svgF1): pin1 left mid · top 2-3-4-5 · bot 6-7-8-9 · fixed cavity ----
@@ -579,14 +761,14 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
                 top, bot = list(reversed(top)), list(reversed(bot))
             # pin 1 left, vertically centered between rows
             lab, col, note = _pin_disp(by["1"])
-            draw_cavity(ox, oy + ch * 0.5, cw, ch, lab, col, note, fs=4.0)
+            draw_cavity(ox, oy + ch * 0.5, cw, ch, lab, col, note, fs=4.0, sm_lines=sm_pin_lines(cid, "1") if cid else [])
             gx = ox + cw + cw * 0.15
             for ci, pid in enumerate(top):
                 lab, col, note = _pin_disp(by[pid])
-                draw_cavity(gx + ci * cw, oy + ch, cw, ch, lab, col, note, fs=4.0)
+                draw_cavity(gx + ci * cw, oy + ch, cw, ch, lab, col, note, fs=4.0, sm_lines=sm_pin_lines(cid, pid) if cid else [])
             for ci, pid in enumerate(bot):
                 lab, col, note = _pin_disp(by[pid])
-                draw_cavity(gx + ci * cw, oy, cw, ch, lab, col, note, fs=4.0)
+                draw_cavity(gx + ci * cw, oy, cw, ch, lab, col, note, fs=4.0, sm_lines=sm_pin_lines(cid, pid) if cid else [])
             return
 
     # ---- RECT4 · Invertida ----
@@ -599,7 +781,94 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
         oy = face_y + max(0, (face_h - ch) / 2)
         for i, p in enumerate(ordered):
             lab, col, note = _pin_disp(p)
-            draw_cavity(ox + i * cw, oy, cw, ch, lab, col, note, fs=4.0)
+            draw_cavity(ox + i * cw, oy, cw, ch, lab, col, note, fs=4.0, sm_lines=sm_pin_lines(cid, str(p[0])) if cid else [])
+        return
+
+
+    # ---- E108 / B1 SMJ · PG-84 T.S. band layout (same order as the map svgE108 / svgB1) ----
+    if face in ("e108", "b1") or shape in ("e108", "b1"):
+        suffix = "G" if (face == "e108" or shape == "e108") else "J"
+        bands = [
+            {"rows": [[f"1{suffix}", f"2{suffix}", f"3{suffix}", f"4{suffix}", f"5{suffix}"],
+                      [f"6{suffix}", f"7{suffix}", f"8{suffix}", f"9{suffix}", f"10{suffix}"]]},
+            {"stub": [f"11{suffix}", f"27{suffix}"], "label": f"11{suffix}–27{suffix}"},
+            {"rows": [[f"28{suffix}", f"29{suffix}", f"30{suffix}", f"31{suffix}", f"32{suffix}"],
+                      [f"33{suffix}", f"34{suffix}", f"35{suffix}", f"36{suffix}", f"37{suffix}"],
+                      [f"38{suffix}", f"39{suffix}", f"40{suffix}", f"41{suffix}", f"42{suffix}"],
+                      [f"43{suffix}", f"44{suffix}"]]},
+            {"stub": [f"45{suffix}", f"64{suffix}"], "label": f"45{suffix}–64{suffix}"},
+            {"rows": [[f"65{suffix}", f"66{suffix}", f"67{suffix}", f"68{suffix}", f"69{suffix}"]]},
+        ]
+        def _smj_num(pid):
+            m = re.match(r"(\d+)", str(pid))
+            return int(m.group(1)) if m else -1
+        def _wired(a, b):
+            lo, hi = _smj_num(a), _smj_num(b)
+            out = []
+            for p in pins:
+                pid = str(p[0])
+                n = _smj_num(pid)
+                if lo <= n <= hi and pid in by:
+                    out.append(pid)
+            out.sort(key=_smj_num)
+            return out
+        max_cols = 5
+        # Count visual rows (stubs + wired wrap + named rows) to size cavities uniformly.
+        vis = 0
+        for band in bands:
+            if band.get("stub"):
+                vis += 1  # stub bar
+                wired = _wired(band["stub"][0], band["stub"][1])
+                vis += (len(wired) + max_cols - 1) // max_cols if wired else 0
+            else:
+                vis += len(band["rows"])
+        # stub bars are shorter than cavities
+        stub_frac = 0.45
+        n_stubs = sum(1 for b in bands if b.get("stub"))
+        unit_rows = (vis - n_stubs) + n_stubs * stub_frac
+        ch = min(CAV_STD_H, face_h / max(unit_rows, 1))
+        cw = min(CAV_STD_W, face_w / max_cols)
+        # keep uniform within the face
+        grid_w = max_cols * cw
+        ox = face_x + max(0, (face_w - grid_w) / 2)
+        y_cursor = face_y + face_h
+        def _row_ids(ids, yb):
+            row_w = len(ids) * cw
+            x0 = ox + max(0, (grid_w - row_w) / 2)
+            for ci, pid in enumerate(ids):
+                px, py = x0 + ci * cw, yb
+                if pid in by:
+                    dlab, col, note = _pin_disp(by[pid])
+                    draw_cavity(px, py, cw, ch, dlab, col, note, fs=max(2.8, min(4.2, cw * 0.28)),
+                                sm_lines=sm_pin_lines(cid, pid) if cid else [])
+                else:
+                    c.setFillColor(white)
+                    c.setStrokeColor(HexColor("#E0E0E0"))
+                    c.setLineWidth(0.4)
+                    c.roundRect(px + 0.6, py + 0.6, cw - 1.2, ch - 1.2, 0.8, fill=1, stroke=1)
+                    c.setFillColor(LIGHT_GRAY)
+                    c.setFont(FONT, max(2.6, min(3.6, cw * 0.22)))
+                    c.drawCentredString(px + cw / 2, py + ch / 2 - 1, pid)
+        for band in bands:
+            if band.get("stub"):
+                y_cursor -= ch * stub_frac
+                c.setFillColor(HexColor("#F5F7FA"))
+                c.setStrokeColor(HexColor("#78909C"))
+                c.setLineWidth(0.6)
+                c.setDash(2, 1.5)
+                c.roundRect(ox, y_cursor + 1, grid_w, ch * stub_frac - 2, 2, fill=1, stroke=1)
+                c.setDash()
+                c.setFillColor(HexColor("#607D8B"))
+                c.setFont(FONT_B, max(4.0, min(6.0, ch * stub_frac * 0.7)))
+                c.drawCentredString(ox + grid_w / 2, y_cursor + (ch * stub_frac) / 2 - 2, band["label"])
+                wired = _wired(band["stub"][0], band["stub"][1])
+                for i in range(0, len(wired), max_cols):
+                    y_cursor -= ch
+                    _row_ids(wired[i:i + max_cols], y_cursor)
+            else:
+                for row in band["rows"]:
+                    y_cursor -= ch
+                    _row_ids(row, y_cursor)
         return
 
     # ---- F102 SMJ · PG-85 T.S. (ENGINE CONTROL HARNESS, white, female) · fixed ----
@@ -626,7 +895,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
                 py = face_y + ch
                 if lab in verified:
                     dlab, col, note = _pin_disp(verified[lab])
-                    draw_cavity(px, py, cw, ch, dlab if dlab != lab else lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)))
+                    draw_cavity(px, py, cw, ch, dlab if dlab != lab else lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)), sm_lines=sm_pin_lines(cid, lab) if cid else [])
                 else:
                     c.setFillColor(white)
                     c.setStrokeColor(HexColor("#E0E0E0"))
@@ -642,7 +911,7 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
                 py = face_y
                 if lab in verified:
                     dlab, col, note = _pin_disp(verified[lab])
-                    draw_cavity(px, py, cw, ch, dlab if dlab != lab else lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)))
+                    draw_cavity(px, py, cw, ch, dlab if dlab != lab else lab, col, note, fs=max(2.8, min(4.2, cw * 0.28)), sm_lines=sm_pin_lines(cid, lab) if cid else [])
                 else:
                     c.setFillColor(white)
                     c.setStrokeColor(HexColor("#E0E0E0"))
@@ -692,7 +961,8 @@ def ficha(x, y, w, h, title, pins, shape="tab2", accent=None, qty="", face=None,
     for i, pin in enumerate(ordered):
         lab, col, note = _pin_disp(pin)
         draw_cavity(ox + i * cw, oy, cw, ch, lab, col, note,
-                    fs=4.0 if shape == "ipdm" else 4.0)
+                    fs=4.0 if shape == "ipdm" else 4.0,
+                    sm_lines=sm_pin_lines(cid, str(pin[0])) if cid else [])
 
 
 def section_label(x, y, w, text):
@@ -990,11 +1260,330 @@ if not ETC_SUB:
     ETC_SUB = t("sub_etc")
 
 
-# ========== PAGE 1: cover (top band) + EC-123 (rest) — combined ==========
+# ========== PAGINATED PACK: ECM + values + every ficha ==========
 FOOT_Y = 8
+ML, MR = 10, 10
+BOTTOM = 14
+USABLE_W = W - ML - MR
+GAP = 5.0
+PAGE_NO = 0
+PAGE_INDEX = []
+DRAWN = []
+OMITTED = []
+_current_title = ""
+_current_cids = []
 
-# Cover band (was page 1) — kept visible so it is clearly merged, not deleted
-cover_h = 46
+def _footer_draw():
+    if not PAGE_NO:
+        return
+    c.setFont(FONT, 4.8)
+    c.setFillColor(MUTED)
+    key = "page1_footer" if PAGE_NO == 1 else "pack_footer"
+    txt = t(key, n=PAGE_NO, orient=FACE_ORIENT_LABEL[:36])
+    c.drawString(10, 4, txt)
+    c.setFillColor(black)
+    PAGE_INDEX.append({"n": PAGE_NO, "title": _current_title, "cids": list(_current_cids)})
+
+def new_page(title=""):
+    global PAGE_NO, _current_title, _current_cids
+    _footer_draw()
+    if PAGE_NO:
+        c.showPage()
+    PAGE_NO += 1
+    _current_title = title
+    _current_cids = []
+    return H - 16
+
+
+def skip_reason(cid):
+    if cid.startswith("feed_") or cid.startswith("ipdm_") or cid.startswith("fuse_") or cid.startswith("jb_fuse"):
+        return "IPDM / fuse box / feed card omitted (complex face; no SM pin values on a printable T.S. face, or values already shown elsewhere)"
+    if cid in ("ecm_power", "ipdm_legend"):
+        return "summary/legend card; ECM terminal values are on the ECM values pages"
+    if cid == "ix_f103_f151":
+        return "ixnote joint callout with no cavity face"
+    return None
+
+
+# gnd4 / F103 face (EC-169): cavities 1-4 from CONN_BASE, never A/B/C/D.
+# Wired example: ("4", "B/R", "116") on F103·4 → ECM 116 → F152.
+def pins_from_base(cid):
+    card = CONN_BASE.get(cid) or {}
+    pins = list(card.get("pins") or [])
+    out = []
+    for p in pins:
+        pid = str(p.get("id") or "")
+        if not pid:
+            continue
+        trans = p.get("trans")
+        src_if = p.get("srcIf") or ""
+        at_only = (trans == "at") or (src_if == "trans=at")
+        if at_only:
+            out.append((pid, "A/T", "A/T", "A/T"))
+            continue
+        code = p.get("code") or "—"
+        note = p.get("ecm")
+        if note is None:
+            note = p.get("src") or ""
+        lab = p.get("lab") or pid
+        out.append((pid, code, note, lab))
+    return out
+
+
+def card_title(cid):
+    m = re.match(r"^(coil|inj)(\d)$", cid)
+    if m:
+        key = "title_coil" if m.group(1) == "coil" else "title_inj"
+        return t(key, n=int(m.group(2)))
+    return conn_field(cid, "name") or cid
+
+
+def card_sub(cid):
+    meta = conn_field(cid, "meta")
+    if meta:
+        return meta
+    card = CONN_BASE.get(cid) or {}
+    vif = card.get("vif") or ""
+    return vif
+
+
+def accent_for(cid):
+    card = CONN_BASE.get(cid) or {}
+    sub = card.get("sub") or ""
+    group = card.get("group") or ""
+    if sub in GRP:
+        return GRP[sub]
+    if group == "body" and sub == "pedals":
+        return GRP["pedals"]
+    if "intermedia" in sub:
+        return GRP["intermedias"]
+    if sub in ("bobinas", "inyectores", "actuators"):
+        return GRP["actuators"]
+    if sub == "sensors":
+        return GRP["sensors"]
+    if sub == "power":
+        return GRP["power"]
+    if sub in ("ascd_dlc", "ascd", "dlc"):
+        return GRP["ascd"]
+    return GRP.get("intermedias", SHELL)
+
+
+def face_geometry(cid):
+    card = CONN_BASE.get(cid) or {}
+    shape = card.get("shape") or ""
+    face = card.get("face") or shape
+    pins = pins_from_base(cid)
+    rows = card.get("faceRows")
+    if not rows:
+        vbt = card.get("faceRowsByTrans") or {}
+        rows = vbt.get("mt") or vbt.get("at")
+    if rows:
+        nr = len(rows)
+        nc = max((len(r) for r in rows), default=1)
+        return nr, nc, shape, face
+    if shape == "f102":
+        return 2, 16, shape, face
+    if shape in ("e108", "b1"):
+        return 12, 5, shape, face
+    if shape == "f3":
+        return 2, 4, shape, face
+    if shape == "f1":
+        return 2, 5, shape, face
+    if shape in ("rect10", "f2"):
+        return 2, 5, shape, face
+    if shape in ("rect6", "e113", "af6"):
+        return 2, 3, shape, face
+    if shape == "ring":
+        return 1, 1, shape, face
+    if shape == "rect4":
+        return 1, min(4, max(1, len(pins))), shape, face
+    n = max(1, len(pins))
+    return 1, n, shape, face
+
+
+def pin_table_entries(cid):
+    entries = []
+    for p in pins_from_base(cid):
+        pid = str(p[0])
+        lines = sm_pin_lines(cid, pid)
+        if not lines:
+            continue
+        texts, src = [], ""
+        for item in lines:
+            if isinstance(item, dict):
+                tx = item.get("text") or ""
+                if item.get("src") and not src:
+                    src = item.get("src")
+            else:
+                tx = str(item)
+            if tx:
+                texts.append(pdf_safe(tx))
+        if texts:
+            entries.append((pid, " · ".join(texts), src))
+    return entries
+
+
+def estimate_table_h(cid, card_w):
+    entries = pin_table_entries(cid)
+    if not entries:
+        return 0
+    # 11 header + ~9–11 per row (long values may wrap once)
+    h = 11
+    val_w = max(40, card_w - 70)
+    for _pid, text, _src in entries:
+        lines = max(1, len(wrap_to_width(text, FONT, 5.2, val_w, max_lines=6)))
+        h += 4 + lines * 6.2
+    return h
+
+
+def estimate_face_h(cid, card_w):
+    nr, nc, shape, face = face_geometry(cid)
+    if shape == "ring":
+        return 56
+    if shape == "f102":
+        return 118
+    if shape in ("e108", "b1"):
+        return min(340, 20 + nr * min(CAV_STD_H, 28))
+    return 8 + nr * CAV_STD_H
+
+
+def estimate_card_h(cid, card_w):
+    header = 16
+    face_h = estimate_face_h(cid, card_w)
+    table_h = estimate_table_h(cid, card_w)
+    return header + face_h + table_h + 6
+
+
+def card_cols(cid):
+    nr, nc, shape, face = face_geometry(cid)
+    ntab = len(pin_table_entries(cid))
+    if shape in ("f102", "e108", "b1") or nc >= 8 or ntab >= 8:
+        return 1
+    if nc >= 5 or ntab >= 4 or (nr >= 2 and nc >= 3) or shape in ("f1", "f3", "rect10", "f2", "rect6", "e113", "af6"):
+        return 2
+    return 3
+
+
+def draw_sm_table(x, y, w, entries):
+    """Draw value table downward from y (top). Returns height used."""
+    if not entries:
+        return 0
+    header_h = 10
+    c.setFillColor(HexColor("#FFF8E1"))
+    c.rect(x, y - header_h, w, header_h, fill=1, stroke=0)
+    c.setFillColor(HexColor("#5D4037"))
+    c.setFont(FONT_B, 5.4)
+    c.drawString(x + 3, y - 7.5, t("sm_col_pin"))
+    c.drawString(x + 36, y - 7.5, t("sm_col_val"))
+    c.drawRightString(x + w - 3, y - 7.5, t("sm_col_src"))
+    yy = y - header_h
+    pin_w, src_w = 32, 36
+    val_w = w - pin_w - src_w - 8
+    for i, (pid, text, src) in enumerate(entries):
+        lines = wrap_to_width(text, FONT, 5.2, val_w, max_lines=6) or [text]
+        rh = 4 + len(lines) * 6.2
+        if i % 2 == 0:
+            c.setFillColor(HexColor("#FAFAFA"))
+            c.rect(x, yy - rh, w, rh, fill=1, stroke=0)
+        c.setFillColor(TITLE_BLACK)
+        c.setFont(FONT_B, 5.4)
+        c.drawString(x + 3, yy - 8, str(pid))
+        c.setFont(FONT, 5.2)
+        c.setFillColor(HexColor("#212121"))
+        for li, ln in enumerate(lines):
+            c.drawString(x + 36, yy - 8 - li * 6.2, ln)
+        if src:
+            c.setFillColor(MUTED)
+            c.setFont(FONT, 4.8)
+            c.drawRightString(x + w - 3, yy - 8, str(src)[:12])
+        c.setStrokeColor(HexColor("#EEEEEE"))
+        c.setLineWidth(0.3)
+        c.line(x, yy - rh, x + w, yy - rh)
+        yy -= rh
+    return y - yy
+
+
+def draw_card(x, y, w, h, cid):
+    """Draw ficha face + SM value table in the box (x,y,w,h), y = bottom."""
+    card = CONN_BASE.get(cid) or {}
+    shape = card.get("shape") or "tab2"
+    face = card.get("face") or (shape if shape in ("af6", "rect6", "f2", "rect10", "e113", "f102", "smj_h", "f3", "f1", "e108", "b1") else None)
+    title = card_title(cid)
+    sub = card_sub(cid)
+    pins = pins_from_base(cid)
+    entries = pin_table_entries(cid)
+    table_h = estimate_table_h(cid, w - 6)
+    # If the estimated table would overflow, shrink the face.
+    header = 16
+    max_table = max(0, h - header - 40)
+    if table_h > max_table:
+        table_h = max_table
+    face_h = max(28, h - header - table_h - 4)
+    ficha(x, y + table_h, w, h - table_h, title, pins,
+          shape=shape, face=face, subtitle=sub,
+          accent=accent_for(cid), face_inv=False, cid=cid,
+          rail_5v=any((p.get("rail") == "5v") for p in (card.get("pins") or []) if isinstance(p, dict)))
+    if entries:
+        used = draw_sm_table(x + 3, y + table_h - 1, w - 6, entries)
+        # used is informational
+    DRAWN.append(cid)
+    _current_cids.append(cid)
+
+
+def emit_section(title, cids):
+    global _current_title
+    cids = [cid for cid in cids if cid in CONN_BASE]
+    if not cids:
+        return
+    y = new_page(title)
+    c.setFont(FONT_B, 9)
+    c.setFillColor(TITLE_BLACK)
+    c.drawCentredString(W / 2, H - 12, title)
+    y = H - 22
+
+    row, row_w, row_hs = [], 0.0, []
+
+    def flush():
+        nonlocal y, row, row_w, row_hs
+        if not row:
+            return
+        h = max(row_hs)
+        h = min(h, H - BOTTOM - 24)
+        if y - h < BOTTOM:
+            y = new_page(_current_title)
+            c.setFont(FONT_B, 8)
+            c.setFillColor(TITLE_BLACK)
+            c.drawCentredString(W / 2, H - 12, _current_title)
+            y = H - 22
+            h = min(max(row_hs), H - BOTTOM - 24)
+        x = ML
+        for cid, cw in row:
+            draw_card(x, y - h, cw, h, cid)
+            x += cw + GAP
+        y -= h + GAP
+        row, row_w, row_hs = [], 0.0, []
+
+    for cid in cids:
+        if skip_reason(cid):
+            continue
+        cols = card_cols(cid)
+        cw = (USABLE_W - (cols - 1) * GAP) / cols
+        if row and row_w + cw + (GAP if row else 0) > USABLE_W + 0.8:
+            flush()
+        ch = estimate_card_h(cid, cw)
+        ch = min(max(ch, 70), H - BOTTOM - 24)
+        row.append((cid, cw))
+        row_w += cw + GAP
+        row_hs.append(ch)
+        # full-width cards flush immediately after
+        if cols == 1:
+            flush()
+    flush()
+    emit_section.y = y
+
+
+# ---- PAGE 1: cover + EC-123 (bigger pins) + rails — F102 moves to intermediates ----
+cover_h = 42
 c.setFillColor(PATH_BG)
 c.setStrokeColor(SHELL)
 c.setLineWidth(1.2)
@@ -1007,10 +1596,13 @@ c.setFillColor(MUTED)
 c.drawCentredString(W / 2, H - 34, t("cover_sub"))
 c.setFillColor(black)
 c.setFont(FONT, 6.5)
-c.drawCentredString(W / 2, H - 46, t("cover_legend"))
+c.drawCentredString(W / 2, H - 44, t("cover_legend"))
 
-# EC-123 title under cover band
-y_ecm_title = H - cover_h - 18
+PAGE_NO = 1
+_current_title = "EC-123"
+_current_cids = ["ecm"]
+
+y_ecm_title = H - cover_h - 16
 c.setFont(FONT_B, 9)
 c.drawCentredString(W / 2, y_ecm_title, t("ec123_title"))
 c.setFont(FONT, 5.0)
@@ -1047,40 +1639,42 @@ b4 = [[5, 4], [None, 3], [2, 1]]
 
 gap_pin = 1.5
 gap_blk = 6.5
-# ECM under cover band — a bit taller (room left on page)
-ph = 33.0
+rail_h = 58
 usable_w = W - 28
 pw = (usable_w - 3 * gap_blk) / 32 - gap_pin
-pw = max(15.5, min(pw, ph * 1.12))
-
+# Taller ECM cells (F102 left this page) so the reserved value band is readable; width stays column-limited.
 grid_top = ly - 8
+rail_reserve = rail_h + 16
+ph = (grid_top - rail_reserve - 16) / 4 - gap_pin
+ph = max(44.0, min(ph, 58.0))
+pw = max(16.0, min(pw, 22.5))
+
 x = 14
 y0 = grid_top
 draw_block(x, y0, b1, pw, ph, gap_pin)
 c.setFont(FONT_B, 6.0)
 c.setFillColor(black)
-c.drawCentredString(x + 1.5 * (pw + gap_pin), y0 - 3 * (ph + gap_pin) - 6, "114–121")
+def _blk_bot(n_rows):
+    return y0 - n_rows * ph - (n_rows - 1) * gap_pin
+c.drawCentredString(x + 1.5 * (pw + gap_pin), _blk_bot(3) - 8, "114–121")
 x += 3 * (pw + gap_pin) + gap_blk
 draw_block(x, y0, b2, pw, ph, gap_pin)
-c.drawCentredString(x + 4 * (pw + gap_pin), y0 - 4 * (ph + gap_pin) - 6, "82–113")
+c.drawCentredString(x + 4 * (pw + gap_pin), _blk_bot(4) - 8, "82–113")
 x += 8 * (pw + gap_pin) + gap_blk
 draw_block(x, y0, b3, pw, ph, gap_pin)
-c.drawCentredString(x + 9.5 * (pw + gap_pin), y0 - 4 * (ph + gap_pin) - 6, "6–81")
+c.drawCentredString(x + 9.5 * (pw + gap_pin), _blk_bot(4) - 8, "6–81")
 x += 19 * (pw + gap_pin) + gap_blk
 draw_block(x, y0, b4, pw, ph, gap_pin)
-c.drawCentredString(x + (pw + gap_pin), y0 - 3 * (ph + gap_pin) - 6, "1–5")
+c.drawCentredString(x + (pw + gap_pin), _blk_bot(3) - 8, "1–5")
 
-ecm_bottom = y0 - 4 * (ph + gap_pin) - 10
+ecm_bottom = _blk_bot(4) - 12
 
-# --- RIELS ECM: named legend (12V / 5V / tierras) — bench ID under the face ---
 rail_top = ecm_bottom - 2
-rail_h = 58
 rail_x, rail_w = 14, W - 28
 c.setFillColor(HexColor("#FAFAFA"))
 c.setStrokeColor(HexColor("#90A4AE"))
 c.setLineWidth(1.0)
 c.roundRect(rail_x, rail_top - rail_h, rail_w, rail_h, 4, fill=1, stroke=1)
-# Title band
 c.setFillColor(HexColor("#ECEFF1"))
 c.rect(rail_x + 1, rail_top - 14, rail_w - 2, 13, fill=1, stroke=0)
 c.setFillColor(HexColor("#37474F"))
@@ -1104,240 +1698,218 @@ _rail_row(rail_top - 26, HexColor("#C62828"), "12V", t("rail_12v_body"))
 _rail_row(rail_top - 39, HexColor("#F9A825"), "5V", t("rail_5v_body"))
 _rail_row(rail_top - 52, HexColor("#2E7D32"), "GND", t("rail_gnd_body"))
 
-# --- F102 SMJ under rails (motor face of control harness ↔ body) ---
-F102_PINS, F102_SUB = extract_conn("ix_f102_m72")
-f102_top = rail_top - rail_h - 8
-f102_h = max(78, f102_top - 18)
-c.setFont(FONT_B, 7.5)
-c.setFillColor(TITLE_BLACK)
-c.drawString(14, f102_top + 2, t("f102_header"))
-c.setFont(FONT, 4.8)
-c.setFillColor(MUTED)
-c.drawRightString(W - 14, f102_top + 2, (F102_SUB or "PG-85 T.S.") + " · " + t("f102_cavities", n=len(F102_PINS))
-                  + " · " + t("f102_at_note"))
-ficha(14, f102_top - f102_h, W - 28, f102_h - 2, t("f102_title"),
-      F102_PINS, shape="f102", face="f102",
-      subtitle=t("f102_subtitle"),
-      accent=GRP["intermedias"], face_inv=False)
+# ---- ECM values table (following pages) ----
+def emit_ecm_values():
+    y = new_page(t("sec_ecm_vals"))
+    c.setFont(FONT_B, 9)
+    c.setFillColor(TITLE_BLACK)
+    c.drawCentredString(W / 2, H - 12, t("sec_ecm_vals"))
+    y = H - 22
+    entries = []
+    for n in range(1, 122):
+        lines = sm_ecm_lines(n)
+        if not lines:
+            continue
+        texts, src = [], ""
+        for item in lines:
+            if isinstance(item, dict):
+                tx = item.get("text") or ""
+                if item.get("src") and not src:
+                    src = item.get("src")
+            else:
+                tx = str(item)
+            if tx:
+                texts.append(tx)
+        if texts:
+            entries.append((str(n), " · ".join(texts), src))
+    # two columns
+    col_w = (USABLE_W - GAP) / 2
+    col_x = [ML, ML + col_w + GAP]
+    col_y = [y, y]
+    ci = 0
+    # header first col then flow
+    def ensure(need):
+        nonlocal ci
+        if col_y[ci] - need < BOTTOM + 4:
+            ci += 1
+            if ci > 1:
+                ny = new_page(t("sec_ecm_vals"))
+                c.setFont(FONT_B, 9)
+                c.setFillColor(TITLE_BLACK)
+                c.drawCentredString(W / 2, H - 12, t("sec_ecm_vals"))
+                col_y[0] = col_y[1] = H - 22
+                ci = 0
+    # draw as a flowing 2-col table using draw_sm_table in chunks
+    # simpler: one entry at a time
+    # headers
+    for i in range(2):
+        used = 0  # placeholder
+    i = 0
+    while i < len(entries):
+        # measure one
+        pid, text, src = entries[i]
+        val_w = col_w - 70
+        nlines = max(1, len(wrap_to_width(text, FONT, 5.2, val_w, max_lines=6)))
+        rh = 10 + 4 + nlines * 6.2 if (col_y[ci] > H - 24 - 1) else (4 + nlines * 6.2)
+        # if at top of column, include header
+        at_top = col_y[ci] >= H - 24
+        need = (11 if at_top or True else 0) + 4 + nlines * 6.2
+        # always keep a header if we're starting a fresh column top
+        start_y = col_y[ci]
+        if start_y >= H - 24 or True:
+            pass
+        if col_y[ci] - (4 + nlines * 6.2) < BOTTOM + 4:
+            ci += 1
+            if ci > 1:
+                new_page(t("sec_ecm_vals"))
+                c.setFont(FONT_B, 9)
+                c.setFillColor(TITLE_BLACK)
+                c.drawCentredString(W / 2, H - 12, t("sec_ecm_vals"))
+                col_y[0] = col_y[1] = H - 22
+                ci = 0
+        # header if this column is at its start
+        if col_y[ci] >= H - 24:
+            used = draw_sm_table(col_x[ci], col_y[ci], col_w, [])  # 0
+            # draw header only via a dummy? draw_sm_table with entries does header+rows.
+        # Draw a chunk that fits
+        chunk = []
+        remain_h = col_y[ci] - (BOTTOM + 4)
+        # reserve header
+        remain_h -= 11
+        take = []
+        for e in entries[i:]:
+            nlines = max(1, len(wrap_to_width(e[1], FONT, 5.2, col_w - 70, max_lines=6)))
+            eh = 4 + nlines * 6.2
+            if take and remain_h - eh < 0:
+                break
+            if not take and eh > remain_h:
+                take.append(e)
+                break
+            take.append(e)
+            remain_h -= eh
+        if not take:
+            # force one
+            take = [entries[i]]
+        used = draw_sm_table(col_x[ci], col_y[ci], col_w, take)
+        col_y[ci] -= used + 2
+        i += len(take)
+        _current_cids.extend("ECM " + e[0] for e in take)
+    emit_section.y = min(col_y)
 
-c.setFont(FONT, 4.6)
-c.setFillColor(MUTED)
-c.drawString(10, 4, t("page1_footer"))
-c.setFillColor(black)
-c.showPage()
 
+emit_ecm_values()
 
-# ========== FICHAS POR PATH — motor loom dense page ==========
-ML, MR = 5, 5
-usable_w = W - ML - MR
-GAP = 2.4
-BOTTOM = 10
-HEADER_H = 24
+# Collect cards by group/sub in stable CONN order
+_by_sec = {
+    "pedals": [],
+    "sensors": [],
+    "actuators": [],
+    "coils": [],
+    "injs": [],
+    "ix": [],
+    "body": [],
+}
+for cid, card in CONN_BASE.items():
+    reason = skip_reason(cid)
+    if reason:
+        OMITTED.append((cid, reason))
+        continue
+    group = card.get("group") or ""
+    sub = card.get("sub") or ""
+    if group == "body" and sub == "pedals":
+        _by_sec["pedals"].append(cid)
+    elif group == "motor" and sub == "sensors":
+        _by_sec["sensors"].append(cid)
+    elif group == "motor" and sub == "actuators":
+        _by_sec["actuators"].append(cid)
+    elif group == "motor" and sub == "bobinas":
+        _by_sec["coils"].append(cid)
+    elif group == "motor" and sub == "inyectores":
+        _by_sec["injs"].append(cid)
+    elif "intermedia" in sub:
+        _by_sec["ix"].append(cid)
+    elif group == "motor" and sub == "power":
+        _by_sec["ix"].append(cid)  # grounds / F103 with intermediates
+    else:
+        _by_sec["body"].append(cid)
 
-c.setFont(FONT_B, 8.5)
-c.drawCentredString(W / 2, H - 9, t("page2_title"))
-c.setFont(FONT, 5.0)
-c.setFillColor(MUTED)
-c.drawCentredString(W / 2, H - 18, t("page2_sub"))
-c.setFillColor(black)
-
-y_top = H - HEADER_H
-avail = y_top - BOTTOM
-label_h = 11
-# PATH rows: AF, knock+sens, ETC+VTC, coil, inj, jointsA, jointsB
-# Balanced rows — pin cavities use CAV_STD_* (not stretched to card)
-weights = [0.95, 0.85, 0.70, 0.52, 0.52, 0.48, 1.15]
-gap_v = 2.0
-n_gaps = len(weights) - 1
-n_labels = 3  # AF, Knock, joints (+ act/coil/inj without banners)
-card_budget = avail - n_labels * label_h - n_gaps * gap_v
-chs = [card_budget * w / sum(weights) for w in weights]
-(ch_af, ch_ks, ch_act, ch_coil, ch_inj, ch_ja, ch_jb) = chs
-
-y = y_top
-
-# --- A/F path ---
-section_label(ML, y - 9, usable_w, t("path_af"))
-y -= label_h
-cw_af = 210
-cw_ho = (usable_w - 2 * cw_af - GAP) / 2
-ficha(ML, y - ch_af, cw_af, ch_af, t("title_af_b1"),
-      [("1", "LG/B", "16"), ("2", "P/B", "75"), ("3", "12V", "fuse"),
-       ("4", "GY/R", "2"), ("5", "L/W", "35"), ("6", "W/L", "56")],
-      "af6", face="af6", subtitle=t("sub_af_b1"), accent=GRP["sensors"], cid="af_b1")
-ficha(ML + cw_af + GAP, y - ch_af, cw_af, ch_af, t("title_af_b2"),
-      [("1", "LG", "76"), ("2", "P", "77"), ("3", "12V", "fuse"),
-       ("4", "GY", "24"), ("5", "L", "57"), ("6", "W", "58")],
-      "af6", face="af6", subtitle=t("sub_af_b2"), accent=GRP["sensors"], cid="af_b2")
-ficha(ML + 2 * (cw_af + GAP), y - ch_af, cw_ho, ch_af, t("title_f11"),
-      [("htr", "P/B", "25"), ("12V", "12V", "fuse")],
-      "tab2", subtitle=t("sub_f11"), accent=GRP["sensors"])
-ficha(ML + 2 * (cw_af + GAP) + cw_ho + GAP, y - ch_af, cw_ho, ch_af, t("title_f12"),
-      [("htr", "P/L", "6"), ("12V", "12V", "fuse")],
-      "tab2", subtitle=t("sub_f12"), accent=GRP["sensors"])
-c.setFont(FONT, 4.2)
-c.setFillColor(MUTED)
-c.drawRightString(ML + usable_w - 2, y - ch_af + 5, t("af_heaters_note"))
-c.setFillColor(black)
-y -= ch_af + gap_v
-
-# --- Knock path + other motor sensors ---
-section_label(ML, y - 9, usable_w, t("path_knock"))
-y -= label_h
-# Wider knock strip so 2-pin cards fit CAV_STD (was overflowing at ~46pt wide)
-w_kn = min(220, usable_w * 0.38)
-w_rest = usable_w - w_kn - GAP
-path_frame(ML, y - ch_ks, w_kn, ch_ks)
-kn_sens_w = w_kn * 0.30
-kn_mate_w = w_kn - kn_sens_w - 3
-ficha(ML + 1, y - ch_ks + 1, kn_sens_w - 1, ch_ks - 2, t("title_knock"),
-      [("GND", "B", "116"), ("SIG", "W", "15")],  # F228 EC-317 T.S.: 2-1
-      "tab2", subtitle=t("sub_knock"), accent=GRP["sensors"])
-draw_mate_pair(ML + kn_sens_w + 1, y - ch_ks + 1, kn_mate_w - 1, ch_ks - 2,
-               {"title": t("title_f14"), "pins": KNOCK_PINS_F14, "shape": "tab2", "subtitle": t("sub_mate_gnd"),
-                "accent": GRP["intermedias"], "face_inv": False},
-               {"title": t("title_f229"), "pins": KNOCK_PINS, "shape": "tab2", "subtitle": t("sub_mate_gnd"),
-                "accent": GRP["intermedias"], "face_inv": False})
-
-w6 = (w_rest - 5 * GAP) / 6
-items_s = [
-    (t("title_f25"), [("12V", "R/W", "pwr"), ("GND", "B/W", "67"), ("SIG", "OR", "51")], "tab3", t("sub_maf")),
-    # pins in FSM T.S. face order (fixed, same as the map): F25 1..6 (cards show 2-3-4 / 5-6),
-    # F10/F4/F32 3-2-1, F13 2-1
-    (t("title_f10"), [("GND", "B", "gnd"), ("SIG", "W/L", "13"), ("PWR", "R/W", "12V")], "tab3", t("sub_ckp")),
-    (t("title_cmp_b1"), [("12V", "R/W", "12V"), ("SIG", "R", "33"), ("GND", "B", "gnd")], "tab3", t("sub_cmp_b1")),
-    (t("title_cmp_b2"), [("12V", "R/W", "12V"), ("SIG", "R/L", "14"), ("GND", "B", "gnd")], "tab3", t("sub_cmp_b2")),
-    (t("title_ect"), [("GND", "B/W", "67"), ("SIG", "BR/Y", "73")], "tab2", t("sub_ect")),
-    (t("title_iat"), [("IAT", "Y/G", "34"), ("GND", "B/W", "67")], "tab2", t("sub_iat")),
+# Prefer a readable intermediate order: F102, E108, B1, tray pairs, then the rest
+_ix_pref = [
+    "ix_f102_m72", "ix_e108_m15", "ix_b1_m12",
+    "ix_e11_f2", "ix_e10_f1", "ix_e12_f3",
+    "ix_f18_f201", "ix_f221_f33", "ix_f14_f229",
 ]
-xx = ML + w_kn + GAP
-for title, pins, sh, sub in items_s:
-    ficha(xx, y - ch_ks, w6, ch_ks, title, pins, sh, subtitle=sub, accent=GRP["sensors"])
-    xx += w6 + GAP
-y -= ch_ks + gap_v
+def _order(ids, pref):
+    seen = set()
+    out = []
+    for i in pref:
+        if i in ids:
+            out.append(i)
+            seen.add(i)
+    for i in ids:
+        if i not in seen:
+            out.append(i)
+    return out
 
-# --- ETC + VTC (same row — no full-width lone ETC) ---
-cw3 = (usable_w - 2 * GAP) / 3
-ficha(ML, y - ch_act, cw3, ch_act, t("title_etc"),
-      ETC_PINS,
-      "rect6", face="rect6", subtitle=t("sub_etc"),
-      accent=GRP["sensors"], rail_5v=True)
-ficha(ML + cw3 + GAP, y - ch_act, cw3, ch_act, t("title_vtc_b1"),
-      [("12V", "W/L", "ign"), ("ECM", "W/R", "11")], "tab2", subtitle=t("sub_vtc_b1"),  # F204 EC-455 T.S.: 2-1
-      accent=GRP["actuators"])
-ficha(ML + 2 * (cw3 + GAP), y - ch_act, cw3, ch_act, t("title_vtc_b2"),
-      [("12V", "W/L", "ign"), ("ECM", "W/G", "10")], "tab2", subtitle=t("sub_vtc_b2"),  # F26 EC-457 T.S.: 2-1
-      accent=GRP["actuators"])
-y -= ch_act + gap_v
+_by_sec["ix"] = _order(_by_sec["ix"], _ix_pref)
 
-# --- Coils ---
-coils = [(1, 62, "Y/R"), (2, 81, "G/B"), (3, 61, "L/R"), (4, 80, "GY"), (5, 60, "PU/W"), (6, 79, "GY/R")]
-cw_c = (usable_w - 5 * GAP) / 6
-xx = ML
-for cyl, pin, code in coils:
-    ficha(xx, y - ch_coil, cw_c, ch_coil, t("title_coil", n=cyl),
-          [("12V", "W/L", "ign"), ("GND", "B", "F23"), ("SIG", code, str(pin))],  # EC-691/693 T.S.: 3-2-1
-          "tab3", subtitle=t("sub_ecm_pin", pin=pin), accent=GRP["actuators"])
-    xx += cw_c + GAP
-y -= ch_coil + gap_v
+emit_section(t("sec_pedals"), _by_sec["pedals"])
+emit_section(t("sec_sensors"), _by_sec["sensors"])
+emit_section(t("sec_actuators"), _by_sec["actuators"])
+emit_section(t("sec_coils"), _by_sec["coils"])
+emit_section(t("sec_injs"), _by_sec["injs"])
+emit_section(t("sec_ix"), _by_sec["ix"])
+emit_section(t("sec_body"), _by_sec["body"])
 
-# --- Injectors ---
-# injector-side wire colors (EC-702); the ECM-side color changes at F33/F221
-injs = [(1, 23, "R/B"), (2, 42, "R/W"), (3, 22, "R/Y"), (4, 41, "R/L"), (5, 21, "L/W"), (6, 40, "PU/R")]
-xx = ML
-for cyl, pin, code in injs:
-    ficha(xx, y - ch_inj, cw_c, ch_inj, t("title_inj", n=cyl),
-          [("ECM", code, str(pin)), ("12V", "R", "ign")],  # F222–F227 EC-702 T.S.: 2-1
-          "tab2", subtitle=t("sub_ecm_pin", pin=pin), accent=GRP["actuators"])
-    xx += cw_c + GAP
-y -= ch_inj + gap_v
-
-# --- Motor joints (2 rows: grounds/noise | E12⟷F3 + E10⟷F1 mates from map) ---
-section_label(ML, y - 9, usable_w, t("path_joints"))
-y -= label_h
-
-# Row A: F103 | F152 | E17 | condenser | SNS GND  (EC-169: ECM 115/1/116 → F103·2/3/4 → F152; F103·1 → F3·6 → E17)
-w4 = (usable_w - 4 * GAP) / 5
-ficha(ML, y - ch_ja, w4, ch_ja, t("title_f103"),
-      [("1", "B", "F3·6"), ("2", "B/W", "115"), ("3", "B", "1"), ("4", "B/R", "116")],
-      "rect4", subtitle=t("sub_f103"), accent=GRP["power"])
-ficha(ML + w4 + GAP, y - ch_ja, w4, ch_ja, t("title_f152"),
-      [("ring", "B", "gnd")],
-      "ring", subtitle=t("sub_f152"), qty=t("qty_engine"), accent=GRP["power"])
-ficha(ML + 2 * (w4 + GAP), y - ch_ja, w4, ch_ja, t("title_e17"),
-      [("ring", "B", "gnd")],
-      "ring", subtitle=t("sub_e17"), qty=t("qty_body"), accent=GRP["power"])
-ficha(ML + 3 * (w4 + GAP), y - ch_ja, w4, ch_ja, t("title_f16"),
-      [("~2µF", "—", "cyl3")],
-      "tab2", subtitle=t("sub_f16"), accent=GRP["actuators"])
-ficha(ML + 4 * (w4 + GAP), y - ch_ja, w4, ch_ja, t("title_sns"),
-      [("66", "B", "66"), ("67", "B", "67"), ("78", "B", "78")],
-      "tab3", subtitle=t("sub_sns"), accent=GRP["power"])
-y -= ch_ja + gap_v
-
-# Row B: full E12⟷F3 + E10⟷F1 mate pairs (pins from live map HTML)
-w_mate = (usable_w - GAP) / 2
-draw_mate_pair(ML, y - ch_jb, w_mate, ch_jb,
-               {"title": t("title_e12"), "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
-                "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
-                "face_inv": False},
-               {"title": t("title_f3"), "pins": E12_F3_PINS, "shape": "f3", "face": "f3",
-                "subtitle": E12_F3_SUB, "accent": GRP["intermedias"],
-                "face_inv": False})
-draw_mate_pair(ML + w_mate + GAP, y - ch_jb, w_mate, ch_jb,
-               {"title": t("title_e10"), "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
-                "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
-                "face_inv": False},
-               {"title": t("title_f1"), "pins": E10_F1_PINS, "shape": "f1", "face": "f1",
-                "subtitle": E10_F1_SUB, "accent": GRP["intermedias"],
-                "face_inv": False})
-y -= ch_jb
-
-c.setFont(FONT, 4.8)
-c.setFillColor(MUTED)
-c.drawString(ML, 3, t("page2_footer", orient=FACE_ORIENT_LABEL[:36]))
-c.setFillColor(black)
-
-
+_footer_draw()
 c.save()
-print("Wrote", OUT)
+print("Wrote", OUT, "pages", PAGE_NO, "cards", len(DRAWN), "omitted", len(OMITTED))
+idx_path = os.path.splitext(OUT)[0] + "_index.json"
+with open(idx_path, "w", encoding="utf-8") as fh:
+    json.dump({"pages": PAGE_INDEX, "drawn": DRAWN, "omitted": OMITTED, "lang": LANG}, fh, ensure_ascii=False, indent=2)
+print("Index", idx_path)
 
 # --- Preview PNGs ---
 os.makedirs(PREVIEW_DIR, exist_ok=True)
-for stale in ("fichas_page_A.png", "fichas_page_B.png", "intermedias_page.png",
-              "print_p-5.png", "print_p5.png",
-              "ecm_ipdm_page.png", "ipdm_fsm_page.png"):
-    p = os.path.join(PREVIEW_DIR, stale)
-    if os.path.exists(p):
-        os.remove(p)
 try:
-    from pdf2image import convert_from_path
-    pages = convert_from_path(OUT, dpi=120)
-    for i, im in enumerate(pages, 1):
-        path = f"{PREVIEW_DIR}/print_p-{i}.png"
-        im.save(path, "PNG")
-        print("Preview", path, im.size)
-    if len(pages) >= 2:
-        pages[0].save(f"{PREVIEW_DIR}/ec123_page.png", "PNG")
-        print("EC-123 preview", f"{PREVIEW_DIR}/ec123_page.png", pages[0].size)
-        fp = f"{PREVIEW_DIR}/fichas_page.png"
-        pages[1].save(fp, "PNG")
-        print("Fichas/paths preview", fp, pages[1].size)
-    print("pages", len(pages))
-except Exception as e:
-    print("pdf2image failed:", e)
     import subprocess
     import shutil
+    # 110 dpi for the task pack; also keep whatever PREVIEW_DIR is.
+    subprocess.check_call(["pdftoppm", "-png", "-r", "110", OUT, f"{PREVIEW_DIR}/print_p"])
+    print("pdftoppm ok", sorted(os.listdir(PREVIEW_DIR))[:12], "...")
+except Exception as e:
+    print("preview skipped:", e)
+
+# Named ES previews live under /workspace/printpack_preview (or PRINT_PACK_SHOTS).
+if LANG == "es":
+    shot_dir = os.environ.get("PRINT_PACK_SHOTS", "/workspace/printpack_preview")
+    os.makedirs(shot_dir, exist_ok=True)
     try:
-        subprocess.check_call(
-            ["pdftoppm", "-png", "-r", "120", OUT, f"{PREVIEW_DIR}/print_p"]
-        )
-        p1 = f"{PREVIEW_DIR}/print_p-1.png"
-        p2 = f"{PREVIEW_DIR}/print_p-2.png"
-        if os.path.exists(p1):
-            shutil.copy(p1, f"{PREVIEW_DIR}/ec123_page.png")
-        if os.path.exists(p2):
-            shutil.copy(p2, f"{PREVIEW_DIR}/fichas_page.png")
-        print("pdftoppm ok", sorted(os.listdir(PREVIEW_DIR)))
-    except Exception as e2:
-        print("preview skipped (no poppler/pdftoppm):", e2)
+        import subprocess, shutil, glob
+        prefix = os.path.join(shot_dir, "_tmp_p")
+        subprocess.check_call(["pdftoppm", "-png", "-r", "110", OUT, prefix])
+        # Map pages via index
+        want = {
+            "ecm": ("ecm_page.png", lambda p: p["n"] == 1 or "EC-123" in (p.get("title") or "")),
+            "f102": ("f102_page.png", lambda p: "ix_f102_m72" in (p.get("cids") or [])),
+            "e12": ("e12_f3_page.png", lambda p: "ix_e12_f3" in (p.get("cids") or []) or "ix_e10_f1" in (p.get("cids") or [])),
+            "ix": ("ix_small_page.png", lambda p: "ix_e11_f2" in (p.get("cids") or []) or "ix_f14_f229" in (p.get("cids") or [])),
+        }
+        used = set()
+        for key, (name, pred) in want.items():
+            rec = next((p for p in PAGE_INDEX if pred(p)), None)
+            if not rec:
+                continue
+            n = rec["n"]
+            srcp = f"{prefix}-{n}.png"
+            if not os.path.exists(srcp):
+                srcp = f"{prefix}-{n:02d}.png"
+            if os.path.exists(srcp):
+                dest = os.path.join(shot_dir, name)
+                shutil.copy(srcp, dest)
+                used.add(srcp)
+                print("shot", dest)
+        # leave tmp pages for debugging under shot_dir/_tmp_p-*.png
+        print("shots dir", shot_dir, sorted(os.listdir(shot_dir))[:20])
+    except Exception as e:
+        print("named shots skipped:", e)
