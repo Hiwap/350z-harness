@@ -261,6 +261,40 @@
   #ecm #f102Blocks .pin .smv {
     font-size: min(var(--f102-pin-sm, 9px), calc((var(--f102-pin-w, 45px) - 4px) / var(--smv-ch, 8) * 1.72));
   }
+  /* Compact FSM value: reserved on every pin (uniform size), text only on the current selection.
+     Seleccionados (#selTop) keeps the value on every cavity of the listed fichas. */
+  #blocks .pin .smv,
+  #ecm #f102Blocks .pin .smv {
+    visibility: hidden;
+  }
+  #blocks .pin.hl .smv,
+  #blocks .pin.hl-end .smv,
+  #blocks .pin.hl-group .smv,
+  #ecm #f102Blocks .pin.hl .smv,
+  #ecm #f102Blocks .pin.hl-end .smv,
+  #ecm #f102Blocks .pin.hl-group .smv {
+    visibility: visible;
+  }
+  #fichas .ficha-sec:not(.sel-top) .cav-sm-band {
+    visibility: hidden;
+  }
+  #fichas .ficha-sec:not(.sel-top) .cav-hit.hl + .cav-sm-band,
+  #fichas .ficha-sec:not(.sel-top) .cav-hit.hl-end + .cav-sm-band,
+  #fichas .ficha-sec:not(.sel-top) .cav-hit.hl-group + .cav-sm-band {
+    visibility: visible;
+  }
+  #selTop .cav-sm-band,
+  #selTop .cav-hit .cav-sm {
+    visibility: visible;
+  }
+  #fichas .ficha-sec:not(.sel-top) .cav-hit .cav-sm {
+    visibility: hidden;
+  }
+  #fichas .ficha-sec:not(.sel-top) .cav-hit.hl .cav-sm,
+  #fichas .ficha-sec:not(.sel-top) .cav-hit.hl-end .cav-sm,
+  #fichas .ficha-sec:not(.sel-top) .cav-hit.hl-group .cav-sm {
+    visibility: visible;
+  }
   .sel-desc .sel-sm { margin-top: 8px; }
   .sel-desc .sel-sm .sm-entry { padding: 4px 0; }
   .sel-desc .sel-sm .sm-pins { color: #ffd54f; font-weight: 600; }
@@ -3395,8 +3429,8 @@ function svgRing(cid, f){
       <text class="cav-ecm" x="45" y="30" text-anchor="middle" ${ink(topFill)}>${esc(cavTopLabel(p))}</text>
       ${wireCodeSvg(p.code||'', 45, 64, 'cav-sub cav-code', true)}
       <text class="cav-label" x="45" y="76" text-anchor="middle" ${ink(botFill)}>${esc(cavBottomLabel(p))}</text>
-      ${smCavSvg(cid, p, 45, 82, 80, '#ffe082', ink, 18)}
     </g>
+    <g class="cav-sm-band" pointer-events="none">${smCavSvg(cid, p, 45, 82, 80, '#ffe082', ink, 18)}</g>
   </svg>`;
 }
 

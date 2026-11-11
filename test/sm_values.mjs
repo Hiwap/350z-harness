@@ -441,24 +441,67 @@ if (skipBrowser) {
     ok(!/Suelto|Fully releas|全閉|Aproximadamente|Approximately/.test(langSel.es + langSel.en + langSel.ja),
       'Seleccionados pin line has no condition prose (got ' + JSON.stringify(langSel).slice(0, 200) + ')');
 
-    /* Compact pin labels on the SM view, and no overflow in es/en/ja. */
-    const pinLabels = await page.evaluate(() => {
-      const sel = document.getElementById('lang');
-      if (sel) sel.value = 'es';
-      if (typeof applyLang === 'function') applyLang();
-      const txt = (pin) => {
+    /* Visible compact labels only on selected pins; the reserved band stays on every pin. */
+    const vis = await page.evaluate(() => {
+      const visibleText = (el) => {
+        if (!el) return '';
+        const host = el.classList && el.classList.contains('cav-sm') ? (el.closest('.cav-sm-band') || el) : el;
+        const st = getComputedStyle(host);
+        if (st.visibility === 'hidden' || st.display === 'none') return '';
+        return (el.textContent || '').replace(/\s+/g, ' ').trim();
+      };
+      const rawText = (pin) => {
         const el = document.querySelector('#blocks .pin[data-pin="' + pin + '"] .smv');
         return el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
       };
-      return { p108: txt(108), p106: txt(106), p90: txt(90), p51: txt(51) };
+      const visPin = (pin) => visibleText(document.querySelector('#blocks .pin[data-pin="' + pin + '"] .smv'));
+      const clickPin = (pin) => {
+        const el = document.querySelector('#blocks .pin[data-pin="' + pin + '"]');
+        if (el) el.click();
+      };
+      const sel = document.getElementById('lang');
+      if (sel) sel.value = 'es';
+      if (typeof applyLang === 'function') applyLang();
+      if (typeof clearSelection === 'function') clearSelection();
+      const none = {
+        p108: visPin(108), p106: visPin(106), p90: visPin(90), p51: visPin(51),
+        anyEcm: [...document.querySelectorAll('#blocks .pin .smv')].some((el) => visibleText(el)),
+        anyF102: [...document.querySelectorAll('#f102Blocks .pin .smv')].some((el) => visibleText(el)),
+        anyFicha: [...document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) .cav-sm')].some((el) => visibleText(el)),
+        raw106: rawText(106),
+      };
+      clickPin(106);
+      const leaked = [...document.querySelectorAll('#blocks .pin:not(.hl):not(.hl-end):not(.hl-group) .smv')]
+        .map((el) => ({ pin: el.closest('.pin') && el.closest('.pin').dataset.pin, t: visibleText(el) }))
+        .filter((x) => x.t);
+      const sel106 = {
+        vis: visPin(106), raw: rawText(106),
+        highlighted: [...document.querySelectorAll('#blocks .pin.hl, #blocks .pin.hl-end, #blocks .pin.hl-group')].map((el) => el.dataset.pin),
+        leaked,
+      };
+      const after = {};
+      for (const n of [108, 90, 51]) {
+        if (typeof clearSelection === 'function') clearSelection();
+        clickPin(n);
+        after['p' + n] = visPin(n);
+      }
+      if (typeof clearSelection === 'function') clearSelection();
+      return { none, sel106, after };
     });
-    ok(/≈0\s*V/.test(pinLabels.p108) && /11–14\s*V/.test(pinLabels.p108) && !/Pedal de freno/.test(pinLabels.p108),
-      'SM view pin 108 shows compact ≈0 V · 11–14 V (got ' + JSON.stringify(pinLabels.p108) + ')');
-    ok(/0\.5–1\.0/.test(pinLabels.p106) && /3\.9–4\.7/.test(pinLabels.p106) && !/Suelto/.test(pinLabels.p106),
-      'SM view pin 106 shows both APP ranges without condition words (got ' + JSON.stringify(pinLabels.p106) + ')');
-    ok(/^≈5\s*V$/.test(pinLabels.p90), 'SM view pin 90 (5 V ref) shows the single value ≈5 V (got ' + JSON.stringify(pinLabels.p90) + ')');
-    ok(/0\.4–2\.4\s*V/.test(pinLabels.p51) && !/Ralentí/.test(pinLabels.p51),
-      'SM view pin 51 collapses MAF intermediates to 0.4–2.4 V (got ' + JSON.stringify(pinLabels.p51) + ')');
+    ok(vis.none.anyEcm === false && vis.none.anyF102 === false && vis.none.anyFicha === false,
+      'unselected SM / ficha pins show no value line (got ' + JSON.stringify(vis.none) + ')');
+    ok(/0\.5–1\.0/.test(vis.none.raw106) && /3\.9–4\.7/.test(vis.none.raw106),
+      'unselected pin 106 still has the compact value reserved in the DOM (got ' + JSON.stringify(vis.none.raw106) + ')');
+    ok(/0\.5–1\.0/.test(vis.sel106.vis) && /3\.9–4\.7/.test(vis.sel106.vis) && !/Suelto/.test(vis.sel106.vis),
+      'selected SM pin 106 shows both APP ranges (got ' + JSON.stringify(vis.sel106.vis) + ' hl=' + JSON.stringify(vis.sel106.highlighted) + ')');
+    ok(vis.sel106.leaked.length === 0,
+      'unhighlighted SM pins stay without a value line when 106 is selected (got ' + JSON.stringify(vis.sel106.leaked.slice(0, 8)) + ')');
+    ok(/≈0\s*V/.test(vis.after.p108) && /11–14\s*V/.test(vis.after.p108) && !/Pedal de freno/.test(vis.after.p108),
+      'selected SM pin 108 shows compact ≈0 V · 11–14 V (got ' + JSON.stringify(vis.after.p108) + ')');
+    ok(/^≈5\s*V$/.test(vis.after.p90), 'selected SM pin 90 shows the single value ≈5 V (got ' + JSON.stringify(vis.after.p90) + ')');
+    ok(/0\.4–2\.4\s*V/.test(vis.after.p51) && !/Ralentí/.test(vis.after.p51),
+      'selected SM pin 51 collapses MAF intermediates to 0.4–2.4 V (got ' + JSON.stringify(vis.after.p51) + ')');
+
 
     const overflow = await page.evaluate(() => {
       const langs = ['es', 'en', 'ja'];
@@ -514,72 +557,45 @@ if (skipBrowser) {
 
     const shotDir = '/workspace/printpack_preview';
     try { fs.mkdirSync(shotDir, { recursive: true }); } catch (e) {}
+    await page.setViewport({ width: 2000, height: 1800, deviceScaleFactor: 2 });
+    const cropEcm = (file) => {
+      try {
+        const { execFileSync } = require('child_process');
+        execFileSync('python3', [path.join(root, 'tools', 'crop_preview_png.py'), shotDir + '/' + file], { timeout: 15000 });
+      } catch (e) { /* keep the uncropped frame if PIL is missing */ }
+    };
+    const shotEcm = async (file) => {
+      const ecmEl = await page.$('#ecm') || await page.$('#blocks');
+      if (!ecmEl) return;
+      await ecmEl.evaluate((node) => node.scrollIntoView({ block: 'start' }));
+      await ecmEl.screenshot({ path: shotDir + '/' + file });
+      cropEcm(file);
+    };
+    const shotBlock = async (pin, file) => {
+      const el = await page.$('#blocks .pin[data-pin="' + pin + '"]');
+      if (!el) return;
+      await el.evaluate((node) => node.scrollIntoView({ block: 'center', inline: 'nearest' }));
+      const handle = await page.evaluateHandle((node) => node.closest('.block') || node, el);
+      const block = handle.asElement();
+      if (block) await block.screenshot({ path: shotDir + '/' + file });
+    };
+
     await page.select('#lang', 'es');
     await page.evaluate(() => {
       if (typeof applyLang === 'function') applyLang();
       if (typeof clearSelection === 'function') clearSelection();
-      const hit = document.querySelector('.cav-hit[data-conn="app"][data-cav="5"]');
-      if (hit) hit.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
-    const selTopEl = await page.$('#selTop');
-    const appHl = await page.$('#selTop, .ficha.hl[data-conn="app"], .ficha-wrap.hl[data-conn="app"] .ficha, .ficha[data-conn="app"]');
-    const shotEl = selTopEl || appHl;
-    if (shotEl) {
-      await shotEl.screenshot({ path: shotDir + '/sel_app_pin.png' });
-    }
-    /* Single-value pin in Seleccionados (APP cavity 6, ≈5 V). */
-    await page.evaluate(() => {
-      if (typeof clearSelection === 'function') clearSelection();
-      const hit = document.querySelector('.cav-hit[data-conn="app"][data-cav="6"]');
-      if (hit) hit.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    });
-    const selSingle = await page.$('#selTop');
-    if (selSingle) await selSingle.screenshot({ path: shotDir + '/sel_single_pin.png' });
+    await shotEcm('sm_view_none.png');
+    await shotBlock('106', 'sm_view_none_zoom.png');
 
-    /* SM view: full ECM grid + a close-up of pin 108 (and nearby range pins). */
-    await page.setViewport({ width: 2000, height: 1800, deviceScaleFactor: 2 });
     await page.evaluate(() => {
-      if (typeof clearSelection === 'function') clearSelection();
+      const el = document.querySelector('#blocks .pin[data-pin="106"]');
+      if (el) el.click();
     });
-    const blockOf = async (pin) => {
-      const el = await page.$('#blocks .pin[data-pin="' + pin + '"]');
-      if (!el) return null;
-      await el.evaluate((node) => node.scrollIntoView({ block: 'center', inline: 'nearest' }));
-      const handle = await page.evaluateHandle((node) => node.closest('.block') || node, el);
-      return handle.asElement();
-    };
-    const ecmEl = await page.$('#ecm') || await page.$('#blocks');
-    if (ecmEl) {
-      await ecmEl.evaluate((node) => node.scrollIntoView({ block: 'start' }));
-      await ecmEl.screenshot({ path: shotDir + '/sm_view_fixed.png' });
-      try {
-        const { execFileSync } = require('child_process');
-        execFileSync('python3', [path.join(root, 'tools', 'crop_preview_png.py'), shotDir + '/sm_view_fixed.png'], { timeout: 15000 });
-      } catch (e) { /* keep the uncropped frame if PIL is missing */ }
-    }
-    const zoomBlock = await blockOf('108');
-    if (zoomBlock) await zoomBlock.screenshot({ path: shotDir + '/sm_view_fixed_zoom.png' });
-    const singleBlock = await blockOf('90');
-    if (singleBlock) {
-      /* Same mid block as 108; crop a tight row around pin 90 (single ≈5 V). */
-      const singleClip = await page.evaluate(() => {
-        const el = document.querySelector('#blocks .pin[data-pin="90"]');
-        const n91 = document.querySelector('#blocks .pin[data-pin="91"]');
-        if (!el) return null;
-        el.scrollIntoView({ block: 'center', inline: 'nearest' });
-        const r = el.getBoundingClientRect();
-        const r2 = n91 ? n91.getBoundingClientRect() : r;
-        const pad = 18;
-        const x = Math.min(r.x, r2.x) - pad;
-        const y = Math.min(r.y, r2.y) - pad;
-        const right = Math.max(r.right, r2.right) + pad;
-        const bot = Math.max(r.bottom, r2.bottom) + pad;
-        return { x: Math.max(0, x), y: Math.max(0, y), width: right - Math.max(0, x), height: bot - Math.max(0, y) };
-      });
-      if (singleClip && singleClip.width > 10) {
-        await page.screenshot({ path: shotDir + '/sm_view_single.png', clip: singleClip, captureBeyondViewport: true });
-      }
-    }
+    await shotEcm('sm_view_sel_106.png');
+    await shotBlock('106', 'sm_view_sel_106_zoom.png');
+    const selTopEl = await page.$('#selTop');
+    if (selTopEl) await selTopEl.screenshot({ path: shotDir + '/sel_app_pin.png' });
     /* Intermediate ficha detail: select the E11/F2 card and expand Rangos. */
     const ixShot = await page.evaluate(() => {
       if (typeof clearSelection === 'function') clearSelection();
