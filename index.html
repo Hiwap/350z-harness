@@ -531,6 +531,23 @@
   .ficha-sm .sm-cond { color: #c5cad3; margin-top: 2px; }
   .ficha-sm .sm-src { color: #90caf9; margin-top: 2px; font-weight: 600; }
   .ficha-sm .sm-none { color: #c5cad3; }
+  .sel-desc .ficha-sm { margin-top: 8px; }
+  .sel-desc .ficha-sm:first-child { margin-top: 0; }
+  .sel-desc .ficha-sm > summary.sel-desc-h {
+    color: #ffd54f; margin-bottom: 0; font-weight: 700;
+  }
+  .ficha-sm details.sm-entry > summary {
+    cursor: pointer; list-style: none; user-select: none;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px;
+  }
+  .ficha-sm details.sm-entry > summary::-webkit-details-marker { display: none; }
+  .ficha-sm details.sm-entry > summary::before {
+    content: '▾'; color: #78909c; font-size: 10px; display: inline-block;
+    margin-right: 2px; opacity: 0.5;
+  }
+  .ficha-sm details.sm-entry[open] > summary::before { opacity: 1; }
+  .ficha-sm details.sm-entry > summary .sm-pins { margin-bottom: 0; }
+  .ficha-sm .sm-entry-body { padding-top: 4px; }
   .ficha-nest {
     border: 1px solid #2a3140; border-radius: 8px; background: #12161d;
     margin-top: 4px;
@@ -5203,7 +5220,12 @@ function smEntryHtml(e){
   const val = (typeof smCompactText === 'function' ? smCompactText(loc.value) : loc.value) || '';
   const cond = loc.cond ? `<div class="sm-cond">${esc(loc.cond)}</div>` : '';
   const src = e && e.src ? `<div class="sm-src">${esc(e.src)}</div>` : '';
-  return `<div class="sm-entry"><div class="sm-pins">${esc((e && e.pins) || '')}</div><div class="sm-value">${esc(val)}</div>${cond}${src}</div>`;
+  const head = `<div class="sm-pins">${esc((e && e.pins) || '')}</div><div class="sm-value">${esc(val)}</div>`;
+  /* Extra condition / source text lives in the body; the compact line stays in the summary. */
+  if(!loc.cond && !(e && e.src)){
+    return `<div class="sm-entry">${head}</div>`;
+  }
+  return `<details class="sm-entry"><summary>${head}</summary><div class="sm-entry-body">${cond}${src}</div></details>`;
 }
 function smSectionHtml(id){
   const rows = (typeof smRowsForCard === 'function') ? smRowsForCard(id)
@@ -5252,7 +5274,7 @@ function smSelDescHtml(){
     }
   }
   if(!entries.length) return '';
-  return `<div class="sel-sm"><div class="sel-desc-h">${esc(t('smTitle'))}</div>${entries.map(smEntryHtml).join('')}</div>`;
+  return `<details class="ficha-sm sel-sm"><summary>${esc(t('smTitle'))}</summary><div class="sm-body">${entries.map(smEntryHtml).join('')}</div></details>`;
 }
 
 let _faceLbPrevFocus = null;
@@ -7130,20 +7152,25 @@ function compactSelectionInfo(){
     const title = locOf(b.id)
       ? `<button type="button" class="sel-ficha-name" data-loc-conn="${esc(b.id)}" title="${esc(t('locOpen'))}">${esc(b.name)}</button>`
       : `<span class="sel-ficha-name">${esc(b.name)}</span>`;
-    return `<div class="sel-ficha-blurb">${title}<div class="sel-pin-note">${esc(b.note)}</div></div>`;
+    return `<details class="ficha-sm sel-ficha-blurb" open><summary>${title}</summary><div class="sm-body"><div class="sel-pin-note">${esc(b.note)}</div></div></details>`;
   }).join('');
   const activeHtml = activeLine ? `<div class="sel-pin-note">${esc(activeLine)}</div>` : '';
   const smHtml = (typeof smSelDescHtml === 'function') ? smSelDescHtml() : '';
-  const body = activeHtml + (skipLong ? '' : longHtml) + blurbHtml + smHtml;
+  const descParts = activeHtml + (skipLong ? '' : longHtml);
+  const descHtml = descParts.trim()
+    ? `<details class="ficha-sm sel-sec" open><summary class="sel-desc-h">${esc(t('selDesc'))}</summary><div class="sm-body">${descParts}</div></details>`
+    : '';
+  const body = descHtml + blurbHtml + smHtml;
   info.innerHTML = `<div class="info-short">${shortHtml}</div>`;
   if(!body.trim()) return;
   const d = document.createElement('div');
   d.className = 'sel-desc';
-  d.innerHTML = `<div class="sel-desc-h">${esc(t('selDesc'))}</div>${body}`;
+  d.innerHTML = body;
   d.addEventListener('click', e => {
     const btn = e.target.closest && e.target.closest('.sel-ficha-name');
     if(!btn || !d.contains(btn) || !btn.dataset.locConn) return;
     e.preventDefault();
+    e.stopPropagation();
     openLocLightbox(btn.dataset.locConn);
   });
   info.appendChild(d);

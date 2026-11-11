@@ -397,12 +397,14 @@ if (skipBrowser) {
       const selTop = document.getElementById('selTop');
       const smv = selTop ? [...selTop.querySelectorAll('.smv, .cav-sm')].map((n) => n.textContent).join(' | ') : '';
       const desc = [...document.querySelectorAll('.sel-desc')].map((n) => n.innerText);
+      const descTc = [...document.querySelectorAll('.sel-desc')].map((n) => n.textContent);
       return {
         clicked: !!hit,
         short: short.replace(/\s+/g, ' ').trim(),
         shortLen: short.replace(/\s+/g, ' ').trim().length,
         smv,
         desc: desc.join(' | '),
+        descTc: descTc.join(' | '),
       };
     });
     ok(selected.clicked, 'clicked APP cavity 5');
@@ -411,8 +413,89 @@ if (skipBrowser) {
       'short info line does not carry the long FSM measurement procedure');
     ok(/0\.5–1\.0/.test(selected.smv) && /3\.9–4\.7/.test(selected.smv),
       'Seleccionados APP pin shows the FSM range (got ' + JSON.stringify(selected.smv).slice(0, 240) + ')');
-    ok(/0\.5–1\.0/.test(selected.desc) && (/EC-670/.test(selected.desc) || /Suelto/.test(selected.desc)),
+    ok(/0\.5–1\.0/.test(selected.desc + (selected.descTc || '')) && (/EC-670/.test(selected.descTc || selected.desc) || /Suelto/.test(selected.descTc || selected.desc)),
       'sel-desc includes the APP expected value');
+
+    const panel = await page.evaluate(() => {
+      const desc = document.querySelector('#info > .sel-desc');
+      if (!desc) return { has: false };
+      const secs = [...desc.querySelectorAll(':scope > details.ficha-sm')].map((d) => ({
+        cls: d.className,
+        open: d.open,
+        sum: ((d.querySelector(':scope > summary') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
+      }));
+      const rangos = desc.querySelector(':scope > details.ficha-sm.sel-sm, :scope > details.sel-sm');
+      const entries = rangos ? [...rangos.querySelectorAll('details.sm-entry')].map((d) => ({
+        open: d.open,
+        sum: ((d.querySelector(':scope > summary') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
+        body: ((d.querySelector('.sm-entry-body') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
+      })) : [];
+      const descripcion = desc.querySelector(':scope > details.ficha-sm.sel-sec, :scope > details.ficha-sm > summary.sel-desc-h')
+        && (desc.querySelector('summary.sel-desc-h') || {}).closest('details');
+      return {
+        has: true,
+        secs,
+        descOpen: !!(descripcion && descripcion.open),
+        descSum: descripcion ? ((descripcion.querySelector(':scope > summary') || {}).textContent || '').trim() : '',
+        rangosOpen: !!(rangos && rangos.open),
+        rangosSum: rangos ? ((rangos.querySelector(':scope > summary') || {}).textContent || '').trim() : '',
+        entries,
+      };
+    });
+    ok(panel.has && panel.descOpen && /Descripción|Description|説明/.test(panel.descSum),
+      'Descripción section is open by default (got ' + JSON.stringify({ open: panel.descOpen, sum: panel.descSum }) + ')');
+    ok(panel.rangosOpen === false && /Rangos|Values|値/.test(panel.rangosSum || ''),
+      'detail-panel Rangos / Values section is collapsed by default (got ' + JSON.stringify({ open: panel.rangosOpen, sum: panel.rangosSum }) + ')');
+    ok(panel.entries.length > 0 && panel.entries.every((e) => e.open === false),
+      'each range block is collapsed by default (n=' + panel.entries.length + ')');
+    ok(panel.entries.some((e) => /0\.5–1\.0/.test(e.sum) && /3\.9–4\.7/.test(e.sum)),
+      'collapsed range summary shows the compact one-line values (got ' + JSON.stringify(panel.entries.map((e) => e.sum)).slice(0, 240) + ')');
+
+    const expanded = await page.evaluate(() => {
+      const desc = document.querySelector('#info > .sel-desc');
+      const rangos = desc && desc.querySelector('details.ficha-sm.sel-sm, details.sel-sm');
+      if (rangos && !rangos.open) {
+        const sum = rangos.querySelector(':scope > summary');
+        if (sum) sum.click();
+      }
+      const entry = rangos && [...rangos.querySelectorAll('details.sm-entry')].find((d) => /0\.5–1\.0/.test((d.querySelector('summary') || {}).textContent || ''));
+      if (entry) {
+        const sum = entry.querySelector(':scope > summary');
+        if (sum) sum.click();
+      }
+      return {
+        rangosOpen: !!(rangos && rangos.open),
+        entryOpen: !!(entry && entry.open),
+        body: entry ? ((entry.querySelector('.sm-entry-body') || {}).textContent || '').replace(/\s+/g, ' ').trim() : '',
+      };
+    });
+    ok(expanded.rangosOpen, 'clicking the Rangos header expands the section');
+    ok(expanded.entryOpen && (/EC-670/.test(expanded.body) || /Suelto/.test(expanded.body)),
+      'clicking a range header reveals the condition / source (got ' + JSON.stringify(expanded).slice(0, 240) + ')');
+
+    const ixRanges = await page.evaluate(() => {
+      if (typeof clearSelection === 'function') clearSelection();
+      if (typeof selectConn === 'function') selectConn('ix_e11_f2');
+      const det = document.querySelector('.ficha[data-conn="ix_e11_f2"] details.ficha-sm');
+      if (det) det.open = true;
+      const entries = det ? [...det.querySelectorAll('details.sm-entry')] : [];
+      const allClosed = entries.every((d) => d.open === false);
+      const one = entries.find((d) => /0\.5–1\.0/.test((d.querySelector('summary') || {}).textContent || ''));
+      if (one) {
+        const sum = one.querySelector(':scope > summary');
+        if (sum) sum.click();
+      }
+      return {
+        n: entries.length,
+        allClosed,
+        opened: !!(one && one.open),
+        body: one ? ((one.querySelector('.sm-entry-body') || {}).textContent || '') : '',
+      };
+    });
+    ok(ixRanges.n > 0 && ixRanges.allClosed,
+      'E11/F2 general detail range blocks start collapsed (n=' + ixRanges.n + ')');
+    ok(ixRanges.opened && (/EC-670/.test(ixRanges.body) || /Suelto/.test(ixRanges.body)),
+      'E11/F2 range block expands on click (got ' + JSON.stringify(ixRanges).slice(0, 200) + ')');
 
     /* Language switch still updates the selected-pin value. */
     const langSel = await page.evaluate(() => {
