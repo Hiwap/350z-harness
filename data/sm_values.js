@@ -2250,7 +2250,332 @@
 
   };
 
+  /* ---- Lookup / typography for pin lines, Seleccionados, sel-desc and the print pack.
+     Compact the FSM value text only (en-dashes, middots). Do not invent conditions. */
+  function smLang(){
+    try {
+      if(typeof lang === 'string' && (lang === 'en' || lang === 'ja' || lang === 'es')) return lang;
+    } catch (e) {}
+    return 'es';
+  }
+  function smLoc(entry, loc){
+    if(!entry) return { value: '', cond: '' };
+    const L = loc || smLang();
+    return entry[L] || entry.en || entry.es || { value: '', cond: '' };
+  }
+  function smCompactText(s){
+    if(s == null) return '';
+    let t = String(s).trim();
+    if(!t) return '';
+    t = t.replace(/(\d)\s*-\s*(?=\d)/g, '$1–');
+    t = t.replace(/(\d)\s+-\s+(?=\S)/g, '$1–');
+    t = t.replace(/。/g, ' · ');
+    /* Sentence breaks after a unit, never after abbreviations (aprox. / approx.). */
+    t = t.replace(/(V|Ω|ohm|°C|°F|rpm)\)?\.(?=\s+\S)/g, '$1 ·');
+    t = t.replace(/\s+·\s+/g, ' · ').replace(/\s{2,}/g, ' ').trim();
+    t = t.replace(/[·\s]+$/g, '').trim();
+    return t;
+  }
+  function smConnDict(){
+    if(typeof CONN !== 'undefined' && CONN && typeof CONN === 'object' && Object.keys(CONN).length) return CONN;
+    if(typeof CONN_BASE !== 'undefined' && CONN_BASE) return CONN_BASE;
+    return {};
+  }
+  function smCardCodes(cid){
+    const f = smConnDict()[cid];
+    const out = [];
+    const add = (vw) => { if(vw && vw.c) out.push(String(vw.c)); };
+    if(!f) return out;
+    add(f.view);
+    if(f.viewByTrans){
+      Object.keys(f.viewByTrans).forEach((k) => add(f.viewByTrans[k]));
+    }
+    return out;
+  }
+  function smParsePinRefs(pins){
+    const ecm = [];
+    const cavs = [];
+    const seenE = Object.create(null);
+    const seenC = Object.create(null);
+    const s = String(pins || '');
+    const ecmRe = /\bECM\s+(\d+)\b/g;
+    let m;
+    while((m = ecmRe.exec(s))){
+      const n = Number(m[1]);
+      if(!seenE[n]){ seenE[n] = true; ecm.push(n); }
+    }
+    const cavRe = /\b([A-Z]{1,3}\d+[A-Z]?)\s*·\s*(\d+[A-Z]?)/g;
+    while((m = cavRe.exec(s))){
+      const key = m[1] + '·' + m[2];
+      if(!seenC[key]){ seenC[key] = true; cavs.push({ code: m[1], id: m[2] }); }
+      const after = s.slice(m.index + m[0].length);
+      const range = after.match(/^\s*[–-]\s*(\d+[A-Z]?)/);
+      if(range){
+        const key2 = m[1] + '·' + range[1];
+        if(!seenC[key2]){ seenC[key2] = true; cavs.push({ code: m[1], id: range[1] }); }
+      }
+    }
+    return { ecm: ecm, cavs: cavs };
+  }
+  function smIsEcmTerminalEntry(entry){
+    if(!entry || entry.none) return false;
+    if(/\bECM\s+\d+\b/.test(entry.pins || '')) return true;
+    const blob = [entry.es && entry.es.cond, entry.en && entry.en.cond, entry.ja && entry.ja.cond].filter(Boolean).join('\n');
+    return /terminal(?:es)? del ECM|ECM terminal|tabla de terminales del ECM|ECM端子/i.test(blob);
+  }
+  function smValueParts(entry, loc){
+    const locn = smLoc(entry, loc);
+    const compact = smCompactText(locn.value);
+    if(!compact) return [];
+    /* Split a multi-cavity value only when the FSM text itself names each cavity. */
+    const re = /·(\d+)\s*\/\s*ECM\s*(\d+)\s*([^;]+?)(?=;|\s*·\d+\s*\/\s*ECM|$)/g;
+    const hits = [];
+    let m;
+    while((m = re.exec(compact))){
+      hits.push({ cav: m[1], ecm: Number(m[2]), text: compact.slice(0, compact.search(/·\d+\s*\/\s*ECM/)).replace(/:\s*$/, '').trim(), chunk: smCompactText(m[3]) });
+    }
+    if(hits.length >= 2){
+      const prefix = hits[0].text;
+      return hits.map((h) => ({
+        cav: h.cav,
+        ecm: h.ecm,
+        text: smCompactText((prefix ? prefix + ': ' : '') + h.chunk)
+      }));
+    }
+    return [{ cav: null, ecm: null, text: compact }];
+  }
+  function smEntryLine(entry, loc, partText){
+    const text = partText != null ? partText : (smValueParts(entry, loc)[0] || {}).text || '';
+    return { text: text, src: entry && entry.src ? entry.src : '', pins: entry && entry.pins ? entry.pins : '', cond: (smLoc(entry, loc).cond || '') };
+  }
+  let _smIndex = null;
+  function smResetIndex(){ _smIndex = null; }
+  function smIndex(){
+    if(_smIndex) return _smIndex;
+    const byEcm = Object.create(null);
+    const byCav = Object.create(null);
+    const byCard = Object.create(null);
+    Object.keys(SM_VALUES).forEach((cid) => {
+      const rows = SM_VALUES[cid];
+      if(!rows || rows.none){
+        byCard[cid] = rows && rows.none ? { none: true, entry: rows } : { none: true, entry: null };
+        return;
+      }
+      if(!Array.isArray(rows)) return;
+      byCard[cid] = { none: false, entries: rows };
+      rows.forEach((e) => {
+        const refs = smParsePinRefs(e.pins);
+        refs.ecm.forEach((n) => {
+          (byEcm[n] || (byEcm[n] = [])).push({ cid: cid, entry: e });
+        });
+        refs.cavs.forEach((c) => {
+          const k = c.code + '·' + c.id;
+          (byCav[k] || (byCav[k] = [])).push({ cid: cid, entry: e });
+        });
+        const termRe = /Terminal(?:es)?\s+(\d+)(?:\s*(?:y|and|–|-)\s*(\d+))?/gi;
+        let tm;
+        while((tm = termRe.exec(e.pins || ''))){
+          const ids = [tm[1]];
+          if(tm[2]) ids.push(tm[2]);
+          smCardCodes(cid).forEach((code) => {
+            ids.forEach((id) => {
+              const k = code + '·' + id;
+              (byCav[k] || (byCav[k] = [])).push({ cid: cid, entry: e });
+            });
+          });
+        }
+      });
+    });
+    _smIndex = { byEcm: byEcm, byCav: byCav, byCard: byCav && byCard };
+    _smIndex.byCard = byCard;
+    return _smIndex;
+  }
+  function smUniqueEntries(list){
+    const out = [];
+    const seen = Object.create(null);
+    (list || []).forEach((item) => {
+      const e = item.entry || item;
+      const key = (item.cid || '') + '\0' + (e.pins || '') + '\0' + (e.src || '');
+      if(seen[key]) return;
+      seen[key] = true;
+      out.push({ cid: item.cid, entry: e });
+    });
+    return out;
+  }
+  function smPinVoltFallback(pin, loc){
+    if(!pin) return '';
+    const L = loc || smLang();
+    const v = L === 'en' ? (pin.volt_en || pin.volt) : L === 'ja' ? (pin.volt_ja || pin.volt) : (pin.volt || '');
+    return smCompactText(v || '');
+  }
+  function smEntriesForCavity(cid, cavId, pin){
+    const idx = smIndex();
+    const hits = [];
+    const card = idx.byCard[cid];
+    const codes = smCardCodes(cid);
+    const cav = String(cavId == null ? (pin && pin.id) : cavId);
+    if(card && !card.none && card.entries){
+      card.entries.forEach((e) => {
+        const refs = smParsePinRefs(e.pins);
+        const onCav = refs.cavs.some((c) => String(c.id) === cav && (!c.code || codes.indexOf(c.code) >= 0 || !codes.length));
+        const term = /Terminal(?:es)?\s+(\d+)(?:\s*(?:y|and|–|-)\s*(\d+))?/gi;
+        let tm; let onTerm = false;
+        while((tm = term.exec(e.pins || ''))){
+          if(String(tm[1]) === cav || (tm[2] && String(tm[2]) === cav)) onTerm = true;
+        }
+        if(onCav || onTerm || (!refs.cavs.length && !onTerm && pin && pin.ecm != null && refs.ecm.indexOf(Number(pin.ecm)) >= 0)){
+          hits.push({ cid: cid, entry: e });
+        }
+      });
+    }
+    codes.forEach((code) => {
+      (idx.byCav[code + '·' + cav] || []).forEach((item) => hits.push(item));
+    });
+    if(pin && pin.ecm != null && pin.ecm !== ''){
+      const n = Number(pin.ecm);
+      (idx.byEcm[n] || []).forEach((item) => {
+        if(smIsEcmTerminalEntry(item.entry)) hits.push(item);
+      });
+    }
+    return smUniqueEntries(hits);
+  }
+  function smEntriesForEcm(n){
+    const idx = smIndex();
+    const list = (idx.byEcm[Number(n)] || []).filter((item) => smIsEcmTerminalEntry(item.entry));
+    return smUniqueEntries(list);
+  }
+  function smLinesForEntries(entries, loc, pin){
+    const lines = [];
+    const seen = Object.create(null);
+    (entries || []).forEach((item) => {
+      const parts = smValueParts(item.entry, loc);
+      parts.forEach((part) => {
+        if(pin){
+          const cav = pin.id != null ? String(pin.id) : '';
+          const ecm = pin.ecm != null && pin.ecm !== '' ? Number(pin.ecm) : null;
+          if(part.cav && cav && String(part.cav) !== cav) return;
+          if(part.ecm && ecm != null && part.ecm !== ecm) return;
+        }
+        const line = smEntryLine(item.entry, loc, part.text);
+        if(!line.text || seen[line.text + '\0' + line.src]) return;
+        seen[line.text + '\0' + line.src] = true;
+        lines.push(line);
+      });
+    });
+    return lines;
+  }
+  function smPinLines(cid, pin, loc){
+    const L = loc || smLang();
+    const lines = smLinesForEntries(smEntriesForCavity(cid, pin && pin.id, pin), L, pin);
+    if(lines.length) return lines;
+    let fb = smPinVoltFallback(pin, L);
+    if(!fb && pin && pin.ecm != null && pin.ecm !== ''){
+      const pwr = (smConnDict().ecm_power && smConnDict().ecm_power.pins) || [];
+      const qp = pwr.find((q) => Number(q.ecm != null ? q.ecm : q.id) === Number(pin.ecm));
+      fb = smPinVoltFallback(qp, L);
+    }
+    return fb ? [{ text: fb, src: '', pins: '', cond: '' }] : [];
+  }
+  function smEcmLines(n, loc){
+    const L = loc || smLang();
+    const pinFb = (function(){
+      const dict = smConnDict();
+      const pwr = dict.ecm_power;
+      if(!pwr || !pwr.pins) return '';
+      const pin = pwr.pins.find((q) => Number(q.ecm != null ? q.ecm : q.id) === Number(n));
+      return smPinVoltFallback(pin, L);
+    })();
+    const lines = smLinesForEntries(smEntriesForEcm(n), L, { ecm: Number(n), id: String(n) });
+    if(lines.length) return lines;
+    return pinFb ? [{ text: pinFb, src: '', pins: '', cond: '' }] : [];
+  }
+  function smPinLine(cid, pin, loc){
+    return smPinLines(cid, pin, loc).map((x) => x.text).join(' · ');
+  }
+  function smEcmLine(n, loc){
+    return smEcmLines(n, loc).map((x) => x.text).join(' · ');
+  }
+  function smWrapPinText(text, maxChars){
+    const t = smCompactText(text || '');
+    if(!t) return [];
+    const max = Math.max(8, maxChars || 22);
+    const chunks = t.split(/\s*·\s*/).filter(Boolean);
+    /* 2–3 FSM conditions: one line each, so every range stays visible. Long lines are clipped by the pin, not mid-word. */
+    if(chunks.length >= 2 && chunks.length <= 3){
+      return chunks;
+    }
+    if(t.length <= max) return [t];
+    const lines = [];
+    let cur = '';
+    const push = (s) => { if(s) lines.push(s); };
+    chunks.forEach((ch) => {
+      if(!cur) cur = ch;
+      else if((cur + ' · ' + ch).length <= max) cur = cur + ' · ' + ch;
+      else { push(cur); cur = ch; }
+    });
+    push(cur);
+    const breakLong = (ln) => {
+      if(ln.length <= max) return [ln];
+      const out = [];
+      let rest = ln;
+      while(rest.length > max){
+        let cut = rest.lastIndexOf(' ', max);
+        if(cut < 1){
+          const sp = rest.indexOf(' ');
+          cut = sp > 0 ? sp : max;
+        }
+        out.push(rest.slice(0, cut).trim());
+        rest = rest.slice(cut).trim();
+      }
+      if(rest) out.push(rest);
+      return out;
+    };
+    const out = [];
+    lines.forEach((ln) => breakLong(ln).forEach((x) => out.push(x)));
+    if(out.length > 3){
+      const head = out.slice(0, 2);
+      const last = out.slice(2).join(' · ');
+      head.push(last.length > max + 8 ? last.slice(0, max + 7) + '…' : last);
+      return head;
+    }
+    return out;
+  }
+  function smRowsForCard(cid){
+    const idx = smIndex();
+    const card = idx.byCard[cid];
+    if(card && card.none) return card.entry || SM_NONE;
+    if(card && card.entries && card.entries.length) return card.entries;
+    const f = smConnDict()[cid];
+    if(!f || !f.pins) return null;
+    const collected = [];
+    (f.pins || []).forEach((p) => {
+      smEntriesForCavity(cid, p.id, p).forEach((item) => collected.push(item));
+    });
+    const uniq = smUniqueEntries(collected);
+    return uniq.length ? uniq.map((x) => x.entry) : null;
+  }
+  function smIsJointCard(cid){
+    if(!cid) return false;
+    if(String(cid).startsWith('ix_')) return true;
+    const f = smConnDict()[cid];
+    return !!(f && f.sub === 'intermedias');
+  }
+
   global.sm = sm;
   global.SM_NONE = SM_NONE;
   global.SM_VALUES = SM_VALUES;
+  global.smLoc = smLoc;
+  global.smCompactText = smCompactText;
+  global.smPinLine = smPinLine;
+  global.smPinLines = smPinLines;
+  global.smEcmLine = smEcmLine;
+  global.smEcmLines = smEcmLines;
+  global.smEntriesForCavity = smEntriesForCavity;
+  global.smEntriesForEcm = smEntriesForEcm;
+  global.smRowsForCard = smRowsForCard;
+  global.smWrapPinText = smWrapPinText;
+  global.smResetIndex = smResetIndex;
+  global.smIsJointCard = smIsJointCard;
+  global.smCardCodes = smCardCodes;
+  global.smParsePinRefs = smParsePinRefs;
 })(typeof window !== 'undefined' ? window : globalThis);
