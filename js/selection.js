@@ -482,6 +482,9 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
     seenCircLine.add(cir.id);
     lines.push(`<div><b style="color:${cir.color}">${circuitTitle(cir)}</b> — ${circuitNotes(cir)}</div>`);
   });
+  /* Snapshot the selected circuit's own wire before Relacionados (Alim./Tierras) add partner cavities. */
+  const ownPathCavByConn = new Map();
+  pathCavByConn.forEach((set, cid) => ownPathCavByConn.set(cid, new Set(set)));
   attachPowerPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
   attachGroundPathFichas(circIds, connSet, pathCavByConn, addPathSteps);
   attachAlimPathFichas(pathCavByConn, connSet, focusConn);
@@ -647,12 +650,12 @@ function selectCircuits(circIds, focusPin=null, focusConn=null, focusCav=null){
   const gndCavByConn = new Map();
   circIds.forEach(id => { const cir = CIRCUITS.find(x => x.id === id); Object.entries((cir && cir.gndCav) || {}).forEach(([cid, cavs]) => {
     if(!gndCavByConn.has(cid)) gndCavByConn.set(cid, new Set()); cavs.forEach(c => gndCavByConn.get(cid).add(String(c))); }); });
-  paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn, connSet, gndCavByConn.size ? gndCavByConn : null);
+  paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn, connSet, gndCavByConn.size ? gndCavByConn : null, ownPathCavByConn);
   applyCollapseIdleSubs([...connSet]);
 }
 
-/** Yellow hl = focused ECM/cavity; purple hl-group = other path pins only (not the focused ECM). */
-function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=null, selConns=null, gndCavByConn=null){
+/** Yellow hl = the clicked pin and every cavity of that same wire; hl-group = Relacionados partners. */
+function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=null, selConns=null, gndCavByConn=null, ownPathCavByConn=null){
   /* selTop clones are fresh DOM without .dim — opacar todas las cavidades primero. */
   document.querySelectorAll('.cav-hit').forEach(cav=>{
     cav.classList.remove('hl','hl-end','hl-group','hl-rail','hl-rail-rel-gnd','hl-rail-rel-data','hl-rail-rel-power');
@@ -661,23 +664,24 @@ function paintFichaCavHL(ecmSet, focusPin, focusConn, focusCav, pathCavByConn=nu
   document.querySelectorAll('#fichas .ficha.hl .cav-empty, #fichas .ficha-wrap.hl .cav-empty').forEach(g=>{
     g.style.opacity = '0.2';
   });
-  /* Relacionados on: only the clicked thing is yellow (the clicked cavity; on an ECM pin click, the device cavity that
-     carries that pin). Route cavities, intermediates carrying the same wire and partner circuits use the related style. */
+  /* Relacionados on: yellow = the clicked cavity and every cavity that carries the same ECM pin.
+     Partner circuits and route-only cavities stay related. */
   const relOn = ['railRelGnd','railRelPower','railRelData'].some(id => { const el = document.getElementById(id); return !!(el && el.checked); });
   const pathOk = (p, cid, pid)=>{
     if(!p) return false;
     const isFocusCav = focusConn===cid && String(focusCav)===String(pid);
     if(isFocusCav) return {cls:'hl'};
-    /* Exact ECM match = yellow hl first (path list must not force purple hl-group). */
+    /* Exact ECM match = yellow on every ficha of that wire, including after a cavity click. */
     if(p.ecm!=null && p.ecm!=='' && focusPin!=null && Number(p.ecm)===Number(focusPin)){
-      /* ECM pin click: every cavity carrying that same wire (device end, F102, intermediates) stays yellow */
-      /* Shared sensor ground cavity click (ect·2 on ECM 67): no fan-out to the other sensors on the net */
-      if(focusConn && selConns && PIN_RAIL[Number(p.ecm)] === 'gnd' && !selConns.has(cid)) return false;
-      if(relOn && focusConn) return {cls:'hl-group', path:true};
+      /* Shared sensor ground cavity click (ect·2 on ECM 67): no fan-out to the other sensors on the net.
+         Cavities already on this circuit's own path (knock shield → F103·4 → F152, EC-317) stay yellow. */
+      const onOwn = ownPathCavByConn && ownPathCavByConn.has(cid) && ownPathCavByConn.get(cid).has(String(pid));
+      if(focusConn && selConns && PIN_RAIL[Number(p.ecm)] === 'gnd' && !selConns.has(cid) && !onOwn) return false;
       return {cls:'hl'};
     }
     const onPathFeed = pathCavByConn && pathCavByConn.has(cid) && pathCavByConn.get(cid).has(String(pid));
-    /* Explicit circuit.path cavities (E17 ring, F3·5, …) — always lit, not Tierras-gated (yellow only with Relacionados off) */
+    /* Route-only / partner-rail cavities: related style when Relacionados is on; yellow is reserved
+       for cavities that carry the same ECM pin (above). */
     if(onPathFeed) return relOn ? {cls:'hl-group', path:true} : {cls:'hl'};
     if(p.ecm==null || p.ecm==='') return false;
     const e = Number(p.ecm);
