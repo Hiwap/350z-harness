@@ -295,6 +295,13 @@
   #fichas .ficha-sec:not(.sel-top) .cav-hit.hl-group .cav-sm {
     visibility: visible;
   }
+  /* Option "Mostrar valores siempre": show the reserved FSM value on every pin that has one. */
+  body.smv-always #blocks .pin .smv,
+  body.smv-always #ecm #f102Blocks .pin .smv,
+  body.smv-always #fichas .ficha-sec:not(.sel-top) .cav-sm-band,
+  body.smv-always #fichas .ficha-sec:not(.sel-top) .cav-hit .cav-sm {
+    visibility: visible;
+  }
   .sel-desc .sel-sm { margin-top: 8px; }
   .sel-desc .sel-sm .sm-entry { padding: 4px 0; }
   .sel-desc .sel-sm .sm-pins { color: #ffd54f; font-weight: 600; }
@@ -1342,6 +1349,10 @@
       <label class="chk" id="lblMirrorAll">
         <input type="checkbox" id="mirrorAll" />
         <span id="lblMirrorAllTxt">Espejo de todas</span>
+      </label>
+      <label class="chk" id="lblSmvAlways">
+        <input type="checkbox" id="smvAlways" />
+        <span id="lblSmvAlwaysTxt">Mostrar valores siempre</span>
       </label>
       <div class="opts-rail-rel" id="optsRailRel">
         <span class="opts-rail-rel-title" id="railRelTitle">Relacionados</span>
@@ -4307,6 +4318,8 @@ function applyLang(){
   if(cit) cit.textContent = t('collapseIdle');
   const mat = document.getElementById('lblMirrorAllTxt');
   if(mat) mat.textContent = t('mirrorAll');
+  const sat = document.getElementById('lblSmvAlwaysTxt');
+  if(sat) sat.textContent = t('smvAlways');
   paintMirrorAllChk();
   const rrt = document.getElementById('railRelTitle');
   if(rrt) rrt.textContent = t('railRelTitle');
@@ -5853,6 +5866,22 @@ function onCollapseIdleToggle(){
   else restoreCollapsedSubs();
 }
 
+const LS_SMV_ALWAYS = 'z33_smvAlways';
+function smvAlwaysEnabled(){
+  const el = document.getElementById('smvAlways');
+  if(el) return !!el.checked;
+  return localStorage.getItem(LS_SMV_ALWAYS) === '1';
+}
+function applySmvAlways(){
+  document.body.classList.toggle('smv-always', smvAlwaysEnabled());
+}
+function onSmvAlwaysToggle(){
+  const el = document.getElementById('smvAlways');
+  if(!el) return;
+  localStorage.setItem(LS_SMV_ALWAYS, el.checked ? '1' : '0');
+  applySmvAlways();
+}
+
 
 
 /** Run DOM mutations without jumping the fichas panel / window scroll. */
@@ -7278,6 +7307,7 @@ Object.keys(VARIANT_DIMS).forEach(k => { const el = document.getElementById(VARI
   });
 })();
 document.getElementById('collapseIdleSubs').addEventListener('change', onCollapseIdleToggle);
+document.getElementById('smvAlways').addEventListener('change', onSmvAlwaysToggle);
 document.getElementById('railRelGnd').addEventListener('change', onRailRelKindToggle);
 document.getElementById('railRelPower').addEventListener('change', onRailRelKindToggle);
 document.getElementById('railRelData').addEventListener('change', onRailRelKindToggle);
@@ -7873,6 +7903,11 @@ function applyShareLink(){
     const saved = localStorage.getItem(LS_COLLAPSE_IDLE);
     collapseEl.checked = saved === null ? true : saved === '1';
   }
+  const smvAlwaysEl = document.getElementById('smvAlways');
+  if(smvAlwaysEl){
+    smvAlwaysEl.checked = localStorage.getItem(LS_SMV_ALWAYS) === '1';
+  }
+  applySmvAlways();
   const mirrorAllEl = document.getElementById('mirrorAll');
   if(mirrorAllEl && !mirrorAllEl.dataset.bound){
     mirrorAllEl.dataset.bound = '1';

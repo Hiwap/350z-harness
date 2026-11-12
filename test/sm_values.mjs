@@ -142,6 +142,20 @@ ok(html.includes('data/sm_values.js'), 'index.html loads data/sm_values.js');
 ok(/smTitle: 'Rangos'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'utf8')), 'I18N es smTitle is Rangos');
 ok(/smTitle: 'Values'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'utf8')), 'I18N en smTitle is Values');
 ok(/smTitle: '値'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'utf8')), 'I18N ja smTitle is 値');
+{
+  const i18n = fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'utf8');
+  ok(/smvAlways: 'Mostrar valores siempre'/.test(i18n), 'I18N es smvAlways is Mostrar valores siempre');
+  ok(/smvAlways: 'Always show values'/.test(i18n), 'I18N en smvAlways is Always show values');
+  ok(/smvAlways: '値を常に表示'/.test(i18n), 'I18N ja smvAlways is 値を常に表示');
+  const box = html.match(/<input type="checkbox" id="smvAlways"[^>]*>/);
+  ok(!!box && !/\bchecked\b/.test(box[0]),
+    '#smvAlways is off by default (got ' + (box ? box[0] : 'missing') + ')');
+  ok(/const LS_SMV_ALWAYS = 'z33_smvAlways'/.test(html)
+      && /smvAlwaysEl\.checked = localStorage\.getItem\(LS_SMV_ALWAYS\) === '1'/.test(html)
+      && /localStorage\.setItem\(LS_SMV_ALWAYS, el\.checked \? '1' : '0'\)/.test(html)
+      && /document\.body\.classList\.toggle\('smv-always', smvAlwaysEnabled\(\)\)/.test(html),
+    'smvAlways persists in z33_smvAlways and toggles body.smv-always when it is \'1\'');
+}
 
 ok(typeof smCompactText === 'function' && typeof smWrapPinText === 'function' && typeof smPinRangeText === 'function', 'typography helpers export');
 ok(smPinRangeText('Suelto: 0.5 - 1.0 V. A fondo: 3.9 - 4.7 V') === '0.5–1.0 V · 3.9–4.7 V',
@@ -584,6 +598,150 @@ if (skipBrowser) {
     ok(/^≈5\s*V$/.test(vis.after.p90), 'selected SM pin 90 shows the single value ≈5 V (got ' + JSON.stringify(vis.after.p90) + ')');
     ok(/0\.4–2\.4\s*V/.test(vis.after.p51) && !/Ralentí/.test(vis.after.p51),
       'selected SM pin 51 collapses MAF intermediates to 0.4–2.4 V (got ' + JSON.stringify(vis.after.p51) + ')');
+
+    const labels = await page.evaluate(() => {
+      const out = { checked: false, labels: {} };
+      const box = document.getElementById('smvAlways');
+      out.exists = !!box;
+      out.checked = !!(box && box.checked);
+      out.hasClass = document.body.classList.contains('smv-always');
+      for (const L of ['es', 'en', 'ja']) {
+        const sel = document.getElementById('lang');
+        if (sel) sel.value = L;
+        if (typeof applyLang === 'function') applyLang();
+        const txt = document.getElementById('lblSmvAlwaysTxt');
+        out.labels[L] = txt ? txt.textContent : '';
+      }
+      const sel = document.getElementById('lang');
+      if (sel) sel.value = 'es';
+      if (typeof applyLang === 'function') applyLang();
+      return out;
+    });
+    ok(labels.exists, 'Opciones has #smvAlways');
+    ok(labels.checked === false && labels.hasClass === false,
+      'smvAlways starts off with no body.smv-always class (got ' + JSON.stringify(labels) + ')');
+    ok(labels.labels.es === 'Mostrar valores siempre'
+        && labels.labels.en === 'Always show values'
+        && labels.labels.ja === '値を常に表示',
+      'smvAlways labels follow the language (got ' + JSON.stringify(labels.labels) + ')');
+
+    const always = await page.evaluate(() => {
+      const visibleText = (el) => {
+        if (!el) return '';
+        const host = el.classList && el.classList.contains('cav-sm') ? (el.closest('.cav-sm-band') || el) : el;
+        const st = getComputedStyle(host);
+        if (st.visibility === 'hidden' || st.display === 'none') return '';
+        return (el.textContent || '').replace(/\s+/g, ' ').trim();
+      };
+      const visPin = (pin) => visibleText(document.querySelector('#blocks .pin[data-pin="' + pin + '"] .smv'));
+      if (typeof clearSelection === 'function') clearSelection();
+      const el = document.getElementById('smvAlways');
+      el.checked = true;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+      const f102Panel = document.getElementById('f102Panel');
+      if (f102Panel) f102Panel.open = true;
+      const appHit = document.querySelector('.ficha[data-conn="app"] .cav-hit[data-cav="5"]');
+      let anc = appHit;
+      while (anc) {
+        if (anc.tagName === 'DETAILS') anc.open = true;
+        anc = anc.parentElement;
+      }
+      const appBand = appHit && appHit.nextElementSibling && appHit.nextElementSibling.classList.contains('cav-sm-band')
+        ? appHit.nextElementSibling
+        : (appHit && appHit.parentElement && appHit.parentElement.querySelector('.cav-sm-band'));
+      const appSmText = appBand
+        ? [...appBand.querySelectorAll('.cav-sm')].map((n) => visibleText(n)).filter(Boolean).join(' ')
+        : '';
+      const f102With = [...document.querySelectorAll('#f102Blocks .pin:not([data-opt-off]) .smv')]
+        .map((n) => ({ cav: n.closest('.pin') && n.closest('.pin').dataset.cav, t: visibleText(n), raw: (n.textContent || '').replace(/\s+/g, ' ').trim() }))
+        .filter((x) => x.raw);
+      const optOffVals = [...document.querySelectorAll('#f102Blocks .pin[data-opt-off] .smv, #fichas .cav-hit[data-opt-off] .cav-sm, #fichas .cav-hit[data-opt-off] + .cav-sm-band .cav-sm')]
+        .map((n) => (n.textContent || '').replace(/\s+/g, ' ').trim())
+        .filter(Boolean);
+      return {
+        classOn: document.body.classList.contains('smv-always'),
+        ls: localStorage.getItem('z33_smvAlways'),
+        checked: !!(el && el.checked),
+        p106: visPin(106), p108: visPin(108), p90: visPin(90), p51: visPin(51),
+        anyEcm: [...document.querySelectorAll('#blocks .pin .smv')].filter((n) => visibleText(n)).length,
+        f102: f102With.slice(0, 4),
+        f102Count: f102With.length,
+        app: appSmText,
+        optOffVals,
+      };
+    });
+    ok(always.classOn && always.checked && always.ls === '1',
+      'toggling smvAlways on sets the class, checkbox and z33_smvAlways=1 (got ' + JSON.stringify({ classOn: always.classOn, checked: always.checked, ls: always.ls }) + ')');
+    ok(/0\.5–1\.0/.test(always.p106) && /3\.9–4\.7/.test(always.p106),
+      'with smvAlways on, unselected ECM pin 106 shows both APP ranges (got ' + JSON.stringify(always.p106) + ')');
+    ok(/≈0\s*V/.test(always.p108) && /11–14\s*V/.test(always.p108),
+      'with smvAlways on, unselected ECM pin 108 shows ≈0 V · 11–14 V (got ' + JSON.stringify(always.p108) + ')');
+    ok(/^≈5\s*V$/.test(always.p90), 'with smvAlways on, unselected ECM pin 90 shows ≈5 V (got ' + JSON.stringify(always.p90) + ')');
+    ok(/0\.4–2\.4\s*V/.test(always.p51),
+      'with smvAlways on, unselected ECM pin 51 shows 0.4–2.4 V (got ' + JSON.stringify(always.p51) + ')');
+    ok(always.anyEcm >= 4, 'with smvAlways on, several unselected ECM pins show values (got ' + always.anyEcm + ')');
+    ok(always.f102Count >= 1,
+      'with smvAlways on, F102 pins that have FSM values are visible (got ' + JSON.stringify(always.f102) + ')');
+    ok(/0\.5–1\.0/.test(always.app) && /3\.9–4\.7/.test(always.app),
+      'with smvAlways on, the unselected APP ficha cavity shows both ranges (got ' + JSON.stringify(always.app) + ')');
+    ok(always.optOffVals.length === 0,
+      'optional pins still have no FSM value when smvAlways is on (got ' + JSON.stringify(always.optOffVals) + ')');
+
+    const offAgain = await page.evaluate(() => {
+      const visibleText = (el) => {
+        if (!el) return '';
+        const host = el.classList && el.classList.contains('cav-sm') ? (el.closest('.cav-sm-band') || el) : el;
+        const st = getComputedStyle(host);
+        if (st.visibility === 'hidden' || st.display === 'none') return '';
+        return (el.textContent || '').replace(/\s+/g, ' ').trim();
+      };
+      if (typeof clearSelection === 'function') clearSelection();
+      const el = document.getElementById('smvAlways');
+      el.checked = false;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+      return {
+        classOn: document.body.classList.contains('smv-always'),
+        ls: localStorage.getItem('z33_smvAlways'),
+        checked: !!(el && el.checked),
+        anyEcm: [...document.querySelectorAll('#blocks .pin .smv')].some((n) => visibleText(n)),
+        anyF102: [...document.querySelectorAll('#f102Blocks .pin .smv')].some((n) => visibleText(n)),
+        anyFicha: [...document.querySelectorAll('#fichas .ficha-sec:not(.sel-top) .cav-sm')].some((n) => visibleText(n)),
+      };
+    });
+    ok(offAgain.classOn === false && offAgain.checked === false && offAgain.ls === '0',
+      'toggling smvAlways off clears the class and stores z33_smvAlways=0 (got ' + JSON.stringify(offAgain) + ')');
+    ok(offAgain.anyEcm === false && offAgain.anyF102 === false && offAgain.anyFicha === false,
+      'with smvAlways off, unselected pins hide the value line again (got ' + JSON.stringify(offAgain) + ')');
+
+    await page.evaluate(() => { localStorage.setItem('z33_smvAlways', '1'); });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => typeof SM_VALUES === 'object' && typeof renderFichas === 'function');
+    const persisted = await page.evaluate(() => {
+      const visibleText = (el) => {
+        if (!el) return '';
+        const host = el.classList && el.classList.contains('cav-sm') ? (el.closest('.cav-sm-band') || el) : el;
+        const st = getComputedStyle(host);
+        if (st.visibility === 'hidden' || st.display === 'none') return '';
+        return (el.textContent || '').replace(/\s+/g, ' ').trim();
+      };
+      const box = document.getElementById('smvAlways');
+      const p106 = document.querySelector('#blocks .pin[data-pin="106"] .smv');
+      return {
+        checked: !!(box && box.checked),
+        classOn: document.body.classList.contains('smv-always'),
+        ls: localStorage.getItem('z33_smvAlways'),
+        p106: visibleText(p106),
+      };
+    });
+    ok(persisted.checked && persisted.classOn && persisted.ls === '1' && /0\.5–1\.0/.test(persisted.p106),
+      'z33_smvAlways=1 is restored on load and values stay visible (got ' + JSON.stringify(persisted) + ')');
+    await page.evaluate(() => {
+      localStorage.setItem('z33_smvAlways', '0');
+      const el = document.getElementById('smvAlways');
+      if (el) { el.checked = false; }
+      if (typeof applySmvAlways === 'function') applySmvAlways();
+      if (typeof clearSelection === 'function') clearSelection();
+    });
 
 
     const overflow = await page.evaluate(() => {
