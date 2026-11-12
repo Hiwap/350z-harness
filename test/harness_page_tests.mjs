@@ -310,7 +310,7 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
   return true;
 });
 
-/* Optional-equipment pins: gated pins keep their FSM colour (offCode) and draw dimmed with an "only with …" tooltip */
+/* Optional-equipment pins: gated pins become empty cavities (code '—', no label, no ECM) with an "only with …" tooltip */
 {
   const optSrc = [
     extractFunction(script, 'isPseudoWireCode'),
@@ -320,7 +320,6 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
     extractFunction(script, 'variantGatePin'),
     extractConstObject(script, 'VIF_VAL_LABEL'),
     extractFunction(script, 'optNeedLabel'),
-    extractFunction(script, 'optOffDisplayPin'),
     extractFunction(script, 'livePinOf'),
     'var lang = "es";',
   ].join('\n');
@@ -329,21 +328,19 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
   vm.runInContext(optSrc, ob);
   const V = (o) => Object.assign({ trans: 'mt', body: 'coupe', market: 'usa', brake: 'abs', audio: 'base', nav: 'no', pseat: 'no', hseat: 'no' }, o || {});
   const hs = { id: '14', code: 'R', ecm: null, lab: 'HS-BAT', vif: 'hseat=yes', note: 'x' };
-  unit('unit: dimmed state — heated-seat pin without heated seats keeps its FSM colour as offCode', () => {
+  unit('unit: hidden state — heated-seat pin without heated seats is an empty cavity (keeps offCode / live)', () => {
     const g = ob.variantGatePin(hs, V());
-    const d = ob.optOffDisplayPin(g);
-    return g.code === '—' && g.vifOff === 'hseat=yes' && g.offCode === 'R' && d && d.code === 'R' && d.vifOff === 'hseat=yes';
+    return g.code === '—' && g.ecm === null && g.lab === '' && g.vifOff === 'hseat=yes' && g.offCode === 'R' && ob.livePinOf(g) === hs;
   });
-  unit('unit: dimmed state — display pin keeps every label line of the live pin (top src / ECM, lab) and its circuit', () => {
+  unit('unit: hidden state — gated pin drops label / ECM / src; live pin is kept behind it', () => {
     const live = { id: 'HS-PWR', code: 'G', ecm: null, lab: 'HS-PWR', src: 'B37·3', srcSub: 'carroceria', circ: 'heated_seat', vif: 'hseat=yes' };
     const g = ob.variantGatePin(live, V());
-    const d = ob.optOffDisplayPin(g);
     const f = ob.variantGatePin({ id: '28H', code: 'BR/Y', ecm: 102, lab: 'PNP', trans: 'at' }, V());
-    const fd = ob.optOffDisplayPin(f);
-    return d.src === 'B37·3' && d.lab === 'HS-PWR' && d.circ === 'heated_seat' && d.vifOff === 'hseat=yes'
-      && ob.livePinOf(g) === live && fd.ecm === 102 && fd.lab === 'PNP' && fd.transOff === 'at' && g.ecm === null && g.lab === '';
+    return g.code === '—' && g.lab === '' && g.ecm === null && !g.src && g.vifOff === 'hseat=yes'
+      && ob.livePinOf(g) === live && live.src === 'B37·3' && f.transOff === 'at' && f.code === '—' && f.ecm === null && f.lab === ''
+      && ob.livePinOf(f).ecm === 102 && ob.livePinOf(f).lab === 'PNP';
   });
-  unit('unit: dimmed state — tooltip names the option (es/en/ja)', () =>
+  unit('unit: hidden state — tooltip names the option (es/en/ja)', () =>
     ob.optNeedLabel(ob.variantGatePin(hs, V()), 'es') === 'solo con asientos calefactables'
     && ob.optNeedLabel(ob.variantGatePin({ id: '15', code: 'R/B', vif: 'audio=bose' }, V()), 'es') === 'solo con Bose'
     && ob.optNeedLabel(ob.variantGatePin({ id: '15', code: 'R/B', vif: 'audio=bose' }, V()), 'en') === 'only with Bose'
@@ -351,32 +348,27 @@ unit('unit: cavBottomLabel no ReferenceError on signal pin', () => {
     && ob.optNeedLabel(ob.variantGatePin({ id: '7', code: 'P', vif: 'body=roadster&pseat=yes' }, V()), 'es') === 'solo con Roadster + asiento eléctrico'
     && ob.optNeedLabel(ob.variantGatePin({ id: '35G', code: 'L/Y', vif: 'brake=tcs,vdc' }, V()), 'en') === 'only with TCS or VDC'
     && ob.optNeedLabel(ob.variantGatePin({ id: '23H', code: 'GY/R', trans: 'at' }, V()), 'es') === 'solo con A/T');
-  unit('unit: full strength when the option is selected (no gate, no dimming)', () => {
+  unit('unit: full strength when the option is selected (no gate)', () => {
     const g = ob.variantGatePin(hs, V({ hseat: 'yes' }));
-    return g.code === 'R' && !g.vifOff && ob.optOffDisplayPin(g) === null;
+    return g.code === 'R' && !g.vifOff && g.lab === 'HS-BAT';
   });
-  unit('unit: gated pin with no FSM colour (shield drain) keeps "?" / no colour but still gated + labelled', () => {
+  unit('unit: gated pin with no FSM colour is still an empty cavity, tooltip names the option', () => {
     const g = ob.variantGatePin({ id: '20J', code: '—', lab: 'SHIELD', wireUnk: true, vif: 'audio=bose' }, V());
-    const d = ob.optOffDisplayPin(g);
-    return g.vifOff === 'audio=bose' && d.code === '—' && d.wireUnk === true && d.lab === 'SHIELD' && ob.optNeedLabel(g, 'es') === 'solo con Bose';
+    return g.vifOff === 'audio=bose' && g.code === '—' && g.lab === '' && ob.optNeedLabel(g, 'es') === 'solo con Bose';
   });
-  unit('unit: A/T-only F102 pin on M/T keeps its colour dimmed', () => {
+  unit('unit: A/T-only F102 pin on M/T is an empty cavity', () => {
     const g = ob.variantGatePin({ id: '24H', code: 'BR/Y', trans: 'at' }, V());
-    return g.transOff === 'at' && ob.optOffDisplayPin(g).code === 'BR/Y';
+    return g.transOff === 'at' && g.code === '—' && g.ecm === null && g.lab === '' && g.offCode === 'BR/Y';
   });
-  const opac = Number((script.match(/const OPT_OFF_OPACITY = ([0-9.]+);/) || [])[1]);
-  ok('dimmed state rendered: cavGroup + F102 pins use OPT_OFF_OPACITY (<1), data-opt-off, <title> tooltip, clickable through the live pin',
-    opac > 0 && opac < 1
-    && /const optAttr = optOff \? ` opacity="\$\{OPT_OFF_OPACITY\}" data-opt-off="\$\{esc\(optNeed\)\}"` : '';/.test(script)
-    && /const optTitle = optNeed \? `<title>\$\{esc\(optNeed\)\}<\/title>` : '';/.test(script)
-    && /const noClick0 = typeof cavClickable === 'function' \? !cavClickable\(cid, pin\) : false;\n  if\(optOff\) pin = optOffDisplayPin\(pin\) \|\| pin;/.test(script)
-    && /if\(optOff\)\{ d\.classList\.add\('opt-off'\); d\.style\.opacity = String\(OPT_OFF_OPACITY\);/.test(script)
-    && /if\(hasWire && cavClickable\('ix_f102_m72', livePin\)\)/.test(script)
-    && /if\(pin && \(pin\.vifOff \|\| pin\.transOff\)\)\{\n    const live = livePinOf\(pin\);[\s\S]{0,160}optOffCircuitsFor\(cid, pin\)\.length > 0;/.test(script)
-    && /if\(pin0 && \(pin0\.vifOff \|\| pin0\.transOff\)\)\{ selectOptOffPin\(cid, cavId, pin0, key, opts\); return; \}/.test(script)
-    && /\.cav-hit\.cav-opt-off\.hl, \.cav-hit\.cav-opt-off\.hl-group, \.cav-hit\.cav-opt-off\.hl-end \{ opacity: 0\.6 !important; \}/.test(html), `opacity ${opac}`);
+  ok('hidden state rendered: cavGroup + F102 pins draw gated cavities empty (data-opt-off + tooltip, no dimmed colour, not clickable)',
+    !/OPT_OFF_OPACITY|cav-opt-off/.test(html)
+    && /const optAttr = optOff \? ` data-opt-off="\$\{esc\(optNeed\)\}"` : '';/.test(script)
+    && /const optTitle = offTip \? `<title>\$\{esc\(offTip\)\}<\/title>` : '';/.test(script)
+    && /if\(pin && \(pin\.vifOff \|\| pin\.transOff\)\) return false;/.test(script)
+    && /d\.dataset\.optOff = optNeed;/.test(script)
+    && !/function optOffDisplayPin\(/.test(script)
+    && !/function selectOptOffPin\(/.test(script));
 }
-
 
 ok('ECM 8/9 exhaust VTC only on Rev-Up',
   /Number\(p\)===8 \|\| Number\(p\)===9/.test(html) && /model !== 'de_revup'/.test(html));
@@ -723,14 +715,14 @@ if (skipBrowser) {
   runNested('f102.mjs', path.join(__dirname, 'f102.mjs'));
   runNested('fsm_sig_click.mjs (FSM table: SIG clicks light no rail-only cavity)', path.join(__dirname, 'fsm_sig_click.mjs'));
   runNested('feedback.mjs (Send feedback button/dialog, offline)', path.join(__dirname, 'feedback.mjs'));
-  runNested('variants.mjs (equipment selectors: body / brakes / options; Canada DTRL dimmed)', path.join(__dirname, 'variants.mjs'));
+  runNested('variants.mjs (equipment selectors: body / brakes / options; Canada DTRL hidden)', path.join(__dirname, 'variants.mjs'));
   runNested('ix_dest.mjs (every used intermediate cavity shows its destination line)', path.join(__dirname, 'ix_dest.mjs'));
   runNested('outline_contrast.mjs (outline-mode labels readable on every wire colour)', path.join(__dirname, 'outline_contrast.mjs'));
   runNested('popup_short.mjs (click info = one short line; Descripción in the details panel, never in a ficha; one pin per connector type, es/en/ja)', path.join(__dirname, 'popup_short.mjs'));
   runNested('sel_outline.mjs (Relacionados on: only the clicked pin/cavity gets the yellow selected outline; ECM 85 K-line regression)', path.join(__dirname, 'sel_outline.mjs'));
   runNested('same_wire_hl.mjs (same wire yellow on every ficha; shared grounds stay per-component)', path.join(__dirname, 'same_wire_hl.mjs'));
   runNested('coil_etc_rails.mjs (coils: one 12V + own ground per coil, EC-689/691/693; ETC F31 motor 3/6 ← VMOT, TPS 5V/ground)', path.join(__dirname, 'coil_etc_rails.mjs'));
-  runNested('rules_browser.mjs (maintainer corrections on the rendered page: dimmed optional pins, fuse cells, IPDM icons)', path.join(__dirname, 'rules_browser.mjs'));
+  runNested('rules_browser.mjs (maintainer corrections on the rendered page: hidden optional pins, fuse cells, IPDM icons)', path.join(__dirname, 'rules_browser.mjs'));
   runNested('rel_sweep.mjs (every ECM pin × Relacionados/grouping option, every ficha cavity: route + 12V partners lit, clickable)', path.join(__dirname, 'rel_sweep.mjs'));
   runNested('share_link.mjs (?pin= / ?cav= selects on open and follows the choice)', path.join(__dirname, 'share_link.mjs'));
 }

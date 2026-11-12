@@ -40,15 +40,14 @@ const fresh = async () => {
 };
 await fresh();
 
-/* Rule optional-dimmed: a pin whose equipment / transmission is not on the selected car is still drawn
-   (never hidden): FSM colour at OPT_OFF_OPACITY with a tooltip naming the option, the same first line
-   (destination) as the live pin, and clickable whenever the live pin is on a circuit. Default car + all
-   options on, every card. */
+/* Rule optional-hidden: a pin whose equipment / transmission is not on the selected car is drawn
+   as an empty cavity (no FSM colour, no label, no ECM number), with a tooltip naming the option.
+   It is not clickable and has no dimmed wire. Default car + all options on, every card. */
 {
   const sweep = () => page.evaluate(() => {
-    const out = { n: 0, missing: [], bad: [], clicked: 0, dark: [] };
-    const onCircuit = (cid, live) => live.circ || live.ecm != null
-      || (CIRCUITS_ALL.length ? CIRCUITS_ALL : CIRCUITS).some((c) => ((c.path || {})[cid] || []).map(String).includes(String(live.id)));
+    const out = { n: 0, missing: [], bad: [] };
+    const emptyCode = (g) => ((g.querySelector('.cav-code') || {}).textContent || '').replace(/\s/g, '');
+    const top = (g) => (g.querySelector('.cav-ecm') || {}).textContent;
     const targets = [];
     for (const el of document.querySelectorAll('#fichas details.ficha-sec:not(.sel-top) .ficha[data-conn]')) {
       const cid = el.dataset.conn;
@@ -62,40 +61,38 @@ await fresh();
         out.n++;
         const g = el.querySelector(`.cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(String(p.id))}"]`);
         if (!g) { out.missing.push(`${cid}·${p.id}`); continue; }
-        const live = livePinOf(p);
         const why = [];
-        if (!g.classList.contains('cav-opt-off')) why.push('not dimmed');
-        if (Number(g.getAttribute('opacity')) !== OPT_OFF_OPACITY) why.push('opacity ' + g.getAttribute('opacity'));
+        if (g.classList.contains('cav-opt-off')) why.push('dimmed class');
+        if (g.getAttribute('opacity') != null) why.push('opacity ' + g.getAttribute('opacity'));
         if (!((g.querySelector('title') || {}).textContent || '').trim()) why.push('no tooltip');
-        const top = (g.querySelector('.cav-ecm') || {}).textContent;
-        if (top !== cavTopLabel(live)) why.push(`first line "${top}", live "${cavTopLabel(live)}"`);
-        const want = cavHasWire(live) && onCircuit(cid, live);
-        if (want && g.classList.contains('cav-noclick')) why.push('not clickable');
+        if (!g.getAttribute('data-opt-off')) why.push('no data-opt-off');
+        if (top(g) !== '—') why.push(`first line "${top(g)}", want "—"`);
+        const code = emptyCode(g);
+        if (code && code !== '—' && code !== '·' && code !== '-') why.push(`wire colour "${code}"`);
+        if (!g.classList.contains('cav-noclick')) why.push('still clickable');
         if (why.length) out.bad.push(`${cid}·${p.id}: ${why.join(', ')}`);
-        else if (want) targets.push([cid, String(p.id)]);
       }
     }
-    for (const [cid, id] of targets) {
-      clearSelection();
-      selectConnPin(cid, id);
-      const g = document.querySelector(`#fichas .cav-hit[data-conn="${cid}"][data-cav="${CSS.escape(id)}"]`);
-      if (g && /\bhl(-group|-end)?\b/.test(g.getAttribute('class'))) out.clicked++;
-      else out.dark.push(`${cid}·${id}`);
-    }
-    clearSelection();
     /* F102 panel pins gated by transmission / equipment */
     for (const p of (CONN.ix_f102_m72.pins || []).filter((q) => q.vifOff || q.transOff)) {
       out.n++;
       const el = f102PinEl(p.id);
       if (!el) { out.missing.push('F102·' + p.id); continue; }
-      if (!el.classList.contains('opt-off') || Number(el.style.opacity) !== OPT_OFF_OPACITY) out.bad.push(`F102·${p.id}: not dimmed`);
+      const why = [];
+      if (el.classList.contains('opt-off') || (el.style.opacity && el.style.opacity !== '1')) why.push('dimmed');
+      if (!el.dataset.optOff) why.push('no data-opt-off');
+      if (!el.classList.contains('empty')) why.push('not empty');
+      const mid = ((el.querySelector('.pw') || {}).textContent || '').replace(/\s/g, '');
+      const topEl = (el.querySelector('.pn') || {}).textContent;
+      if (mid && mid !== '—') why.push(`wire "${mid}"`);
+      if (topEl !== '—') why.push(`top "${topEl}"`);
+      if (why.length) out.bad.push(`F102·${p.id}: ${why.join(', ')}`);
     }
     return out;
   });
   const def = await sweep();
-  ok('optional pins (default car): every gated cavity drawn dimmed, tooltip, live first line', def.n >= 20 && def.missing.length === 0 && def.bad.length === 0,
+  ok('optional pins (default car): every gated cavity drawn empty, tooltip, no colour, not clickable', def.n >= 20 && def.missing.length === 0 && def.bad.length === 0,
     `${def.n} gated · missing ${def.missing.join(',')} · ${def.bad.slice(0, 12).join('; ')}`);
-  ok('optional pins (default car): clicking each gated cavity on a circuit lights it', def.dark.length === 0, `${def.clicked} lit · dark ${def.dark.join(',')}`);
   /* the other side of every selector: A/T, Roadster, VDC, Bose, nav, power seat, heated seats */
   await page.evaluate(() => {
     const set = (id, v) => { const el = document.getElementById(id); if (el) { el.value = v; el.dispatchEvent(new Event('change', { bubbles: true })); } };
@@ -103,9 +100,8 @@ await fresh();
     set('navView', 'yes'); set('pseatView', 'yes'); set('hseatView', 'yes');
   });
   const alt = await sweep();
-  ok('optional pins (A/T, Roadster, VDC, Bose, nav, seats): every gated cavity drawn dimmed, tooltip, live first line', alt.missing.length === 0 && alt.bad.length === 0,
+  ok('optional pins (A/T, Roadster, VDC, Bose, nav, seats): every gated cavity drawn empty, tooltip, no colour, not clickable', alt.missing.length === 0 && alt.bad.length === 0,
     `${alt.n} gated · missing ${alt.missing.join(',')} · ${alt.bad.slice(0, 12).join('; ')}`);
-  ok('optional pins (A/T, Roadster, VDC, Bose, nav, seats): clicking each gated cavity on a circuit lights it', alt.dark.length === 0, `${alt.clicked} lit · dark ${alt.dark.join(',')}`);
   await fresh();
 }
 

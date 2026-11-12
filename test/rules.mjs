@@ -251,10 +251,10 @@ const CONN_FACE = (() => {
     over.length === 0 && gone.length === 0, [...over, ...gone.map((k) => `${k} no longer exists; drop it from LONG_NOTES`)].join('; '));
 }
 
-/* Rule optional-dimmed (data side): optional equipment (audio / nav / power seat / heated seats) gates pins,
-   which stay drawn dimmed (test/rules_browser.mjs). A whole card hidden by an option is allowed only for the
-   door speakers: D4/D34 without Bose, D5/D35 with Bose (AV-11 / AV-17). Body, brakes, market and
-   transmission are different cars, so their card gates stay. */
+/* Rule optional-hidden (data side): optional equipment (audio / nav / power seat / heated seats) gates pins,
+   which are drawn as empty cavities when the option is off (test/rules_browser.mjs). A whole card hidden by
+   an option is allowed only for the door speakers: D4/D34 without Bose, D5/D35 with Bose (AV-11 / AV-17).
+   Body, brakes, market and transmission are different cars, so their card gates stay. */
 {
   const OPTION_DIMS = ['audio', 'nav', 'pseat', 'hseat'];
   const DOOR_SPEAKERS = { spk_d4: 'audio=base', spk_d34: 'audio=base', spk_d5: 'audio=bose', spk_d35: 'audio=bose' };

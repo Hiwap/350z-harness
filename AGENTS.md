@@ -52,7 +52,7 @@ Find those rules by the comment text. Do not delete the comments.
 | The rear-glass defogger is one card per body with both terminals (D104/D211, B202/B203). | `test/rules.mjs` defogger |
 | No VQ35HR part photo; eBay 206578549537 is banned (SOURCES.md, photo list, `CONN_FACE`). | `test/rules.mjs` photo sources |
 | `FACE_SHARE_OK` is `test/face_share_ok.json`. A share needs the maintainer's confirmation: add its date and basis, then bump `FACE_SHARE_PINNED`. No stale entries. | `test/rules.mjs` face shares; `test/harness_page_tests.mjs` CONN_FACE share check |
-| Optional-equipment pins are drawn dimmed (FSM colour, `OPT_OFF_OPACITY`, tooltip, live first line), never hidden, and clickable when on a circuit. Only the door speakers hide as whole cards (D4/D34 base, D5/D35 Bose). | `test/rules_browser.mjs` optional pins; `test/rules.mjs` door speakers |
+| Optional-equipment pins whose option is not selected are drawn as empty cavities (no colour, no label, no ECM), with a tooltip naming the option. They appear only when that option is selected. Only the door speakers hide as whole cards (D4/D34 base, D5/D35 Bose). | `test/rules_browser.mjs` optional pins; `test/rules.mjs` door speakers |
 | Fuse-box cells are the IPDM cover cell: number / what it feeds / amps, never a wire colour. | `test/rules.mjs` + `test/rules_browser.mjs` fuse cells |
 | Body is one group; each system is a `BODY_NEST_ORDER` subgroup with its own `SUB_ACCENT`. Cards carry no `accent`. | `test/rules.mjs` body; `test/variants.mjs` (DOM) |
 | IPDM E3–E9 each keep their own PG-26 photo icon; the location icon is only on the IPDM group header. | `test/rules_browser.mjs` IPDM; `test/f102.mjs` |

@@ -4,7 +4,7 @@
  * FSM GI-48 splits only body (Coupe/Roadster), transmission and destination (USA/Canada) and names no trims,
  * so options are separate dropdowns. Defaults = generic OEM coupe (Coupe, ABS, base audio, no options).
  * No market selector: the map is the USA car (VARIANT_FIXED market=usa); the Canada-only DTRL cavities
- * stay drawn dimmed (OPT_OFF_OPACITY), clickable, with a "solo Canadá (luces diurnas)" tooltip.
+ * are drawn as empty cavities, not clickable, with a "solo Canadá (luces diurnas)" tooltip.
  *  - static: every select matches VARIANT_DIMS (values + default), vif/altIf use only known keys/values,
  *    vifMatch semantics, every body pin's circ exists and every circuit path cavity exists on its card
  *  - browser: defaults hide equipment-only cavities/cards, each selector shows/hides them, persists in
@@ -157,20 +157,20 @@ await sel('bodyView', 'roadster'); s = await st();
 ok('Roadster: soft top card + 46J W shown; Coupe back door switch T2·2 empty; defogger E106·12 is G', s.techo && s.j46 === 'W' && s.t2 === '—' && s.b12 === 'G', JSON.stringify([s.techo, s.j46, s.t2, s.b12]));
 await sel('bodyView', 'coupe');
 const canada = await page.evaluate(() => {
-  const cell = (c, v) => { const g = document.querySelector(`.cav-hit[data-conn="${c}"][data-cav="${v}"]`); return g ? { off: g.classList.contains('cav-opt-off'), op: Number(g.getAttribute('opacity')), tip: (g.querySelector('title') || {}).textContent || '', code: ((g.querySelector('.cav-code') || {}).textContent || '').replace(/\s/g, ''), click: cavClickable(c, variantGatePin(CONN[c].pins.find((p) => p.id === v), variantView())) } : null; };
-  return { b6: cell('ix_e106_b2', '6'), g62: cell('ix_e108_m15', '62G'), pkb: cell('dtrl_e15', '17'), alt: cell('dtrl_e14', '1'), h13: f102PinEl('13H') && f102PinEl('13H').classList.contains('opt-off') };
+  const cell = (c, v) => { const g = document.querySelector(`.cav-hit[data-conn="${c}"][data-cav="${v}"]`); return g ? { off: g.hasAttribute('data-opt-off'), dim: g.classList.contains('cav-opt-off'), op: g.getAttribute('opacity'), tip: (g.querySelector('title') || {}).textContent || '', code: ((g.querySelector('.cav-code') || {}).textContent || '').replace(/\s/g, ''), top: ((g.querySelector('.cav-ecm') || {}).textContent || ''), click: cavClickable(c, variantGatePin(CONN[c].pins.find((p) => p.id === v), variantView())) } : null; };
+  return { b6: cell('ix_e106_b2', '6'), g62: cell('ix_e108_m15', '62G'), pkb: cell('dtrl_e15', '17'), alt: cell('dtrl_e14', '1'), h13: !!(f102PinEl('13H') && f102PinEl('13H').dataset.optOff) };
 });
-const dimOk = (c, code) => !!c && c.off && c.op === 0.35 && c.tip === 'solo Canadá (luces diurnas)' && c.code === code && c.click;
-ok('Canada DTRL (no selector): E106·6 G, E108·62G W/R, E15·17 G / E14·1 W/R drawn dimmed at 0.35, clickable, tooltip "solo Canadá (luces diurnas)"',
-  dimOk(canada.b6, 'G') && dimOk(canada.g62, 'W/R') && dimOk(canada.pkb, 'G') && dimOk(canada.alt, 'W/R'), JSON.stringify(canada));
-ok('F102·13H (alternator L, shared with the USA charge lamp) is not dimmed', canada.h13 === false, String(canada.h13));
+const hidOk = (c) => !!c && c.off && !c.dim && c.op == null && c.tip.includes('solo Canadá (luces diurnas)') && c.top === '—' && (!c.code || c.code === '—' || c.code === '·') && !c.click;
+ok('Canada DTRL (no selector): E106·6, E108·62G, E15·17 / E14·1 drawn empty, not clickable, tooltip "solo Canadá (luces diurnas)"',
+  hidOk(canada.b6) && hidOk(canada.g62) && hidOk(canada.pkb) && hidOk(canada.alt), JSON.stringify(canada));
+ok('F102·13H (alternator L, shared with the USA charge lamp) is not hidden', canada.h13 === false, String(canada.h13));
 await page.evaluate(() => { clearSelection(); document.querySelector('.cav-hit[data-conn="ix_e108_m15"][data-cav="62G"]').dispatchEvent(new MouseEvent('click', { bubbles: true })); });
 const c62 = await page.evaluate(() => ({ info: selectionInfoText(), hl: document.querySelector('.cav-hit[data-conn="ix_e108_m15"][data-cav="62G"]').classList.contains('hl'), alt: !!document.querySelector('.cav-hit[data-conn="f20_alt"][data-cav="3"].hl, .cav-hit[data-conn="f20_alt"][data-cav="3"].hl-group') }));
-ok('clicking dimmed E108·62G lights it + the DTRL path to alternator F20·3; info says Canada only', c62.hl && c62.alt && /Solo Canadá/.test(c62.info), JSON.stringify(c62).slice(0, 300));
+ok('clicking hidden E108·62G does not light a path (empty cavity)', !c62.hl && !c62.alt, JSON.stringify(c62).slice(0, 300));
 await page.evaluate(() => clearSelection());
 const tips = {};
 for (const lg of ['en', 'ja', 'es']) { await sel('lang', lg); tips[lg] = await page.evaluate(() => (document.querySelector('.cav-hit[data-conn="ix_e106_b2"][data-cav="6"] title') || {}).textContent); }
-ok('Canada tooltip es/en/ja', tips.es === 'solo Canadá (luces diurnas)' && tips.en === 'Canada only (daytime running lights)' && tips.ja === 'カナダ仕様のみ（デイライト）', JSON.stringify(tips));
+ok('Canada tooltip es/en/ja', (tips.es || '').startsWith('solo Canadá (luces diurnas)') && (tips.en || '').startsWith('Canada only (daytime running lights)') && (tips.ja || '').startsWith('カナダ仕様のみ（デイライト）'), JSON.stringify(tips));
 await sel('audioView', 'bose'); s = await st();
 ok('Bose: amp-ON circuit + front speaker 23J W/LG', s.circs.includes('audio_bose_ctl') && s.j23 === 'W/LG', s.j23);
 await sel('audioView', 'base');

@@ -160,39 +160,37 @@ await page.click('#blocks .pin[data-pin="94"]');
   ok(`GND rail shows ${gndKey}`, railG);
   await page.evaluate(() => { toggleRail('gnd'); clearSelection(); });
 }
-// Dimmed optional-equipment cells: default car (no heated seats) shows HS-PWR G dimmed with a tooltip; selecting heated seats = full strength.
+// Hidden optional-equipment cells: default car (no heated seats) shows B37·3 as an empty cavity with a tooltip; selecting heated seats = full strength.
 {
   const cell = () => page.evaluate(() => {
     const g = document.querySelector('.cav-hit[data-conn="seat_b37"][data-cav="3"]');
     if (!g) return null;
-    return { off: g.classList.contains('cav-opt-off'), op: g.getAttribute('opacity'), tip: (g.querySelector('title') || {}).textContent || '', code: (g.querySelector('.cav-code') || {}).textContent || '' };
+    return { off: g.hasAttribute('data-opt-off'), dim: g.classList.contains('cav-opt-off'), op: g.getAttribute('opacity'), tip: (g.querySelector('title') || {}).textContent || '', code: (g.querySelector('.cav-code') || {}).textContent || '', top: (g.querySelector('.cav-ecm') || {}).textContent || '' };
   });
   await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
   await page.reload({ waitUntil: 'networkidle0' });
   const off = await cell();
-  ok('dimmed: B37·3 without heated seats shows FSM colour G, dimmed, tooltip "solo con asientos calefactables"',
-    !!off && off.off && Number(off.op) < 1 && off.tip === 'solo con asientos calefactables' && off.code.replace(/\s/g, '') === 'G', JSON.stringify(off));
-  const nOff = await page.evaluate(() => document.querySelectorAll('.cav-hit.cav-opt-off').length);
-  ok('dimmed: optional-equipment cells across all fichas are dimmed on the default car', nOff >= 20, `${nOff}`);
-  // Dimmed pin is clickable: lights its circuit (heated_seat: B1/M12·2J) like a live pin, stays dimmed, info names the option.
+  ok('hidden: B37·3 without heated seats is empty, tooltip "solo con asientos calefactables"',
+    !!off && off.off && !off.dim && off.op == null && off.tip === 'solo con asientos calefactables' && off.top === '—' && !/G/.test((off.code || '').replace(/\s/g, '')), JSON.stringify(off));
+  const nOff = await page.evaluate(() => document.querySelectorAll('.cav-hit[data-opt-off]').length);
+  ok('hidden: optional-equipment cells across all fichas are empty on the default car', nOff >= 20, `${nOff}`);
+  // Hidden pin is not clickable: does not light its circuit.
   await page.evaluate(() => { const g = document.querySelector('.cav-hit[data-conn="seat_b37"][data-cav="3"]'); g.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
   const clk = await page.evaluate(() => {
     const g = document.querySelector('.cav-hit[data-conn="seat_b37"][data-cav="3"]');
     const m12 = document.querySelector('.cav-hit[data-conn="ix_b1_m12"][data-cav="2J"]');
-    const top = (g.querySelector('.cav-ecm') || {}).textContent || '';
-    return { hl: g.classList.contains('hl'), op: Number(getComputedStyle(g).opacity), m12: !!m12 && (m12.classList.contains('hl') || m12.classList.contains('hl-group')),
-      info: selectionInfoText(), top };
+    return { hl: g.classList.contains('hl'), m12: !!m12 && (m12.classList.contains('hl') || m12.classList.contains('hl-group')), info: selectionInfoText() };
   });
-  ok('dimmed: clicking B37·3 (no heated seats) lights its path B1/M12·2J, stays dimmed, info "solo con asientos calefactables", top line M12·2J',
-    clk.hl && clk.op < 1 && clk.m12 && /solo con asientos calefactables/.test(clk.info) && clk.top === 'M12·2J', JSON.stringify(clk).slice(0, 300));
+  ok('hidden: clicking B37·3 (no heated seats) does not light a path',
+    !clk.hl && !clk.m12, JSON.stringify(clk).slice(0, 300));
   await page.evaluate(() => clearSelection());
-  // F102·28H (A/T only) on M/T: dimmed, top line shows ECM 102, clickable.
-  const f28 = await page.evaluate(() => { const el = f102PinEl('28H'); if (!el) return null; el.click(); return { opt: el.classList.contains('opt-off'), top: (el.querySelector('.pn') || {}).textContent, hl: el.classList.contains('hl'), op: Number(getComputedStyle(el).opacity) }; });
-  ok('dimmed: F102·28H on M/T shows top line 102, dimmed, clickable (lights)', !!f28 && f28.opt && f28.top === '102' && f28.hl && f28.op < 1, JSON.stringify(f28));
+  // F102·28H (A/T only) on M/T: empty, not clickable.
+  const f28 = await page.evaluate(() => { const el = f102PinEl('28H'); if (!el) return null; el.click(); return { empty: el.classList.contains('empty'), opt: !!el.dataset.optOff, dim: el.classList.contains('opt-off'), top: (el.querySelector('.pn') || {}).textContent, mid: ((el.querySelector('.pw') || {}).textContent || '').replace(/\s/g, ''), hl: el.classList.contains('hl') }; });
+  ok('hidden: F102·28H on M/T is an empty cavity (top —, no colour), not lit on click', !!f28 && f28.empty && f28.opt && !f28.dim && f28.top === '—' && f28.mid === '—' && !f28.hl, JSON.stringify(f28));
   await page.evaluate(() => clearSelection());
   await page.select('#hseatView', 'yes');
   const on = await cell();
-  ok('dimmed: with heated seats selected B37·3 is full strength (no dimming, no tooltip)', !!on && !on.off && on.op === null && on.code.replace(/\s/g, '') === 'G', JSON.stringify(on));
+  ok('hidden: with heated seats selected B37·3 is full strength (colour G, no tooltip)', !!on && !on.off && on.op === null && on.code.replace(/\s/g, '') === 'G', JSON.stringify(on));
   await page.select('#hseatView', 'no');
   await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
 }

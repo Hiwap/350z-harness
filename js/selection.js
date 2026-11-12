@@ -849,7 +849,6 @@ function selectConnPin(cid, cavId, opts){
   const pin0 = (conf0 && conf0.pins || []).find(x => String(x.id) === String(cavId));
   if(!cavClickable(cid, pin0)) return;
   const key = 'cav:' + String(cid) + ':' + String(cavId);
-  if(pin0 && (pin0.vifOff || pin0.transOff)){ selectOptOffPin(cid, cavId, pin0, key, opts); return; }
   if(!opts || !opts.keep){
     if(selKey === key){ clearSelection(); return; }
     if(activeRails.size && cavIsActiveRailPrimary(cid, pin0)){

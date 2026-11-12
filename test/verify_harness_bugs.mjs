@@ -134,8 +134,7 @@ ok('updateSelectedTop allows ≥2 fichas same sub',
     ok('vmot.path = IPDM E8-42 → E12/F3·8 (EC-472), fuse 87 on the IPDM cover', /path:\{ipdm_e8:\['42'\],ix_e12_f3:\['8'\],ipdm_cover:\['87'\]\}/.test(block));
     ok('vmot notes cite EC-472 E12/F3·8', /E12\/F3·8/.test(block) && /EC-472/.test(block));
   }
-  const f3Body = (html.split(/ix_e12_f3:\{/)[1] || '').slice(0, 1500);
-  ok('ix_e12_f3 cav 8 = G VMOT → ECM 3 (EC-472)', /\{id:'8',lab:'VMOT',code:'G',ecm:3,rail:'12v'\}/.test(f3Body));
+  ok('ix_e12_f3 cav 8 = G VMOT → ECM 3 (EC-472)', /ix_e12_f3:\{[\s\S]*?\{id:'8',lab:'VMOT',code:'G',ecm:3,rail:'12v'\}/.test(html));
 }
 
 ok('applyCollapseIdleSubs force-closes idle nests',

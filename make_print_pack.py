@@ -1151,6 +1151,12 @@ def extract_conn(conn_id, html=None):
             src = None
         rail = _field(obj, "rail")
         trans = _field(obj, "trans")
+        vif = _field(obj, "vif")
+        gated_off = (trans and trans != _VIF_DEFAULT.get("trans")) or (vif and not _vif_default(vif))
+        if gated_off:
+            # Default-car pack: optional / other-transmission cavities are empty (no colour, no ECM, no label).
+            pins.append((str(pid or lab), "—", "nc", str(pid or lab)))
+            continue
         if ecm and ecm != "null":
             note = str(ecm)
         elif src:
@@ -1177,9 +1183,6 @@ def extract_conn(conn_id, html=None):
                 disp = "SIG"
         else:
             disp = str(lab)
-        if trans == "at":
-            # FSM EC-644: A/T-only cavity (e.g. F102 28H PNP / 23H START) — empty on M/T (EC-646)
-            disp = "A/T"
         pins.append((str(pid or lab), code, note, disp))
     return pins, subtitle
 
@@ -1316,10 +1319,10 @@ def pins_from_base(cid):
         if not pid:
             continue
         trans = p.get("trans")
-        src_if = p.get("srcIf") or ""
-        at_only = (trans == "at") or (src_if == "trans=at")
-        if at_only:
-            out.append((pid, "A/T", "A/T", "A/T"))
+        vif = p.get("vif") or ""
+        # Default-car pack (M/T Coupe USA ABS base): gated-off pins are empty cavities.
+        if (trans and trans != _VIF_DEFAULT.get("trans")) or (vif and not _vif_default(vif)):
+            out.append((pid, "—", "nc", pid))
             continue
         code = p.get("code") or "—"
         note = p.get("ecm")
@@ -1405,6 +1408,9 @@ def pin_table_entries(cid):
     entries = []
     for p in pins_from_base(cid):
         pid = str(p[0])
+        code = str(p[1] or "")
+        if code in ("—", "-", "nc", "NC", ""):
+            continue
         lines = sm_pin_lines(cid, pid)
         if not lines:
             continue

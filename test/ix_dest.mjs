@@ -2,8 +2,9 @@
 /**
  * Intermediate connectors (ix_* cards and the "intermedias" group, F102 included): every used cavity shows a
  * destination on its first label line (ECM pin, or src = where the wire goes), like normal pins do.
- *  - data: every transmission × equipment combination (variantGatePin, live pin for dimmed/empty cavities)
+ *  - data: every transmission × equipment combination (variantGatePin, live pin for gated/empty cavities)
  *  - DOM: default view plus each selector option on its own; the drawn first line is never "—"
+ *    (gated-off optional pins are drawn as empty cavities and are skipped)
  * A cavity may stay blank only when the FSM names no end for it. Those are listed in BLANK with the reason and
  * the condition (vif expression) under which they are blank; the list must match the data exactly, so a new
  * blank fails and a filled one must be removed from the list.
@@ -37,7 +38,6 @@ const BLANK = {
   'ix_e106_b2·16':   { when: '', why: 'Bose: AV-15 / AV-22 do not name the end terminals' },
   'ix_b1_m12·15J':   { when: 'body=roadster', why: 'luggage lamp: only the Coupe end (T13·1, LT-220) is known; the Roadster LT-224 end is not in the data' },
   'ix_b43_t1·5':     { when: 'body=roadster', why: 'fuel lid actuator T19·1 is the Coupe circuit (BL-54); no Roadster end in the data' },
-  'ix_e12_f3·1':     { when: 'trans=mt', why: 'battery feed for the TCM F6 (AT-186); the FSM names no M/T end' },
 };
 
 const puppeteer = loadPuppeteer();
@@ -95,6 +95,7 @@ for (const [name, set] of views) {
     for (const id of Object.keys(CONN)) {
       const c = CONN[id]; if (!isIx(id, c)) continue;
       for (const g of (c.pins || [])) {
+        if (g.vifOff || g.transOff) continue; /* option not selected: empty cavity, not a missing destination */
         const pin = g.live || g;
         if (isPseudoWireCode(pin.code) && pin.ecm == null && !pin.src) continue;
         const key = id + '·' + g.id; const exp = BLANK[key];
@@ -125,11 +126,14 @@ const at = [await top('ix_t2_b44', '12'), await top('ix_b1_m12', '64J'), await t
 await setSel('transView', 'mt');
 ok('trans: back-up lamp T2/B44·12 + B1/M12·64J = F102·22H on M/T, relay E19·5 on A/T; stop B1/M12·61J = E112·2 / E111·2; E12/F3·1 = F6 on A/T only',
   JSON.stringify(mt) === JSON.stringify(['F102·22H', 'F102·22H', 'E112·2', '—']) && JSON.stringify(at) === JSON.stringify(['E19·5', 'E19·5', 'E111·2', 'F6']), JSON.stringify({ mt, at }));
+/* 17J/21J exist outside the base "BS" package (vif: Bose, A/T, nav, VDC, power seat, Canada). */
+await setSel('navView', 'yes');
 const base17 = await top('ix_b1_m12', '17J');
 await setSel('audioView', 'bose');
 const bose17 = await top('ix_b1_m12', '17J'); const bose21 = await top('ix_b1_m12', '21J');
 await setSel('audioView', 'base');
-ok('audio: B1/M12·17J goes to door speaker D34·1 (base) or amplifier T7·25 (Bose); 21J stays audio unit M40·4', base17 === 'D34·1' && bose17 === 'T7·25' && bose21 === 'M40·4', JSON.stringify({ base17, bose17, bose21 }));
+await setSel('navView', 'no');
+ok('audio: B1/M12·17J (non-BS / with nav) goes to door speaker D34·1 (base) or amplifier T7·25 (Bose); 21J stays audio unit M40·4', base17 === 'D34·1' && bose17 === 'T7·25' && bose21 === 'M40·4', JSON.stringify({ base17, bose17, bose21 }));
 ok('no page errors', errs.length === 0, errs.join(' | '));
 await browser.close();
 console.log(`ix_dest: ${pass} passed, ${fails.length} failed · BLANK ${Object.keys(BLANK).length}`);
