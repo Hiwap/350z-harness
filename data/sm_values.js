@@ -2415,6 +2415,21 @@
     });
     return out.join(' · ');
   }
+  /* True when the compact FSM value is only 0 V / 5 V / 12 V (optional ≈)
+     and the cavity's 3rd-line rail label already shows that same voltage. */
+  function smTextDuplicatesRail(bot, text){
+    const raw = smPinRangeText(text || '');
+    if(!raw || bot == null || bot === '') return false;
+    const botU = String(bot).trim().toUpperCase();
+    if(/[·–]/.test(raw)) return false;
+    const n = raw.replace(/[≈~∼]/g, '').replace(/\s+/g, '').toUpperCase();
+    const volt = n.replace(/\.0V$/, 'V');
+    if(!/^(0|5|12)V$/.test(volt)) return false;
+    if(botU === '5V' && volt === '5V') return true;
+    if(botU === '12V' && volt === '12V') return true;
+    if((botU === 'GND' || botU === 'SNS' || botU === 'SH' || botU === 'TIERRA' || botU.startsWith('GND')) && volt === '0V') return true;
+    return false;
+  }
   function smConnDict(){
     if(typeof CONN !== 'undefined' && CONN && typeof CONN === 'object' && Object.keys(CONN).length) return CONN;
     if(typeof CONN_BASE !== 'undefined' && CONN_BASE) return CONN_BASE;
@@ -2718,4 +2733,5 @@
   global.smIsJointCard = smIsJointCard;
   global.smCardCodes = smCardCodes;
   global.smParsePinRefs = smParsePinRefs;
+  global.smTextDuplicatesRail = smTextDuplicatesRail;
 })(typeof window !== 'undefined' ? window : globalThis);

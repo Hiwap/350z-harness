@@ -242,6 +242,8 @@ def draw_pin(x, y, w, h, pin):
         for item in (sm_ecm_lines(pin) or [])
         if (item.get("text") if isinstance(item, dict) else str(item))
     )
+    if raw and sm_text_duplicates_rail(bot, raw):
+        raw = ""
     if raw:
         fs_v = max(2.5, min(3.8, min(band_h * 0.28, w * 0.20)))
         lines = wrap_to_width(raw, FONT, fs_v, w - 2.4, max_lines=3)
@@ -316,6 +318,33 @@ def pdf_safe(text):
         .replace("℃", "°C")
         .replace("℉", "°F")
     )
+
+
+_RAIL_DUP_RE = re.compile(
+    r"^(?:aproximadamente|approximatel(?:y)?|aprox\.?|approx\.?|≈|~|∼|約)?\s*(0|5|12)(?:\.0)?\s*v\s*\.?$",
+    re.I,
+)
+
+def sm_text_duplicates_rail(bot, raw):
+    """Skip a 4th-row value that only repeats the 3rd-line rail (5V / 0V on GND / 12V)."""
+    if not bot or not raw:
+        return False
+    bot_u = str(bot).strip().upper()
+    t = str(raw).strip()
+    if "·" in t or "–" in t or " - " in t:
+        return False
+    trail = re.sub(r"^.*?:\s*", "", t).strip()
+    m = _RAIL_DUP_RE.match(trail) or _RAIL_DUP_RE.match(t)
+    if not m:
+        return False
+    v = m.group(1)
+    if bot_u == "5V" and v == "5":
+        return True
+    if bot_u == "12V" and v == "12":
+        return True
+    if bot_u in ("GND", "SNS", "SH", "TIERRA") or bot_u.startswith("GND"):
+        return v == "0"
+    return False
 
 
 def wrap_to_width(text, font, size, width, max_lines=2):
@@ -410,6 +439,8 @@ def draw_cavity(px, py, cw, ch, lab, col, note, fs=None, sm_lines=None):
         if tx:
             texts.append(pdf_safe(tx))
     raw = " · ".join(texts)
+    if raw and sm_text_duplicates_rail(lab, raw):
+        raw = ""
     if raw:
         fs_v = max(2.6, min(4.4, min(band_h * 0.42, cw * 0.16)))
         lines = wrap_to_width(raw, FONT, fs_v, cw - 2 * pad - 1.5, max_lines=2)

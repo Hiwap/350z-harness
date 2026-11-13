@@ -21,7 +21,7 @@ function loadSm() {
   const src = fs.readFileSync(path.join(root, 'data', 'sm_values.js'), 'utf8');
   const ctx = {};
   vm.createContext(ctx);
-  vm.runInContext(src + '\n; this._out = { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs, smPinRangeText };', ctx);
+  vm.runInContext(src + '\n; this._out = { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs, smPinRangeText, smTextDuplicatesRail };', ctx);
   return ctx._out;
 }
 
@@ -62,7 +62,7 @@ const REQUIRED = [
   ...BODY_REQUIRED
 ];
 
-const { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs, smPinRangeText } = loadSm();
+const { SM_VALUES, SM_NONE, smCompactText, smWrapPinText, smParsePinRefs, smPinRangeText, smTextDuplicatesRail } = loadSm();
 ok(!!SM_VALUES && !!SM_NONE, 'SM_VALUES and SM_NONE load');
 
 function checkEntry(id, e, idx) {
@@ -158,6 +158,20 @@ ok(/smTitle: '値'/.test(fs.readFileSync(path.join(root, 'data', 'i18n.js'), 'ut
 }
 
 ok(typeof smCompactText === 'function' && typeof smWrapPinText === 'function' && typeof smPinRangeText === 'function', 'typography helpers export');
+
+ok(typeof smTextDuplicatesRail === 'function', 'smTextDuplicatesRail exports');
+ok(smTextDuplicatesRail('5V', 'Aproximadamente 5 V') === true, '5V rail + Aproximadamente 5 V is a duplicate');
+ok(smTextDuplicatesRail('5V', '≈5 V') === true, '5V rail + ≈5 V is a duplicate');
+ok(smTextDuplicatesRail('GND', 'Approximately 0 V') === true, 'GND + Approximately 0 V is a duplicate');
+ok(smTextDuplicatesRail('GND', 'Ralentí: ≈0 V') === true, 'GND + Ralentí: ≈0 V is a duplicate');
+ok(smTextDuplicatesRail('12V', 'Approximately 12 V') === true, '12V rail + Approximately 12 V is a duplicate');
+ok(smTextDuplicatesRail('12V', '11–14 V') === false, '12V rail + 11–14 V is kept (more specific)');
+ok(smTextDuplicatesRail('SIG', 'Aproximadamente 5 V') === false, 'SIG + 5 V is not a rail duplicate');
+ok(smTextDuplicatesRail('5V', '0.5–1.0 V · 3.9–4.7 V') === false, '5V rail + APP ranges are kept');
+ok(smTextDuplicatesRail('GND', '0–4.8 V') === false, 'GND + 0–4.8 V range is kept');
+ok(smTextDuplicatesRail('5V', '') === false, 'empty value is not treated as a duplicate');
+ok(smTextDuplicatesRail('HTR', '11–14 V') === false, 'HTR + 11–14 V is kept');
+
 ok(smPinRangeText('Suelto: 0.5 - 1.0 V. A fondo: 3.9 - 4.7 V') === '0.5–1.0 V · 3.9–4.7 V',
   'smPinRangeText keeps both APP ranges, without condition words');
 ok(smPinRangeText('Aproximadamente 5 V') === '≈5 V', 'smPinRangeText shortens Aproximadamente 5 V to ≈5 V');
@@ -201,6 +215,15 @@ ok(smCompactText('0 - aproximadamente 1.0 V') === '0–aproximadamente 1.0 V', '
 }
 
 const packPy = fs.readFileSync(path.join(root, 'make_print_pack.py'), 'utf8');
+
+ok(/function smVisiblePinText\(bot, text\)/.test(html) && /smTextDuplicatesRail/.test(html),
+  'index.html hides 4th-row values that only repeat the rail label');
+ok(/def sm_text_duplicates_rail\(/.test(packPy) && /sm_text_duplicates_rail\(bot, raw\)/.test(packPy)
+    && /sm_text_duplicates_rail\(lab, raw\)/.test(packPy),
+  'print pack skips 4th-row rail-duplicate values on ECM and ficha faces');
+ok(/fichaMode/.test(html) && /relGroupMode\(\) === 'ficha'/.test(html) && /smRowsForCard\(cid\)/.test(html),
+  'detail-panel Values uses the whole ficha when Relacionados is grouped by connector');
+
 ok(/use_inv = bool\(face_inv\)/.test(packPy) && !/use_inv = [^\n]*FACE_INV/.test(packPy),
   'print pack still uses use_inv = bool(face_inv)');
 ok(/def sm_pin_lines|sm_pin_lines\(/.test(packPy) && /SM_DUMP/.test(packPy),
@@ -487,6 +510,93 @@ if (skipBrowser) {
     ok(expanded.entryOpen && (/EC-670/.test(expanded.body) || /Suelto/.test(expanded.body)),
       'clicking a range header reveals the condition / source (got ' + JSON.stringify(expanded).slice(0, 240) + ')');
 
+
+    const railDup = await page.evaluate(() => {
+      const txt = (sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return null;
+        const dest = ((el.querySelector('.dest') || {}).textContent || '').trim();
+        const smv = ((el.querySelector('.smv') || {}).textContent || '').replace(/\s+/g, ' ').trim();
+        return { dest, smv, hasSmv: !!el.querySelector('.smv') };
+      };
+      const cav = (cid, id) => {
+        const hit = document.querySelector('#fichas .ficha[data-conn="' + cid + '"] .cav-hit[data-cav="' + id + '"]')
+          || document.querySelector('.cav-hit[data-conn="' + cid + '"][data-cav="' + id + '"]');
+        if (!hit) return null;
+        const lab = ((hit.querySelector('.cav-label') || {}).textContent || '').trim();
+        const band = hit.nextElementSibling && hit.nextElementSibling.classList.contains('cav-sm-band')
+          ? hit.nextElementSibling : (hit.parentNode && hit.parentNode.querySelector(':scope > .cav-sm-band'));
+        /* prefer the band immediately after this hit */
+        let sm = '';
+        const parent = hit.parentNode;
+        if (parent) {
+          const hits = [...parent.querySelectorAll(':scope > .cav-hit, :scope > .cav-sm-band')];
+          const i = hits.indexOf(hit);
+          const next = i >= 0 ? hits[i + 1] : null;
+          if (next && next.classList && next.classList.contains('cav-sm-band')) sm = (next.textContent || '').replace(/\s+/g, ' ').trim();
+        }
+        return { dest: lab, smv: sm };
+      };
+      return {
+        p90: txt('#blocks .pin[data-pin="90"]'),
+        p82: txt('#blocks .pin[data-pin="82"]'),
+        p106: txt('#blocks .pin[data-pin="106"]'),
+        p121: txt('#blocks .pin[data-pin="121"]'),
+        app5v: cav('app', '6'),
+        appSig: cav('app', '5'),
+      };
+    });
+    ok(railDup.p90 && railDup.p90.dest === '5V' && railDup.p90.smv === '' && railDup.p90.hasSmv,
+      'ECM 90 keeps 5V on row 3 and no duplicate ≈5 V on row 4 (got ' + JSON.stringify(railDup.p90) + ')');
+    ok(railDup.p82 && railDup.p82.dest === 'GND' && railDup.p82.smv === '' && railDup.p82.hasSmv,
+      'ECM 82 keeps GND on row 3 and no duplicate ≈0 V on row 4 (got ' + JSON.stringify(railDup.p82) + ')');
+    ok(railDup.p106 && railDup.p106.dest === 'SIG' && /0\.5–1\.0/.test(railDup.p106.smv) && /3\.9–4\.7/.test(railDup.p106.smv),
+      'ECM 106 still shows SIG plus the FSM ranges (got ' + JSON.stringify(railDup.p106) + ')');
+    ok(railDup.p121 && railDup.p121.dest === '12V' && /11–14/.test(railDup.p121.smv),
+      'ECM 121 still shows 12V plus the 11–14 V FSM range (got ' + JSON.stringify(railDup.p121) + ')');
+    ok(railDup.app5v && railDup.app5v.dest === '5V' && railDup.app5v.smv === '',
+      'APP cavity 6 (5V) does not repeat ≈5 V under the rail label (got ' + JSON.stringify(railDup.app5v) + ')');
+    ok(railDup.appSig && railDup.appSig.dest === 'SIG' && /0\.5–1\.0/.test(railDup.appSig.smv),
+      'APP cavity 5 still shows SIG plus the FSM ranges (got ' + JSON.stringify(railDup.appSig) + ')');
+
+    const valuesPanel = await page.evaluate(() => {
+      const setRel = (v) => {
+        const rg = document.getElementById('relGroup');
+        if (rg && rg.value !== v) {
+          rg.value = v;
+          rg.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      };
+      const pinsOf = () => {
+        const desc = document.querySelector('#info > .sel-desc');
+        const rangos = desc && desc.querySelector('details.ficha-sm.sel-sm, details.sel-sm');
+        const text = rangos ? (rangos.innerText || rangos.textContent || '') : '';
+        const labels = rangos ? [...rangos.querySelectorAll('.sm-pins')].map((n) => (n.textContent || '').trim()) : [];
+        return { text: text.replace(/\s+/g, ' ').trim(), labels, rel: (document.getElementById('relGroup') || {}).value };
+      };
+      const pick = () => {
+        if (typeof clearSelection === 'function') clearSelection();
+        if (typeof selectPin === 'function') selectPin(106);
+      };
+      setRel('ficha');
+      pick();
+      const ficha = pinsOf();
+      setRel('sensor');
+      pick();
+      const sensor = pinsOf();
+      setRel('ficha');
+      return { ficha, sensor };
+    });
+    const fichaLabs = (valuesPanel.ficha.labels || []).join(' | ');
+    const sensorLabs = (valuesPanel.sensor.labels || []).join(' | ');
+    ok(valuesPanel.ficha.rel === 'ficha' && /ECM 106/.test(fichaLabs) && /ECM 98/.test(fichaLabs)
+        && /ECM 90/.test(fichaLabs) && /ECM 91/.test(fichaLabs),
+      'Values lists every APP ficha pin when Relacionados is grouped by connector (got ' + JSON.stringify(valuesPanel.ficha.labels) + ')');
+    ok(valuesPanel.sensor.rel === 'sensor' && /ECM 106/.test(sensorLabs + valuesPanel.sensor.text)
+        && !/ECM 98/.test(sensorLabs) && !/ECM 90/.test(sensorLabs) && !/ECM 91/.test(sensorLabs),
+      'Values stays on the clicked pin when Relacionados is grouped by sensor (got ' + JSON.stringify(valuesPanel.sensor.labels) + ')');
+
+
     const ixRanges = await page.evaluate(() => {
       if (typeof clearSelection === 'function') clearSelection();
       if (typeof selectConn === 'function') selectConn('ix_e11_f2');
@@ -595,7 +705,7 @@ if (skipBrowser) {
       'unhighlighted SM pins stay without a value line when 106 is selected (got ' + JSON.stringify(vis.sel106.leaked.slice(0, 8)) + ')');
     ok(/≈0\s*V/.test(vis.after.p108) && /11–14\s*V/.test(vis.after.p108) && !/Pedal de freno/.test(vis.after.p108),
       'selected SM pin 108 shows compact ≈0 V · 11–14 V (got ' + JSON.stringify(vis.after.p108) + ')');
-    ok(/^≈5\s*V$/.test(vis.after.p90), 'selected SM pin 90 shows the single value ≈5 V (got ' + JSON.stringify(vis.after.p90) + ')');
+    ok(vis.after.p90 === '', 'selected SM pin 90 does not repeat ≈5 V under the 5V rail label (got ' + JSON.stringify(vis.after.p90) + ')');
     ok(/0\.4–2\.4\s*V/.test(vis.after.p51) && !/Ralentí/.test(vis.after.p51),
       'selected SM pin 51 collapses MAF intermediates to 0.4–2.4 V (got ' + JSON.stringify(vis.after.p51) + ')');
 
@@ -676,7 +786,7 @@ if (skipBrowser) {
       'with smvAlways on, unselected ECM pin 106 shows both APP ranges (got ' + JSON.stringify(always.p106) + ')');
     ok(/≈0\s*V/.test(always.p108) && /11–14\s*V/.test(always.p108),
       'with smvAlways on, unselected ECM pin 108 shows ≈0 V · 11–14 V (got ' + JSON.stringify(always.p108) + ')');
-    ok(/^≈5\s*V$/.test(always.p90), 'with smvAlways on, unselected ECM pin 90 shows ≈5 V (got ' + JSON.stringify(always.p90) + ')');
+    ok(always.p90 === '', 'with smvAlways on, pin 90 still does not repeat ≈5 V under the 5V rail label (got ' + JSON.stringify(always.p90) + ')');
     ok(/0\.4–2\.4\s*V/.test(always.p51),
       'with smvAlways on, unselected ECM pin 51 shows 0.4–2.4 V (got ' + JSON.stringify(always.p51) + ')');
     ok(always.anyEcm >= 4, 'with smvAlways on, several unselected ECM pins show values (got ' + always.anyEcm + ')');

@@ -3173,7 +3173,8 @@ function svgUnique(base){
 function smCavSvg(cid, pin, cx, y0, w, fill, inkFn, bandH){
   if(!pin || typeof smPinLine !== 'function') return '';
   const full = smPinLine(cid, pin);
-  const raw = (typeof smPinRangeText === 'function') ? smPinRangeText(full) : full;
+  const raw0 = (typeof smPinRangeText === 'function') ? smPinRangeText(full) : full;
+  const raw = (typeof smVisiblePinText === 'function') ? smVisiblePinText(cavBottomLabel(pin), raw0) : raw0;
   if(!raw) return '';
   const maxChars = Math.max(11, Math.floor((w - 2) / 2.85));
   let lines = (typeof smWrapPinText === 'function') ? smWrapPinText(raw, maxChars) : [raw];
@@ -3195,6 +3196,12 @@ function smvSpanHtml(text){
   const lines = typeof smWrapPinText === 'function' ? smWrapPinText(raw, 14) : [raw];
   const ch = Math.max(...lines.map((ln) => [...String(ln)].length), 1);
   return `<span class="smv" style="--smv-ch:${ch}">${lines.map((ln) => esc(ln)).join('<br>')}</span>`;
+}
+/* Hide the 4th-row compact value when it only repeats the 3rd-line rail (5V / ≈0 V on GND / 12V). */
+function smVisiblePinText(bot, text){
+  const raw = text || '';
+  if(typeof smTextDuplicatesRail === 'function' && smTextDuplicatesRail(bot, raw)) return '';
+  return raw;
 }
 function cavGroup(cid, pin, x, y, w, h, rx){
   const optOff = !!(pin && (pin.vifOff || pin.transOff));
@@ -4446,7 +4453,7 @@ function makePinEl(p){
   if(dest) d.classList.add('has-dest');
   if(PIN_RAIL[p]) d.classList.add('rail-lab');
   if(PIN_CAN[p]) d.classList.add('can-lab');
-  const smTxt = (typeof smEcmLine === 'function') ? smEcmLine(p) : '';
+  const smTxt = smVisiblePinText(dest, (typeof smEcmLine === 'function') ? smEcmLine(p) : '');
   d.innerHTML = `<span class="pn">${p}</span><small class="pw">${wireCodeHtml(code||'·')}</small>`
     + (dest ? `<span class="dest${lc?' '+lc:''}">${esc(dest)}</span>` : '')
     + smvSpanHtml(smTxt);
@@ -4495,7 +4502,8 @@ function makeF102PinEl(pin){
   const bot = hasWire || (!optOff && pin.ecm != null) ? cavBottomLabel(pin) : String(pin.id);
   const blc = labClass(bot);
   /* ECM # · wire · rail/CAN/id (same as fichas) */
-  const smTxt = (!optOff && typeof smPinLine === 'function') ? smPinLine('ix_f102_m72', pin) : '';
+  const smRaw = (!optOff && typeof smPinLine === 'function') ? smPinLine('ix_f102_m72', pin) : '';
+  const smTxt = smVisiblePinText(bot, smRaw);
   d.innerHTML = `<span class="pn">${esc(ecmTop)}</span><small class="pw">${midHtml}</small><span class="dest${blc?' '+blc:''}">${esc(bot)}</span>`
     + smvSpanHtml(smTxt);
   if(optOff){
@@ -5231,6 +5239,23 @@ function smSectionHtml(id){
 function smSelDescHtml(){
   const key = String(selKey || '');
   let entries = [];
+  const fichaMode = typeof relGroupMode !== 'function' || relGroupMode() === 'ficha';
+  if(fichaMode){
+    let cid = null;
+    if(key.startsWith('cav:')){
+      const rest = key.slice(4); const i = rest.indexOf(':');
+      cid = i >= 0 ? rest.slice(0, i) : '';
+    } else if(key.startsWith('conn:')){
+      cid = key.slice(5);
+    } else if(key.startsWith('pin:') && typeof selDescCardForEcm === 'function'){
+      cid = selDescCardForEcm(Number(key.slice(4)));
+    }
+    if(cid && typeof smRowsForCard === 'function'){
+      const rows = smRowsForCard(cid);
+      if(Array.isArray(rows) && rows.length) entries = rows.slice();
+    }
+  }
+  if(!entries.length){
   if(key.startsWith('cav:')){
     const rest = key.slice(4); const i = rest.indexOf(':');
     const cid = rest.slice(0, i); const cavId = rest.slice(i + 1);
@@ -5260,6 +5285,7 @@ function smSelDescHtml(){
         return `<div class="sel-sm"><div class="sm-entry"><div class="sm-value">${esc(lines.map(l => l.text).join(' · '))}</div></div></div>`;
       }
     }
+  }
   }
   if(!entries.length) return '';
   return `<details class="ficha-sm sel-sm"><summary>${esc(t('smTitle'))}</summary><div class="sm-body">${entries.map(smEntryHtml).join('')}</div></details>`;
